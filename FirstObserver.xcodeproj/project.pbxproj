@@ -63,6 +63,7 @@
 		5EA94471294B5773007C2AB5 /* AlertTopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA94470294B5773007C2AB5 /* AlertTopView.swift */; };
 		5EBD49A729449F6C00E27F2F /* AlertText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBD49A629449F6C00E27F2F /* AlertText.swift */; };
 		5EC4764F290D816C0077D940 /* DynamicHeightCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EC4764E290D816C0077D940 /* DynamicHeightCollectionView.swift */; };
+		5EF2FFC0298EA3C100D32FCB /* NewHomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF2FFBF298EA3C100D32FCB /* NewHomeViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -126,6 +127,7 @@
 		5EA94470294B5773007C2AB5 /* AlertTopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertTopView.swift; sourceTree = "<group>"; };
 		5EBD49A629449F6C00E27F2F /* AlertText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertText.swift; sourceTree = "<group>"; };
 		5EC4764E290D816C0077D940 /* DynamicHeightCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicHeightCollectionView.swift; sourceTree = "<group>"; };
+		5EF2FFBF298EA3C100D32FCB /* NewHomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewHomeViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -281,6 +283,7 @@
 				5E175A4228CB6ED000773C77 /* ProductViewController.swift */,
 				5E8DC52728D5DEF000275138 /* MapViewController.swift */,
 				5E7C7E2E29196BF200AC57CB /* MallViewController.swift */,
+				5EF2FFBF298EA3C100D32FCB /* NewHomeViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -542,6 +545,7 @@
 				5E7EF58D28A81EF100814F4D /* SegmentedControlMW.swift in Sources */,
 				5E74BCCA28EEF2F60048D097 /* AuthError.swift in Sources */,
 				5E7EF58728A7F5A900814F4D /* ShopingCollectionViewCell.swift in Sources */,
+				5EF2FFC0298EA3C100D32FCB /* NewHomeViewController.swift in Sources */,
 				5E7EF59428AE3F2900814F4D /* BrandsCollectionViewCell.swift in Sources */,
 				5E7E2D9E29211F3200A2F462 /* CustomMapView.swift in Sources */,
 				5E7EF57928A13C2500814F4D /* ProfileViewController.swift in Sources */,
