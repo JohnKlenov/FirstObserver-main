@@ -20,7 +20,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     static var mapVC: MapViewController?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        
+        print(" FirebaseApp.configure()  FirebaseApp.configure()  FirebaseApp.configure()")
         FirebaseApp.configure()
         Database.database().isPersistenceEnabled = true
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.

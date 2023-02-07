@@ -16,7 +16,7 @@ import FirebaseStorageUI
 //(success: Bool)
 
 enum StateProfileInfo {
-    
+
     case success
     case failed(image:Bool? = nil, name:Bool? = nil)
     case nul
@@ -43,28 +43,192 @@ enum ResetProfile {
     case photoURL
 }
 
+// в productCell поиграть с приоритетами и >= для constraint
 final class FBManager {
-    
+
     static let shared = FBManager()
     var currentUser: User?
     var avatarRef: StorageReference?
+//    let databaseRef = Database.database().reference()
+//    var databaseRef: DatabaseReference?
 //    var storage = Storage.storage()
-    
+
+
+    // MARK: - HomeViewController -
     
     func userListener(currentUser: @escaping (User?) -> Void) {
-        
+
         Auth.auth().addStateDidChangeListener { (auth, user) in
             self.currentUser = user
             currentUser(user)
         }
     }
-    
 
+    func signInAnonymously() {
+        let databaseRef = Database.database().reference()
+        Auth.auth().signInAnonymously { (authResult, error) in
+            guard let user = authResult?.user else {return}
+            let uid = user.uid
+            databaseRef.child("usersAccaunt/\(uid)").setValue(["uidAnonymous":user.uid])
+        }
+    }
+
+    func getCardProduct(completionHandler: @escaping ([PopularProduct]) -> Void) {
+        let databaseRef = Database.database().reference()
+        databaseRef.child("usersAccaunt/\(currentUser?.uid ?? "")").observe(.value) { (snapshot) in
+            for item in snapshot.children {
+                let item = item as! DataSnapshot
+                switch item.key {
+                case "AddedProducts":
+                    var arrayProduct = [PopularProduct]()
+
+                    for item in item.children {
+                        let product = item as! DataSnapshot
+
+                        var arrayMalls = [String]()
+                        var arrayRefe = [String]()
+
+
+                        for mass in product.children {
+                            let item = mass as! DataSnapshot
+
+                            switch item.key {
+                            case "malls":
+                                for it in item.children {
+                                    let item = it as! DataSnapshot
+                                    if let refDictionary = item.value as? String {
+                                        arrayMalls.append(refDictionary)
+                                    }
+                                }
+
+                            case "refImage":
+                                for it in item.children {
+                                    let item = it as! DataSnapshot
+                                    if let refDictionary = item.value as? String {
+                                        arrayRefe.append(refDictionary)
+                                    }
+                                }
+                            default:
+                                break
+                            }
+
+                        }
+                        let productModel = PopularProduct(snapshot: product, refArray: arrayRefe, malls: arrayMalls)
+                        arrayProduct.append(productModel)
+                    }
+                    completionHandler(arrayProduct)
+                default:
+                    break
+                }
+            }
+        }
+    }
+
+    func getPreviewMalls(completionHandler: @escaping ([PreviewCategory]) -> Void) {
+        let databaseRef = Database.database().reference()
+        databaseRef.child("previewMalls").observe(.value) { snapshot in
+            var arrayMalls = [PreviewCategory]()
+            for item in snapshot.children {
+                let mall = item as! DataSnapshot
+                let model = PreviewCategory(snapshot: mall)
+                arrayMalls.append(model)
+            }
+            completionHandler(arrayMalls)
+        }
+    }
+    
+    func getPreviewBrands(completionHandler: @escaping ([PreviewCategory]) -> Void) {
+        let databaseRef = Database.database().reference()
+        databaseRef.child("previewBrands").observe(.value) { snapshot in
+            var arrayBrands = [PreviewCategory]()
+            for item in snapshot.children {
+                let brand = item as! DataSnapshot
+                let model = PreviewCategory(snapshot: brand)
+                arrayBrands.append(model)
+            }
+            completionHandler(arrayBrands)
+        }
+    }
+    
+    func getPopularProduct(completionHandler: @escaping ([PopularProduct]) -> Void) {
+        let databaseRef = Database.database().reference()
+        databaseRef.child("popularProduct").observe(.value) { snapshot in
+            var arrayProduct = [PopularProduct]()
+            
+            for item in snapshot.children {
+                let product = item as! DataSnapshot
+                
+                var arrayMalls = [String]()
+                var arrayRefe = [String]()
+                
+                
+                for mass in product.children {
+                    let item = mass as! DataSnapshot
+                    
+                    switch item.key {
+                    case "malls":
+                        for it in item.children {
+                            let item = it as! DataSnapshot
+                            if let refDictionary = item.value as? String {
+                                arrayMalls.append(refDictionary)
+                            }
+                        }
+                        
+                    case "refImage":
+                        for it in item.children {
+                            let item = it as! DataSnapshot
+                            if let refDictionary = item.value as? String {
+                                arrayRefe.append(refDictionary)
+                            }
+                        }
+                    default:
+                        break
+                    }
+                    
+                }
+                let productModel = PopularProduct(snapshot: product, refArray: arrayRefe, malls: arrayMalls)
+                arrayProduct.append(productModel)
+            }
+            completionHandler(arrayProduct)
+        }
+    }
+    
+    func getPlaces(completionHandler: @escaping ([PlacesFB]) -> Void) {
+        let databaseRef = Database.database().reference()
+        databaseRef.child("Places").observe(.value) { snapshot in
+            var arrayPin = [PlacesFB]()
+            for place in snapshot.children {
+                let place = place as! DataSnapshot
+                let model = PlacesFB(snapshot: place)
+                arrayPin.append(model)
+            }
+            completionHandler(arrayPin)
+        }
+    }
+
+    func getImagefromStorage(refImage:String, completionHandler: @escaping (UIImage) -> Void) {
+        let ref = Storage.storage().reference(forURL: refImage)
+        let megaBite = Int64(1*1024*1024)
+        ref.getData(maxSize: megaBite) { (data, error) in
+            guard let imageData = data else {
+                let defaultImage = UIImage(named: "DefaultImage")!
+                completionHandler(defaultImage)
+                return
+            }
+            if let image = UIImage(data: imageData) {
+                completionHandler(image)
+            }
+        }
+    }
+
+
+    // MARK: - ProfileViewController -
+    
     func updateProfileInfo(withImage image: Data? = nil, name: String? = nil, _ callback: ((StateProfileInfo) -> ())? = nil) {
         guard let user = currentUser else {
             return
         }
-        
+
         if let image = image{
             imageChangeRequest(user: user, image: image) { (error) in
                 let imageIsFailed = error != nil ? true: false
@@ -90,7 +254,7 @@ final class FBManager {
             callback?(.nul)
         }
     }
-    
+
     func imageChangeRequest(user:User, image:Data,  _ callback: ((Error?) -> ())? = nil) {
         // если пытаемся добавить image когда нет wifi
         // при Database.database().isPersistenceEnabled = true error в profileImgReference.putData не возвращается ждет сети
@@ -114,33 +278,33 @@ final class FBManager {
                 }
             }
         }
-    
-    
+
+
     func createProfileChangeRequest(name: String? = nil, photoURL: URL? = nil,_ callBack: ((Error?) -> Void)? = nil) {
-       
+
         print("createProfileChangeRequest")
         if let request = currentUser?.createProfileChangeRequest() {
             if let name = name {
                 request.displayName = name
             }
-            
+
             if let photoURL = photoURL {
                 request.photoURL = photoURL
             }
-            
+
             request.commitChanges { error in
                 print("request.commitChanges ")
                     callBack?(error)
             }
         }
     }
-    
+
     func resetProfileChangeRequest(reset: ResetProfile,_ callBack: ((Error?) -> Void)? = nil) {
-        
+
         if let request = Auth.auth().currentUser?.createProfileChangeRequest() {
-            
+
             switch reset {
-                
+
             case .name:
                 request.displayName = nil
             case .photoURL:
@@ -152,7 +316,7 @@ final class FBManager {
         }
     }
     func removeAvatarFromDeletedUser() {
-        
+
         avatarRef?.delete(completion: { error in
                 self.avatarRef = nil
         })
@@ -174,7 +338,7 @@ final class FBManager {
             }
         })
     }
-    
+
     func addUidFromCurrentUserAccount() {
         guard let currentUser = currentUser else {
             return
@@ -182,7 +346,7 @@ final class FBManager {
         let refFBR = Database.database().reference()
         refFBR.child("usersAccaunt/\(currentUser.uid)").setValue(["uidCurrentUser":currentUser.uid])
     }
-    
+
     func addProductsToANonRemoteUser(products: [String:Any]) {
         guard let currentUser = currentUser else {
             return
@@ -190,18 +354,18 @@ final class FBManager {
         let ref = Database.database().reference(withPath: "usersAccaunt/\(currentUser.uid)/AddedProducts")
         ref.updateChildValues(products)
     }
-    
+
     func cacheImageRemoveMemoryAndDisk(imageView: UIImageView) {
         if let cacheKey = imageView.sd_imageURL?.absoluteString {
             SDImageCache.shared.removeImageFromDisk(forKey: cacheKey)
             SDImageCache.shared.removeImageFromMemory(forKey: cacheKey)
         }
     }
-    
+
     func updateEmail(to: String, callBack: @escaping (Error?) -> Void) {
         currentUser?.updateEmail(to: to, completion: { (error) in
-           
-            
+
+
             if let error = error as? AuthErrorCode {
                 switch error.code {
                 case .invalidEmail:
@@ -217,7 +381,7 @@ final class FBManager {
             callBack(error)
         })
     }
-    
+
     func signOut(_ callback: (StateCallback) -> Void) {
         do {
             try Auth.auth().signOut()
@@ -227,11 +391,11 @@ final class FBManager {
             callback(.failed)
         }
     }
-    
+
     func deleteAccaunt(_ callback: @escaping (StateDeleteAccaunt) -> Void) {
-        
+
         guard let user = currentUser else {return}
-        
+
         user.delete { (error) in
             if let error = error as? AuthErrorCode {
                 switch error.code {
@@ -245,19 +409,19 @@ final class FBManager {
             }
         }
     }
-    
+
     func deleteCurrentUserProducts() {
         if let user = currentUser {
             let uid = user.uid
             Database.database().reference().child("usersAccaunt").child(uid).removeValue()
         }
     }
-    
+
     func reauthenticateUser(password: String, callback: @escaping (StateReauthenticateUser) -> Void) {
         guard let user = currentUser, let email = user.email else {return}
-        
+
         let credential = EmailAuthProvider.credential(withEmail: email, password: password)
-        
+
         user.reauthenticate(with: credential) { (result, error) in
             if let error = error as? AuthErrorCode {
                 switch error.code {
@@ -271,14 +435,15 @@ final class FBManager {
             }
         }
     }
-    
+
+
 }
 
 
 extension UIImageView {
-    
-  
-    
+
+
+
     func fetchingImageWithPlaceholder(url: String, placeholder: String) {
         let storage = Storage.storage()
         let urlRef = storage.reference(forURL: url)
@@ -290,6 +455,14 @@ extension UIImageView {
         }
     }
 }
+
+
+
+
+
+
+
+
 
 
 /*

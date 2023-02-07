@@ -108,7 +108,7 @@ class CartViewController: UIViewController {
         tabBarVCs.forEach { (vc) in
             if let nc = vc as? UINavigationController {
                 if let homeVC = nc.topViewController as? HomeViewController {
-                    self.arrayPlaces = homeVC.arrayPin
+                    self.arrayPlaces = homeVC.placesMap
                     self.addedInCartProducts = homeVC.addedToCardProducts
                     tableView.reloadData()
                 }

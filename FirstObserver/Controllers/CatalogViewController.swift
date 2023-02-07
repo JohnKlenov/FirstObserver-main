@@ -59,7 +59,7 @@ class CatalogViewController: UIViewController {
             if let nc = vc as? UINavigationController {
                 if let homeVC = nc.topViewController as? HomeViewController {
                     print("HomeViewController найден HomeViewController найден HomeViewController найден!")
-                    self.arrayPins = homeVC.arrayPin
+                    self.arrayPins = homeVC.placesMap
 
                 }
             }

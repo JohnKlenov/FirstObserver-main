@@ -41,7 +41,7 @@ class MallsViewController: UIViewController {
             if let nc = vc as? UINavigationController {
                 if let homeVC = nc.topViewController as? HomeViewController {
                     print("HomeViewController найден HomeViewController найден HomeViewController найден!")
-                    self.arrayPins = homeVC.arrayPin
+                    self.arrayPins = homeVC.placesMap
                     if let model = homeVC.arrayInArray["malls"] as? [PreviewCategory] {
                         self.mallsModel = model
                     }

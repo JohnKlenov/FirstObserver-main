@@ -41,14 +41,21 @@ protocol ViewsHomeVCNavigationDelegate: AnyObject {
 
 class HomeViewController: UIViewController {
     
+   
     @IBOutlet weak var homeTableView: UITableView!
     
+    // MARK: FB property
+    let managerFB = FBManager.shared
+    private var currentUser: User?
+    var ref: DatabaseReference!
+    var storage:Storage!
     
 //    weak var delegate: AddedToCardProductsHVCDelegate?
     lazy var topView = UIView()
     static let userDefaults = UserDefaults.standard
-    
     var homeModel = [HomeModel]()
+    
+   
     
     private var loader: UIActivityIndicatorView = {
         let loader = UIActivityIndicatorView()
@@ -67,12 +74,7 @@ class HomeViewController: UIViewController {
         return view
     }()
     
-   
     
-    var ref: DatabaseReference!
-    var storage:Storage!
-    private var handle: AuthStateDidChangeListenerHandle?
-//    var currentUser: User?
     
     var arrayInArray = [String:Any]() {
         didSet {
@@ -94,88 +96,27 @@ class HomeViewController: UIViewController {
         }
     }
     
-    var arrayPin:[PlacesTest] = []
-    var arrayPins:[PlacesFB] = [] {
+    var placesMap:[PlacesTest] = []
+    var placesFB:[PlacesFB] = [] {
         didSet {
-//            print("arrayPins didSet arrayPins didSet arrayPins didSet")
-            getPlaces()
+            getPlacesMap()
         }
     }
    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // addStateDidChangeListener работает в режиме наблюдателя и постоянно делает запросы в сеть
-        // При слиянии anonymous user с permanent user Auth.auth().addStateDidChangeListener не срабатывает!
-        // signIn and signOut срабатывает!
-       handle = Auth.auth().addStateDidChangeListener { (auth, user) in
-//            print("%%%%%%% auth.currentUser?.isAnonymous - \(String(describing: auth.currentUser?.isAnonymous))")
-            print("%%%%%%% addStateDidChangeListener user?.isAnonymous - \(String(describing: user?.isAnonymous))")
-            if user == nil {
-                print("Auth.auth().currentUser == nil  Auth.auth().currentUser == nil  Auth.auth().currentUser == nil ")
+        managerFB.userListener { currentUser in
+            self.currentUser = currentUser
+
+            if currentUser == nil {
                 self.addedToCardProducts = []
-                let refFBR = Database.database().reference()
-                Auth.auth().signInAnonymously { (authResult, error)
-                    in
-                    guard let user = authResult?.user else {return}
-                    print("create user anonymous - \(user.uid)")
-                    let uid = user.uid
-                    refFBR.child("usersAccaunt/\(uid)").setValue(["uidAnonymous":user.uid])
+                self.managerFB.signInAnonymously()
             }
-            } else {
-                print("addStateDidChangeListener user?.uid - \(String(describing: user?.uid))")
-                print("addStateDidChangeListener user no null!")
+
+            self.managerFB.getCardProduct { cardProduct in
+                self.addedToCardProducts = cardProduct
             }
-           
-           print("!!!!!!!! userId - \(String(describing: user?.uid)) @@@@@@@@@@")
-           self.ref.child("usersAccaunt/\(user?.uid ?? "")").observe(.value) { [weak self] (snapshot) in
-               for item in snapshot.children {
-                   let item = item as! DataSnapshot
-                   print("item - \(item.key)")
-                   switch item.key {
-                   case "AddedProducts":
-                       var arrayProduct = [PopularProduct]()
-                       
-                       for item in item.children {
-                           let product = item as! DataSnapshot
-                           
-                           var arrayMalls = [String]()
-                           var arrayRefe = [String]()
-                           
-                           
-                           for mass in product.children {
-                               let item = mass as! DataSnapshot
-                               
-                               switch item.key {
-                               case "malls":
-                                   for it in item.children {
-                                       let item = it as! DataSnapshot
-                                       if let refDictionary = item.value as? String {
-                                           arrayMalls.append(refDictionary)
-                                       }
-                                   }
-                                   
-                               case "refImage":
-                                   for it in item.children {
-                                       let item = it as! DataSnapshot
-                                       if let refDictionary = item.value as? String {
-                                           arrayRefe.append(refDictionary)
-                                       }
-                                   }
-                               default:
-                                   break
-                               }
-                               
-                           }
-                           let productModel = PopularProduct(snapshot: product, refArray: arrayRefe, malls: arrayMalls)
-                           arrayProduct.append(productModel)
-                       }
-                       self?.addedToCardProducts = arrayProduct
-                   default:
-                       break
-                   }
-               }
-           }
         }
         
         self.tabBarController?.view.isUserInteractionEnabled = false
@@ -185,7 +126,6 @@ class HomeViewController: UIViewController {
         loader.isHidden = false
         activityContainerView.center = self.view.center
         loader.startAnimating()
-       
         storage = Storage.storage()
         ref = Database.database().reference()
         
@@ -200,119 +140,40 @@ class HomeViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
     
-       
-        
-        ref.child("previewMalls").observe(.value) { [weak self] (snapshot) in
-            var arrayMalls = [PreviewCategory]()
-            for item in snapshot.children {
-                let mall = item as! DataSnapshot
-                let model = PreviewCategory(snapshot: mall)
-                arrayMalls.append(model)
-            }
-            
-            self?.arrayInArray["malls"] = arrayMalls
-            
+        managerFB.getPreviewMalls { modelMalls in
+            self.arrayInArray["malls"] = modelMalls
+        }
+    
+        managerFB.getPreviewBrands { modelBrand in
+            self.arrayInArray["brands"] = modelBrand
         }
         
-        ref.child("previewBrands").observe(.value) { [weak self] (snapshot) in
-            
-            var arrayBrands = [PreviewCategory]()
-            for item in snapshot.children {
-                let brand = item as! DataSnapshot
-                let model = PreviewCategory(snapshot: brand)
-                arrayBrands.append(model)
-            }
-            
-            self?.arrayInArray["brands"] = arrayBrands
+        managerFB.getPopularProduct { modelProduct in
+            self.arrayInArray["popularProduct"] = modelProduct
         }
         
-        
-        ref.child("popularProduct").observe(.value) { [weak self] (snapshot) in
-            
-            var arrayProduct = [PopularProduct]()
-            
-            for item in snapshot.children {
-                let product = item as! DataSnapshot
-                
-                var arrayMalls = [String]()
-                var arrayRefe = [String]()
-                
-                
-                for mass in product.children {
-                    let item = mass as! DataSnapshot
-                    
-                    switch item.key {
-                    case "malls":
-                        for it in item.children {
-                            let item = it as! DataSnapshot
-                            if let refDictionary = item.value as? String {
-                                arrayMalls.append(refDictionary)
-                            }
-                        }
-                        
-                    case "refImage":
-                        for it in item.children {
-                            let item = it as! DataSnapshot
-                            if let refDictionary = item.value as? String {
-                                arrayRefe.append(refDictionary)
-                            }
-                        }
-                    default:
-                        break
-                    }
-                    
-                }
-                let productModel = PopularProduct(snapshot: product, refArray: arrayRefe, malls: arrayMalls)
-                arrayProduct.append(productModel)
-            }
-            self?.arrayInArray["popularProduct"] = arrayProduct
+        managerFB.getPlaces { modelPlaces in
+            self.placesFB = modelPlaces
         }
-        
-        
-        ref.child("Places").observe(.value) {  [weak self] (snapshot) in
-            
-            var arrayPin = [PlacesFB]()
-            for place in snapshot.children {
-//                print("ref Places snapshot")
-                let place = place as! DataSnapshot
-                let model = PlacesFB(snapshot: place)
-                arrayPin.append(model)
-                
-            }
-            self?.arrayPins = arrayPin
-        }
-        
-        
-        
-
         removeTopView()
     }
     
     
-    func getPlaces() {
-        
-//        print(" getPlaces getPlaces getPlaces getPlaces")
-        
-        
-        let tcNew = arrayPins.map { $0.name }
-        let tcOld = arrayPin.map { $0.title ?? " " }
-//        print("count tcNew - \(tcNew)")
-//        print("count tcOld - \(tcOld)")
-        
+    func getPlacesMap() {
+
+        let tcNew = placesFB.map { $0.name }
+        let tcOld = placesMap.map { $0.title ?? " " }
         let oldPins = Set(tcOld)
         let newPins = Set(tcNew)
-        
-//        print("count newPins - \(newPins)")
-//        print("count oldPins - \(oldPins)")
-        
+    
         if oldPins != newPins {
             
-//            print("oldPins != newPins oldPins != newPins oldPins != newPins oldPins != newPins oldPins != newPins")
-            arrayPins.forEach { (place) in
-                self.getImagefromStorage(refImage: place.refImage) { (image) in
+            placesFB.forEach { place in
+                managerFB.getImagefromStorage(refImage: place.refImage) { image in
                     let pin = PlacesTest(title: place.name, locationName: place.address, discipline: "Торговый центр", coordinate: CLLocationCoordinate2D(latitude: place.latitude, longitude: place.longitude), image: image)
-                    self.arrayPin.append(pin)
+                    self.placesMap.append(pin)
                 }
+
             }
         }
         
@@ -339,20 +200,7 @@ class HomeViewController: UIViewController {
     
     
 
-    private func getImagefromStorage(refImage:String, completionHandler: @escaping (UIImage) -> Void) {
-        let ref = storage.reference(forURL: refImage)
-        let megaBite = Int64(1*1024*1024)
-        ref.getData(maxSize: megaBite) { (data, error) in
-            guard let imageData = data else {
-                let defaultImage = UIImage(named: "DefaultImage")!
-                completionHandler(defaultImage)
-                return
-            }
-            if let image = UIImage(data: imageData) {
-                completionHandler(image)
-            }
-        }
-    }
+
     
     // MARK: - im Hiding HomeViewController -
     
@@ -507,7 +355,7 @@ extension HomeViewController: ViewsHomeVCNavigationDelegate {
             
             var placesArray:[PlacesTest] = []
             let malls = product[indexPath].malls
-            arrayPin.forEach { (places) in
+            placesMap.forEach { (places) in
                 if malls.contains(places.title ?? "") {
                     placesArray.append(places)
                 }
@@ -527,14 +375,14 @@ extension HomeViewController: ViewsHomeVCNavigationDelegate {
             let brandVC = storyboard.instantiateViewController(withIdentifier: "BrandsViewController") as! BrandsViewController
             let ref = Database.database().reference(withPath: "brands/\(refPath)")
             brandVC.incomingRef = ref
-            brandVC.arrayPin = arrayPin
+            brandVC.arrayPin = placesMap
             self.navigationController?.pushViewController(brandVC, animated: true)
             
         case .shopingMall:
             
             let mallVC = UIStoryboard.vcById("MallViewController") as! MallViewController
             mallVC.refPath = refPath
-            mallVC.arrayPin = arrayPin
+            mallVC.arrayPin = placesMap
             mallVC.brandsMall = arrayInArray["brands"] as! [PreviewCategory]
             self.navigationController?.pushViewController(mallVC, animated: true)
         }
@@ -547,4 +395,180 @@ extension HomeViewController: ViewsHomeVCNavigationDelegate {
 
 
     
+// viewDidLoad
+//         addStateDidChangeListener работает в режиме наблюдателя и постоянно делает запросы в сеть
+//         При слиянии anonymous user с permanent user Auth.auth().addStateDidChangeListener не срабатывает!
+//         signIn and signOut срабатывает!
+//       Auth.auth().addStateDidChangeListener { (auth, user) in
+////            print("%%%%%%% auth.currentUser?.isAnonymous - \(String(describing: auth.currentUser?.isAnonymous))")
+//            print("%%%%%%% addStateDidChangeListener user?.isAnonymous(false значит не анонимус) - \(String(describing: user?.isAnonymous))")
+//            if user == nil {
+//                print("Auth.auth().currentUser == nil  Auth.auth().currentUser == nil  Auth.auth().currentUser == nil ")
+//                self.addedToCardProducts = []
+//                let refFBR = Database.database().reference()
+//                Auth.auth().signInAnonymously { (authResult, error)
+//                    in
+//                    guard let user = authResult?.user else {return}
+//                    print("create user anonymous - \(user.uid)")
+//                    let uid = user.uid
+//                    refFBR.child("usersAccaunt/\(uid)").setValue(["uidAnonymous":user.uid])
+//            }
+//            } else {
+//                print("addStateDidChangeListener user?.uid - \(String(describing: user?.uid))")
+//                print("addStateDidChangeListener user no null!")
+//            }
+//
+//           print("!!!!!!!! userId - \(String(describing: user?.uid)) @@@@@@@@@@")
+//           self.ref.child("usersAccaunt/\(user?.uid ?? "")").observe(.value) { [weak self] (snapshot) in
+//               for item in snapshot.children {
+//                   let item = item as! DataSnapshot
+//                   print("item - \(item.key)")
+//                   switch item.key {
+//                   case "AddedProducts":
+//                       var arrayProduct = [PopularProduct]()
+//
+//                       for item in item.children {
+//                           let product = item as! DataSnapshot
+//
+//                           var arrayMalls = [String]()
+//                           var arrayRefe = [String]()
+//
+//
+//                           for mass in product.children {
+//                               let item = mass as! DataSnapshot
+//
+//                               switch item.key {
+//                               case "malls":
+//                                   for it in item.children {
+//                                       let item = it as! DataSnapshot
+//                                       if let refDictionary = item.value as? String {
+//                                           arrayMalls.append(refDictionary)
+//                                       }
+//                                   }
+//
+//                               case "refImage":
+//                                   for it in item.children {
+//                                       let item = it as! DataSnapshot
+//                                       if let refDictionary = item.value as? String {
+//                                           arrayRefe.append(refDictionary)
+//                                       }
+//                                   }
+//                               default:
+//                                   break
+//                               }
+//
+//                           }
+//                           let productModel = PopularProduct(snapshot: product, refArray: arrayRefe, malls: arrayMalls)
+//                           arrayProduct.append(productModel)
+//                       }
+//                       self?.addedToCardProducts = arrayProduct
+//                   default:
+//                       break
+//                   }
+//               }
+//           }
+//        }
 
+
+
+
+// viewWillAppear
+//        ref.child("previewMalls").observe(.value) { [weak self] (snapshot) in
+//            var arrayMalls = [PreviewCategory]()
+//            for item in snapshot.children {
+//                let mall = item as! DataSnapshot
+//                let model = PreviewCategory(snapshot: mall)
+//                arrayMalls.append(model)
+//            }
+//
+//            self?.arrayInArray["malls"] = arrayMalls
+//
+//        }
+
+//        ref.child("previewBrands").observe(.value) { [weak self] (snapshot) in
+//
+//            var arrayBrands = [PreviewCategory]()
+//            for item in snapshot.children {
+//                let brand = item as! DataSnapshot
+//                let model = PreviewCategory(snapshot: brand)
+//                arrayBrands.append(model)
+//            }
+//
+//            self?.arrayInArray["brands"] = arrayBrands
+//        }
+
+//        ref.child("popularProduct").observe(.value) { [weak self] (snapshot) in
+//
+//            var arrayProduct = [PopularProduct]()
+//
+//            for item in snapshot.children {
+//                let product = item as! DataSnapshot
+//
+//                var arrayMalls = [String]()
+//                var arrayRefe = [String]()
+//
+//
+//                for mass in product.children {
+//                    let item = mass as! DataSnapshot
+//
+//                    switch item.key {
+//                    case "malls":
+//                        for it in item.children {
+//                            let item = it as! DataSnapshot
+//                            if let refDictionary = item.value as? String {
+//                                arrayMalls.append(refDictionary)
+//                            }
+//                        }
+//
+//                    case "refImage":
+//                        for it in item.children {
+//                            let item = it as! DataSnapshot
+//                            if let refDictionary = item.value as? String {
+//                                arrayRefe.append(refDictionary)
+//                            }
+//                        }
+//                    default:
+//                        break
+//                    }
+//
+//                }
+//                let productModel = PopularProduct(snapshot: product, refArray: arrayRefe, malls: arrayMalls)
+//                arrayProduct.append(productModel)
+//            }
+//            self?.arrayInArray["popularProduct"] = arrayProduct
+//        }
+
+//        ref.child("Places").observe(.value) {  [weak self] (snapshot) in
+//
+//            var arrayPin = [PlacesFB]()
+//            for place in snapshot.children {
+////                print("ref Places snapshot")
+//                let place = place as! DataSnapshot
+//                let model = PlacesFB(snapshot: place)
+//                arrayPin.append(model)
+//
+//            }
+//            self?.arrayPins = arrayPin
+//        }
+
+
+//                self.getImagefromStorage(refImage: place.refImage) { (image) in
+//                    let pin = PlacesTest(title: place.name, locationName: place.address, discipline: "Торговый центр", coordinate: CLLocationCoordinate2D(latitude: place.latitude, longitude: place.longitude), image: image)
+//                    self.placesMap.append(pin)
+//                }
+
+
+//    private func getImagefromStorage(refImage:String, completionHandler: @escaping (UIImage) -> Void) {
+//        let ref = storage.reference(forURL: refImage)
+//        let megaBite = Int64(1*1024*1024)
+//        ref.getData(maxSize: megaBite) { (data, error) in
+//            guard let imageData = data else {
+//                let defaultImage = UIImage(named: "DefaultImage")!
+//                completionHandler(defaultImage)
+//                return
+//            }
+//            if let image = UIImage(data: imageData) {
+//                completionHandler(image)
+//            }
+//        }
+//    }
