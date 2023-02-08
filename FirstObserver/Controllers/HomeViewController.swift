@@ -79,7 +79,6 @@ class HomeViewController: UIViewController {
     var arrayInArray = [String:Any]() {
         didSet {
             if arrayInArray.count == 3 {
-//                print("arrayInArray arrayInArray arrayInArray\(arrayInArray.count)")
                 self.homeTableView.reloadData()
                 loader.stopAnimating()
                 activityContainerView.removeFromSuperview()
@@ -90,7 +89,6 @@ class HomeViewController: UIViewController {
     
     var addedToCardProducts:[PopularProduct] = [] {
         didSet {
-            print("&&&&& addedToCardProducts addedToCardProducts addedToCardProducts addedToCardProducts &&&&&")
             print("addedToCardProducts \(self.addedToCardProducts)")
 //            delegate?.allProductsToCard(productsToCard: addedToCardProducts)
         }

@@ -87,21 +87,21 @@ class PlacesFB {
 
 
 
-class PreviewCategory {
-    
-    let brand: String?
-    let refImage: String
-    
-    init(snapshot: DataSnapshot) {
-        
-        let snapshotValue = snapshot.value as! [String: AnyObject]
-        let brand = snapshotValue["brand"] as? String ?? snapshotValue["name"] as? String
-        let refImage = snapshotValue["refImage"] as! String
-        
-        self.brand = brand
-        self.refImage = refImage
-    }
-}
+//struct PreviewCategory: Hashable {
+//
+//    let brand: String?
+//    let refImage: String
+//
+//    init(snapshot: DataSnapshot) {
+//
+//        let snapshotValue = snapshot.value as! [String: AnyObject]
+//        let brand = snapshotValue["brand"] as? String ?? snapshotValue["name"] as? String
+//        let refImage = snapshotValue["refImage"] as! String
+//
+//        self.brand = brand
+//        self.refImage = refImage
+//    }
+//}
 
 class MallModel {
     
@@ -143,7 +143,34 @@ class AddedProduct: Encodable {
     }
 }
 
-class PopularProduct {
+struct SectionHVC: Hashable {
+    let section: String
+    let items: [ItemCell]
+}
+
+struct ItemCell: Hashable {
+    let malls: PreviewCategory?
+    let brands: PreviewCategory?
+    let popularProduct: PopularProduct?
+}
+
+struct PreviewCategory: Hashable {
+    
+    let brand: String?
+    let refImage: String
+    
+    init(snapshot: DataSnapshot) {
+        
+        let snapshotValue = snapshot.value as! [String: AnyObject]
+        let brand = snapshotValue["brand"] as? String ?? snapshotValue["name"] as? String
+        let refImage = snapshotValue["refImage"] as! String
+        
+        self.brand = brand
+        self.refImage = refImage
+    }
+}
+
+struct PopularProduct: Hashable {
     
     let model: String
     let description: String
