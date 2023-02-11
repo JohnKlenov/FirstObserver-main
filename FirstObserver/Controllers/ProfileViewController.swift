@@ -232,40 +232,43 @@ import Firebase
 
         @IBAction func didTapDeleteAccount(_ sender: UIButton) {
 
+            let vc = NewHomeViewController()
+            vc.modalPresentationStyle = .fullScreen
+            present(vc, animated: true, completion: nil)
 
-            getFetchDataHVC()
-            setupDeleteAlert(title: "Warning", message: "Deleting your account will permanently lose your data!") { isDelete in
-
-                if isDelete {
-                    self.isAnimateDeleteButtonAnonUser = true
-//                     удаляем корзину user и в случае не успеха deleteAccaunt должны ее вернуть
-                    self.managerFB.deleteCurrentUserProducts()
-                    self.deleteAccountButton.configuration?.showsActivityIndicator = true
-
-                    self.managerFB.deleteAccaunt { (stateCallback) in
-                        switch stateCallback {
-
-                        case .success:
-                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                            self.managerFB.removeAvatarFromDeletedUser()
-                            self.setupAlert(title: "Success", message: "Current accaunt delete!")
-                        case .failed:
-                            // сохранить данные обратно в корзину?
-
-                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                            self.isAnimateDeleteButtonAnonUser = false
-                            self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again!")
-                        case .failedRequiresRecentLogin:
-                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                            self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
-                        }
-                    }
-
-                } else {
-                    self.isAnimateDeleteButtonAnonUser = false
-                    print("Cancel delete Accaunt!")
-                }
-            }
+//            getFetchDataHVC()
+//            setupDeleteAlert(title: "Warning", message: "Deleting your account will permanently lose your data!") { isDelete in
+//
+//                if isDelete {
+//                    self.isAnimateDeleteButtonAnonUser = true
+////                     удаляем корзину user и в случае не успеха deleteAccaunt должны ее вернуть
+//                    self.managerFB.deleteCurrentUserProducts()
+//                    self.deleteAccountButton.configuration?.showsActivityIndicator = true
+//
+//                    self.managerFB.deleteAccaunt { (stateCallback) in
+//                        switch stateCallback {
+//
+//                        case .success:
+//                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+//                            self.managerFB.removeAvatarFromDeletedUser()
+//                            self.setupAlert(title: "Success", message: "Current accaunt delete!")
+//                        case .failed:
+//                            // сохранить данные обратно в корзину?
+//
+//                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+//                            self.isAnimateDeleteButtonAnonUser = false
+//                            self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again!")
+//                        case .failedRequiresRecentLogin:
+//                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+//                            self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+//                        }
+//                    }
+//
+//                } else {
+//                    self.isAnimateDeleteButtonAnonUser = false
+//                    print("Cancel delete Accaunt!")
+//                }
+//            }
         }
 
 

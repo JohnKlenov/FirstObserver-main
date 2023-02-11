@@ -687,7 +687,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NR9-fm-hYh" userLabel="TopView">
                                 <rect key="frame" x="0.0" y="44" width="428" height="463"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="l6X-Vy-wJ7">
+                                    <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="252" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="l6X-Vy-wJ7">
                                         <rect key="frame" x="121.33333333333333" y="50.000000000000014" width="185.33333333333337" height="185.33333333333337"/>
                                         <color key="backgroundColor" systemColor="systemPinkColor"/>
                                         <constraints>
@@ -868,21 +868,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="IOn-6i-hJU" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1226.6355140186915" y="727.64578833693315"/>
-        </scene>
-        <!--New Home View Controller-->
-        <scene sceneID="eJ7-Am-6Mx">
-            <objects>
-                <viewController id="We8-t4-HM9" customClass="NewHomeViewController" customModule="FirstObserver" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="t2Q-Xx-oKh">
-                        <rect key="frame" x="0.0" y="0.0" width="428" height="926"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <viewLayoutGuide key="safeArea" id="kRu-Jz-7hk"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                    </view>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="SbH-FC-Pfj" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-3587" y="2198"/>
         </scene>
         <!--Mall View Controller-->
         <scene sceneID="nfY-vs-AoH">

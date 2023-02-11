@@ -45,7 +45,8 @@ class NewHomeViewController: UIViewController {
     private var modelHomeViewController = [SectionHVC]() {
         didSet {
             if modelHomeViewController.count == 3 {
-                collectionViewLayout.reloadData()
+//                print("modelHomeViewController - \(modelHomeViewController)")
+                reloadData()
                 loader.stopAnimating()
                 activityContainerView.removeFromSuperview()
 //              tabBarController?.view.isUserInteractionEnabled = true
@@ -73,7 +74,7 @@ class NewHomeViewController: UIViewController {
         setupCollectionView()
         setupConstraints()
         createDataSource()
-        reloadData()
+//        reloadData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -145,7 +146,7 @@ class NewHomeViewController: UIViewController {
 //        collectionViewLayout.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(collectionViewLayout)
         collectionViewLayout.register(ImageCell.self, forCellWithReuseIdentifier: ImageCell.reuseID)
-        collectionViewLayout.register(ProductCell.self, forCellWithReuseIdentifier: ProductCell.reuseID)
+        collectionViewLayout.register(ProductCellNew.self, forCellWithReuseIdentifier: ProductCellNew.reuseID)
         collectionViewLayout.register(MallsViewCell.self, forCellWithReuseIdentifier: MallsViewCell.reuseID)
         collectionViewLayout.register(HeaderProductView.self, forSupplementaryViewOfKind: "HeaderProduct", withReuseIdentifier: HeaderProductView.headerIdentifier)
         collectionViewLayout.register(HeaderCategoryView.self, forSupplementaryViewOfKind: "HeaderCategory", withReuseIdentifier: HeaderCategoryView.headerIdentifier)
@@ -188,11 +189,11 @@ class NewHomeViewController: UIViewController {
             
             if kind == "HeaderProduct" {
                 let cell = collectionView.dequeueReusableSupplementaryView(ofKind: HeaderProductView.headerIdentifier, withReuseIdentifier: HeaderProductView.headerIdentifier, for: IndexPath) as? HeaderProductView
-                cell?.configureCell(title: "Product")
+                cell?.configureCell(title: "Products")
                 return cell
             } else if kind == "HeaderCategory" {
                 let cell = collectionView.dequeueReusableSupplementaryView(ofKind: HeaderCategoryView.headerIdentifier, withReuseIdentifier: HeaderCategoryView.headerIdentifier, for: IndexPath) as? HeaderCategoryView
-                cell?.configureCell(title: "Category")
+                cell?.configureCell(title: "Brands")
                 return cell
             } else if kind == "HeaderMalls" {
                 let cell = collectionView.dequeueReusableSupplementaryView(ofKind: HeaderMallsView.headerIdentifier, withReuseIdentifier: HeaderMallsView.headerIdentifier, for: IndexPath) as? HeaderMallsView
@@ -207,10 +208,10 @@ class NewHomeViewController: UIViewController {
     private func reloadData() {
 
         var snapshot = NSDiffableDataSourceSnapshot<SectionHVC, ItemCell>()
-        snapshot.appendSections(section)
+        snapshot.appendSections(modelHomeViewController)
 
-        for item in section {
-            snapshot.appendItems(item.items, toSection: item)
+        for section in modelHomeViewController {
+            snapshot.appendItems(section.items, toSection: section)
         }
         dataSource?.apply(snapshot)
     }
@@ -218,14 +219,14 @@ class NewHomeViewController: UIViewController {
     private func createLayout() -> UICollectionViewLayout {
         
         let layout = UICollectionViewCompositionalLayout { (sectionIndex, layoutEnvironment) -> NSCollectionLayoutSection? in
-            let section = self.section[sectionIndex]
+            let section = self.modelHomeViewController[sectionIndex]
             
             switch section.section {
             case "Malls":
                 return self.mallsBannerSections()
-            case "Category":
+            case "Brands":
                 return self.categorySections()
-            case "Product":
+            case "PopularProducts":
                 return self.productSection()
             default:
                 print("default createLayout")
@@ -276,13 +277,16 @@ class NewHomeViewController: UIViewController {
         
         return section
     }
-//        .fractionalWidth(2/3)
+
     private func productSection() -> NSCollectionLayoutSection {
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
+        
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(20))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 5, bottom: 0, trailing: 5)
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension:  .fractionalWidth(2/3)), subitem: item, count: 2)
-        group.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
+        item.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: nil, top: NSCollectionLayoutSpacing.fixed(10), trailing: nil, bottom: nil)
+
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(20))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 2)
+        group.interItemSpacing = .fixed(10)
         
         let section = NSCollectionLayoutSection(group: group)
         section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
@@ -299,3 +303,8 @@ class NewHomeViewController: UIViewController {
     }
 }
 
+//        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
+//        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+//        item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 5, bottom: 0, trailing: 5)
+//        let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension:  .fractionalWidth(2/3)), subitem: item, count: 2)
+//        group.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)

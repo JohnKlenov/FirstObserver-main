@@ -19,7 +19,7 @@ class BackgroundViewCollectionReusableView: UICollectionReusableView {
     }
     
     private func configureView() {
-//        backgroundColor = UIColor.darkGray.withAlphaComponent(1)
+//        backgroundColor = UIColor.orange.withAlphaComponent(1)
         backgroundColor = .clear
         layer.cornerRadius = 12
     }
