@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import Firebase
+//import Firebase
 
 class CatalogViewController: UIViewController {
     
@@ -15,37 +15,30 @@ class CatalogViewController: UIViewController {
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var segmentControl: UISegmentedControl!
     
+    // MARK: FB property
+    let managerFB = FBManager.shared
+    
     var heightCellCV:CGFloat!
-    var ref: DatabaseReference!
     var arrayCatalog: [PreviewCategory] = []
     var arrayPins: [PlacesTest] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        ref = Database.database().reference()
         self.title = "Catalog"
         collectionView.delegate = self
         collectionView.dataSource = self
         
         heightCellCV = (collectionView.frame.height/3)*0.86
-        print(" collectionView.frame.height - \(collectionView.frame.height)")
-        print(" heightCellCV - \(String(describing: heightCellCV))")
         getFetchDataHVC()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        ref.child("catalog").observe(.value) { [weak self] (snapshot) in
-            var arrayCatalog = [PreviewCategory]()
-            for item in snapshot.children {
-                let category = item as! DataSnapshot
-                let model = PreviewCategory(snapshot: category)
-                arrayCatalog.append(model)
-            }
-            self?.arrayCatalog = arrayCatalog
-            self?.collectionView.reloadData()
+        managerFB.getPreviewCatalog { catalog in
+            self.arrayCatalog = catalog
+            self.collectionView.reloadData()
         }
     }
     
@@ -54,11 +47,8 @@ class CatalogViewController: UIViewController {
         guard let tabBarVCs = tabBarController?.viewControllers else {return}
         
         for vc in tabBarVCs {
-            print("контроллеров в таб баре")
-            
             if let nc = vc as? UINavigationController {
                 if let homeVC = nc.topViewController as? NewHomeViewController {
-                    print("HomeViewController найден HomeViewController найден HomeViewController найден!")
                     self.arrayPins = homeVC.placesMap
 
                 }
@@ -92,10 +82,23 @@ extension CatalogViewController: UICollectionViewDelegate, UICollectionViewDataS
         let searchCategory = arrayCatalog[indexPath.item].brand
         let allProductCategoryVC = UIStoryboard.vcById("AllProductViewController") as! AllProductViewController
         allProductCategoryVC.searchCategory = searchCategory
-        let refCategory = Database.database().reference(withPath: "brands")
-        allProductCategoryVC.categoryRef = refCategory
+//        let refCategory = Database.database().reference(withPath: "brands")
+//        allProductCategoryVC.categoryRef = refCategory
         allProductCategoryVC.arrayPin = arrayPins
         self.navigationController?.pushViewController(allProductCategoryVC, animated: true)
     }
     
 }
+
+
+
+//        ref.child("catalog").observe(.value) { [weak self] (snapshot) in
+//            var arrayCatalog = [PreviewCategory]()
+//            for item in snapshot.children {
+//                let category = item as! DataSnapshot
+//                let model = PreviewCategory(snapshot: category)
+//                arrayCatalog.append(model)
+//            }
+//            self?.arrayCatalog = arrayCatalog
+//            self?.collectionView.reloadData()
+//        }

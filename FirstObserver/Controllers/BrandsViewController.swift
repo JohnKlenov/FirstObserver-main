@@ -190,8 +190,8 @@ class BrandsViewController: UIViewController {
         guard let tabBarVCs = tabBarController?.viewControllers else { return }
         for vc in tabBarVCs {
             if let nc = vc as? UINavigationController {
-                if let homeVC = nc.viewControllers.first as? HomeViewController {
-                    self.addedToCartProducts = homeVC.addedToCardProducts
+                if let homeVC = nc.viewControllers.first as? NewHomeViewController {
+                    self.addedToCartProducts = homeVC.cardProducts
                 }
             }
         }

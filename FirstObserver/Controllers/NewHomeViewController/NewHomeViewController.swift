@@ -80,7 +80,7 @@ class NewHomeViewController: UIViewController {
         }
         
         title = "HomeVC"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .white
         tabBarController?.view.isUserInteractionEnabled = false
         configureActivityIndicatorView()
         view.addSubview(segmentedControl)

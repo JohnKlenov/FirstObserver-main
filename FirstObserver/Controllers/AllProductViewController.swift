@@ -18,7 +18,7 @@ class AllProductViewController: BrandsViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("AllProductViewController AllProductViewController AllProductViewController")
+        categoryRef = Database.database().reference(withPath: "brands")
         categoryRef?.observe(.value) { (snapshot) in
             
             let garderob = PopularGarderob()
@@ -62,10 +62,10 @@ class AllProductViewController: BrandsViewController {
                             }
                             let productModel = PopularProduct(snapshot: productCategory, refArray: arrayRefe, malls: arrayMalls)
                             group.product?.append(productModel)
-                            print("Append new product from AllProductViewController \(productModel.model)")
+//                            print("Append new product from AllProductViewController \(productModel.model)")
                         }
                         garderob.groups.append(group)
-                        print("appenf new group AllProductViewController \(group.name)")
+//                        print("appenf new group AllProductViewController \(group.name)")
                     }
                 }
             }

@@ -53,7 +53,26 @@ final class FBManager {
 //    var databaseRef: DatabaseReference?
 //    var storage = Storage.storage()
 
+    
 
+    // MARK: - CatalogViewController -
+
+    
+    func getPreviewCatalog(completionHandler: @escaping ([PreviewCategory]) -> Void) {
+        let databaseRef = Database.database().reference()
+        databaseRef.child("catalog").observe(.value) { (snapshot) in
+            var arrayCatalog = [PreviewCategory]()
+            for item in snapshot.children {
+                let category = item as! DataSnapshot
+                let model = PreviewCategory(snapshot: category)
+                arrayCatalog.append(model)
+            }
+            completionHandler(arrayCatalog)
+//            self?.arrayCatalog = arrayCatalog
+//            self?.collectionView.reloadData()
+        }
+    }
+    
     // MARK: - HomeViewController -
     
     func userListener(currentUser: @escaping (User?) -> Void) {
@@ -124,7 +143,7 @@ final class FBManager {
         }
     }
 
-    // for oldHVC
+//     for oldHVC
     func getPreviewMalls(completionHandler: @escaping ([PreviewCategory]) -> Void) {
         let databaseRef = Database.database().reference()
         databaseRef.child("previewMalls").observe(.value) { snapshot in
@@ -137,7 +156,7 @@ final class FBManager {
             completionHandler(arrayMalls)
         }
     }
-    
+
     func getPreviewBrands(completionHandler: @escaping ([PreviewCategory]) -> Void) {
         let databaseRef = Database.database().reference()
         databaseRef.child("previewBrands").observe(.value) { snapshot in
@@ -150,22 +169,22 @@ final class FBManager {
             completionHandler(arrayBrands)
         }
     }
-    
+
     func getPopularProduct(completionHandler: @escaping ([PopularProduct]) -> Void) {
         let databaseRef = Database.database().reference()
         databaseRef.child("popularProduct").observe(.value) { snapshot in
             var arrayProduct = [PopularProduct]()
-            
+
             for item in snapshot.children {
                 let product = item as! DataSnapshot
-                
+
                 var arrayMalls = [String]()
                 var arrayRefe = [String]()
-                
-                
+
+
                 for mass in product.children {
                     let item = mass as! DataSnapshot
-                    
+
                     switch item.key {
                     case "malls":
                         for it in item.children {
@@ -174,7 +193,7 @@ final class FBManager {
                                 arrayMalls.append(refDictionary)
                             }
                         }
-                        
+
                     case "refImage":
                         for it in item.children {
                             let item = it as! DataSnapshot
@@ -185,7 +204,7 @@ final class FBManager {
                     default:
                         break
                     }
-                    
+
                 }
                 let productModel = PopularProduct(snapshot: product, refArray: arrayRefe, malls: arrayMalls)
                 arrayProduct.append(productModel)
@@ -195,8 +214,7 @@ final class FBManager {
     }
     
     
-    // MARK: - -
-    // newHVC
+// newHVC
     
     func getPreviewMallsNew(completionHandler: @escaping ([ItemCell]) -> Void) {
         let databaseRef = Database.database().reference()
@@ -269,9 +287,7 @@ final class FBManager {
             completionHandler(arrayProduct)
         }
     }
-    
-    // MARK: - -
-    
+        
     func getPlaces(completionHandler: @escaping ([PlacesFB]) -> Void) {
         let databaseRef = Database.database().reference()
         databaseRef.child("Places").observe(.value) { snapshot in
