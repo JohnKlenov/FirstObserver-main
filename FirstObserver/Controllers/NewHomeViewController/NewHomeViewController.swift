@@ -9,6 +9,8 @@ import UIKit
 import Firebase
 import MapKit
 
+// не реализовано: func startPresentation(Start Onboarding) - PageViewController + topView(если Onboarding не был показан мы добавляем черное view во viewWillAppear что бы сделать переход между lounchScreenStoryboard и Onboarding)
+
 class NewHomeViewController: UIViewController {
 
 //    private var section: [MSectionImage]!
@@ -59,22 +61,35 @@ class NewHomeViewController: UIViewController {
             getPlacesMap()
         }
     }
-    var cardProducts:[Any] = []
+    var cardProducts:[PopularProduct] = []
     private var collectionViewLayout:UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<SectionHVC, ItemCell>?
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+//        managerFB.userListener { currentUser in
+//            self.currentUser = currentUser
+//
+//            if currentUser == nil {
+//                self.addedToCardProducts = []
+//                self.managerFB.signInAnonymously()
+//            }
+//
+            self.managerFB.getCardProduct { cardProduct in
+                self.cardProducts = cardProduct
+            }
+//        }
+        
         title = "HomeVC"
         view.backgroundColor = .systemBackground
 //      tabBarController?.view.isUserInteractionEnabled = false
         configureActivityIndicatorView()
         view.addSubview(segmentedControl)
-//        section = MSectionImage.getData()
         setupCollectionView()
         setupConstraints()
         createDataSource()
-//        reloadData()
+        collectionViewLayout.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -93,6 +108,10 @@ class NewHomeViewController: UIViewController {
         managerFB.getPopularProductNew { products in
             let section = SectionHVC(section: "PopularProducts", items: products)
             self.modelHomeViewController.append(section)
+        }
+        
+        managerFB.getPlaces { modelPlaces in
+            self.placesFB = modelPlaces
         }
         
     }
@@ -303,8 +322,58 @@ class NewHomeViewController: UIViewController {
     }
 }
 
-//        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
-//        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-//        item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 5, bottom: 0, trailing: 5)
-//        let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension:  .fractionalWidth(2/3)), subitem: item, count: 2)
-//        group.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
+extension NewHomeViewController: UICollectionViewDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        switch indexPath.section {
+        case 0:
+            let mallVC = UIStoryboard.vcById("MallViewController") as! MallViewController
+            let mallSection = modelHomeViewController.filter({$0.section == "Malls"})
+            let brandsSection = modelHomeViewController.filter({$0.section == "Brands"})
+            mallVC.arrayPin = placesMap
+            mallVC.refPath = mallSection.first?.items[indexPath.row].malls?.brand ?? ""
+            if let arrayBrands = brandsSection.first?.items.map({$0.brands!}) {
+                mallVC.brandsMall = arrayBrands
+            }
+//                        }
+//            self.navigationController?.pushViewController(mallVC, animated: true)
+            present(mallVC, animated: true, completion: nil)
+            print("Malls section")
+        case 1:
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let brandVC = storyboard.instantiateViewController(withIdentifier: "BrandsViewController") as! BrandsViewController
+            let brandsSection = modelHomeViewController.filter({$0.section == "Brands"})
+            let refBrand = brandsSection.first?.items[indexPath.row].brands?.brand ?? ""
+            let ref = Database.database().reference(withPath: "brands/\(refBrand)")
+            brandVC.incomingRef = ref
+            brandVC.arrayPin = placesMap
+//            self.navigationController?.pushViewController(brandVC, animated: true)
+            present(brandVC, animated: true, completion: nil)
+            print("Brands section")
+        case 2:
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let productVC = storyboard.instantiateViewController(withIdentifier: "ProductViewController") as! ProductViewController
+            let productSection = modelHomeViewController.filter({$0.section == "PopularProducts"})
+            let malls = productSection.first?.items[indexPath.row].popularProduct?.malls ?? [""]
+            var placesArray:[PlacesTest] = []
+            placesMap.forEach { (places) in
+                if malls.contains(places.title ?? "") {
+                    placesArray.append(places)
+                }
+            }
+            cardProducts.forEach { (addedProduct) in
+                if addedProduct.model == productSection.first?.items[indexPath.row].popularProduct?.model {
+                    productVC.isAddedToCard = true
+                }
+            }
+            productVC.fireBaseModel = productSection.first?.items[indexPath.row].popularProduct
+            productVC.arrayPin = placesArray
+//            self.navigationController?.pushViewController(productVC, animated: true)
+            present(productVC, animated: true, completion: nil)
+            print("Products section")
+        default:
+            print("default \(indexPath.section)")
+        }
+    }
+}

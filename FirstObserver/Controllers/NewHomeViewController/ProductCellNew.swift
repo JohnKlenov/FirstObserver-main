@@ -100,27 +100,21 @@ class ProductCellNew: UICollectionViewCell {
         topImageViewCnstr.isActive = true
         
         let trailingImageViewCnstr = imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 0)
-//        trailingImageViewCnstr.priority = UILayoutPriority(1000)
         trailingImageViewCnstr.isActive = true
         
         let leadingImageViewCnstr = imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0)
-//        leadingImageViewCnstr.priority = UILayoutPriority(1000)
         leadingImageViewCnstr.isActive = true
         
         let heightImageViewCnstr = imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 1)
-//        heightImageViewCnstr.priority = UILayoutPriority(1000)
         heightImageViewCnstr.isActive = true
         
         let topStackCnstr = stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 0)
-//        topStackCnstr.priority = UILayoutPriority(1000)
         topStackCnstr.isActive = true
         
         let trailingStackCnstr = stackView.trailingAnchor.constraint(equalTo: imageView.trailingAnchor)
-//        trailingStackCnstr.priority = UILayoutPriority(1000)
         trailingStackCnstr.isActive = true
         
         let leadingStackCnstr = stackView.leadingAnchor.constraint(equalTo: imageView.leadingAnchor)
-//        leadingStackCnstr.priority = UILayoutPriority(1000)
         leadingStackCnstr.isActive = true
         
         let bottomStackCnstr = stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0)
@@ -146,29 +140,3 @@ class ProductCellNew: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 }
-
-
-//    private func setupConstraints() {
-//
-//
-//
-//        NSLayoutConstraint.activate([
-//            imageView.topAnchor.constraint(equalTo: topAnchor, constant: 0),
-//            imageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
-//            imageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
-//            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 1),
-//
-//            stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 0),
-////            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
-////            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
-//            stackView.widthAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 1),
-////            stackView.heightAnchor.constraint(equalTo: stackView.widthAnchor, multiplier: 1/2),
-//            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 0)
-//
-//        ])
-//
-//
-//
-//
-////        NSLayoutConstraint.activate([imageView.topAnchor.constraint(equalTo: topAnchor), imageView.bottomAnchor.constraint(equalTo: bottomAnchor), imageView.trailingAnchor.constraint(equalTo: trailingAnchor), imageView.leadingAnchor.constraint(equalTo: leadingAnchor)])
-//    }
