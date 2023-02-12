@@ -15,8 +15,16 @@ class MallsViewController: UIViewController {
     var hightCellVC: CGFloat!
 
     var arrayPins: [PlacesTest] = []
-    var mallsModel: [PreviewCategory] = []
-    var brandsModel: [PreviewCategory] = []
+    var mallsModel: [PreviewCategory] = [] {
+        didSet {
+            print("mallsModel - \(mallsModel)")
+        }
+    }
+    var brandsModel: [PreviewCategory] = [] {
+        didSet {
+            print("mallsModel - \(brandsModel)")
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,22 +47,35 @@ class MallsViewController: UIViewController {
             print("контроллеров в таб баре")
             
             if let nc = vc as? UINavigationController {
-                if let homeVC = nc.topViewController as? HomeViewController {
+                if let homeVC = nc.topViewController as? NewHomeViewController {
                     print("HomeViewController найден HomeViewController найден HomeViewController найден!")
                     self.arrayPins = homeVC.placesMap
-                    if let model = homeVC.arrayInArray["malls"] as? [PreviewCategory] {
-                        self.mallsModel = model
+                    let mallsSection = homeVC.modelHomeViewController.filter({$0.section == "Malls"})
+                    var malls:[PreviewCategory] = []
+                    if let items = mallsSection.first?.items {
+                        items.forEach { item in
+                            if let mall = item.malls {
+                                malls.append(mall)
+                            }
+                        }
+                        self.mallsModel = malls
                     }
-                    if let brands = homeVC.arrayInArray["brands"] as? [PreviewCategory] {
+                    
+                    let brandsSection = homeVC.modelHomeViewController.filter({$0.section == "Brands"})
+                    var brands:[PreviewCategory] = []
+                    if let items = brandsSection.first?.items {
+                        items.forEach { item in
+                            if let brand = item.brands {
+                                brands.append(brand)
+                            }
+                        }
                         self.brandsModel = brands
                     }
                 }
             }
         }
     }
-    
 }
-
 
 extension MallsViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     

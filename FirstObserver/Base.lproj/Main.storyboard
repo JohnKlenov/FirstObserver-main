@@ -336,11 +336,11 @@
             <objects>
                 <viewController storyboardIdentifier="BrandsViewController" id="ghP-Ux-LLl" customClass="BrandsViewController" customModule="FirstObserver" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="VTM-ZQ-QgM">
-                        <rect key="frame" x="0.0" y="0.0" width="428" height="926"/>
+                        <rect key="frame" x="0.0" y="0.0" width="428" height="872"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="2CQ-RH-6Vx">
-                                <rect key="frame" x="0.0" y="88" width="428" height="60"/>
+                                <rect key="frame" x="0.0" y="0.0" width="428" height="60"/>
                                 <color key="backgroundColor" red="1" green="0.68483741210000004" blue="0.44589307179999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="60" id="1D6-Eq-Sli"/>
@@ -354,7 +354,7 @@
                                 <cells/>
                             </collectionView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" pagingEnabled="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="9AJ-Mp-79J">
-                                <rect key="frame" x="0.0" y="148" width="428" height="695"/>
+                                <rect key="frame" x="0.0" y="60" width="428" height="778"/>
                                 <color key="backgroundColor" red="0.98366332919999999" green="0.71409894299999999" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="I9v-VE-ddt">
                                     <size key="itemSize" width="128" height="128"/>
@@ -395,7 +395,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="KWG-Wl-jDH" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-3587" y="1486"/>
+            <point key="canvasLocation" x="-4762" y="2517"/>
         </scene>
         <!--Home View Controller-->
         <scene sceneID="d3R-ea-le4">
@@ -406,7 +406,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" allowsSelection="NO" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="iUg-Wm-3iu">
-                                <rect key="frame" x="0.0" y="88" width="428" height="755"/>
+                                <rect key="frame" x="0.0" y="44" width="428" height="848"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ShopingMall" rowHeight="220" id="wdk-V0-yUr" customClass="ShopingMallCell" customModule="FirstObserver" customModuleProvider="target">
@@ -653,7 +653,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="R1F-LW-DVJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2655" y="1486"/>
+            <point key="canvasLocation" x="-4762" y="1791"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="bHC-RE-jG5">
@@ -868,6 +868,22 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="IOn-6i-hJU" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1226.6355140186915" y="727.64578833693315"/>
+        </scene>
+        <!--New Home View Controller-->
+        <scene sceneID="NgT-fq-9Gb">
+            <objects>
+                <viewController storyboardIdentifier="NewHomeViewController" id="km3-XG-3pY" customClass="NewHomeViewController" customModule="FirstObserver" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="eFa-9f-W6V">
+                        <rect key="frame" x="0.0" y="0.0" width="428" height="926"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="4xU-5J-JTP"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="4ed-Xh-Jtf"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="yUA-uN-aOM" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-2655" y="1486"/>
         </scene>
         <!--Mall View Controller-->
         <scene sceneID="nfY-vs-AoH">
@@ -1700,7 +1716,7 @@
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
-                        <segue destination="bEL-RL-8JE" kind="relationship" relationship="rootViewController" id="Yqy-aD-CAz"/>
+                        <segue destination="km3-XG-3pY" kind="relationship" relationship="rootViewController" id="PGS-dD-GOd"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="F1f-35-T94" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

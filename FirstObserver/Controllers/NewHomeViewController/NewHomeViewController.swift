@@ -44,7 +44,7 @@ class NewHomeViewController: UIViewController {
         return view
     }()
     
-    private var modelHomeViewController = [SectionHVC]() {
+    var modelHomeViewController = [SectionHVC]() {
         didSet {
             if modelHomeViewController.count == 3 {
 //                print("modelHomeViewController - \(modelHomeViewController)")

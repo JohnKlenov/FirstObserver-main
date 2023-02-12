@@ -231,10 +231,12 @@ import Firebase
         }
 
         @IBAction func didTapDeleteAccount(_ sender: UIButton) {
-
-            let vc = NewHomeViewController()
-            vc.modalPresentationStyle = .fullScreen
-            present(vc, animated: true, completion: nil)
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let newHVC = storyboard.instantiateViewController(withIdentifier: "NewHomeViewController") as! NewHomeViewController
+            
+//            let vc = NewHomeViewController()
+            newHVC.modalPresentationStyle = .fullScreen
+            present(newHVC, animated: true, completion: nil)
 
 //            getFetchDataHVC()
 //            setupDeleteAlert(title: "Warning", message: "Deleting your account will permanently lose your data!") { isDelete in
