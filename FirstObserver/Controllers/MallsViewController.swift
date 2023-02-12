@@ -15,16 +15,8 @@ class MallsViewController: UIViewController {
     var hightCellVC: CGFloat!
 
     var arrayPins: [PlacesTest] = []
-    var mallsModel: [PreviewCategory] = [] {
-        didSet {
-            print("mallsModel - \(mallsModel)")
-        }
-    }
-    var brandsModel: [PreviewCategory] = [] {
-        didSet {
-            print("mallsModel - \(brandsModel)")
-        }
-    }
+    var mallsModel: [PreviewCategory] = []
+    var brandsModel: [PreviewCategory] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,9 +26,7 @@ class MallsViewController: UIViewController {
         collectionView.dataSource = self
         
         hightCellVC = (collectionView.frame.height/3)*0.86
-        
         getFetchDataHVC()
-        
     }
     
     private func getFetchDataHVC() {
@@ -44,11 +34,9 @@ class MallsViewController: UIViewController {
         guard let tabBarVCs = tabBarController?.viewControllers else {return}
         
         for vc in tabBarVCs {
-            print("контроллеров в таб баре")
             
             if let nc = vc as? UINavigationController {
                 if let homeVC = nc.topViewController as? NewHomeViewController {
-                    print("HomeViewController найден HomeViewController найден HomeViewController найден!")
                     self.arrayPins = homeVC.placesMap
                     let mallsSection = homeVC.modelHomeViewController.filter({$0.section == "Malls"})
                     var malls:[PreviewCategory] = []

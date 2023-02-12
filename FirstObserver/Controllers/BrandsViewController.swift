@@ -42,14 +42,14 @@ class BrandsViewController: UIViewController {
             }
             groupsCollectionView.reloadData()
             collectionView.reloadData()
-            print(popularGarderob?.groups.first?.name ?? "popularGarderob nil")
+//            print(popularGarderob?.groups.first?.name ?? "popularGarderob nil")
         }
     }
     var arrayPin: [PlacesTest] = []
     var addedToCartProducts: [PopularProduct] = [] {
         didSet {
-            print("#######################################################")
-            print("\(self.addedToCartProducts)")
+//            print("#######################################################")
+//            print("\(self.addedToCartProducts)")
         }
     }
     
@@ -81,7 +81,7 @@ class BrandsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("BrandsViewController BrandsViewController BrandsViewController")
+//        print("BrandsViewController BrandsViewController BrandsViewController")
         
         getFetchDataHVC()
         
@@ -90,11 +90,11 @@ class BrandsViewController: UIViewController {
             let garderob = PopularGarderob()
             for item in snapshot.children {
                 let itemCategory = item as! DataSnapshot
-                print("BrandsViewController \(itemCategory.key)")
+//                print("BrandsViewController \(itemCategory.key)")
                 let group = PopularGroup(name: itemCategory.key, group: nil, product: [])
                 for item in itemCategory.children {
                     let product = item as! DataSnapshot
-                    print(product.key)
+//                    print(product.key)
                     
                     var arrayMalls = [String]()
                     var arrayRefe = [String]()
@@ -126,11 +126,11 @@ class BrandsViewController: UIViewController {
                     }
                     let productModel = PopularProduct(snapshot: product, refArray: arrayRefe, malls: arrayMalls)
                     group.product?.append(productModel)
-                    print("Append new product BrandsViewController\(productModel.model)")
+//                    print("Append new product BrandsViewController\(productModel.model)")
                     
                 }
                 garderob.groups.append(group)
-                print("appenf new group BrandsViewController\(group.name)")
+//                print("appenf new group BrandsViewController\(group.name)")
             }
             self.popularGarderob = garderob
         }
@@ -141,7 +141,7 @@ class BrandsViewController: UIViewController {
 
         let guide = self.view.safeAreaLayoutGuide
         let heightSafeArea = guide.layoutFrame.size.height
-        let xProcent = heightSafeArea/100 * 10
+        let xProcent = heightSafeArea/100 * 5
         heightCollectionView = heightSafeArea - xProcent
         self.heightGroupsCV.constant = xProcent
 

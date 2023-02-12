@@ -19,7 +19,6 @@ class CatalogCollectionViewCell: UICollectionViewCell {
         super.awakeFromNib()
         self.layer.cornerRadius = 10
         storage = Storage.storage()
-        print("CatalogCollectionViewCell frameCell = \(self.frame)")
     }
     
     override func prepareForReuse() {
