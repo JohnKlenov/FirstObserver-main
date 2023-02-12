@@ -57,7 +57,7 @@ class CatalogViewController: UIViewController {
             print("контроллеров в таб баре")
             
             if let nc = vc as? UINavigationController {
-                if let homeVC = nc.topViewController as? HomeViewController {
+                if let homeVC = nc.topViewController as? NewHomeViewController {
                     print("HomeViewController найден HomeViewController найден HomeViewController найден!")
                     self.arrayPins = homeVC.placesMap
 

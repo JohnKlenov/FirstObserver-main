@@ -47,11 +47,10 @@ class NewHomeViewController: UIViewController {
     var modelHomeViewController = [SectionHVC]() {
         didSet {
             if modelHomeViewController.count == 3 {
-//                print("modelHomeViewController - \(modelHomeViewController)")
                 reloadData()
                 loader.stopAnimating()
                 activityContainerView.removeFromSuperview()
-//              tabBarController?.view.isUserInteractionEnabled = true
+                tabBarController?.view.isUserInteractionEnabled = true
             }
         }
     }
@@ -68,22 +67,21 @@ class NewHomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        managerFB.userListener { currentUser in
-//            self.currentUser = currentUser
-//
-//            if currentUser == nil {
-//                self.addedToCardProducts = []
-//                self.managerFB.signInAnonymously()
-//            }
-//
+        managerFB.userListener { currentUser in
+            self.currentUser = currentUser
+            
+            if currentUser == nil {
+                self.cardProducts = []
+                self.managerFB.signInAnonymously()
+            }
             self.managerFB.getCardProduct { cardProduct in
                 self.cardProducts = cardProduct
             }
-//        }
+        }
         
         title = "HomeVC"
         view.backgroundColor = .systemBackground
-//      tabBarController?.view.isUserInteractionEnabled = false
+        tabBarController?.view.isUserInteractionEnabled = false
         configureActivityIndicatorView()
         view.addSubview(segmentedControl)
         setupCollectionView()
@@ -337,8 +335,8 @@ extension NewHomeViewController: UICollectionViewDelegate {
                 mallVC.brandsMall = arrayBrands
             }
 //                        }
-//            self.navigationController?.pushViewController(mallVC, animated: true)
-            present(mallVC, animated: true, completion: nil)
+            self.navigationController?.pushViewController(mallVC, animated: true)
+//            present(mallVC, animated: true, completion: nil)
             print("Malls section")
         case 1:
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
@@ -348,8 +346,8 @@ extension NewHomeViewController: UICollectionViewDelegate {
             let ref = Database.database().reference(withPath: "brands/\(refBrand)")
             brandVC.incomingRef = ref
             brandVC.arrayPin = placesMap
-//            self.navigationController?.pushViewController(brandVC, animated: true)
-            present(brandVC, animated: true, completion: nil)
+            self.navigationController?.pushViewController(brandVC, animated: true)
+//            present(brandVC, animated: true, completion: nil)
             print("Brands section")
         case 2:
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
@@ -369,8 +367,8 @@ extension NewHomeViewController: UICollectionViewDelegate {
             }
             productVC.fireBaseModel = productSection.first?.items[indexPath.row].popularProduct
             productVC.arrayPin = placesArray
-//            self.navigationController?.pushViewController(productVC, animated: true)
-            present(productVC, animated: true, completion: nil)
+            self.navigationController?.pushViewController(productVC, animated: true)
+//            present(productVC, animated: true, completion: nil)
             print("Products section")
         default:
             print("default \(indexPath.section)")
