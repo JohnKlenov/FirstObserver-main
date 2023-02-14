@@ -63,8 +63,9 @@ class BrandsViewController: UIViewController {
         groupsCollectionView.delegate = self
         groupsCollectionView.dataSource = self
         
-        let nibProduct = UINib(nibName: "ProductCell", bundle: nil)
-        collectionView.register(nibProduct, forCellWithReuseIdentifier: "ProductCell")
+//        let nibProduct = UINib(nibName: "ProductCell", bundle: nil)
+//        collectionView.register(nibProduct, forCellWithReuseIdentifier: "ProductCell")
+        collectionView.register(ProductCellForBrandsVC.self, forCellWithReuseIdentifier: ProductCellForBrandsVC.reuseID)
         collectionView.delegate = self
         collectionView.dataSource = self
         
@@ -221,7 +222,8 @@ extension BrandsViewController : UICollectionViewDelegate, UICollectionViewDataS
             cell.setupCell(groupName: groupName!, isSelected: boolName)
             return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductCell", for: indexPath) as! ProductCell
+//            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductCell", for: indexPath) as! ProductCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductCellForBrandsVC", for: indexPath) as! ProductCellForBrandsVC
             cell.delegate = self
 //            let product = menu.groups.first?.groups?[indexPath.item].product
             let product = popularGarderob?.groups[indexPath.item].product

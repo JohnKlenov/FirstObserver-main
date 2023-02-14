@@ -1,17 +1,17 @@
 //
-//  ProductCell.swift
+//  ProductCellForProductCell.swift
 //  FirstObserver
 //
-//  Created by Evgenyi on 8.02.23.
+//  Created by Evgenyi on 14.02.23.
 //
 
 import UIKit
 import FirebaseStorage
 import FirebaseStorageUI
 
-class ProductCellNew: UICollectionViewCell {
+class ProductCellForProductCell: UICollectionViewCell {
     
-    static var reuseID = "ProductCell"
+    static var reuseID = "ProductCellForProductCell"
     var storage: Storage!
     
     let imageView: UIImageView = {
@@ -76,9 +76,9 @@ class ProductCellNew: UICollectionViewCell {
         return stack
     }()
     
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-//        contentView.backgroundColor = .lightGray
         configureStackView()
         contentView.addSubview(imageView)
         contentView.addSubview(stackView)
@@ -91,6 +91,22 @@ class ProductCellNew: UICollectionViewCell {
         arrayViews.forEach { view in
             stackView.addArrangedSubview(view)
         }
+    }
+    
+    func configureCell(model: PopularProduct) {
+//        imageView.image = UIImage(named: model.popularProduct?.refArray.first ?? "")
+//        if let firstRef = model.popularProduct?.refArray.first {
+//            let urlRef = storage.reference(forURL: firstRef)
+//            self.imageView.sd_setImage(with: urlRef, placeholderImage: UIImage(named: "DefaultImage"))
+//        } else {
+//            imageView.image = UIImage(named: "DefaultImage")
+//        }
+        let refURL = storage.reference(forURL: model.refArray.first ?? "")
+        imageView.sd_setImage(with: refURL, placeholderImage: UIImage(named: "DefaultImage"))
+        brandLabel.text = "Nike"
+        modelLabel.text = model.model
+        mallLabel.text = model.malls.first
+        priceLabel.text = model.price
     }
     
     private func setupConstraints() {
@@ -121,38 +137,7 @@ class ProductCellNew: UICollectionViewCell {
         bottomStackCnstr.priority = UILayoutPriority(999)
         bottomStackCnstr.isActive = true
     }
-
     
-    func configureCell(model: ItemCell) {
-//        imageView.image = UIImage(named: model.popularProduct?.refArray.first ?? "")
-        if let firstRef = model.popularProduct?.refArray.first {
-            let urlRef = storage.reference(forURL: firstRef)
-            self.imageView.sd_setImage(with: urlRef, placeholderImage: UIImage(named: "DefaultImage"))
-        } else {
-            imageView.image = UIImage(named: "DefaultImage")
-        }
-        brandLabel.text = "Nike"
-        modelLabel.text = model.popularProduct?.model
-        mallLabel.text = model.popularProduct?.malls.first
-        priceLabel.text = model.popularProduct?.price
-    }
-    
-//    func configureCellforProductCell(model: PopularProduct) {
-////        imageView.image = UIImage(named: model.popularProduct?.refArray.first ?? "")
-////        if let firstRef = model.popularProduct?.refArray.first {
-////            let urlRef = storage.reference(forURL: firstRef)
-////            self.imageView.sd_setImage(with: urlRef, placeholderImage: UIImage(named: "DefaultImage"))
-////        } else {
-////            imageView.image = UIImage(named: "DefaultImage")
-////        }
-//        let refURL = storage.reference(forURL: model.refArray.first ?? "")
-//        imageView.sd_setImage(with: refURL, placeholderImage: UIImage(named: "DefaultImage"))
-//        brandLabel.text = "Nike"
-//        modelLabel.text = model.model
-//        mallLabel.text = model.malls.first
-//        priceLabel.text = model.price
-//    }
-//
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
