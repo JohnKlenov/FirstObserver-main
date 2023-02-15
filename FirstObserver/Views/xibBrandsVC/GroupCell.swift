@@ -21,9 +21,9 @@ class GroupCell: UICollectionViewCell {
         groupNameLabel.text = groupName
         
         if isSelected {
-            groupNameLabel.textColor = .orange
-        } else {
             groupNameLabel.textColor = .black
+        } else {
+            groupNameLabel.textColor = .darkGray
         }
     }
 

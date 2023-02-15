@@ -320,9 +320,10 @@ extension MallViewController: ChildVCDelegate {
     
     func goToBrandVC(pathRef: String) {
         
-        let ref = Database.database().reference(withPath: "brands/\(pathRef)")
+//        let ref = Database.database().reference(withPath: "brands/\(pathRef)")
         let brandVC = UIStoryboard.vcById("BrandsViewController") as! BrandsViewController
-        brandVC.incomingRef = ref
+//        brandVC.incomingRef = ref
+        brandVC.pathRefBrandVC = pathRef
         brandVC.arrayPin = arrayPin
         self.navigationController?.pushViewController(brandVC, animated: true)
         

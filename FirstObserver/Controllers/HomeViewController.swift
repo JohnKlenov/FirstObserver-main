@@ -371,8 +371,9 @@ extension HomeViewController: ViewsHomeVCNavigationDelegate {
         case .brandCell:
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let brandVC = storyboard.instantiateViewController(withIdentifier: "BrandsViewController") as! BrandsViewController
-            let ref = Database.database().reference(withPath: "brands/\(refPath)")
-            brandVC.incomingRef = ref
+//            let ref = Database.database().reference(withPath: "brands/\(refPath)")
+//            brandVC.incomingRef = ref
+            brandVC.pathRefBrandVC = refPath
             brandVC.arrayPin = placesMap
             self.navigationController?.pushViewController(brandVC, animated: true)
             

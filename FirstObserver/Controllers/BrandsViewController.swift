@@ -6,9 +6,6 @@
 //
 
 import UIKit
-import Firebase
-
-
 
 class BrandsViewController: UIViewController {
     
@@ -30,9 +27,9 @@ class BrandsViewController: UIViewController {
     
     // MARK: - FirebaseProperty -
     
-    var incomingRef: DatabaseReference?
-    var searchCategory: String?
-    var categoryRef: DatabaseReference?
+    let managerFB = FBManager.shared
+    var pathRefBrandVC: String?
+    var pathRefAllPRoductVC: String?
     var popularGarderob: PopularGarderob? {
         didSet {
             if let group = popularGarderob?.groups.first, let groups = popularGarderob?.groups, groups.count > 0 {
@@ -42,16 +39,10 @@ class BrandsViewController: UIViewController {
             }
             groupsCollectionView.reloadData()
             collectionView.reloadData()
-//            print(popularGarderob?.groups.first?.name ?? "popularGarderob nil")
         }
     }
     var arrayPin: [PlacesTest] = []
-    var addedToCartProducts: [PopularProduct] = [] {
-        didSet {
-//            print("#######################################################")
-//            print("\(self.addedToCartProducts)")
-        }
-    }
+    var addedToCartProducts: [PopularProduct] = []
     
     
     override func viewDidLoad() {
@@ -82,58 +73,13 @@ class BrandsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        print("BrandsViewController BrandsViewController BrandsViewController")
         
         getFetchDataHVC()
         
-        incomingRef?.observe(.value){ (snapshot) in
-            
-            let garderob = PopularGarderob()
-            for item in snapshot.children {
-                let itemCategory = item as! DataSnapshot
-//                print("BrandsViewController \(itemCategory.key)")
-                let group = PopularGroup(name: itemCategory.key, group: nil, product: [])
-                for item in itemCategory.children {
-                    let product = item as! DataSnapshot
-//                    print(product.key)
-                    
-                    var arrayMalls = [String]()
-                    var arrayRefe = [String]()
-                    
-                    
-                    for mass in product.children {
-                        let item = mass as! DataSnapshot
-                        
-                        switch item.key {
-                        case "malls":
-                            for it in item.children {
-                                let item = it as! DataSnapshot
-                                if let refDictionary = item.value as? String {
-                                    arrayMalls.append(refDictionary)
-                                }
-                            }
-                            
-                        case "refImage":
-                            for it in item.children {
-                                let item = it as! DataSnapshot
-                                if let refDictionary = item.value as? String {
-                                    arrayRefe.append(refDictionary)
-                                }
-                            }
-                        default:
-                            break
-                        }
-                        
-                    }
-                    let productModel = PopularProduct(snapshot: product, refArray: arrayRefe, malls: arrayMalls)
-                    group.product?.append(productModel)
-//                    print("Append new product BrandsViewController\(productModel.model)")
-                    
-                }
-                garderob.groups.append(group)
-//                print("appenf new group BrandsViewController\(group.name)")
+        if let searchBrand = pathRefBrandVC {
+            managerFB.getBrand(searchBrand: searchBrand) { garderob in
+                self.popularGarderob = garderob
             }
-            self.popularGarderob = garderob
         }
     }
     
@@ -142,7 +88,7 @@ class BrandsViewController: UIViewController {
 
         let guide = self.view.safeAreaLayoutGuide
         let heightSafeArea = guide.layoutFrame.size.height
-        let xProcent = heightSafeArea/100 * 5
+        let xProcent = heightSafeArea/100 * 10
         heightCollectionView = heightSafeArea - xProcent
         self.heightGroupsCV.constant = xProcent
 
@@ -157,16 +103,6 @@ class BrandsViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-//        let guide = self.view.safeAreaLayoutGuide
-//        let heightSafeArea = guide.layoutFrame.size.height
-//        print(" Высота safe Area - \(heightSafeArea)")
-//        print("Высота frame collectionView - \(String(format: "%.2f" , collectionView.frame.height))")
-//        print("Высота frame groupsCollectionView - \(String(format: "%.2f" , groupsCollectionView.frame.height))")
-//        print("Высота NB - \(self.navigationController?.navigationBar.frame.height)")
-//        print("Высота View - \(self.view.frame.height)")
-//        print(" Высота TB -\(self.tabBarController?.tabBar.frame.height)")
-//        print("Высота statusBar - \(Screen.statusBarHeight)")
         
     }
     
@@ -236,8 +172,9 @@ extension BrandsViewController : UICollectionViewDelegate, UICollectionViewDataS
         if collectionView == groupsCollectionView {
             //            let groupName = menu.groups.first!.groups![indexPath.item].name
             let groupName = popularGarderob?.groups[indexPath.item].name ?? ""
-            let width = groupName.widthOfString(usingFont: UIFont.systemFont(ofSize: 17))
-            return CGSize(width: width + 20, height: collectionView.frame.height)
+//            UIFont.systemFont(ofSize: 20)
+            let width = groupName.widthOfString(usingFont: UIFont.systemFont(ofSize: 20, weight: .bold))
+            return CGSize(width: width + 20, height: collectionView.frame.height/2)
         } else {
             return CGSize(width: UIScreen.main.bounds.width - 10, height: heightCollectionView)
         }

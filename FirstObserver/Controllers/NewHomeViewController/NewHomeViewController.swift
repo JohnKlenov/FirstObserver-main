@@ -343,8 +343,9 @@ extension NewHomeViewController: UICollectionViewDelegate {
             let brandVC = storyboard.instantiateViewController(withIdentifier: "BrandsViewController") as! BrandsViewController
             let brandsSection = modelHomeViewController.filter({$0.section == "Brands"})
             let refBrand = brandsSection.first?.items[indexPath.row].brands?.brand ?? ""
-            let ref = Database.database().reference(withPath: "brands/\(refBrand)")
-            brandVC.incomingRef = ref
+//            let ref = Database.database().reference(withPath: "brands/\(refBrand)")
+//            brandVC.incomingRef = ref
+            brandVC.pathRefBrandVC = refBrand
             brandVC.arrayPin = placesMap
             self.navigationController?.pushViewController(brandVC, animated: true)
 //            present(brandVC, animated: true, completion: nil)

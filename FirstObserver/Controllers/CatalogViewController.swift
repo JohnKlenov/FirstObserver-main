@@ -80,7 +80,7 @@ extension CatalogViewController: UICollectionViewDelegate, UICollectionViewDataS
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let searchCategory = arrayCatalog[indexPath.item].brand
         let allProductCategoryVC = UIStoryboard.vcById("AllProductViewController") as! AllProductViewController
-        allProductCategoryVC.searchCategory = searchCategory
+        allProductCategoryVC.pathRefAllPRoductVC = searchCategory
 //        let refCategory = Database.database().reference(withPath: "brands")
 //        allProductCategoryVC.categoryRef = refCategory
         allProductCategoryVC.arrayPin = arrayPins
