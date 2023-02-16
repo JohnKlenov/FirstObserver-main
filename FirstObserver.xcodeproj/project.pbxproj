@@ -23,6 +23,7 @@
 		5E175A4B28CF658500773C77 /* ProductVCCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E175A4A28CF658500773C77 /* ProductVCCollectionViewCell.swift */; };
 		5E3F053E299C12B000678956 /* ProductCellForBrandsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E3F053D299C12B000678956 /* ProductCellForBrandsVC.swift */; };
 		5E3F0540299C183C00678956 /* ProductCellForProductCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E3F053F299C183C00678956 /* ProductCellForProductCell.swift */; };
+		5E61BCCD299E3A4F009C8366 /* CartCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E61BCCC299E3A4F009C8366 /* CartCell.swift */; };
 		5E731C9428E443F600AF3A21 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E731C9328E443F600AF3A21 /* SignInViewController.swift */; };
 		5E731C9628E4441200AF3A21 /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E731C9528E4441200AF3A21 /* SignUpViewController.swift */; };
 		5E74BCC828EEEF9B0048D097 /* Validators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E74BCC728EEEF9B0048D097 /* Validators.swift */; };
@@ -94,6 +95,7 @@
 		5E175A4A28CF658500773C77 /* ProductVCCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductVCCollectionViewCell.swift; sourceTree = "<group>"; };
 		5E3F053D299C12B000678956 /* ProductCellForBrandsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCellForBrandsVC.swift; sourceTree = "<group>"; };
 		5E3F053F299C183C00678956 /* ProductCellForProductCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCellForProductCell.swift; sourceTree = "<group>"; };
+		5E61BCCC299E3A4F009C8366 /* CartCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartCell.swift; sourceTree = "<group>"; };
 		5E731C9328E443F600AF3A21 /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
 		5E731C9528E4441200AF3A21 /* SignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
 		5E74BCC728EEEF9B0048D097 /* Validators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Validators.swift; sourceTree = "<group>"; };
@@ -188,6 +190,7 @@
 			children = (
 				5E139C5C28C4C9E8004F963D /* CartTableViewCell.swift */,
 				5E139C5D28C4C9E8004F963D /* CartTableViewCell.xib */,
+				5E61BCCC299E3A4F009C8366 /* CartCell.swift */,
 			);
 			path = xibCartVC;
 			sourceTree = "<group>";
@@ -587,6 +590,7 @@
 				5E759F1528BE2A0000D17F13 /* CollectionViewCellProduct.swift in Sources */,
 				5E175A4B28CF658500773C77 /* ProductVCCollectionViewCell.swift in Sources */,
 				5E0BF4762993AF6F00FB99BE /* MallsViewCell.swift in Sources */,
+				5E61BCCD299E3A4F009C8366 /* CartCell.swift in Sources */,
 				5E0BF4722993AE9C00FB99BE /* ImageCell.swift in Sources */,
 				5E7EF55F28A12DBB00814F4D /* AppDelegate.swift in Sources */,
 				5E0BF4782993AFB100FB99BE /* BackgroundViewCollectionReusableView.swift in Sources */,

@@ -69,7 +69,7 @@
                 <outlet property="imageWidth" destination="Ai7-OG-SG5" id="CpE-LL-ddT"/>
                 <outlet property="price" destination="1ee-Pe-lna" id="8nX-x2-Kwq"/>
             </connections>
-            <point key="canvasLocation" x="336.80000000000001" y="64.767616191904054"/>
+            <point key="canvasLocation" x="335.74766355140184" y="64.146868250539967"/>
         </tableViewCell>
     </objects>
     <resources>

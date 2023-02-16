@@ -15,8 +15,8 @@ class CartViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     
     var model: [Product]!
-    var heightCell: CGFloat!
-    var imageWidth: CGFloat!
+//    var heightCell: CGFloat!
+//    var imageWidth: CGFloat!
     var arrayPlaces: [PlacesTest] = []
     
 //    private lazy var ref: DatabaseReference? = {
@@ -37,11 +37,13 @@ class CartViewController: UIViewController {
         
         self.title = "Cart"
         
-        heightCell = self.tableView.frame.height/7
-        imageWidth = heightCell - 30
-        let nib = UINib(nibName: "CartTableViewCell", bundle: nil)
-        tableView.register(nib, forCellReuseIdentifier: "CartTableViewCell")
-        
+//        heightCell = self.tableView.frame.height/7
+//        imageWidth = heightCell - 30
+//        let nib = UINib(nibName: "CartTableViewCell", bundle: nil)
+//        tableView.register(nib, forCellReuseIdentifier: "CartTableViewCell")
+        tableView.register(CartCell.self, forCellReuseIdentifier: CartCell.reuseID)
+        tableView.estimatedRowHeight = 10
+        tableView.rowHeight = UITableView.automaticDimension
         
         setupHeaderView()
         
@@ -128,18 +130,21 @@ extension CartViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CartTableViewCell", for: indexPath) as! CartTableViewCell
-        cell.configureCell(model: addedInCartProducts[indexPath.row], imageWidth: imageWidth)
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "CartTableViewCell", for: indexPath) as! CartTableViewCell
+//        cell.configureCell(model: addedInCartProducts[indexPath.row], imageWidth: imageWidth)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CartCell", for: indexPath) as! CartCell
+        cell.configureCell(model: addedInCartProducts[indexPath.row])
         return cell
     }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return heightCell
-    }
+//    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+//        return heightCell
+//    }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let product = addedInCartProducts[indexPath.row]
+            // удаление должен делать FBManager
             product.refProduct.removeValue()
             addedInCartProducts.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
