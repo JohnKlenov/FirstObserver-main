@@ -69,7 +69,6 @@ class NewHomeViewController: UIViewController {
         
         managerFB.userListener { currentUser in
             self.currentUser = currentUser
-            
             if currentUser == nil {
                 self.cardProducts = []
                 self.managerFB.signInAnonymously()

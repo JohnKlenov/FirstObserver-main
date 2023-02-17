@@ -12,8 +12,9 @@ class CartView: UIView {
     let imageView: UIImageView = {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
+        image.image = UIImage(named: "cart")
         image.contentMode = .scaleAspectFit
-        image.layer.cornerRadius = 10
+//        image.layer.cornerRadius = 10
         image.clipsToBounds = true
         return image
     }()
@@ -25,6 +26,7 @@ class CartView: UIView {
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
         label.backgroundColor = .clear
         label.textColor = .black
+        label.text = "You cart is empty yet"
         label.numberOfLines = 0
         return label
     }()
@@ -36,6 +38,7 @@ class CartView: UIView {
         label.font = UIFont.systemFont(ofSize: 13)
         label.backgroundColor = .clear
         label.textColor = .black.withAlphaComponent(0.8)
+        label.text = "The basket is waiting to be filed!"
         label.numberOfLines = 0
         return label
     }()
@@ -55,12 +58,12 @@ class CartView: UIView {
        
         var container = AttributeContainer()
         container.font = UIFont.boldSystemFont(ofSize: 15)
-        container.foregroundColor = UIColor.black
+        container.foregroundColor = UIColor.white
         
         configuration.attributedTitle = AttributedString("Go to the catalog", attributes: container)
         configuration.titleAlignment = .center
-        configuration.buttonSize = .medium
-        configuration.baseBackgroundColor = .darkGray
+        configuration.buttonSize = .large
+        configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
 
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
@@ -76,12 +79,12 @@ class CartView: UIView {
        
         var container = AttributeContainer()
         container.font = UIFont.boldSystemFont(ofSize: 15)
-        container.foregroundColor = UIColor.black
+        container.foregroundColor = UIColor.white
         
         configuration.attributedTitle = AttributedString("LogIn", attributes: container)
         configuration.titleAlignment = .center
-        configuration.buttonSize = .medium
-        configuration.baseBackgroundColor = .darkGray
+        configuration.buttonSize = .large
+        configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
 
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
@@ -102,10 +105,13 @@ class CartView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        backgroundColor = .lightGray.withAlphaComponent(0.3)
+        layer.cornerRadius = 10
         configureStackView()
         addSubview(imageView)
         addSubview(stackViewForLabel)
         addSubview(stackViewForButton)
+        setupConstraints()
         
         
     }
@@ -124,11 +130,11 @@ class CartView: UIView {
     
     private func setupConstraints() {
         
-        let topImageViewCnstr = imageView.topAnchor.constraint(equalTo: topAnchor, constant: 20)
-        topImageViewCnstr.priority = UILayoutPriority(999)
+        let topImageViewCnstr = imageView.topAnchor.constraint(equalTo: topAnchor, constant: 40)
+//        topImageViewCnstr.priority = UILayoutPriority(999)
         topImageViewCnstr.isActive = true
         
-        let centerYImageViewCnstr = imageView.centerYAnchor.constraint(equalTo: centerYAnchor)
+        let centerYImageViewCnstr = imageView.centerXAnchor.constraint(equalTo: centerXAnchor)
         centerYImageViewCnstr.isActive = true
         
         let widthImageViewCnstr = imageView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 1/5)
@@ -138,7 +144,7 @@ class CartView: UIView {
         heightImageViewCnstr.isActive = true
         
         // stackViewForLabel
-        let topStackForLabelCnstr = stackViewForLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 10)
+        let topStackForLabelCnstr = stackViewForLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 0)
         topStackForLabelCnstr.isActive = true
         
         let trailingStackForLabelCnstr = stackViewForLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
@@ -149,17 +155,17 @@ class CartView: UIView {
         
         // stackForButton
         
-        let topStackForButtonCnstr = stackViewForButton.topAnchor.constraint(equalTo: stackViewForLabel.bottomAnchor, constant: 5)
+        let topStackForButtonCnstr = stackViewForButton.topAnchor.constraint(equalTo: stackViewForLabel.bottomAnchor, constant: 10)
         topStackForButtonCnstr.isActive = true
         
-        let trailingStackForButtonCnstr = stackViewForButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
+        let trailingStackForButtonCnstr = stackViewForButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30)
         trailingStackForButtonCnstr.isActive = true
         
-        let leadingStackForButtonCnstr = stackViewForButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10)
+        let leadingStackForButtonCnstr = stackViewForButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30)
         leadingStackForButtonCnstr.isActive = true
         
-        let bottomStackForButtonCnstr = stackViewForButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 20)
-        bottomStackForButtonCnstr.priority = UILayoutPriority(999)
+        let bottomStackForButtonCnstr = stackViewForButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20)
+//        bottomStackForButtonCnstr.priority = UILayoutPriority(999)
         bottomStackForButtonCnstr.isActive = true
     }
 

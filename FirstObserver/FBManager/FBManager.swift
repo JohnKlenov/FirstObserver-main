@@ -209,11 +209,13 @@ final class FBManager {
     func getCardProduct(completionHandler: @escaping ([PopularProduct]) -> Void) {
         let databaseRef = Database.database().reference()
         databaseRef.child("usersAccaunt/\(currentUser?.uid ?? "")").observe(.value) { (snapshot) in
+            var arrayProduct = [PopularProduct]()
             for item in snapshot.children {
                 let item = item as! DataSnapshot
                 switch item.key {
+                    
                 case "AddedProducts":
-                    var arrayProduct = [PopularProduct]()
+//                    var arrayProduct = [PopularProduct]()
 
                     for item in item.children {
                         let product = item as! DataSnapshot
@@ -253,6 +255,9 @@ final class FBManager {
                 default:
                     break
                 }
+            }
+            if arrayProduct == [] {
+                completionHandler(arrayProduct)
             }
         }
     }
