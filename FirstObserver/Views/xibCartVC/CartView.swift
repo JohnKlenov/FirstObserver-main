@@ -103,6 +103,8 @@ class CartView: UIView {
         return stack
     }()
     
+    weak var delegate: CartViewDelegate?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .lightGray.withAlphaComponent(0.3)
@@ -122,7 +124,7 @@ class CartView: UIView {
             stackViewForLabel.addArrangedSubview(view)
         }
         
-        let arrayButton = [catalogButton, logInButton]
+        let arrayButton = [catalogButton]
         arrayButton.forEach { view in
             stackViewForButton.addArrangedSubview(view)
         }
@@ -170,9 +172,8 @@ class CartView: UIView {
     }
 
     
-    
     @objc func catalogButtonPressed(_ sender: UIButton) {
-        
+        delegate?.goToCatalogVC()
     }
     
     @objc func logInButtonPressed(_ sender: UIButton) {

@@ -6,17 +6,27 @@
 //
 
 import UIKit
-import Firebase
-import FirebaseAuth
+
+
+protocol CartViewDelegate: AnyObject {
+    func goToCatalogVC()
+}
 
 class CartViewController: UIViewController {
     
-    
+    var managerFB = FBManager.shared
     @IBOutlet weak var tableView: UITableView!
     
     var model: [Product]!
     var arrayPlaces: [PlacesTest] = []
-    var addedInCartProducts: [PopularProduct] = []
+    var addedInCartProducts: [PopularProduct] = [] {
+        didSet {
+            if addedInCartProducts.isEmpty {
+                visibleCartView()
+                animateCartView()
+            }
+        }
+    }
     var cartView: CartView!
     
     override func viewDidLoad() {
@@ -45,9 +55,24 @@ class CartViewController: UIViewController {
     func setupHeaderView() {
         
         let headView = UIView.init(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.width , height: 5))
-//        headView.backgroundColor = .white
-        headView.backgroundColor = .orange
+        headView.backgroundColor = .white
+//        headView.backgroundColor = .orange
         tableView.tableHeaderView = headView
+    }
+    
+    private func animateCartView() {
+        cartView.alpha = 0
+        UIView.animate(withDuration: 0.1, delay: 0.1, options: .curveLinear, animations: {
+            self.cartView.alpha = 1
+        }, completion: nil)
+    }
+    
+    private func visibleCartView() {
+        tableView.isHidden = true
+        cartView = CartView()
+        cartView.delegate = self
+        view.addSubview(cartView)
+        setupCartViewConstraints()
     }
     
     private func getFetchDataHVC() {
@@ -57,11 +82,9 @@ class CartViewController: UIViewController {
             if let nc = vc as? UINavigationController {
                 if let homeVC = nc.topViewController as? NewHomeViewController {
                     if homeVC.cardProducts.count == 0 {
-                        tableView.isHidden = true
-                        cartView = CartView()
-                        view.addSubview(cartView)
-                        setupCartViewConstraints()
-//                        cartView.layoutIfNeeded()
+                        if cartView == nil {
+                            visibleCartView()
+                        }
                     } else {
                         if cartView != nil {
                             cartView.removeFromSuperview()
@@ -69,7 +92,6 @@ class CartViewController: UIViewController {
                         tableView.isHidden = false
                         arrayPlaces = homeVC.placesMap
                         addedInCartProducts = homeVC.cardProducts
-                        print("addedInCartProducts - \(homeVC.cardProducts)")
                         tableView.reloadData()
                     }
                 }
@@ -98,7 +120,8 @@ extension CartViewController: UITableViewDelegate, UITableViewDataSource {
         if editingStyle == .delete {
             let product = addedInCartProducts[indexPath.row]
             // удаление должен делать FBManager
-            product.refProduct.removeValue()
+//            product.refProduct.removeValue()
+            managerFB.removeProduct(refProduct: product.refProduct)
             addedInCartProducts.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
 //            tableView.reloadRows(at: [indexPath], with: .automatic)
@@ -132,7 +155,19 @@ extension CartViewController: UITableViewDelegate, UITableViewDataSource {
     
 }
 
+extension CartViewController: CartViewDelegate {
+    func goToCatalogVC() {
+        let catalogVC = UIStoryboard.vcById("CatalogViewController") as! CatalogViewController
+        navigationController?.pushViewController(catalogVC, animated: true)
+        print("goToCatalogVC")
+    }
+    
+    
+}
 
+
+//import Firebase
+//import FirebaseAuth
 
 //    var heightCell: CGFloat!
 //    var imageWidth: CGFloat!

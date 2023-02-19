@@ -56,6 +56,22 @@ final class FBManager {
     
     
     
+    // MARK: - CartViewController -
+    
+    
+    func userIsAnonymously(completionHandler: @escaping (Bool) -> Void) {
+        guard let user = currentUser else { return }
+        if user.isAnonymous {
+            completionHandler(true)
+        } else {
+            completionHandler(false)
+        }
+    }
+    
+    func removeProduct(refProduct: DatabaseReference) {
+        refProduct.removeValue()
+    }
+    
     // MARK: - AllProductViewController -
     
     func getCategoryForBrands(searchCategory: String, completionHandler: @escaping (PopularGarderob) -> Void) {

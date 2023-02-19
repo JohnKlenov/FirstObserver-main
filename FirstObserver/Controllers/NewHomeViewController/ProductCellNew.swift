@@ -86,6 +86,12 @@ class ProductCellNew: UICollectionViewCell {
         storage = Storage.storage()
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+//        imageView.sd_cancelCurrentImageLoad()
+//        imageView.image = nil
+    }
+    
     private func configureStackView() {
         let arrayViews = [brandLabel, modelLabel, mallLabel, priceLabel]
         arrayViews.forEach { view in

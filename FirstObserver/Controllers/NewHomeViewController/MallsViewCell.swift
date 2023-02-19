@@ -43,6 +43,8 @@ class MallsViewCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
+//        imageView.sd_cancelCurrentImageLoad()
+//        imageView.image = nil
         if let layers = imageView.layer.sublayers {
             for layerGradient in layers {
                 layerGradient.removeFromSuperlayer()

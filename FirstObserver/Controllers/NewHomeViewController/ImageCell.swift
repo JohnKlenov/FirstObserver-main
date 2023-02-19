@@ -41,6 +41,11 @@ class ImageCell: UICollectionViewCell {
         storage = Storage.storage()
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+//        imageView.sd_cancelCurrentImageLoad()
+//        imageView.image = nil
+    }
     
     func setupConstraints() {
         NSLayoutConstraint.activate([imageView.topAnchor.constraint(equalTo: topAnchor),
@@ -57,6 +62,7 @@ class ImageCell: UICollectionViewCell {
         
         if let firstRef = model.brands?.refImage {
             let urlRef = storage.reference(forURL: firstRef)
+            
             self.imageView.sd_setImage(with: urlRef, placeholderImage: UIImage(named: "DefaultImage"))
         } else {
             imageView.image = UIImage(named: "DefaultImage")

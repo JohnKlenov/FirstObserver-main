@@ -240,6 +240,7 @@ class MallViewController: UIViewController {
     
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        
         let currentPage = Int(scrollView.contentOffset.x) / Int(scrollView.frame.width)
         pageControl.currentPage = currentPage
     }

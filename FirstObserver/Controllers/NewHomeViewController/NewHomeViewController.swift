@@ -113,6 +113,11 @@ class NewHomeViewController: UIViewController {
         
     }
     
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+//        let collectionView = scrollView as? UICollectionView
+        
+    }
+    
     @objc func didTapSegmentedControl(_ segmentedControl: UISegmentedControl) {
         switch segmentedControl.selectedSegmentIndex {
         case 0:
@@ -264,7 +269,14 @@ class NewHomeViewController: UIViewController {
         
         let section = NSCollectionLayoutSection(group: group)
         section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
-        section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
+//        section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
+        section.orthogonalScrollingBehavior = .paging
+        section.visibleItemsInvalidationHandler = { (items, offset, env) -> Void in
+//            self.pageControl.currentPage = items.last?.indexPath.row ?? 0
+            let page = round(offset.x / self.view.bounds.width)
+//            print("visibleItemsInvalidationHandler - \(items.last?.indexPath.row ?? 0)")
+            print("visibleItemsInvalidationHandler - \(page)")
+        }
         
         let sizeHeader = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200))
         let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: sizeHeader, elementKind: "HeaderMalls", alignment: .top)
@@ -320,6 +332,14 @@ class NewHomeViewController: UIViewController {
 }
 
 extension NewHomeViewController: UICollectionViewDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        
+        if  indexPath.section == 0 {
+            print("scroll malls sections \(indexPath.row)")
+            
+        }
+    }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
