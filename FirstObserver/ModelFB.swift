@@ -145,13 +145,14 @@ class AddedProduct: Encodable {
 
 struct SectionHVC: Hashable {
     let section: String
-    let items: [ItemCell]
+    var items: [ItemCell]
 }
 
 struct ItemCell: Hashable {
     let malls: PreviewCategory?
     let brands: PreviewCategory?
     let popularProduct: PopularProduct?
+    let mallImage: String?
 }
 
 struct PreviewCategory: Hashable {

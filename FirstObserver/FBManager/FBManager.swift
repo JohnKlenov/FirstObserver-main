@@ -54,7 +54,45 @@ final class FBManager {
 //    var storage = Storage.storage()
 
     
+    // MARK: - NewMallViewController -
     
+    func getMallModel(refPath: String, completionHandler: @escaping (MallModel) -> Void) {
+        
+        let databaseRef = Database.database().reference()
+        databaseRef.child("Malls/\(refPath)").observe(.value) { (snapshot) in
+            
+            var arrayBrands:[String] = []
+            var arrayRefImage:[String] = []
+            
+            for item in snapshot.children {
+                let child = item as! DataSnapshot
+                
+                switch child.key {
+                
+                case "brands":
+                    for itemBrand in child.children {
+                        let brand = itemBrand as! DataSnapshot
+                        if let nameBrand = brand.value as? String {
+                            arrayBrands.append(nameBrand)
+                        }
+                    }
+                case "refImage":
+                    for itemRef in child.children {
+                        let ref = itemRef as! DataSnapshot
+                        if let refImage = ref.value as? String {
+                            arrayRefImage.append(refImage)
+                        }
+                    }
+                    
+                default:
+                    break
+                }
+                
+            }
+            let mallModel = MallModel(snapshot: snapshot, refImage: arrayRefImage, brands: arrayBrands)
+            completionHandler(mallModel)
+        }
+    }
     
     // MARK: - CartViewController -
     

@@ -207,7 +207,7 @@ class MallViewController: UIViewController {
     
     
     private func configureViews(mallModel:MallModel) {
-        
+        // modelBrands сделать [ItemCell] и перенести в модель SectionHVC
         var modelBrands: [PreviewCategory] = []
         brandsMall.forEach { (previewBrands) in
             if mallModel.brands.contains(previewBrands.brand ?? "") {
@@ -220,8 +220,11 @@ class MallViewController: UIViewController {
         
         
         self.title = mallModel.name
+        // mallModel.refImage сделать [ItemCell] и перенести в модель SectionHVC
         modelImageForCV = mallModel.refImage
         
+        // section: [SectionHVC] = brandsSection + imageMallSection
+//         reloadData() - так сконфигурируем collectionView.
         if let plan = mallModel.floorPlan {
             floorPlan = plan
         } else {
