@@ -270,7 +270,7 @@ class NewHomeViewController: UIViewController {
         let section = NSCollectionLayoutSection(group: group)
         section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
 //        section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
-        section.orthogonalScrollingBehavior = .paging
+        section.orthogonalScrollingBehavior = .continuous
 //        section.visibleItemsInvalidationHandler = { (items, offset, env) -> Void in
 ////            self.pageControl.currentPage = items.last?.indexPath.row ?? 0
 //            let page = round(offset.x / self.view.bounds.width)

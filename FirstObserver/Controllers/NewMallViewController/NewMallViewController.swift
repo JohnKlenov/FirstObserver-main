@@ -116,6 +116,14 @@ class NewMallViewController: UIViewController {
     
     var section: [SectionHVC] = [] {
         didSet {
+//            setupCollectionView()
+//            addButtonsForStackViewButton()
+//            
+//            setupSubviews()
+//            setupConstraints()
+//            createDataSource()
+//            collectionViewLayout.delegate = self
+            
             reloadData()
             print("var section: [SectionHVC]")
         }
@@ -126,13 +134,14 @@ class NewMallViewController: UIViewController {
         super.viewDidLoad()
         
         managerFB.getMallModel(refPath: refPath) { mallModel in
-            self.configureViews(mallModel: mallModel)
+            
+                self.configureViews(mallModel: mallModel)
         }
         view.backgroundColor = .systemBackground
         setupScrollView()
         setupCollectionView()
         addButtonsForStackViewButton()
-        
+
         setupSubviews()
         setupConstraints()
         createDataSource()
@@ -148,7 +157,7 @@ class NewMallViewController: UIViewController {
         super.viewDidLayoutSubviews()
         if Int(collectionViewLayout.collectionViewLayout.collectionViewContentSize.height) == 0 {
             print("collectionViewContentSize.height == 0 ")
-            heightCnstrCollectionView.constant = 300
+            heightCnstrCollectionView.constant = collectionViewLayout.frame.height
         } else {
             print("collectionViewContentSize.height != 0")
             heightCnstrCollectionView.constant = collectionViewLayout.collectionViewLayout.collectionViewContentSize.height
@@ -224,7 +233,6 @@ class NewMallViewController: UIViewController {
         collectionViewLayout.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: 0).isActive = true
         collectionViewLayout.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 0).isActive = true
         collectionViewLayout.bottomAnchor.constraint(equalTo: titleButtonsStack.topAnchor, constant: -20).isActive = true
-//        collectionViewLayout.heightAnchor.constraint(equalToConstant: 300).isActive = true
         titleButtonsStack.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10).isActive = true
         titleButtonsStack.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10).isActive = true
         titleButtonsStack.bottomAnchor.constraint(equalTo: stackViewForButton.topAnchor, constant: -20).isActive = true
@@ -429,39 +437,5 @@ extension UIViewController {
 }
 
 
-//    private func configureView(mallModel:MallModel) {
-//
-//        var brandSection = SectionHVC(section: "Brands", items: [])
-//        brandsMall.forEach { (previewBrands) in
-//            if mallModel.brands.contains(previewBrands.brand ?? "") {
-//                let item = ItemCell(malls: nil, brands: previewBrands, popularProduct: nil, mallImage: nil)
-//                brandSection.items.append(item)
-//            }
-//        }
-//
-//        var mallSection = SectionHVC(section: "Mall", items: [])
-//        mallModel.refImage.forEach { ref in
-//            let item = ItemCell(malls: nil, brands: nil, popularProduct: nil, mallImage: ref)
-//            mallSection.items.append(item)
-//        }
-//
-//        self.title = mallModel.name
-//
-//        if let plan = mallModel.floorPlan {
-//            floorPlanMall = plan
-//        } else {
-//            floorPlan.isHidden = true
-//        }
-//
-//        if let web = mallModel.webSite {
-//            webSite = web
-//        } else {
-//            websiteMall.isHidden = true
-//        }
-//
-//        if brandSection.items.count == mallModel.brands.count && mallSection.items.count == mallModel.refImage.count {
-//            section = [mallSection, brandSection]
-//        }
-//
-//    }
+
     

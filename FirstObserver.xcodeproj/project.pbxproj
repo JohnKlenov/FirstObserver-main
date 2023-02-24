@@ -78,6 +78,7 @@
 		5EA65C7E29A654D300EA6FA2 /* MallSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA65C7D29A654D300EA6FA2 /* MallSection.swift */; };
 		5EA9446E294B0522007C2AB5 /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA9446D294B0522007C2AB5 /* Alerts.swift */; };
 		5EA94471294B5773007C2AB5 /* AlertTopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA94470294B5773007C2AB5 /* AlertTopView.swift */; };
+		5EAA598A29A8CD7B00AEFE45 /* NewProductViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EAA598929A8CD7B00AEFE45 /* NewProductViewController.swift */; };
 		5EBD49A729449F6C00E27F2F /* AlertText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBD49A629449F6C00E27F2F /* AlertText.swift */; };
 		5EC4764F290D816C0077D940 /* DynamicHeightCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EC4764E290D816C0077D940 /* DynamicHeightCollectionView.swift */; };
 		5EF2FFC0298EA3C100D32FCB /* NewHomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF2FFBF298EA3C100D32FCB /* NewHomeViewController.swift */; };
@@ -159,6 +160,7 @@
 		5EA65C7D29A654D300EA6FA2 /* MallSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MallSection.swift; sourceTree = "<group>"; };
 		5EA9446D294B0522007C2AB5 /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
 		5EA94470294B5773007C2AB5 /* AlertTopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertTopView.swift; sourceTree = "<group>"; };
+		5EAA598929A8CD7B00AEFE45 /* NewProductViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewProductViewController.swift; sourceTree = "<group>"; };
 		5EBD49A629449F6C00E27F2F /* AlertText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertText.swift; sourceTree = "<group>"; };
 		5EC4764E290D816C0077D940 /* DynamicHeightCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicHeightCollectionView.swift; sourceTree = "<group>"; };
 		5EF2FFBF298EA3C100D32FCB /* NewHomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewHomeViewController.swift; sourceTree = "<group>"; };
@@ -338,6 +340,7 @@
 		5E7EF58428A53B0300814F4D /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				5EAA598829A8CD2F00AEFE45 /* NewProductViewController */,
 				5EA65C7229A653C800EA6FA2 /* NewMallViewController */,
 				5E0BF4702993AE2200FB99BE /* NewHomeViewController */,
 				5E9101DD291CFE2500D37E92 /* childCVC */,
@@ -465,6 +468,14 @@
 				5EA94470294B5773007C2AB5 /* AlertTopView.swift */,
 			);
 			path = viewsSignInVC;
+			sourceTree = "<group>";
+		};
+		5EAA598829A8CD2F00AEFE45 /* NewProductViewController */ = {
+			isa = PBXGroup;
+			children = (
+				5EAA598929A8CD7B00AEFE45 /* NewProductViewController.swift */,
+			);
+			path = NewProductViewController;
 			sourceTree = "<group>";
 		};
 		6D3BA102568E072BE2F6CA13 /* Frameworks */ = {
@@ -637,6 +648,7 @@
 				5E0BF4782993AFB100FB99BE /* BackgroundViewCollectionReusableView.swift in Sources */,
 				5E7EF58928A7FE7300814F4D /* Model.swift in Sources */,
 				5E7EF58D28A81EF100814F4D /* SegmentedControlMW.swift in Sources */,
+				5EAA598A29A8CD7B00AEFE45 /* NewProductViewController.swift in Sources */,
 				5E74BCCA28EEF2F60048D097 /* AuthError.swift in Sources */,
 				5E7EF58728A7F5A900814F4D /* ShopingCollectionViewCell.swift in Sources */,
 				5EF2FFC0298EA3C100D32FCB /* NewHomeViewController.swift in Sources */,
