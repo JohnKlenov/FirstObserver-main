@@ -233,6 +233,21 @@
             </objects>
             <point key="canvasLocation" x="-1644.3925233644859" y="2197.8401727861774"/>
         </scene>
+        <!--New Mall View Controller-->
+        <scene sceneID="Eq4-WZ-kqc">
+            <objects>
+                <viewController storyboardIdentifier="NewMallViewController" id="e77-kx-Vz0" customClass="NewMallViewController" customModule="FirstObserver" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Wwh-wT-GKU">
+                        <rect key="frame" x="0.0" y="0.0" width="428" height="926"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="6u8-aI-H6X"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Qh3-Pk-B46" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-650" y="2198"/>
+        </scene>
         <!--Page View Controller-->
         <scene sceneID="cZD-QH-oqu">
             <objects>
@@ -1071,7 +1086,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="yBp-lD-ZL3" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-650.46728971962614" y="2197.8401727861774"/>
+            <point key="canvasLocation" x="-650" y="2943"/>
         </scene>
         <!--Product View Controller-->
         <scene sceneID="lje-za-olU">

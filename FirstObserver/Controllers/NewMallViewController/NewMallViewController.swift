@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SafariServices
 
 class NewMallViewController: UIViewController {
 
@@ -103,28 +104,31 @@ class NewMallViewController: UIViewController {
         return stack
     }()
     
-    private var section: [MallSection]!
+//    private var section: [MallSection]!
     private var collectionViewLayout:UICollectionView!
-    private var dataSource: UICollectionViewDiffableDataSource<MallSection, MImage>!
+    private var dataSource: UICollectionViewDiffableDataSource<SectionHVC, ItemCell>!
     weak var delegate: PagingSectionDelegate?
     var refPath: String = ""
     var floorPlanMall: String = ""
     var webSite: String = ""
     var brandsMall: [PreviewCategory] = []
-    var mallModel:MallModel? {
+    var arrayPin:[PlacesTest] = []
+    
+    var section: [SectionHVC] = [] {
         didSet {
-            if let model = mallModel {
-                configureViews(mallModel: model)
-            }
+            reloadData()
+            print("var section: [SectionHVC]")
         }
     }
-    
     let managerFB = FBManager.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        managerFB.getMallModel(refPath: refPath) { mallModel in
+            self.configureViews(mallModel: mallModel)
+        }
         view.backgroundColor = .systemBackground
-        section = MallSection.getData()
         setupScrollView()
         setupCollectionView()
         addButtonsForStackViewButton()
@@ -132,26 +136,29 @@ class NewMallViewController: UIViewController {
         setupSubviews()
         setupConstraints()
         createDataSource()
-        reloadData()
+        collectionViewLayout.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        managerFB.getMallModel(refPath: refPath) { mallModel in
-            self.mallModel = mallModel
-        }
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        heightCnstrCollectionView.constant = collectionViewLayout.collectionViewLayout.collectionViewContentSize.height
-        heightCnstrCollectionView.isActive = true
-        print("collectionViewContentSize -  \(collectionViewLayout.collectionViewLayout.collectionViewContentSize.height)")
+        if Int(collectionViewLayout.collectionViewLayout.collectionViewContentSize.height) == 0 {
+            print("collectionViewContentSize.height == 0 ")
+            heightCnstrCollectionView.constant = 300
+        } else {
+            print("collectionViewContentSize.height != 0")
+            heightCnstrCollectionView.constant = collectionViewLayout.collectionViewLayout.collectionViewContentSize.height
+        }
+            print("collectionViewContentSize-  \(collectionViewLayout.collectionViewLayout.collectionViewContentSize.height)")
+        
     }
     
-    private func configureViews(mallModel:MallModel) {
-
+    private func configureViews(mallModel:MallModel)  {
+        
         var brandSection = SectionHVC(section: "Brands", items: [])
         brandsMall.forEach { (previewBrands) in
             if mallModel.brands.contains(previewBrands.brand ?? "") {
@@ -167,19 +174,23 @@ class NewMallViewController: UIViewController {
         }
         
         self.title = mallModel.name
-        
+
         if let plan = mallModel.floorPlan {
             floorPlanMall = plan
         } else {
             floorPlan.isHidden = true
         }
-        
+
         if let web = mallModel.webSite {
             webSite = web
         } else {
             websiteMall.isHidden = true
         }
         
+        if brandSection.items.count == mallModel.brands.count && mallSection.items.count == mallModel.refImage.count {
+            section = [mallSection, brandSection]
+            print("if brandSection.items.count == mallModel.brands.count && mallSection.items.count == mallModel.refImage.count")
+        }
     }
     
     private func setupScrollView() {
@@ -213,6 +224,7 @@ class NewMallViewController: UIViewController {
         collectionViewLayout.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: 0).isActive = true
         collectionViewLayout.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 0).isActive = true
         collectionViewLayout.bottomAnchor.constraint(equalTo: titleButtonsStack.topAnchor, constant: -20).isActive = true
+//        collectionViewLayout.heightAnchor.constraint(equalToConstant: 300).isActive = true
         titleButtonsStack.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10).isActive = true
         titleButtonsStack.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10).isActive = true
         titleButtonsStack.bottomAnchor.constraint(equalTo: stackViewForButton.topAnchor, constant: -20).isActive = true
@@ -236,7 +248,8 @@ class NewMallViewController: UIViewController {
         collectionViewLayout.register(BrandCellMallVC.self, forCellWithReuseIdentifier: BrandCellMallVC.reuseID)
         collectionViewLayout.register(PagingSectionFooterView.self, forSupplementaryViewOfKind: "FooterMall", withReuseIdentifier: PagingSectionFooterView.footerIdentifier)
         collectionViewLayout.register(HeaderBrandsMallView.self, forSupplementaryViewOfKind: "HeaderBrands", withReuseIdentifier: HeaderBrandsMallView.headerIdentifier)
-        heightCnstrCollectionView = collectionViewLayout.heightAnchor.constraint(equalToConstant: 0)
+        heightCnstrCollectionView = collectionViewLayout.heightAnchor.constraint(equalToConstant: 300)
+        heightCnstrCollectionView.isActive = true
     }
     
     
@@ -250,16 +263,16 @@ class NewMallViewController: UIViewController {
     }
     
     @objc func floorPlanButtonPressed(_ sender: UIButton) {
-       
+        self.showWebView(floorPlanMall)
     }
     
     @objc func websiteMallButtonPressed(_ sender: UIButton) {
-        
+        self.showWebView(webSite)
     }
     
     private func createDataSource() {
 
-        dataSource = UICollectionViewDiffableDataSource<MallSection, MImage>(collectionView: collectionViewLayout, cellProvider: { collectionView, indexPath, cellData in
+        dataSource = UICollectionViewDiffableDataSource<SectionHVC, ItemCell>(collectionView: collectionViewLayout, cellProvider: { collectionView, indexPath, cellData in
             switch self.section[indexPath.section].section {
             case "Mall":
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MallCell.reuseID, for: indexPath) as? MallCell
@@ -297,7 +310,7 @@ class NewMallViewController: UIViewController {
     
     private func reloadData() {
 
-        var snapshot = NSDiffableDataSourceSnapshot<MallSection, MImage>()
+        var snapshot = NSDiffableDataSourceSnapshot<SectionHVC, ItemCell>()
         snapshot.appendSections(section)
 
         for item in section {
@@ -332,7 +345,7 @@ class NewMallViewController: UIViewController {
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
 //        absolute(225)
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalWidth(0.6))
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalWidth(0.55))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
         
@@ -380,4 +393,75 @@ class NewMallViewController: UIViewController {
     }
 }
 
-//}
+
+// MARK: - UICollectionViewDelegate -
+
+extension NewMallViewController: UICollectionViewDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        switch indexPath.section {
+        case 0:
+            print("DidTap Mall Section")
+        case 1:
+            let brandVC = UIStoryboard.vcById("BrandsViewController") as! BrandsViewController
+            let refPath = section[indexPath.section].items[indexPath.row].brands?.brand
+            brandVC.pathRefBrandVC = refPath
+            brandVC.arrayPin = arrayPin
+            self.navigationController?.pushViewController(brandVC, animated: true)
+            print("DidTap Brand Section")
+        default:
+            print("DidTap Default Section")
+        }
+    }
+}
+
+// MARK: - SafariViewController -
+extension UIViewController {
+    func showWebView(_ urlString: String) {
+       
+        guard let url = URL(string: urlString) else { return }
+        
+        let vc = SFSafariViewController(url: url)
+        vc.modalPresentationStyle = .fullScreen
+        self.present(vc, animated: true, completion: nil)
+    }
+}
+
+
+//    private func configureView(mallModel:MallModel) {
+//
+//        var brandSection = SectionHVC(section: "Brands", items: [])
+//        brandsMall.forEach { (previewBrands) in
+//            if mallModel.brands.contains(previewBrands.brand ?? "") {
+//                let item = ItemCell(malls: nil, brands: previewBrands, popularProduct: nil, mallImage: nil)
+//                brandSection.items.append(item)
+//            }
+//        }
+//
+//        var mallSection = SectionHVC(section: "Mall", items: [])
+//        mallModel.refImage.forEach { ref in
+//            let item = ItemCell(malls: nil, brands: nil, popularProduct: nil, mallImage: ref)
+//            mallSection.items.append(item)
+//        }
+//
+//        self.title = mallModel.name
+//
+//        if let plan = mallModel.floorPlan {
+//            floorPlanMall = plan
+//        } else {
+//            floorPlan.isHidden = true
+//        }
+//
+//        if let web = mallModel.webSite {
+//            webSite = web
+//        } else {
+//            websiteMall.isHidden = true
+//        }
+//
+//        if brandSection.items.count == mallModel.brands.count && mallSection.items.count == mallModel.refImage.count {
+//            section = [mallSection, brandSection]
+//        }
+//
+//    }
+    

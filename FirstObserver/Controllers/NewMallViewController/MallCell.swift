@@ -6,10 +6,13 @@
 //
 
 import UIKit
+import FirebaseStorage
+import FirebaseStorageUI
 
 class MallCell: UICollectionViewCell {
     
     static var reuseID: String = "MallCell"
+    var storage: Storage!
     
     let imageView: UIImageView = {
         let image = UIImageView()
@@ -25,6 +28,7 @@ class MallCell: UICollectionViewCell {
         super.init(frame: frame)
         addSubview(imageView)
         setupConstraints()
+        storage = Storage.storage()
     }
     
     override func prepareForReuse() {
@@ -51,8 +55,15 @@ class MallCell: UICollectionViewCell {
         gradientLayer.colors = [overlayColor.cgColor, overlayColor.cgColor]
         self.imageView.layer.addSublayer(gradientLayer)
     }
-    func configureCell(model:MImage, currentFrame: CGSize) {
-        imageView.image = UIImage(named: model.image)
+    func configureCell(model:ItemCell, currentFrame: CGSize) {
+//        model.brands?.refImage
+        if let firstRef = model.mallImage {
+            let urlRef = storage.reference(forURL: firstRef)
+            
+            self.imageView.sd_setImage(with: urlRef, placeholderImage: UIImage(named: "DefaultImage"))
+        } else {
+            imageView.image = UIImage(named: "DefaultImage")
+        }
         addGradientOverlay(correntFrame: currentFrame)
     }
     

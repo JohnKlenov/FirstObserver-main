@@ -396,7 +396,7 @@ final class FBManager {
             for item in snapshot.children {
                 let mall = item as! DataSnapshot
                 let modelFB = PreviewCategory(snapshot: mall)
-                let modelDataSource = ItemCell(malls: modelFB, brands: nil, popularProduct: nil)
+                let modelDataSource = ItemCell(malls: modelFB, brands: nil, popularProduct: nil, mallImage: nil)
                 arrayMalls.append(modelDataSource)
             }
             completionHandler(arrayMalls)
@@ -410,7 +410,7 @@ final class FBManager {
             for item in snapshot.children {
                 let brand = item as! DataSnapshot
                 let modelFB = PreviewCategory(snapshot: brand)
-                let modelDataSource = ItemCell(malls: nil, brands: modelFB, popularProduct: nil)
+                let modelDataSource = ItemCell(malls: nil, brands: modelFB, popularProduct: nil, mallImage: nil)
                 arrayBrands.append(modelDataSource)
             }
             completionHandler(arrayBrands)
@@ -454,7 +454,7 @@ final class FBManager {
                     
                 }
                 let modelFB = PopularProduct(snapshot: product, refArray: arrayRefe, malls: arrayMalls)
-                let modelDataSource = ItemCell(malls: nil, brands: nil, popularProduct: modelFB)
+                let modelDataSource = ItemCell(malls: nil, brands: nil, popularProduct: modelFB, mallImage: nil)
                 arrayProduct.append(modelDataSource)
             }
             completionHandler(arrayProduct)

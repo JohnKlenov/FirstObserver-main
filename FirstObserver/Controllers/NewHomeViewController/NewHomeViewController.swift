@@ -263,7 +263,7 @@ class NewHomeViewController: UIViewController {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 //        absolute(225)
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.9), heightDimension: .fractionalWidth(1/2))
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.9), heightDimension: .fractionalWidth(0.55))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 15)
         
@@ -271,12 +271,12 @@ class NewHomeViewController: UIViewController {
         section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
 //        section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
         section.orthogonalScrollingBehavior = .paging
-        section.visibleItemsInvalidationHandler = { (items, offset, env) -> Void in
-//            self.pageControl.currentPage = items.last?.indexPath.row ?? 0
-            let page = round(offset.x / self.view.bounds.width)
-//            print("visibleItemsInvalidationHandler - \(items.last?.indexPath.row ?? 0)")
-            print("visibleItemsInvalidationHandler - \(page)")
-        }
+//        section.visibleItemsInvalidationHandler = { (items, offset, env) -> Void in
+////            self.pageControl.currentPage = items.last?.indexPath.row ?? 0
+//            let page = round(offset.x / self.view.bounds.width)
+////            print("visibleItemsInvalidationHandler - \(items.last?.indexPath.row ?? 0)")
+//            print("visibleItemsInvalidationHandler - \(page)")
+//        }
         
         let sizeHeader = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(200))
         let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: sizeHeader, elementKind: "HeaderMalls", alignment: .top)
@@ -345,7 +345,7 @@ extension NewHomeViewController: UICollectionViewDelegate {
         
         switch indexPath.section {
         case 0:
-            let mallVC = UIStoryboard.vcById("MallViewController") as! MallViewController
+            let mallVC = UIStoryboard.vcById("NewMallViewController") as! NewMallViewController
             let mallSection = modelHomeViewController.filter({$0.section == "Malls"})
             let brandsSection = modelHomeViewController.filter({$0.section == "Brands"})
             mallVC.arrayPin = placesMap

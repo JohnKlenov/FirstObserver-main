@@ -6,10 +6,14 @@
 //
 
 import UIKit
+import FirebaseStorage
+import FirebaseStorageUI
+
 
 class BrandCellMallVC: UICollectionViewCell {
     
     static var reuseID: String = "BrandCell"
+    var storage: Storage!
     
     let imageView: UIImageView = {
         let image = UIImageView()
@@ -37,6 +41,7 @@ class BrandCellMallVC: UICollectionViewCell {
         setupConstraints()
         contentView.layer.borderWidth = 2
         contentView.layer.borderColor = UIColor.black.cgColor
+        storage = Storage.storage()
     }
     
     
@@ -75,9 +80,16 @@ class BrandCellMallVC: UICollectionViewCell {
         bottomStackCnstr.isActive = true
     }
     
-    func configureCell(model: MImage) {
-        imageView.image = UIImage(named: model.image)
-        labelName.text = model.brand
+    func configureCell(model: ItemCell) {
+        
+        if let firstRef = model.brands?.refImage {
+            let urlRef = storage.reference(forURL: firstRef)
+            
+            self.imageView.sd_setImage(with: urlRef, placeholderImage: UIImage(named: "DefaultImage"))
+        } else {
+            imageView.image = UIImage(named: "DefaultImage")
+        }
+        labelName.text = model.brands?.brand
     }
     
     required init?(coder: NSCoder) {
