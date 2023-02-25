@@ -275,7 +275,12 @@ class NewMallViewController: UIViewController {
     }
     
     @objc func websiteMallButtonPressed(_ sender: UIButton) {
-        self.showWebView(webSite)
+//        let productVC = NewProductViewController()
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let productVC = storyboard.instantiateViewController(withIdentifier: "NewProductViewController") as! NewProductViewController
+        productVC.modalPresentationStyle = .fullScreen
+        present(productVC, animated: true, completion: nil)
+//        self.showWebView(webSite)
     }
     
     private func createDataSource() {
