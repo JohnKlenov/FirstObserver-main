@@ -24,6 +24,8 @@ class FooterViewCollectionView: UICollectionReusableView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        print("Create FooterViewCollectionView")
+        backgroundColor = .purple
         setupView()
     }
     
@@ -32,7 +34,7 @@ class FooterViewCollectionView: UICollectionReusableView {
         }
     
     private func setupView() {
-            backgroundColor = .clear
+//            backgroundColor = .clear
             
             addSubview(pageControl)
             
