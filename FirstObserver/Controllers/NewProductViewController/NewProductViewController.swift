@@ -10,8 +10,8 @@ import UIKit
 
 class NewProductViewController: UIViewController {
     
-    var currentPage = 1
     private let modelImage = ModelForProductVC.shared.imagesProduct()
+    private let arrayMalls = ["ТЦ Gallery", "ТЦ Skala", "ТЦ DanaMall", "ТЦ GreenSity"]
 
     private let scrollView: UIScrollView = {
         let scroll = UIScrollView()
@@ -35,8 +35,8 @@ class NewProductViewController: UIViewController {
 //        control.isUserInteractionEnabled = false
         control.currentPageIndicatorTintColor = .black
         control.pageIndicatorTintColor = .systemGray5
-        control.backgroundColor = .orange
-        control.addTarget(self, action: #selector(didTapPageControl(_:)), for: .touchUpInside)
+//        control.backgroundColor = .orange
+        control.addTarget(self, action: #selector(didTapPageControl(_:)), for: .valueChanged)
         return control
     }()
     
@@ -50,6 +50,15 @@ class NewProductViewController: UIViewController {
     }()
     
     let stackViewForLabel: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.distribution = .fill
+        stack.spacing = 5
+        return stack
+    }()
+    
+    let stackViewForDescription: UIStackView = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
@@ -112,7 +121,7 @@ class NewProductViewController: UIViewController {
     let nameLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "NameLabel"
+        label.text = "Naike Air"
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
         label.textColor = .black
@@ -122,11 +131,48 @@ class NewProductViewController: UIViewController {
     let priceLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "PriceLabel"
+        label.text = "450 BYN"
         label.textAlignment = .left
-        label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
+        label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
         label.textColor = .black
         return label
+    }()
+    
+    let descriptionTitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Description"
+        label.textAlignment = .left
+        label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
+        label.textColor = .black
+        return label
+    }()
+    
+    let descriptionLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
+        label.text = "I'm trying out the new compositional layout APIs introduced with iOS13, they're pretty great - but I'm having an issue with one thing in particular and there's very little official documentation about it."
+        label.textAlignment = .left
+        label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+        label.textColor = .black
+        return label
+    }()
+    
+    let titleTableViewLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Contact Malls"
+        label.textAlignment = .left
+        label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
+        label.textColor = .black
+        return label
+    }()
+    
+    let tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        return tableView
     }()
     
     let testView: UIView = {
@@ -138,7 +184,7 @@ class NewProductViewController: UIViewController {
     }()
     
 
-//    weak var footerDelegate: FooterViewSectionDelegate?
+    var heightCnstrTableView: NSLayoutConstraint!
     
 
     override func viewDidLoad() {
@@ -147,12 +193,25 @@ class NewProductViewController: UIViewController {
         setupScrollView()
         setupCollectionView()
         setupStackView()
+        setupTableView()
         setupSubviews()
         setupConstraints()
         pageControl.numberOfPages = modelImage.count
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let heightTV:CGFloat = CGFloat(arrayMalls.count)*50
+        heightCnstrTableView.constant = heightTV
+    }
     
+    private func setupTableView() {
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "MyTableViewCell")
+        heightCnstrTableView = tableView.heightAnchor.constraint(equalToConstant: 50)
+        heightCnstrTableView.isActive = true
+    }
     
     private func setupScrollView() {
         
@@ -195,9 +254,12 @@ class NewProductViewController: UIViewController {
         stackViewForLabel.addArrangedSubview(priceLabel)
         stackViewForButton.addArrangedSubview(websiteButton)
         stackViewForButton.addArrangedSubview(addToCardButton)
+        stackViewForDescription.addArrangedSubview(descriptionTitleLabel)
+        stackViewForDescription.addArrangedSubview(descriptionLabel)
         
         stackViewForStackView.addArrangedSubview(stackViewForLabel)
         stackViewForStackView.addArrangedSubview(stackViewForButton)
+        stackViewForStackView.addArrangedSubview(stackViewForDescription)
     }
     
     private func setupSubviews() {
@@ -205,6 +267,8 @@ class NewProductViewController: UIViewController {
         containerView.addSubview(imageProductCollectionView)
         containerView.addSubview(pageControl)
         containerView.addSubview(stackViewForStackView)
+        containerView.addSubview(titleTableViewLabel)
+        containerView.addSubview(tableView)
         containerView.addSubview(testView)
     }
     
@@ -214,15 +278,23 @@ class NewProductViewController: UIViewController {
         imageProductCollectionView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: 0).isActive = true
         imageProductCollectionView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 0).isActive = true
         imageProductCollectionView.heightAnchor.constraint(equalTo: imageProductCollectionView.widthAnchor, multiplier: 1).isActive = true
-        imageProductCollectionView.bottomAnchor.constraint(equalTo: pageControl.topAnchor, constant: -20).isActive = true
+        imageProductCollectionView.bottomAnchor.constraint(equalTo: pageControl.topAnchor, constant: -10).isActive = true
         
         pageControl.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
-        pageControl.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        pageControl.bottomAnchor.constraint(equalTo: stackViewForStackView.topAnchor, constant: 0).isActive = true
+        pageControl.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        pageControl.bottomAnchor.constraint(equalTo: stackViewForStackView.topAnchor, constant: 20).isActive = true
         
         stackViewForStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10).isActive = true
         stackViewForStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10).isActive = true
-        stackViewForStackView.bottomAnchor.constraint(equalTo: testView.topAnchor, constant: -20).isActive = true
+        stackViewForStackView.bottomAnchor.constraint(equalTo: titleTableViewLabel.topAnchor, constant: -20).isActive = true
+        
+        titleTableViewLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10).isActive = true
+        titleTableViewLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10).isActive = true
+        titleTableViewLabel.bottomAnchor.constraint(equalTo: tableView.topAnchor, constant: -10).isActive = true
+        
+        tableView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10).isActive = true
+        tableView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10).isActive = true
+        tableView.bottomAnchor.constraint(equalTo: testView.topAnchor, constant: -20).isActive = true
         
         testView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20).isActive = true
         testView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20).isActive = true
@@ -252,31 +324,14 @@ class NewProductViewController: UIViewController {
     }
     
     @objc func didTapPageControl(_ sender: UIPageControl) {
-//        currentPage+=sender.currentPage
-//        print("changePageControl - currentPage \(sender.currentPage)")
-////        print("currentPage - \(currentPage)")
-//
-//
-//        imageProductCollectionView.scrollToItem(at: IndexPath(item: sender.currentPage+1, section: 0), at: .centeredHorizontally, animated: true)
-//        if sender.currentPage == 0  {
-//            imageProductCollectionView.setContentOffset(CGPoint(x:scrollView.frame.size.width, y:0), animated: true)
-//        } else {
-//            let x = CGFloat(pageControl.currentPage) * scrollView.frame.size.width
-//                    imageProductCollectionView.setContentOffset(CGPoint(x:x, y:0), animated: true)
-//        }
-//        print("modelImage.count \(modelImage.count)")
-        let current = pageControl.currentPage
-       
-        print("\(current)")
-        
-        let x = CGFloat(current) * scrollView.frame.size.width
-                imageProductCollectionView.setContentOffset(CGPoint(x:x, y:0), animated: true)
-        
 
+        imageProductCollectionView.scrollToItem(at: IndexPath(item: sender.currentPage, section: 0), at: .centeredHorizontally, animated: true)
+        print("sender.currentPage - \(sender.currentPage)")
+        
+//        let x = CGFloat(pageControl.currentPage) * scrollView.frame.size.width
+//                imageProductCollectionView.setContentOffset(CGPoint(x:x, y:0), animated: true)
+    
     }
-    
-    
-    
 }
 
 
@@ -300,6 +355,34 @@ extension NewProductViewController: UICollectionViewDelegate, UICollectionViewDa
 
         return CGSize(width: collectionView.frame.width - 10, height: collectionView.frame.height - 10)
     }
+}
+
+
+// MARK: - -
+
+extension NewProductViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return arrayMalls.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "MyTableViewCell", for: indexPath)
+        var contentCell = cell.defaultContentConfiguration()
+        contentCell.text = arrayMalls[indexPath.row]
+        contentCell.image = UIImage(named: "GalleriaMinsk")
+        cell.contentConfiguration = contentCell
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 50
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
     
 }
 
