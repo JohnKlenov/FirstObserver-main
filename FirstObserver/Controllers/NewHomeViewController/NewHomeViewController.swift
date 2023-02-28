@@ -370,8 +370,9 @@ extension NewHomeViewController: UICollectionViewDelegate {
 //            present(brandVC, animated: true, completion: nil)
             print("Brands section")
         case 2:
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let productVC = storyboard.instantiateViewController(withIdentifier: "ProductViewController") as! ProductViewController
+//            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+//            let productVC = storyboard.instantiateViewController(withIdentifier: "ProductViewController") as! ProductViewController
+            let productVC = NewProductViewController()
             let productSection = modelHomeViewController.filter({$0.section == "PopularProducts"})
             let malls = productSection.first?.items[indexPath.row].popularProduct?.malls ?? [""]
             var placesArray:[PlacesTest] = []
@@ -385,7 +386,9 @@ extension NewHomeViewController: UICollectionViewDelegate {
                     productVC.isAddedToCard = true
                 }
             }
-            productVC.fireBaseModel = productSection.first?.items[indexPath.row].popularProduct
+//            productVC.fireBaseModel = productSection.first?.items[indexPath.row].popularProduct
+//            productVC.arrayPin = placesArray
+            productVC.productModel = productSection.first?.items[indexPath.row].popularProduct
             productVC.arrayPin = placesArray
             self.navigationController?.pushViewController(productVC, animated: true)
 //            present(productVC, animated: true, completion: nil)

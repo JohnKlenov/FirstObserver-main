@@ -76,26 +76,9 @@ class NewProductViewController: UIViewController {
         return stack
     }()
     
-    let addToCardButton: UIButton = {
-        
-        var configuration = UIButton.Configuration.gray()
-       
-        var container = AttributeContainer()
-        container.font = UIFont.boldSystemFont(ofSize: 15)
-        container.foregroundColor = UIColor.white
-        
-        configuration.attributedTitle = AttributedString("Flor plan", attributes: container)
-        configuration.titleAlignment = .center
-        configuration.buttonSize = .large
-        configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
-
-        var grayButton = UIButton(configuration: configuration)
-        grayButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        grayButton.addTarget(self, action: #selector(addToCardPressed(_:)), for: .touchUpInside)
-        
-        return grayButton
-    }()
+    
+    
+    
     
     let websiteButton: UIButton = {
         
@@ -175,6 +158,16 @@ class NewProductViewController: UIViewController {
         return tableView
     }()
     
+    let titleMapLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Location Malls"
+        label.textAlignment = .left
+        label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
+        label.textColor = .black
+        return label
+    }()
+    
     let testView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -183,28 +176,95 @@ class NewProductViewController: UIViewController {
         return view
     }()
     
+    let addToCardButton: UIButton = {
+        
+        var configuration = UIButton.Configuration.gray()
+       
+        configuration.titleAlignment = .center
+        configuration.buttonSize = .large
+        configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
+        configuration.imagePlacement = .trailing
+        configuration.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(scale: .large)
+//        configuration.image?.withTintColor(.white)
+        var grayButton = UIButton(configuration: configuration)
+        
+        grayButton.translatesAutoresizingMaskIntoConstraints = false
+        grayButton.addTarget(self, action: #selector(addToCardPressed(_:)), for: .touchUpInside)
+        
+        return grayButton
+    }()
 
+    // MARK: - Constraint property -
     var heightCnstrTableView: NSLayoutConstraint!
     
-
+    
+    
+    // MARK: - model property -
+    var productModel:PopularProduct?
+    var arrayPin:[PlacesTest] = []
+    var isAddedToCard = true {
+        didSet {
+            addToCardButton.setNeedsUpdateConfiguration()
+        }
+    }
+    
+    
+    // website button needed cofigure
+    private func configureaddToCardButton() {
+        
+        addToCardButton.configurationUpdateHandler = { button in
+            var config = button.configuration
+            
+            var container = AttributeContainer()
+            container.font = UIFont.boldSystemFont(ofSize: 15)
+            container.foregroundColor = UIColor.white
+            
+            config?.attributedTitle = self.isAddedToCard ? AttributedString("Add to card", attributes: container) : AttributedString("Added to card", attributes: container)
+            config?.image = self.isAddedToCard ? UIImage(systemName: "cart")?.withTintColor(.white, renderingMode: .alwaysOriginal) : UIImage(systemName: "cart.fill")?.withTintColor(.white, renderingMode: .alwaysOriginal)
+            
+            button.isEnabled = self.isAddedToCard
+            button.configuration = config
+            print("addToCardButton.configurationUpdateHandler")
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
         view.backgroundColor = .white
+        configureaddToCardButton()
         setupScrollView()
         setupCollectionView()
         setupStackView()
         setupTableView()
         setupSubviews()
         setupConstraints()
-        pageControl.numberOfPages = modelImage.count
+        configureViews()
+        
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        let heightTV:CGFloat = CGFloat(arrayMalls.count)*50
+        let heightTV:CGFloat = CGFloat(arrayPin.count)*50
         heightCnstrTableView.constant = heightTV
     }
     
+    private func configureViews() {
+        nameLabel.text = productModel?.model
+        priceLabel.text = productModel?.price
+        descriptionLabel.text = productModel?.description
+        pageControl.numberOfPages = productModel?.refArray.count ?? 1
+    }
+    
+  
+    
+    private func configureMapView() {
+//        colculateRegion()
+//        setupPin(region, arrayPin: arrayPin)
+//        configureTapGestureRecognizer()
+        
+    }
     private func setupTableView() {
         tableView.delegate = self
         tableView.dataSource = self
@@ -282,7 +342,7 @@ class NewProductViewController: UIViewController {
         
         pageControl.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
         pageControl.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        pageControl.bottomAnchor.constraint(equalTo: stackViewForStackView.topAnchor, constant: 20).isActive = true
+        pageControl.bottomAnchor.constraint(equalTo: stackViewForStackView.topAnchor, constant: -20).isActive = true
         
         stackViewForStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10).isActive = true
         stackViewForStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10).isActive = true
@@ -315,6 +375,8 @@ class NewProductViewController: UIViewController {
     }
     
     @objc func addToCardPressed(_ sender: UIButton) {
+        isAddedToCard = !isAddedToCard
+        
         print("addToCardPressed")
     }
     
@@ -340,14 +402,16 @@ class NewProductViewController: UIViewController {
 extension NewProductViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return modelImage.count
+        return productModel?.refArray.count ?? 0
     }
     
     
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NewImageProductCell.reuseID, for: indexPath) as! NewImageProductCell
-        cell.configureCell(image: modelImage[indexPath.row].image)
+//        cell.configureCell(image: modelImage[indexPath.row].image)
+        guard let refImage = productModel?.refArray[indexPath.row] else { return UICollectionViewCell() }
+        cell.configureCell(refImage: refImage)
         return cell
     }
     
@@ -363,14 +427,14 @@ extension NewProductViewController: UICollectionViewDelegate, UICollectionViewDa
 extension NewProductViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return arrayMalls.count
+        return arrayPin.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MyTableViewCell", for: indexPath)
         var contentCell = cell.defaultContentConfiguration()
-        contentCell.text = arrayMalls[indexPath.row]
-        contentCell.image = UIImage(named: "GalleriaMinsk")
+        contentCell.text = arrayPin[indexPath.row].title
+        contentCell.image = arrayPin[indexPath.row].image
         cell.contentConfiguration = contentCell
         return cell
     }

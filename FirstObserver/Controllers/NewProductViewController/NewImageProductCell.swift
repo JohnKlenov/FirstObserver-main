@@ -41,16 +41,9 @@ class NewImageProductCell: UICollectionViewCell {
     }
     
     
-    func configureCell(image:UIImage) {
-//        model.brands?.refImage
-//        if let firstRef = model.mallImage {
-//            let urlRef = storage.reference(forURL: firstRef)
-//
-//            self.imageView.sd_setImage(with: urlRef, placeholderImage: UIImage(named: "DefaultImage"))
-//        } else {
-//            imageView.image = UIImage(named: "DefaultImage")
-//        }
-        imageView.image = image
+    func configureCell(refImage:String) {
+        let refStorage = storage.reference(forURL: refImage)
+        imageView.sd_setImage(with: refStorage, placeholderImage: UIImage(named: "DefaultImage"))
     }
     
     required init?(coder: NSCoder) {
