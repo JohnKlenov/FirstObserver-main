@@ -88,7 +88,7 @@ class NewProductViewController: UIViewController {
         container.font = UIFont.boldSystemFont(ofSize: 15)
         container.foregroundColor = UIColor.white
         
-        configuration.attributedTitle = AttributedString("Website mall", attributes: container)
+        configuration.attributedTitle = AttributedString("Original content", attributes: container)
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
         configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
@@ -114,7 +114,7 @@ class NewProductViewController: UIViewController {
     let priceLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "450 BYN"
+//        label.text = "450 BYN"
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
         label.textColor = .black
@@ -135,7 +135,7 @@ class NewProductViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
-        label.text = "I'm trying out the new compositional layout APIs introduced with iOS13, they're pretty great - but I'm having an issue with one thing in particular and there's very little official documentation about it."
+//        label.text = "I'm trying out the new compositional layout APIs introduced with iOS13, they're pretty great - but I'm having an issue with one thing in particular and there's very little official documentation about it."
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
         label.textColor = .black
@@ -202,15 +202,17 @@ class NewProductViewController: UIViewController {
     // MARK: - model property -
     var productModel:PopularProduct?
     var arrayPin:[PlacesTest] = []
-    var isAddedToCard = true {
+    var isAddedToCard = false {
         didSet {
             addToCardButton.setNeedsUpdateConfiguration()
         }
     }
+    private let encoder = JSONEncoder()
+    let managerFB = FBManager.shared
     
     
     // website button needed cofigure
-    private func configureaddToCardButton() {
+    private func configureToCardButton() {
         
         addToCardButton.configurationUpdateHandler = { button in
             var config = button.configuration
@@ -219,10 +221,10 @@ class NewProductViewController: UIViewController {
             container.font = UIFont.boldSystemFont(ofSize: 15)
             container.foregroundColor = UIColor.white
             
-            config?.attributedTitle = self.isAddedToCard ? AttributedString("Add to card", attributes: container) : AttributedString("Added to card", attributes: container)
-            config?.image = self.isAddedToCard ? UIImage(systemName: "cart")?.withTintColor(.white, renderingMode: .alwaysOriginal) : UIImage(systemName: "cart.fill")?.withTintColor(.white, renderingMode: .alwaysOriginal)
+            config?.attributedTitle = self.isAddedToCard ? AttributedString("Added to card", attributes: container) : AttributedString("Add to card", attributes: container)
+            config?.image = self.isAddedToCard ? UIImage(systemName: "cart.fill")?.withTintColor(.white, renderingMode: .alwaysOriginal) : UIImage(systemName: "cart")?.withTintColor(.white, renderingMode: .alwaysOriginal)
             
-            button.isEnabled = self.isAddedToCard
+            button.isEnabled = !self.isAddedToCard
             button.configuration = config
             print("addToCardButton.configurationUpdateHandler")
         }
@@ -231,9 +233,8 @@ class NewProductViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
         view.backgroundColor = .white
-        configureaddToCardButton()
+        configureToCardButton()
         setupScrollView()
         setupCollectionView()
         setupStackView()
@@ -257,7 +258,20 @@ class NewProductViewController: UIViewController {
         pageControl.numberOfPages = productModel?.refArray.count ?? 1
     }
     
-  
+    private func saveProductFB() {
+        
+        guard let product = productModel else { return }
+        
+        let productEncode = AddedProduct(product: product)
+        
+        do {
+            let data = try encoder.encode(productEncode)
+            let json = try JSONSerialization.jsonObject(with: data)
+            managerFB.addProductInBaseData(nameProduct: product.model, json: json)
+        } catch {
+            print("an error occured", error)
+        }
+    }
     
     private func configureMapView() {
 //        colculateRegion()
@@ -375,6 +389,8 @@ class NewProductViewController: UIViewController {
     }
     
     @objc func addToCardPressed(_ sender: UIButton) {
+        
+        saveProductFB()
         isAddedToCard = !isAddedToCard
         
         print("addToCardPressed")

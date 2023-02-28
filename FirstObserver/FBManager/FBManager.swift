@@ -54,6 +54,14 @@ final class FBManager {
 //    var storage = Storage.storage()
 
     
+    
+    // MARK: - NewProductViewController -
+    
+    func addProductInBaseData(nameProduct:String, json: Any) {
+        let ref = Database.database().reference(withPath: "usersAccaunt/\(currentUser?.uid ?? "")/AddedProducts")
+        ref.updateChildValues([nameProduct : json])
+    }
+    
     // MARK: - NewMallViewController -
     
     func getMallModel(refPath: String, completionHandler: @escaping (MallModel) -> Void) {
