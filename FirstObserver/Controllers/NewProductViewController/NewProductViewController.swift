@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import MapKit
 import UIKit
 
 class NewProductViewController: UIViewController {
@@ -76,9 +77,23 @@ class NewProductViewController: UIViewController {
         return stack
     }()
     
-    
-    
-    
+    let addToCardButton: UIButton = {
+        
+        var configuration = UIButton.Configuration.gray()
+       
+        configuration.titleAlignment = .center
+        configuration.buttonSize = .large
+        configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
+        configuration.imagePlacement = .trailing
+        configuration.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(scale: .large)
+//        configuration.image?.withTintColor(.white)
+        var grayButton = UIButton(configuration: configuration)
+        
+        grayButton.translatesAutoresizingMaskIntoConstraints = false
+        grayButton.addTarget(self, action: #selector(addToCardPressed(_:)), for: .touchUpInside)
+        
+        return grayButton
+    }()
     
     let websiteButton: UIButton = {
         
@@ -176,23 +191,19 @@ class NewProductViewController: UIViewController {
         return view
     }()
     
-    let addToCardButton: UIButton = {
-        
-        var configuration = UIButton.Configuration.gray()
-       
-        configuration.titleAlignment = .center
-        configuration.buttonSize = .large
-        configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
-        configuration.imagePlacement = .trailing
-        configuration.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(scale: .large)
-//        configuration.image?.withTintColor(.white)
-        var grayButton = UIButton(configuration: configuration)
-        
-        grayButton.translatesAutoresizingMaskIntoConstraints = false
-        grayButton.addTarget(self, action: #selector(addToCardPressed(_:)), for: .touchUpInside)
-        
-        return grayButton
+    let mapView: CustomMapView = {
+       let map = CustomMapView()
+        map.translatesAutoresizingMaskIntoConstraints = false
+        map.isUserInteractionEnabled = true
+        return map
     }()
+    
+    let mapTapGestureRecognizer: UITapGestureRecognizer = {
+        let tapRecognizer = UITapGestureRecognizer()
+        tapRecognizer.numberOfTapsRequired = 1
+        return tapRecognizer
+    }()
+    
 
     // MARK: - Constraint property -
     var heightCnstrTableView: NSLayoutConstraint!
@@ -209,9 +220,12 @@ class NewProductViewController: UIViewController {
     }
     private let encoder = JSONEncoder()
     let managerFB = FBManager.shared
+    private var isMapSelected = false
     
     
-    // website button needed cofigure
+   
+    
+    
     private func configureToCardButton() {
         
         addToCardButton.configurationUpdateHandler = { button in
@@ -245,17 +259,53 @@ class NewProductViewController: UIViewController {
         
     }
     
+    @objc func didTapRecognizer(_ gestureRecognizer: UITapGestureRecognizer) {
+        
+        print("Сработал handleTapSingleRecognizer")
+        var countFalse = 0
+
+        for annotation in mapView.annotations {
+
+            if let annotationView = mapView.view(for: annotation), let annotationMarker = annotationView as? MKMarkerAnnotationView {
+
+                let point = gestureRecognizer.location(in: mapView)
+                print("point - \(gestureRecognizer.location(in: mapView))")
+                let convertPoint = mapView.convert(point, to: annotationMarker)
+                print("convertPoint - \(convertPoint)")
+                if annotationMarker.point(inside: convertPoint, with: nil) {
+                    print("поппали")
+                } else {
+                    print("не попали")
+                    countFalse+=1
+                }
+                print("\(annotationMarker.frame.size)")
+            }
+
+        }
+
+        if countFalse == mapView.annotations.count, isMapSelected == false {
+            print("Переходим на VC")
+//            performSegue(withIdentifier: "goToMapVC", sender: nil)
+        }
+    }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         let heightTV:CGFloat = CGFloat(arrayPin.count)*50
         heightCnstrTableView.constant = heightTV
     }
     
+    
     private func configureViews() {
         nameLabel.text = productModel?.model
         priceLabel.text = productModel?.price
         descriptionLabel.text = productModel?.description
         pageControl.numberOfPages = productModel?.refArray.count ?? 1
+        
+        
+        mapView.arrayPin = arrayPin
+        mapView.delegateMap = self
+        mapTapGestureRecognizer.addTarget(self, action: #selector(didTapRecognizer(_:)))
+        mapView.addGestureRecognizer(mapTapGestureRecognizer)
     }
     
     private func saveProductFB() {
@@ -343,7 +393,8 @@ class NewProductViewController: UIViewController {
         containerView.addSubview(stackViewForStackView)
         containerView.addSubview(titleTableViewLabel)
         containerView.addSubview(tableView)
-        containerView.addSubview(testView)
+        containerView.addSubview(mapView)
+//        containerView.addSubview(testView)
     }
     
     private func setupConstraints() {
@@ -368,11 +419,15 @@ class NewProductViewController: UIViewController {
         
         tableView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10).isActive = true
         tableView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10).isActive = true
-        tableView.bottomAnchor.constraint(equalTo: testView.topAnchor, constant: -20).isActive = true
+        tableView.bottomAnchor.constraint(equalTo: mapView.topAnchor, constant: -20).isActive = true
         
-        testView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20).isActive = true
-        testView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20).isActive = true
-        testView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -20).isActive = true
+        mapView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20).isActive = true
+        mapView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20).isActive = true
+        mapView.heightAnchor.constraint(equalTo: mapView.widthAnchor, multiplier: 1).isActive = true
+        mapView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -20).isActive = true
+//        testView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20).isActive = true
+//        testView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20).isActive = true
+//        testView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -20).isActive = true
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
@@ -462,8 +517,16 @@ extension NewProductViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
+}
+
+
+// MARK: - MapViewManagerDelegate -
+
+extension NewProductViewController: MapViewManagerDelegate {
     
-    
+    func selectAnnotationView(isSelect: Bool) {
+        isMapSelected = isSelect
+    }
 }
 
 

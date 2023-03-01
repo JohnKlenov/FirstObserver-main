@@ -21,13 +21,13 @@ class CustomMapView: MKMapView {
             addAnnotations(arrayPin)
         }
     }
-    weak var delegateMallVC: MapViewManagerDelegate?
+    weak var delegateMap: MapViewManagerDelegate?
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
-       
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        print(" override init(frame: CGRect) ")
         delegate = self
-        calculateRegion()
+//        calculateRegion()
         isZoomEnabled = false
         isScrollEnabled = false
         isPitchEnabled = false
@@ -35,14 +35,33 @@ class CustomMapView: MKMapView {
         
         let initialLocation = CLLocation(latitude: 53.903318, longitude: 27.560448)
         self.centerLocation(initialLocation, regionRadius: regionMap)
-        
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     
+//    override func awakeFromNib() {
+//        super.awakeFromNib()
+//       print(" override func awakeFromNib()")
+//        delegate = self
+//        calculateRegion()
+//        isZoomEnabled = false
+//        isScrollEnabled = false
+//        isPitchEnabled = false
+//        isRotateEnabled = false
+//
+//        let initialLocation = CLLocation(latitude: 53.903318, longitude: 27.560448)
+//        self.centerLocation(initialLocation, regionRadius: regionMap)
+//
+//    }
+    
+    
     private func calculateRegion() {
-        
+        let onePercent = frame.size.width/100
         // 3.88 это 1% от т екущей ширины на storyboard
-        let percentWidth = 100 - self.frame.size.width/3.88
+        let percentWidth = 100 - frame.size.width/onePercent
         // если > 0 нужно не увеличивать а уменьшать newRegion
         guard percentWidth > 0 else { return }
         let plusPercent:Double = Double(Int(percentWidth))/100
@@ -89,10 +108,10 @@ extension CustomMapView: MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        delegateMallVC?.selectAnnotationView(isSelect: true)
+        delegateMap?.selectAnnotationView(isSelect: true)
     }
     
     func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
-        delegateMallVC?.selectAnnotationView(isSelect: false)
+        delegateMap?.selectAnnotationView(isSelect: false)
     }
 }

@@ -73,7 +73,7 @@ class MallViewController: UIViewController {
         
         let currentPin = arrayPin.filter({$0.title == refPath})
         mapView.arrayPin = currentPin
-        mapView.delegateMallVC = self
+        mapView.delegateMap = self
         
         mallCollectionView.delegate = self
         mallCollectionView.dataSource = self
