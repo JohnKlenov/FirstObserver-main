@@ -12,7 +12,6 @@ import UIKit
 class NewProductViewController: UIViewController {
     
     private let modelImage = ModelForProductVC.shared.imagesProduct()
-    private let arrayMalls = ["ТЦ Gallery", "ТЦ Skala", "ТЦ DanaMall", "ТЦ GreenSity"]
 
     private let scrollView: UIScrollView = {
         let scroll = UIScrollView()
@@ -23,7 +22,7 @@ class NewProductViewController: UIViewController {
     private let containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .gray
+        view.backgroundColor = .clear
         return view
     }()
     
@@ -150,7 +149,6 @@ class NewProductViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
-//        label.text = "I'm trying out the new compositional layout APIs introduced with iOS13, they're pretty great - but I'm having an issue with one thing in particular and there's very little official documentation about it."
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
         label.textColor = .black
@@ -183,18 +181,10 @@ class NewProductViewController: UIViewController {
         return label
     }()
     
-    let testView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.heightAnchor.constraint(equalToConstant: 900).isActive = true
-        view.backgroundColor = .orange
-        return view
-    }()
-    
     let mapView: CustomMapView = {
        let map = CustomMapView()
         map.translatesAutoresizingMaskIntoConstraints = false
-        map.isUserInteractionEnabled = true
+        map.layer.cornerRadius = 10
         return map
     }()
     
@@ -223,7 +213,57 @@ class NewProductViewController: UIViewController {
     private var isMapSelected = false
     
     
-   
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        view.backgroundColor = .white
+        tabBarController?.tabBar.isHidden = true
+        
+        configureToCardButton()
+        setupScrollView()
+        setupCollectionView()
+        setupStackView()
+        setupTableView()
+        setupSubviews()
+        setupConstraints()
+        configureViews()
+        
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        tabBarController?.tabBar.isHidden = false
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let heightTV:CGFloat = CGFloat(arrayPin.count)*50
+        heightCnstrTableView.constant = heightTV
+    }
+    
+    @objc func didTapRecognizer(_ gestureRecognizer: UITapGestureRecognizer) {
+        
+        var countFalse = 0
+        
+        for annotation in mapView.annotations {
+            
+            if let annotationView = mapView.view(for: annotation), let annotationMarker = annotationView as? MKMarkerAnnotationView {
+                
+                let point = gestureRecognizer.location(in: mapView)
+                let convertPoint = mapView.convert(point, to: annotationMarker)
+                if annotationMarker.point(inside: convertPoint, with: nil) {
+                } else {
+                    countFalse+=1
+                }
+            }
+        }
+        if countFalse == mapView.annotations.count, isMapSelected == false {
+            print("Переходим на VC")
+            let fullScreenMap = MapViewController()
+            fullScreenMap.arrayPin = arrayPin
+            present(fullScreenMap, animated: true, completion: nil)
+        }
+    }
     
     
     private func configureToCardButton() {
@@ -243,64 +283,11 @@ class NewProductViewController: UIViewController {
             print("addToCardButton.configurationUpdateHandler")
         }
     }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        view.backgroundColor = .white
-        configureToCardButton()
-        setupScrollView()
-        setupCollectionView()
-        setupStackView()
-        setupTableView()
-        setupSubviews()
-        setupConstraints()
-        configureViews()
-        
-    }
-    
-    @objc func didTapRecognizer(_ gestureRecognizer: UITapGestureRecognizer) {
-        
-        print("Сработал handleTapSingleRecognizer")
-        var countFalse = 0
-
-        for annotation in mapView.annotations {
-
-            if let annotationView = mapView.view(for: annotation), let annotationMarker = annotationView as? MKMarkerAnnotationView {
-
-                let point = gestureRecognizer.location(in: mapView)
-                print("point - \(gestureRecognizer.location(in: mapView))")
-                let convertPoint = mapView.convert(point, to: annotationMarker)
-                print("convertPoint - \(convertPoint)")
-                if annotationMarker.point(inside: convertPoint, with: nil) {
-                    print("поппали")
-                } else {
-                    print("не попали")
-                    countFalse+=1
-                }
-                print("\(annotationMarker.frame.size)")
-            }
-
-        }
-
-        if countFalse == mapView.annotations.count, isMapSelected == false {
-            print("Переходим на VC")
-//            performSegue(withIdentifier: "goToMapVC", sender: nil)
-        }
-    }
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        let heightTV:CGFloat = CGFloat(arrayPin.count)*50
-        heightCnstrTableView.constant = heightTV
-    }
-    
-    
     private func configureViews() {
         nameLabel.text = productModel?.model
         priceLabel.text = productModel?.price
         descriptionLabel.text = productModel?.description
         pageControl.numberOfPages = productModel?.refArray.count ?? 1
-        
         
         mapView.arrayPin = arrayPin
         mapView.delegateMap = self
@@ -323,12 +310,7 @@ class NewProductViewController: UIViewController {
         }
     }
     
-    private func configureMapView() {
-//        colculateRegion()
-//        setupPin(region, arrayPin: arrayPin)
-//        configureTapGestureRecognizer()
-        
-    }
+    
     private func setupTableView() {
         tableView.delegate = self
         tableView.dataSource = self
@@ -366,7 +348,7 @@ class NewProductViewController: UIViewController {
         imageProductCollectionView.translatesAutoresizingMaskIntoConstraints = false
         imageProductCollectionView.register(NewImageProductCell.self, forCellWithReuseIdentifier: NewImageProductCell.reuseID)
 
-        imageProductCollectionView.backgroundColor = .green
+        imageProductCollectionView.backgroundColor = .clear
         imageProductCollectionView.isPagingEnabled = true
         imageProductCollectionView.showsVerticalScrollIndicator = false
         imageProductCollectionView.showsHorizontalScrollIndicator = false
@@ -393,8 +375,8 @@ class NewProductViewController: UIViewController {
         containerView.addSubview(stackViewForStackView)
         containerView.addSubview(titleTableViewLabel)
         containerView.addSubview(tableView)
+        containerView.addSubview(titleMapLabel)
         containerView.addSubview(mapView)
-//        containerView.addSubview(testView)
     }
     
     private func setupConstraints() {
@@ -419,24 +401,22 @@ class NewProductViewController: UIViewController {
         
         tableView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10).isActive = true
         tableView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10).isActive = true
-        tableView.bottomAnchor.constraint(equalTo: mapView.topAnchor, constant: -20).isActive = true
+        tableView.bottomAnchor.constraint(equalTo: titleMapLabel.topAnchor, constant: -20).isActive = true
         
-        mapView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20).isActive = true
-        mapView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20).isActive = true
+        titleMapLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10).isActive = true
+        titleMapLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10).isActive = true
+        titleMapLabel.bottomAnchor.constraint(equalTo: mapView.topAnchor, constant: -10).isActive = true
+        
+        mapView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10).isActive = true
+        mapView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10).isActive = true
         mapView.heightAnchor.constraint(equalTo: mapView.widthAnchor, multiplier: 1).isActive = true
         mapView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -20).isActive = true
-//        testView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20).isActive = true
-//        testView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20).isActive = true
-//        testView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -20).isActive = true
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         if scrollView == imageProductCollectionView {
-            print("scroll imageProductCollectionView")
             let currentPage = Int(scrollView.contentOffset.x) / Int(scrollView.frame.width)
-            print("currentPage - \(currentPage)")
             pageControl.currentPage = currentPage
-//            footerDelegate?.currentPage(index: currentPage)
         } else {
             print("scrolling another view")
 
@@ -460,7 +440,6 @@ class NewProductViewController: UIViewController {
 
         imageProductCollectionView.scrollToItem(at: IndexPath(item: sender.currentPage, section: 0), at: .centeredHorizontally, animated: true)
         print("sender.currentPage - \(sender.currentPage)")
-        
 //        let x = CGFloat(pageControl.currentPage) * scrollView.frame.size.width
 //                imageProductCollectionView.setContentOffset(CGPoint(x:x, y:0), animated: true)
     
@@ -489,6 +468,14 @@ extension NewProductViewController: UICollectionViewDelegate, UICollectionViewDa
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
 
         return CGSize(width: collectionView.frame.width - 10, height: collectionView.frame.height - 10)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let fullScreenVC = FullScreenViewController()
+        fullScreenVC.productImages = productModel?.refArray ?? []
+        fullScreenVC.indexPath = IndexPath(item: indexPath.row, section: 0)
+        fullScreenVC.modalPresentationStyle = .fullScreen
+        present(fullScreenVC, animated: true, completion: nil)
     }
 }
 

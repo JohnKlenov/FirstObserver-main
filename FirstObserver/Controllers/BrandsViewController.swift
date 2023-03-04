@@ -217,7 +217,8 @@ extension BrandsViewController: ProductCellDelegtate {
     
     func giveModel(model: PopularProduct) {
         
-        let productVC = UIStoryboard.vcById("ProductViewController") as! ProductViewController
+//        let productVC = UIStoryboard.vcById("ProductViewController") as! ProductViewController
+        let productVC = NewProductViewController()
         
         var placesArray: [PlacesTest] = []
         let malls = model.malls
@@ -236,7 +237,7 @@ extension BrandsViewController: ProductCellDelegtate {
         }
         
         productVC.arrayPin = placesArray
-        productVC.fireBaseModel = model
+        productVC.productModel = model
         self.navigationController?.pushViewController(productVC, animated: true)
     }
     

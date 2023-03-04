@@ -197,7 +197,10 @@ class MallViewController: UIViewController {
         
         if countFalse == mapView.annotations.count, isSelected == false {
             print("Переходим на VC")
-//            performSegue(withIdentifier: "goToMapVC", sender: nil)
+            
+            let fullScreenMap = MapViewController()
+            fullScreenMap.arrayPin = arrayPin
+            present(fullScreenMap, animated: true, completion: nil)
         }
     }
     

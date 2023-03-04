@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import MapKit
 import SafariServices
 
 class NewMallViewController: UIViewController {
@@ -25,13 +26,19 @@ class NewMallViewController: UIViewController {
         return view
     }()
     
-    private let mapView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .orange
-        view.layer.cornerRadius = 10
-        return view
+    private let mapView: CustomMapView = {
+       let map = CustomMapView()
+        map.translatesAutoresizingMaskIntoConstraints = false
+        map.layer.cornerRadius = 10
+        return map
     }()
+    
+    let mapTapGestureRecognizer: UITapGestureRecognizer = {
+        let tapRecognizer = UITapGestureRecognizer()
+        tapRecognizer.numberOfTapsRequired = 1
+        return tapRecognizer
+    }()
+    
  
     let floorPlan: UIButton = {
         
@@ -113,6 +120,7 @@ class NewMallViewController: UIViewController {
     var webSite: String = ""
     var brandsMall: [PreviewCategory] = []
     var arrayPin:[PlacesTest] = []
+    var currentPin:[PlacesTest] = []
     
     var section: [SectionHVC] = [] {
         didSet {
@@ -129,6 +137,7 @@ class NewMallViewController: UIViewController {
         }
     }
     let managerFB = FBManager.shared
+    private var isMapSelected = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -146,6 +155,12 @@ class NewMallViewController: UIViewController {
         setupConstraints()
         createDataSource()
         collectionViewLayout.delegate = self
+        
+        currentPin = arrayPin.filter({$0.title == refPath})
+        mapView.arrayPin = currentPin
+        mapView.delegateMap = self
+        mapTapGestureRecognizer.addTarget(self, action: #selector(didTapRecognizer(_:)))
+        mapView.addGestureRecognizer(mapTapGestureRecognizer)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -164,6 +179,31 @@ class NewMallViewController: UIViewController {
         }
             print("collectionViewContentSize-  \(collectionViewLayout.collectionViewLayout.collectionViewContentSize.height)")
         
+    }
+    
+    @objc func didTapRecognizer(_ gestureRecognizer: UITapGestureRecognizer) {
+        
+        var countFalse = 0
+        
+        for annotation in mapView.annotations {
+            
+            if let annotationView = mapView.view(for: annotation), let annotationMarker = annotationView as? MKMarkerAnnotationView {
+                
+                let point = gestureRecognizer.location(in: mapView)
+                let convertPoint = mapView.convert(point, to: annotationMarker)
+                if annotationMarker.point(inside: convertPoint, with: nil) {
+                } else {
+                    countFalse+=1
+                }
+            }
+        }
+        if countFalse == mapView.annotations.count, isMapSelected == false {
+            print("Переходим на VC")
+            
+            let fullScreenMap = MapViewController()
+            fullScreenMap.arrayPin = currentPin
+            present(fullScreenMap, animated: true, completion: nil)
+        }
     }
     
     private func configureViews(mallModel:MallModel)  {
@@ -441,6 +481,15 @@ extension UIViewController {
     }
 }
 
+
+// MARK: - MapViewManagerDelegate -
+
+extension NewMallViewController: MapViewManagerDelegate {
+    
+    func selectAnnotationView(isSelect: Bool) {
+        isMapSelected = isSelect
+    }
+}
 
 
     

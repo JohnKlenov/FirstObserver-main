@@ -25,6 +25,8 @@
 		5E3F053E299C12B000678956 /* ProductCellForBrandsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E3F053D299C12B000678956 /* ProductCellForBrandsVC.swift */; };
 		5E3F0540299C183C00678956 /* ProductCellForProductCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E3F053F299C183C00678956 /* ProductCellForProductCell.swift */; };
 		5E61BCCD299E3A4F009C8366 /* CartCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E61BCCC299E3A4F009C8366 /* CartCell.swift */; };
+		5E6DEDB229B347AE004A87BC /* FullScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6DEDB129B347AE004A87BC /* FullScreenViewController.swift */; };
+		5E6DEDB429B36753004A87BC /* FullScreenProductCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6DEDB329B36753004A87BC /* FullScreenProductCell.swift */; };
 		5E731C9428E443F600AF3A21 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E731C9328E443F600AF3A21 /* SignInViewController.swift */; };
 		5E731C9628E4441200AF3A21 /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E731C9528E4441200AF3A21 /* SignUpViewController.swift */; };
 		5E74BCC828EEEF9B0048D097 /* Validators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E74BCC728EEEF9B0048D097 /* Validators.swift */; };
@@ -108,6 +110,8 @@
 		5E3F053D299C12B000678956 /* ProductCellForBrandsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCellForBrandsVC.swift; sourceTree = "<group>"; };
 		5E3F053F299C183C00678956 /* ProductCellForProductCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCellForProductCell.swift; sourceTree = "<group>"; };
 		5E61BCCC299E3A4F009C8366 /* CartCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartCell.swift; sourceTree = "<group>"; };
+		5E6DEDB129B347AE004A87BC /* FullScreenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenViewController.swift; sourceTree = "<group>"; };
+		5E6DEDB329B36753004A87BC /* FullScreenProductCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenProductCell.swift; sourceTree = "<group>"; };
 		5E731C9328E443F600AF3A21 /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
 		5E731C9528E4441200AF3A21 /* SignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
 		5E74BCC728EEEF9B0048D097 /* Validators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Validators.swift; sourceTree = "<group>"; };
@@ -246,6 +250,15 @@
 			path = legacyProductCell;
 			sourceTree = "<group>";
 		};
+		5E6DEDB029B34731004A87BC /* FullScreenViewController */ = {
+			isa = PBXGroup;
+			children = (
+				5E6DEDB129B347AE004A87BC /* FullScreenViewController.swift */,
+				5E6DEDB329B36753004A87BC /* FullScreenProductCell.swift */,
+			);
+			path = FullScreenViewController;
+			sourceTree = "<group>";
+		};
 		5E731C9228E443B900AF3A21 /* Authentication */ = {
 			isa = PBXGroup;
 			children = (
@@ -346,6 +359,7 @@
 		5E7EF58428A53B0300814F4D /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				5E6DEDB029B34731004A87BC /* FullScreenViewController */,
 				5EAA598829A8CD2F00AEFE45 /* NewProductViewController */,
 				5EA65C7229A653C800EA6FA2 /* NewMallViewController */,
 				5E0BF4702993AE2200FB99BE /* NewHomeViewController */,
@@ -629,6 +643,7 @@
 				5E9C8E04297A7EF1009855AE /* FBManager.swift in Sources */,
 				5EBD49A729449F6C00E27F2F /* AlertText.swift in Sources */,
 				5E7EF57F28A51B0100814F4D /* ShopingMallCell.swift in Sources */,
+				5E6DEDB229B347AE004A87BC /* FullScreenViewController.swift in Sources */,
 				5EA94471294B5773007C2AB5 /* AlertTopView.swift in Sources */,
 				5E759F0E28BE130900D17F13 /* Helpers.swift in Sources */,
 				5E7C7E2B2919555200AC57CB /* MallCollectionViewCell.swift in Sources */,
@@ -638,6 +653,7 @@
 				5EA65C7A29A6546C00EA6FA2 /* MallCell.swift in Sources */,
 				5E9101DF291CFE4B00D37E92 /* ChildCollectionViewController.swift in Sources */,
 				5E3F053E299C12B000678956 /* ProductCellForBrandsVC.swift in Sources */,
+				5E6DEDB429B36753004A87BC /* FullScreenProductCell.swift in Sources */,
 				5E92FDF829A9EFA7002CDE51 /* FooterViewCollectionView.swift in Sources */,
 				5E759F0428BDF0E600D17F13 /* GroupCell.swift in Sources */,
 				5E7EF56328A12DBB00814F4D /* CartViewController.swift in Sources */,

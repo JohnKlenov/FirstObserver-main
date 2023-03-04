@@ -189,7 +189,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="nZn-h1-3eC" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2743" y="2429"/>
+            <point key="canvasLocation" x="300" y="2198"/>
         </scene>
         <!--All Product View Controller-->
         <scene sceneID="ttS-Gc-hEE">
@@ -426,7 +426,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="KWG-Wl-jDH" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-4762" y="2517"/>
+            <point key="canvasLocation" x="-3712" y="4062"/>
         </scene>
         <!--Home View Controller-->
         <scene sceneID="d3R-ea-le4">
@@ -684,7 +684,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="R1F-LW-DVJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-4762" y="1791"/>
+            <point key="canvasLocation" x="-3711" y="3345"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="bHC-RE-jG5">
@@ -1101,7 +1101,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="yBp-lD-ZL3" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-650" y="2943"/>
+            <point key="canvasLocation" x="-2934" y="3345"/>
         </scene>
         <!--Product View Controller-->
         <scene sceneID="lje-za-olU">
@@ -1346,13 +1346,11 @@
                         <outlet property="topCnstrTextViewLabel" destination="Ome-Li-hjE" id="cs8-BF-2j9"/>
                         <outlet property="topConstraintPageControl" destination="9A6-Ub-7jd" id="8T4-Q9-CL6"/>
                         <segue destination="tEJ-6C-b56" kind="presentation" identifier="goToContatctsMall" id="ce1-BE-YSI"/>
-                        <segue destination="JfH-7U-gx4" kind="show" identifier="goToMapVC" id="gGD-c2-VPc"/>
-                        <segue destination="1gf-v3-K6l" kind="presentation" identifier="signInVC" id="Elo-Mz-GLx"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="nU4-IM-NNV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="300" y="2197.8401727861774"/>
+            <point key="canvasLocation" x="-2136" y="3345"/>
         </scene>
         <!--Contakt Mall View Controller-->
         <scene sceneID="JsS-KN-4F9">
@@ -1368,7 +1366,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3n1-Dj-6eX" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1291" y="2198"/>
+            <point key="canvasLocation" x="-1304" y="3358"/>
         </scene>
         <!--Sign In View Controller-->
         <scene sceneID="UHi-Yg-KGY">
@@ -1506,7 +1504,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ll9-Be-Ykp" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2357" y="2943"/>
+            <point key="canvasLocation" x="1227" y="1486"/>
         </scene>
         <!--Sign Up View Controller-->
         <scene sceneID="f1R-rC-lC3">
@@ -1672,18 +1670,18 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xdx-9e-K9D" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3256.5420560747662" y="2942.9805615550758"/>
+            <point key="canvasLocation" x="2024" y="1486"/>
         </scene>
         <!--Map View Controller-->
         <scene sceneID="CBk-fl-TiB">
             <objects>
                 <viewController id="JfH-7U-gx4" customClass="MapViewController" customModule="FirstObserver" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="41J-uq-dA9">
-                        <rect key="frame" x="0.0" y="0.0" width="428" height="872"/>
+                        <rect key="frame" x="0.0" y="0.0" width="428" height="926"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="RB2-eg-OXs">
-                                <rect key="frame" x="0.0" y="0.0" width="428" height="838"/>
+                                <rect key="frame" x="0.0" y="44" width="428" height="848"/>
                             </mapView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="HfP-oh-c9X"/>
@@ -1702,7 +1700,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dHa-19-41h" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="300" y="2943"/>
+            <point key="canvasLocation" x="300" y="2916"/>
         </scene>
         <!--Cart View Controller-->
         <scene sceneID="a7t-2K-ckX">
@@ -1812,9 +1810,6 @@
             <point key="canvasLocation" x="-650.46728971962614" y="727.64578833693315"/>
         </scene>
     </scenes>
-    <inferredMetricsTieBreakers>
-        <segue reference="Elo-Mz-GLx"/>
-    </inferredMetricsTieBreakers>
     <resources>
         <image name="cart.fill" catalog="system" width="128" height="102"/>
         <image name="chevron.backward" catalog="system" width="96" height="128"/>
