@@ -230,8 +230,8 @@ class NewProductViewController: UIViewController {
         
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
         tabBarController?.tabBar.isHidden = false
     }
     
@@ -474,7 +474,7 @@ extension NewProductViewController: UICollectionViewDelegate, UICollectionViewDa
         let fullScreenVC = FullScreenViewController()
         fullScreenVC.productImages = productModel?.refArray ?? []
         fullScreenVC.indexPath = IndexPath(item: indexPath.row, section: 0)
-        fullScreenVC.modalPresentationStyle = .fullScreen
+//        fullScreenVC.modalPresentationStyle = .fullScreen
         present(fullScreenVC, animated: true, completion: nil)
     }
 }

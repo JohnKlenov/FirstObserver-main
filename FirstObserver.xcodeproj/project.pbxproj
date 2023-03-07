@@ -27,6 +27,7 @@
 		5E61BCCD299E3A4F009C8366 /* CartCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E61BCCC299E3A4F009C8366 /* CartCell.swift */; };
 		5E6DEDB229B347AE004A87BC /* FullScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6DEDB129B347AE004A87BC /* FullScreenViewController.swift */; };
 		5E6DEDB429B36753004A87BC /* FullScreenProductCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6DEDB329B36753004A87BC /* FullScreenProductCell.swift */; };
+		5E6DEDB629B476E0004A87BC /* ImageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6DEDB529B476E0004A87BC /* ImageScrollView.swift */; };
 		5E731C9428E443F600AF3A21 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E731C9328E443F600AF3A21 /* SignInViewController.swift */; };
 		5E731C9628E4441200AF3A21 /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E731C9528E4441200AF3A21 /* SignUpViewController.swift */; };
 		5E74BCC828EEEF9B0048D097 /* Validators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E74BCC728EEEF9B0048D097 /* Validators.swift */; };
@@ -112,6 +113,7 @@
 		5E61BCCC299E3A4F009C8366 /* CartCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartCell.swift; sourceTree = "<group>"; };
 		5E6DEDB129B347AE004A87BC /* FullScreenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenViewController.swift; sourceTree = "<group>"; };
 		5E6DEDB329B36753004A87BC /* FullScreenProductCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenProductCell.swift; sourceTree = "<group>"; };
+		5E6DEDB529B476E0004A87BC /* ImageScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageScrollView.swift; sourceTree = "<group>"; };
 		5E731C9328E443F600AF3A21 /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
 		5E731C9528E4441200AF3A21 /* SignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
 		5E74BCC728EEEF9B0048D097 /* Validators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Validators.swift; sourceTree = "<group>"; };
@@ -255,6 +257,7 @@
 			children = (
 				5E6DEDB129B347AE004A87BC /* FullScreenViewController.swift */,
 				5E6DEDB329B36753004A87BC /* FullScreenProductCell.swift */,
+				5E6DEDB529B476E0004A87BC /* ImageScrollView.swift */,
 			);
 			path = FullScreenViewController;
 			sourceTree = "<group>";
@@ -659,6 +662,7 @@
 				5E7EF56328A12DBB00814F4D /* CartViewController.swift in Sources */,
 				5E7EF58328A51B7E00814F4D /* PopularProductCell.swift in Sources */,
 				5E92FDFA29A9F16E002CDE51 /* TestModelProductVC.swift in Sources */,
+				5E6DEDB629B476E0004A87BC /* ImageScrollView.swift in Sources */,
 				5E8DC52628D5BCB400275138 /* ContaktMallViewController.swift in Sources */,
 				5EA65C7C29A6548B00EA6FA2 /* BrandCellMallVC.swift in Sources */,
 				5E7EF57D28A14A0600814F4D /* ContentPageViewController.swift in Sources */,
