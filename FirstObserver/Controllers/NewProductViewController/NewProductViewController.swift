@@ -28,6 +28,13 @@ class NewProductViewController: UIViewController {
     
     var imageProductCollectionView : UICollectionView!
     
+    let pagesView: NumberPagesView = {
+        let view = NumberPagesView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.cornerRadius = 10
+        return view
+    }()
+
     let pageControl: UIPageControl = {
         let control = UIPageControl()
         control.currentPage = 0
@@ -85,7 +92,6 @@ class NewProductViewController: UIViewController {
         configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
         configuration.imagePlacement = .trailing
         configuration.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(scale: .large)
-//        configuration.image?.withTintColor(.white)
         var grayButton = UIButton(configuration: configuration)
         
         grayButton.translatesAutoresizingMaskIntoConstraints = false
@@ -288,7 +294,7 @@ class NewProductViewController: UIViewController {
         priceLabel.text = productModel?.price
         descriptionLabel.text = productModel?.description
         pageControl.numberOfPages = productModel?.refArray.count ?? 1
-        
+        pagesView.configureView(currentPage: 1, count: productModel?.refArray.count ?? 0)
         mapView.arrayPin = arrayPin
         mapView.delegateMap = self
         mapTapGestureRecognizer.addTarget(self, action: #selector(didTapRecognizer(_:)))
@@ -325,10 +331,9 @@ class NewProductViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.addSubview(containerView)
         
-        
         scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        scrollView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        scrollView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor).isActive = true
         scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         
         containerView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
@@ -370,6 +375,7 @@ class NewProductViewController: UIViewController {
     
     private func setupSubviews() {
         
+        
         containerView.addSubview(imageProductCollectionView)
         containerView.addSubview(pageControl)
         containerView.addSubview(stackViewForStackView)
@@ -377,9 +383,12 @@ class NewProductViewController: UIViewController {
         containerView.addSubview(tableView)
         containerView.addSubview(titleMapLabel)
         containerView.addSubview(mapView)
+        containerView.addSubview(pagesView)
     }
     
     private func setupConstraints() {
+        
+        
         
         imageProductCollectionView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 0).isActive = true
         imageProductCollectionView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: 0).isActive = true
@@ -411,12 +420,21 @@ class NewProductViewController: UIViewController {
         mapView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10).isActive = true
         mapView.heightAnchor.constraint(equalTo: mapView.widthAnchor, multiplier: 1).isActive = true
         mapView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -20).isActive = true
+        
+        pagesView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20).isActive = true
+//        pagesView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
+        pagesView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20).isActive = true
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        print("pagesView.frame.origin.x - \(pagesView.frame.origin.x)")
+        print("pagesView.frame.origin.y - \(pagesView.frame.origin.y)")
+        print("pagesView.frame.size - \(pagesView.frame.size)")
         if scrollView == imageProductCollectionView {
             let currentPage = Int(scrollView.contentOffset.x) / Int(scrollView.frame.width)
+            print("currentPage - \(currentPage)")
             pageControl.currentPage = currentPage
+            pagesView.configureView(currentPage: currentPage + 1, count: productModel?.refArray.count ?? 0)
         } else {
             print("scrolling another view")
 
@@ -440,6 +458,7 @@ class NewProductViewController: UIViewController {
 
         imageProductCollectionView.scrollToItem(at: IndexPath(item: sender.currentPage, section: 0), at: .centeredHorizontally, animated: true)
         print("sender.currentPage - \(sender.currentPage)")
+        pagesView.configureView(currentPage: sender.currentPage + 1, count: productModel?.refArray.count ?? 0)
 //        let x = CGFloat(pageControl.currentPage) * scrollView.frame.size.width
 //                imageProductCollectionView.setContentOffset(CGPoint(x:x, y:0), animated: true)
     
@@ -461,6 +480,8 @@ extension NewProductViewController: UICollectionViewDelegate, UICollectionViewDa
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NewImageProductCell.reuseID, for: indexPath) as! NewImageProductCell
 //        cell.configureCell(image: modelImage[indexPath.row].image)
         guard let refImage = productModel?.refArray[indexPath.row] else { return UICollectionViewCell() }
+        print("collectionView.dequeueReusableCell + collectionView.dequeueReusableCell + collectionView.dequeueReusableCell(")
+//        cell.configureCell(refImage: refImage)
         cell.configureCell(refImage: refImage)
         return cell
     }

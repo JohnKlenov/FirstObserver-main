@@ -28,6 +28,7 @@
 		5E6DEDB229B347AE004A87BC /* FullScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6DEDB129B347AE004A87BC /* FullScreenViewController.swift */; };
 		5E6DEDB429B36753004A87BC /* FullScreenProductCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6DEDB329B36753004A87BC /* FullScreenProductCell.swift */; };
 		5E6DEDB629B476E0004A87BC /* ImageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6DEDB529B476E0004A87BC /* ImageScrollView.swift */; };
+		5E6DEDBA29B7889B004A87BC /* NumberPagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6DEDB929B7889B004A87BC /* NumberPagesView.swift */; };
 		5E731C9428E443F600AF3A21 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E731C9328E443F600AF3A21 /* SignInViewController.swift */; };
 		5E731C9628E4441200AF3A21 /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E731C9528E4441200AF3A21 /* SignUpViewController.swift */; };
 		5E74BCC828EEEF9B0048D097 /* Validators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E74BCC728EEEF9B0048D097 /* Validators.swift */; };
@@ -114,6 +115,7 @@
 		5E6DEDB129B347AE004A87BC /* FullScreenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenViewController.swift; sourceTree = "<group>"; };
 		5E6DEDB329B36753004A87BC /* FullScreenProductCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenProductCell.swift; sourceTree = "<group>"; };
 		5E6DEDB529B476E0004A87BC /* ImageScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageScrollView.swift; sourceTree = "<group>"; };
+		5E6DEDB929B7889B004A87BC /* NumberPagesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberPagesView.swift; sourceTree = "<group>"; };
 		5E731C9328E443F600AF3A21 /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
 		5E731C9528E4441200AF3A21 /* SignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
 		5E74BCC728EEEF9B0048D097 /* Validators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Validators.swift; sourceTree = "<group>"; };
@@ -500,6 +502,7 @@
 				5E92FDF529A9EE1C002CDE51 /* NewImageProductCell.swift */,
 				5E92FDF729A9EFA7002CDE51 /* FooterViewCollectionView.swift */,
 				5E92FDF929A9F16E002CDE51 /* TestModelProductVC.swift */,
+				5E6DEDB929B7889B004A87BC /* NumberPagesView.swift */,
 			);
 			path = NewProductViewController;
 			sourceTree = "<group>";
@@ -642,6 +645,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5E175A4328CB6ED100773C77 /* ProductViewController.swift in Sources */,
+				5E6DEDBA29B7889B004A87BC /* NumberPagesView.swift in Sources */,
 				5E3F0540299C183C00678956 /* ProductCellForProductCell.swift in Sources */,
 				5E9C8E04297A7EF1009855AE /* FBManager.swift in Sources */,
 				5EBD49A729449F6C00E27F2F /* AlertText.swift in Sources */,

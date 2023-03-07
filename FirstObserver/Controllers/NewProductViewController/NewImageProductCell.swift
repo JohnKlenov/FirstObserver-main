@@ -26,6 +26,7 @@ class NewImageProductCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
         addSubview(imageView)
         setupConstraints()
         storage = Storage.storage()
