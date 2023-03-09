@@ -12,7 +12,7 @@ import SafariServices
 class NewMallViewController: UIViewController {
 
     var heightCnstrCollectionView: NSLayoutConstraint!
-    var testProperty:Int!
+    var testProperty:Int = 3
     
     private let scrollView: UIScrollView = {
         let scroll = UIScrollView()
