@@ -133,7 +133,6 @@ class NewMallViewController: UIViewController {
 //            collectionViewLayout.delegate = self
             
             reloadData()
-            print("var section: [SectionHVC]")
         }
     }
     let managerFB = FBManager.shared
@@ -171,14 +170,10 @@ class NewMallViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         if Int(collectionViewLayout.collectionViewLayout.collectionViewContentSize.height) == 0 {
-            print("collectionViewContentSize.height == 0 ")
             heightCnstrCollectionView.constant = collectionViewLayout.frame.height
         } else {
-            print("collectionViewContentSize.height != 0")
             heightCnstrCollectionView.constant = collectionViewLayout.collectionViewLayout.collectionViewContentSize.height
         }
-            print("collectionViewContentSize-  \(collectionViewLayout.collectionViewLayout.collectionViewContentSize.height)")
-        
     }
     
     @objc func didTapRecognizer(_ gestureRecognizer: UITapGestureRecognizer) {
@@ -200,9 +195,12 @@ class NewMallViewController: UIViewController {
         if countFalse == mapView.annotations.count, isMapSelected == false {
             print("Переходим на VC")
             
-            let fullScreenMap = MapViewController()
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let fullScreenMap = storyboard.instantiateViewController(withIdentifier: "MapViewController") as! MapViewController
             fullScreenMap.arrayPin = currentPin
-            present(fullScreenMap, animated: true, completion: nil)
+            self.navigationController?.pushViewController(fullScreenMap, animated: true)
+//            fullScreenMap.modalPresentationStyle = .fullScreen
+//            present(fullScreenMap, animated: true, completion: nil)
         }
     }
     
@@ -316,11 +314,11 @@ class NewMallViewController: UIViewController {
     
     @objc func websiteMallButtonPressed(_ sender: UIButton) {
 //        let productVC = NewProductViewController()
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let productVC = storyboard.instantiateViewController(withIdentifier: "NewProductViewController") as! NewProductViewController
-        productVC.modalPresentationStyle = .fullScreen
-        present(productVC, animated: true, completion: nil)
-//        self.showWebView(webSite)
+//        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+//        let productVC = storyboard.instantiateViewController(withIdentifier: "NewProductViewController") as! NewProductViewController
+//        productVC.modalPresentationStyle = .fullScreen
+//        present(productVC, animated: true, completion: nil)
+        self.showWebView(webSite)
     }
     
     private func createDataSource() {

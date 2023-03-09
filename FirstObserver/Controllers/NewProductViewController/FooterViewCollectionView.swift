@@ -24,7 +24,6 @@ class FooterViewCollectionView: UICollectionReusableView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        print("Create FooterViewCollectionView")
         backgroundColor = .purple
         setupView()
     }
@@ -54,7 +53,6 @@ class FooterViewCollectionView: UICollectionReusableView {
 extension FooterViewCollectionView: FooterViewSectionDelegate {
     func currentPage(index: Int) {
         pageControl.currentPage = index
-        print("FooterViewSectionDelegate")
     }
     
     

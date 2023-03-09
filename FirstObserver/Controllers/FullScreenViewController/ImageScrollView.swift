@@ -44,7 +44,6 @@ class ImageScrollView: UIScrollView, UIScrollViewDelegate {
 
         self.imageZoomView = UIImageView(image: image)
         self.addSubview(imageZoomView)
-        print("image.size - \(image.size)")
         configure(image: image.size)
     }
     
@@ -60,9 +59,7 @@ class ImageScrollView: UIScrollView, UIScrollViewDelegate {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        print("layoutSubviews()")
         if imageZoomView == nil {
-            print("imageZoomView == nil")
         } else {
             self.centerImage()
         }

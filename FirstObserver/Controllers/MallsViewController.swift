@@ -82,8 +82,9 @@ extension MallsViewController: UICollectionViewDataSource, UICollectionViewDeleg
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let mallVC = UIStoryboard.vcById("MallViewController") as? MallViewController
+//        let mallVC = UIStoryboard.vcById("MallViewController") as? MallViewController
 
+        let mallVC = UIStoryboard.vcById("NewMallViewController") as? NewMallViewController
         if let mallVC = mallVC {
             mallVC.arrayPin = self.arrayPins
             mallVC.brandsMall = self.brandsModel

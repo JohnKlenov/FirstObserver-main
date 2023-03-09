@@ -265,7 +265,10 @@ class NewProductViewController: UIViewController {
         }
         if countFalse == mapView.annotations.count, isMapSelected == false {
             print("Переходим на VC")
-            let fullScreenMap = MapViewController()
+            
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let fullScreenMap = storyboard.instantiateViewController(withIdentifier: "MapViewController") as! MapViewController
+            fullScreenMap.modalPresentationStyle = .fullScreen
             fullScreenMap.arrayPin = arrayPin
             present(fullScreenMap, animated: true, completion: nil)
         }
@@ -286,7 +289,6 @@ class NewProductViewController: UIViewController {
             
             button.isEnabled = !self.isAddedToCard
             button.configuration = config
-            print("addToCardButton.configurationUpdateHandler")
         }
     }
     private func configureViews() {
@@ -427,12 +429,9 @@ class NewProductViewController: UIViewController {
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        print("pagesView.frame.origin.x - \(pagesView.frame.origin.x)")
-        print("pagesView.frame.origin.y - \(pagesView.frame.origin.y)")
-        print("pagesView.frame.size - \(pagesView.frame.size)")
+        
         if scrollView == imageProductCollectionView {
             let currentPage = Int(scrollView.contentOffset.x) / Int(scrollView.frame.width)
-            print("currentPage - \(currentPage)")
             pageControl.currentPage = currentPage
             pagesView.configureView(currentPage: currentPage + 1, count: productModel?.refArray.count ?? 0)
         } else {
@@ -445,8 +444,6 @@ class NewProductViewController: UIViewController {
         
         saveProductFB()
         isAddedToCard = !isAddedToCard
-        
-        print("addToCardPressed")
     }
     
     @objc func websiteButtonPressed(_ sender: UIButton) {
@@ -457,7 +454,6 @@ class NewProductViewController: UIViewController {
     @objc func didTapPageControl(_ sender: UIPageControl) {
 
         imageProductCollectionView.scrollToItem(at: IndexPath(item: sender.currentPage, section: 0), at: .centeredHorizontally, animated: true)
-        print("sender.currentPage - \(sender.currentPage)")
         pagesView.configureView(currentPage: sender.currentPage + 1, count: productModel?.refArray.count ?? 0)
 //        let x = CGFloat(pageControl.currentPage) * scrollView.frame.size.width
 //                imageProductCollectionView.setContentOffset(CGPoint(x:x, y:0), animated: true)
@@ -478,10 +474,7 @@ extension NewProductViewController: UICollectionViewDelegate, UICollectionViewDa
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NewImageProductCell.reuseID, for: indexPath) as! NewImageProductCell
-//        cell.configureCell(image: modelImage[indexPath.row].image)
         guard let refImage = productModel?.refArray[indexPath.row] else { return UICollectionViewCell() }
-        print("collectionView.dequeueReusableCell + collectionView.dequeueReusableCell + collectionView.dequeueReusableCell(")
-//        cell.configureCell(refImage: refImage)
         cell.configureCell(refImage: refImage)
         return cell
     }
@@ -495,7 +488,7 @@ extension NewProductViewController: UICollectionViewDelegate, UICollectionViewDa
         let fullScreenVC = FullScreenViewController()
         fullScreenVC.productImages = productModel?.refArray ?? []
         fullScreenVC.indexPath = IndexPath(item: indexPath.row, section: 0)
-//        fullScreenVC.modalPresentationStyle = .fullScreen
+        fullScreenVC.modalPresentationStyle = .fullScreen
         present(fullScreenVC, animated: true, completion: nil)
     }
 }

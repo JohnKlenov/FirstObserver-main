@@ -12,20 +12,48 @@ import UIKit
 final class FullScreenViewController: UIViewController {
 
     private var imageProductCollectionView : UICollectionView!
+    
+    private let deleteImage: UIImageView = {
+        let view = UIImageView(image: UIImage(named: "Delete50")?.withTintColor(.lightGray, renderingMode: .alwaysOriginal))
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isUserInteractionEnabled = true
+        return view
+    }()
+    
+    let imageTapGestureRecognizer: UITapGestureRecognizer = {
+        let recognizer = UITapGestureRecognizer()
+        recognizer.numberOfTapsRequired = 1
+        return recognizer
+    }()
+    
+    private let pagesLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 20, weight: .medium)
+        label.textColor = .lightGray
+        label.backgroundColor = .clear
+        return label
+    }()
+    
     var productImages: [String] = []
     var indexPath = IndexPath(item: 0, section: 0)
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         view.backgroundColor = .black
+        pagesLabel.text = "\(indexPath.row + 1)/\(productImages.count)"
+
         setupCollectionView()
+        imageTapGestureRecognizer.addTarget(self, action: #selector(didTapDeleteImage(_:)))
+        deleteImage.addGestureRecognizer(imageTapGestureRecognizer)
+        view.addSubview(deleteImage)
+        view.addSubview(pagesLabel)
+        
         setupConstraints()
-//        imageProductCollectionView.contentInsetAdjustmentBehavior = .never
-//        imageProductCollectionView.scrollToItem(at: self.indexPath, at: .centeredHorizontally, animated: false)
         imageProductCollectionView.performBatchUpdates(nil) { (_) in
-            print("performBatchUpdates(nil)")
-            print(" performBatchUpdates(nil) - \(self.indexPath.item) , indexPath.section - \(self.indexPath.section)")
             self.imageProductCollectionView.scrollToItem(at: self.indexPath, at: .centeredHorizontally, animated: false)
         }
         
@@ -34,14 +62,24 @@ final class FullScreenViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        imageProductCollectionView.scrollToItem(at: self.indexPath, at: .centeredHorizontally, animated: false)
-//        imageProductCollectionView.reloadData()
         }
     
     override func viewDidLayoutSubviews() {
         super.viewWillLayoutSubviews()
-//        imageProductCollectionView.collectionViewLayout.invalidateLayout()
     }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        
+        if scrollView == imageProductCollectionView {
+            let currentPage = Int(scrollView.contentOffset.x) / Int(scrollView.frame.width)
+            pagesLabel.text = "\(currentPage + 1)/\(productImages.count)"
+        }
+    }
+    
+    @objc func didTapDeleteImage(_ gestureRcognizer: UITapGestureRecognizer) {
+        self.dismiss(animated: true, completion: nil)
+    }
+   
     
     private func setupCollectionView() {
         let layout = UICollectionViewFlowLayout()
@@ -59,7 +97,7 @@ final class FullScreenViewController: UIViewController {
         imageProductCollectionView.isPagingEnabled = true
         imageProductCollectionView.showsVerticalScrollIndicator = false
         imageProductCollectionView.showsHorizontalScrollIndicator = false
-//        imageProductCollectionView.contentInsetAdjustmentBehavior = .never
+        
         view.addSubview(imageProductCollectionView)
     }
     
@@ -68,8 +106,15 @@ final class FullScreenViewController: UIViewController {
         imageProductCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
         imageProductCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
         imageProductCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
+        
+        deleteImage.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 10).isActive = true
+        deleteImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
+        deleteImage.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        deleteImage.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        
+        pagesLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: 0).isActive = true
+        pagesLabel.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 10).isActive = true
     }
-    
 }
 
 
