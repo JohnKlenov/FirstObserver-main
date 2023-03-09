@@ -12,7 +12,6 @@ import SafariServices
 class NewMallViewController: UIViewController {
 
     var heightCnstrCollectionView: NSLayoutConstraint!
-    var testProperty:Int = 3
     
     private let scrollView: UIScrollView = {
         let scroll = UIScrollView()
@@ -177,7 +176,6 @@ class NewMallViewController: UIViewController {
         }
     }
     
-    // kjk
     @objc func didTapRecognizer(_ gestureRecognizer: UITapGestureRecognizer) {
         
         var countFalse = 0
@@ -200,9 +198,9 @@ class NewMallViewController: UIViewController {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let fullScreenMap = storyboard.instantiateViewController(withIdentifier: "MapViewController") as! MapViewController
             fullScreenMap.arrayPin = currentPin
-            self.navigationController?.pushViewController(fullScreenMap, animated: true)
-//            fullScreenMap.modalPresentationStyle = .fullScreen
-//            present(fullScreenMap, animated: true, completion: nil)
+//            self.navigationController?.pushViewController(fullScreenMap, animated: true)
+            fullScreenMap.modalPresentationStyle = .fullScreen
+            present(fullScreenMap, animated: true, completion: nil)
         }
     }
     

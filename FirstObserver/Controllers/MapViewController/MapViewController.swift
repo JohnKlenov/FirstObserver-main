@@ -16,6 +16,28 @@ class MapViewController: UIViewController {
     let locationManager = CLLocationManager()
     var arrayPin: [PlacesTest] = []
     
+//    private let deleteImage: UIImageView = {
+//        let view = UIImageView(image: UIImage(named: "Delete50")?.withTintColor(.darkGray, renderingMode: .alwaysOriginal))
+//        view.translatesAutoresizingMaskIntoConstraints = false
+//        view.isUserInteractionEnabled = true
+//        return view
+//    }()
+    
+    private let deleteImage: DeleteView = {
+        let view = DeleteView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isUserInteractionEnabled = true
+        view.layer.cornerRadius = 10
+        return view
+    }()
+    
+    
+    let imageTapGestureRecognizer: UITapGestureRecognizer = {
+        let recognizer = UITapGestureRecognizer()
+        recognizer.numberOfTapsRequired = 1
+        return recognizer
+    }()
+    
     override var preferredStatusBarStyle: UIStatusBarStyle {
         get {
             return .lightContent
@@ -26,21 +48,16 @@ class MapViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
+        imageTapGestureRecognizer.addTarget(self, action: #selector(didTapDeleteImage(_:)))
+        deleteImage.addGestureRecognizer(imageTapGestureRecognizer)
+        mapView.addSubview(deleteImage)
         mapView.delegate = self
         let initialLocation = CLLocation(latitude: 53.903318, longitude: 27.560448)
         mapView.centerLocationMVC(initialLocation)
         
         setupZoomLimit()
-        
-//        let greenMVC = Places(title: "ТЦ «Грин Сити»", locationName: "улица Притыцкого, 156/1", discipline: "Торговый центр", coordinate: CLLocationCoordinate2D(latitude: 53.908742, longitude: 27.434338), imageName: "GreenCity")
-//        let galleriaMVC = Places(title: "ТЦ «Galleria Minsk»", locationName: "просп. Победителей, 9", discipline: "Торговый центр", coordinate: CLLocationCoordinate2D(latitude: 53.908423, longitude: 27.548857), imageName: "GalleriaMinsk")
-//
-//        let danaMVC = Places(title: "ТЦ «Dana Mall»", locationName: "Минск, ул. Петра Мстиславца, 11", discipline: "Торговый центр", coordinate: CLLocationCoordinate2D(latitude: 53.933346, longitude: 27.650836), imageName: "DanaMall")
-//        mapView.addAnnotations([greenMVC, galleriaMVC, danaMVC])
-        
         mapView.addAnnotations(arrayPin)
-        
+        setupConstraints()
         
     }
     
@@ -50,7 +67,18 @@ class MapViewController: UIViewController {
         
     }
     
+    @objc func didTapDeleteImage(_ gestureRcognizer: UITapGestureRecognizer) {
+        self.dismiss(animated: true, completion: nil)
+    }
     
+    private func setupConstraints() {
+        deleteImage.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 20).isActive = true
+        deleteImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
+//        deleteImage.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 50).isActive = true
+//        deleteImage.trailingAnchor.constraint(equalTo: mapView.trailingAnchor, constant: -20).isActive = true
+        deleteImage.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        deleteImage.heightAnchor.constraint(equalToConstant: 50).isActive = true
+    }
     // включена ли у нас служба геолокации на устройстве если true то включена.
     private func checkLocationEnabled() {
         
