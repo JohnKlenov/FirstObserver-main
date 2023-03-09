@@ -12,6 +12,7 @@ import SafariServices
 class NewMallViewController: UIViewController {
 
     var heightCnstrCollectionView: NSLayoutConstraint!
+    var testProperty:Int!
     
     private let scrollView: UIScrollView = {
         let scroll = UIScrollView()
@@ -176,6 +177,7 @@ class NewMallViewController: UIViewController {
         }
     }
     
+    // kjk
     @objc func didTapRecognizer(_ gestureRecognizer: UITapGestureRecognizer) {
         
         var countFalse = 0
