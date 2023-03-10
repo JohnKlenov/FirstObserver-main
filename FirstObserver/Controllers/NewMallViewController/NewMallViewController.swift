@@ -194,11 +194,10 @@ class NewMallViewController: UIViewController {
         }
         if countFalse == mapView.annotations.count, isMapSelected == false {
             print("Переходим на VC")
-            
+        
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let fullScreenMap = storyboard.instantiateViewController(withIdentifier: "MapViewController") as! MapViewController
             fullScreenMap.arrayPin = currentPin
-//            self.navigationController?.pushViewController(fullScreenMap, animated: true)
             fullScreenMap.modalPresentationStyle = .fullScreen
             present(fullScreenMap, animated: true, completion: nil)
         }

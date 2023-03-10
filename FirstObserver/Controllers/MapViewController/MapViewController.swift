@@ -16,13 +16,6 @@ class MapViewController: UIViewController {
     let locationManager = CLLocationManager()
     var arrayPin: [PlacesTest] = []
     
-//    private let deleteImage: UIImageView = {
-//        let view = UIImageView(image: UIImage(named: "Delete50")?.withTintColor(.darkGray, renderingMode: .alwaysOriginal))
-//        view.translatesAutoresizingMaskIntoConstraints = false
-//        view.isUserInteractionEnabled = true
-//        return view
-//    }()
-    
     private let deleteImage: DeleteView = {
         let view = DeleteView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -74,11 +67,10 @@ class MapViewController: UIViewController {
     private func setupConstraints() {
         deleteImage.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 20).isActive = true
         deleteImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
-//        deleteImage.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 50).isActive = true
-//        deleteImage.trailingAnchor.constraint(equalTo: mapView.trailingAnchor, constant: -20).isActive = true
         deleteImage.widthAnchor.constraint(equalToConstant: 50).isActive = true
         deleteImage.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
+    
     // включена ли у нас служба геолокации на устройстве если true то включена.
     private func checkLocationEnabled() {
         
