@@ -449,6 +449,8 @@ class NewProductViewController: UIViewController {
     @objc func websiteButtonPressed(_ sender: UIButton) {
         print("websiteButtonPressed")
 
+        let signInVC = NewSignInViewController()
+        present(signInVC, animated: true, completion: nil)
     }
     
     @objc func didTapPageControl(_ sender: UIPageControl) {

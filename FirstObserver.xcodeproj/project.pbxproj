@@ -78,6 +78,8 @@
 		5E92FDFA29A9F16E002CDE51 /* TestModelProductVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E92FDF929A9F16E002CDE51 /* TestModelProductVC.swift */; };
 		5E9C8E04297A7EF1009855AE /* FBManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9C8E03297A7EF1009855AE /* FBManager.swift */; };
 		5E9DF45D2968A425006544F9 /* UIView + extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9DF45C2968A425006544F9 /* UIView + extension.swift */; };
+		5EA25D1229BB266B00EF06F6 /* NewSignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA25D1129BB266B00EF06F6 /* NewSignInViewController.swift */; };
+		5EA25D1429BB2ABF00EF06F6 /* AuthTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA25D1329BB2ABF00EF06F6 /* AuthTextField.swift */; };
 		5EA65C7429A653EA00EA6FA2 /* NewMallViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA65C7329A653EA00EA6FA2 /* NewMallViewController.swift */; };
 		5EA65C7629A6542600EA6FA2 /* PagingSectionFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA65C7529A6542600EA6FA2 /* PagingSectionFooterView.swift */; };
 		5EA65C7829A6544900EA6FA2 /* HeaderBrandsMallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA65C7729A6544900EA6FA2 /* HeaderBrandsMallView.swift */; };
@@ -168,6 +170,8 @@
 		5E92FDF929A9F16E002CDE51 /* TestModelProductVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestModelProductVC.swift; sourceTree = "<group>"; };
 		5E9C8E03297A7EF1009855AE /* FBManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FBManager.swift; sourceTree = "<group>"; };
 		5E9DF45C2968A425006544F9 /* UIView + extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView + extension.swift"; sourceTree = "<group>"; };
+		5EA25D1129BB266B00EF06F6 /* NewSignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewSignInViewController.swift; sourceTree = "<group>"; };
+		5EA25D1329BB2ABF00EF06F6 /* AuthTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthTextField.swift; sourceTree = "<group>"; };
 		5EA65C7329A653EA00EA6FA2 /* NewMallViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewMallViewController.swift; sourceTree = "<group>"; };
 		5EA65C7529A6542600EA6FA2 /* PagingSectionFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingSectionFooterView.swift; sourceTree = "<group>"; };
 		5EA65C7729A6544900EA6FA2 /* HeaderBrandsMallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderBrandsMallView.swift; sourceTree = "<group>"; };
@@ -375,6 +379,7 @@
 		5E7EF58428A53B0300814F4D /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				5EA25D1029BB261600EF06F6 /* NewAuthentication */,
 				5E069F8629BA63BF003BF506 /* MapViewController */,
 				5E6DEDB029B34731004A87BC /* FullScreenViewController */,
 				5EAA598829A8CD2F00AEFE45 /* NewProductViewController */,
@@ -483,6 +488,15 @@
 				5E9C8E03297A7EF1009855AE /* FBManager.swift */,
 			);
 			path = FBManager;
+			sourceTree = "<group>";
+		};
+		5EA25D1029BB261600EF06F6 /* NewAuthentication */ = {
+			isa = PBXGroup;
+			children = (
+				5EA25D1129BB266B00EF06F6 /* NewSignInViewController.swift */,
+				5EA25D1329BB2ABF00EF06F6 /* AuthTextField.swift */,
+			);
+			path = NewAuthentication;
 			sourceTree = "<group>";
 		};
 		5EA65C7229A653C800EA6FA2 /* NewMallViewController */ = {
@@ -672,6 +686,7 @@
 				5E9101DF291CFE4B00D37E92 /* ChildCollectionViewController.swift in Sources */,
 				5E3F053E299C12B000678956 /* ProductCellForBrandsVC.swift in Sources */,
 				5E6DEDB429B36753004A87BC /* FullScreenProductCell.swift in Sources */,
+				5EA25D1429BB2ABF00EF06F6 /* AuthTextField.swift in Sources */,
 				5E92FDF829A9EFA7002CDE51 /* FooterViewCollectionView.swift in Sources */,
 				5E759F0428BDF0E600D17F13 /* GroupCell.swift in Sources */,
 				5E7EF56328A12DBB00814F4D /* CartViewController.swift in Sources */,
@@ -729,6 +744,7 @@
 				5EA65C7429A653EA00EA6FA2 /* NewMallViewController.swift in Sources */,
 				5E8DC52828D5DEF100275138 /* MapViewController.swift in Sources */,
 				5E7EF57B28A149A500814F4D /* PageViewController.swift in Sources */,
+				5EA25D1229BB266B00EF06F6 /* NewSignInViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
