@@ -450,6 +450,7 @@ class NewProductViewController: UIViewController {
         print("websiteButtonPressed")
 
         let signInVC = NewSignInViewController()
+//        signInVC.modalPresentationStyle = .fullScreen
         present(signInVC, animated: true, completion: nil)
     }
     

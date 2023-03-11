@@ -21,6 +21,7 @@ final class NewSignInViewController: UIViewController {
     let passwordTextField: AuthTextField = {
         let textField = AuthTextField(placeholder: "Enter password")
         textField.textContentType = .password
+        textField.isSecureTextEntry = true
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -38,6 +39,15 @@ final class NewSignInViewController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
         view.backgroundColor = .black
+        return view
+    }()
+    
+    let exitTopView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.heightAnchor.constraint(equalToConstant: 5).isActive = true
+        view.backgroundColor = .darkGray.withAlphaComponent(0.5)
+        view.layer.cornerRadius = 2
         return view
     }()
     
@@ -98,42 +108,90 @@ final class NewSignInViewController: UIViewController {
         return label
     }()
     
-    let tapGestureRecognizer : UITapGestureRecognizer = {
-        
+//    private let deleteImage: DeleteView = {
+//        let view = DeleteView()
+//        view.translatesAutoresizingMaskIntoConstraints = false
+//        view.isUserInteractionEnabled = true
+//        view.layer.cornerRadius = 10
+//        return view
+//    }()
+//
+//    let tapDeleteImageGestureRecognizer: UITapGestureRecognizer = {
+//        let recognizer = UITapGestureRecognizer()
+//        recognizer.numberOfTapsRequired = 1
+//        return recognizer
+//    }()
+    
+    let tapRootViewGestureRecognizer : UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer()
         gesture.numberOfTapsRequired = 1
-//        gesture.addTarget(self, action: #selector(gestureDidTap))
         return gesture
     }()
     
+    private let eyeButton = EyeButton()
+    private var isPrivateEye = true
+    
+    
+    // MARK: - override methods
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .white
-        tapGestureRecognizer.addTarget(self, action: #selector(gestureDidTap))
-        view.addGestureRecognizer(tapGestureRecognizer)
         passwordTextField.delegate = self
         emailTextField.delegate = self
         
         setupView()
     }
+    
+    
+    // MARK: - Actions
+    @objc private func displayBookMarks() {
+        let imageName = isPrivateEye ? "eye" : "eye.slash"
+        passwordTextField.isSecureTextEntry.toggle()
+        eyeButton.setImage(UIImage(systemName: imageName), for: .normal)
+        isPrivateEye.toggle()
+    }
+    
+    @objc func gestureDidTap() {
+        view.endEditing(true)
+    }
+    
+    @objc func didTapDeleteImage(_ gestureRcognizer: UITapGestureRecognizer) {
+        self.dismiss(animated: true, completion: nil)
+    }
 }
 
+
+// MARK: -Setting Views
 // Что бы не делать все методы private мы сделаем private extension.
 private extension NewSignInViewController {
     func setupView() {
+        setupPasswordTF()
+        addActions()
+        setupStackView()
         addSubViews()
         setupLayout()
     }
 }
 
-// Setting
+
+// MARK: - Setting
 private extension NewSignInViewController {
     
     func addSubViews() {
-        setupStackView()
+        view.addGestureRecognizer(tapRootViewGestureRecognizer)
+//        deleteImage.addGestureRecognizer(tapDeleteImageGestureRecognizer)
+//        view.addSubview(deleteImage)
+        view.addSubview(exitTopView)
         view.addSubview(signInLabel)
         view.addSubview(allStackView)
+    }
+    
+    func addActions() {
+        
+        eyeButton.addTarget(self, action: #selector(displayBookMarks ), for: .touchUpInside)
+        tapRootViewGestureRecognizer.addTarget(self, action: #selector(gestureDidTap))
+//        tapDeleteImageGestureRecognizer.addTarget(self, action: #selector(didTapDeleteImage(_:)))
     }
     
     func setupStackView() {
@@ -149,13 +207,28 @@ private extension NewSignInViewController {
         allStackView.addArrangedSubview(authEmailStackView)
         allStackView.addArrangedSubview(authPasswordStackView)
     }
+    
+    func setupPasswordTF() {
+        passwordTextField.rightView = eyeButton
+        passwordTextField.rightViewMode = .always
+    }
 }
 
-// Layaut
+
+// MARK: - Layout
 private extension NewSignInViewController {
     func setupLayout() {
         
-        signInLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 50).isActive = true
+//        deleteImage.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 20).isActive = true
+//        deleteImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
+//        deleteImage.widthAnchor.constraint(equalToConstant: 30).isActive = true
+//        deleteImage.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        
+        exitTopView.topAnchor.constraint(equalTo: view.topAnchor, constant: 5).isActive = true
+        exitTopView.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: 0).isActive = true
+        exitTopView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.2).isActive = true
+        
+        signInLabel.topAnchor.constraint(equalTo: exitTopView.bottomAnchor, constant: 45).isActive = true
         signInLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: 0).isActive = true
         
         allStackView.topAnchor.constraint(equalTo: signInLabel.bottomAnchor, constant: 20).isActive = true
@@ -164,18 +237,27 @@ private extension NewSignInViewController {
     }
 }
 
+
+// MARK: - UITextFieldDelegate
 extension NewSignInViewController: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
+        
+        switch textField {
+        case emailTextField:
+            passwordTextField.becomeFirstResponder()
+        case passwordTextField:
+            textField.resignFirstResponder()
+        default:
+            textField.resignFirstResponder()
+        }
         return true
+    }
+    
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+        guard let text = textField.text else {return}
+        eyeButton.isEnabled = !text.isEmpty
     }
 }
 
-extension NewSignInViewController {
-    
-    @objc func gestureDidTap() {
-        view.endEditing(true)
-    }
-}
 

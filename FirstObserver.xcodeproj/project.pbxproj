@@ -42,6 +42,7 @@
 		5E759F0E28BE130900D17F13 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E759F0D28BE130900D17F13 /* Helpers.swift */; };
 		5E759F1528BE2A0000D17F13 /* CollectionViewCellProduct.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E759F1328BE2A0000D17F13 /* CollectionViewCellProduct.swift */; };
 		5E759F1628BE2A0000D17F13 /* CollectionViewCellProduct.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5E759F1428BE2A0000D17F13 /* CollectionViewCellProduct.xib */; };
+		5E7B462329BC566E005D2701 /* EyeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7B462229BC566E005D2701 /* EyeButton.swift */; };
 		5E7C7E2B2919555200AC57CB /* MallCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E2A2919555200AC57CB /* MallCollectionViewCell.swift */; };
 		5E7C7E2F29196BF200AC57CB /* MallViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E2E29196BF200AC57CB /* MallViewController.swift */; };
 		5E7E2D9E29211F3200A2F462 /* CustomMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7E2D9D29211F3200A2F462 /* CustomMapView.swift */; };
@@ -132,6 +133,7 @@
 		5E759F0D28BE130900D17F13 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		5E759F1328BE2A0000D17F13 /* CollectionViewCellProduct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewCellProduct.swift; sourceTree = "<group>"; };
 		5E759F1428BE2A0000D17F13 /* CollectionViewCellProduct.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CollectionViewCellProduct.xib; sourceTree = "<group>"; };
+		5E7B462229BC566E005D2701 /* EyeButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EyeButton.swift; sourceTree = "<group>"; };
 		5E7C7E2A2919555200AC57CB /* MallCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MallCollectionViewCell.swift; sourceTree = "<group>"; };
 		5E7C7E2E29196BF200AC57CB /* MallViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MallViewController.swift; sourceTree = "<group>"; };
 		5E7E2D9D29211F3200A2F462 /* CustomMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomMapView.swift; sourceTree = "<group>"; };
@@ -495,6 +497,7 @@
 			children = (
 				5EA25D1129BB266B00EF06F6 /* NewSignInViewController.swift */,
 				5EA25D1329BB2ABF00EF06F6 /* AuthTextField.swift */,
+				5E7B462229BC566E005D2701 /* EyeButton.swift */,
 			);
 			path = NewAuthentication;
 			sourceTree = "<group>";
@@ -729,6 +732,7 @@
 				5E139C5828C1FAB7004F963D /* CatalogCollectionViewCell.swift in Sources */,
 				5E139C5A28C4BEF9004F963D /* AllProductViewController.swift in Sources */,
 				5E0BF4742993AF3700FB99BE /* ProductCellNew.swift in Sources */,
+				5E7B462329BC566E005D2701 /* EyeButton.swift in Sources */,
 				5EA9446E294B0522007C2AB5 /* Alerts.swift in Sources */,
 				5E731C9428E443F600AF3A21 /* SignInViewController.swift in Sources */,
 				5E8C62BE297534B30089F430 /* AlertControllers.swift in Sources */,

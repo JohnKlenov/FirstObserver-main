@@ -10,6 +10,13 @@ import UIKit
 
 final class AuthTextField: UITextField {
     
+    var textPadding = UIEdgeInsets(
+            top: 0,
+            left: 0,
+            bottom: -5,
+            right: 0
+        )
+    
     init(placeholder:String) {
         super.init(frame: .zero)
         setupTextField(placeholder: placeholder)
@@ -31,5 +38,17 @@ final class AuthTextField: UITextField {
         borderStyle = .none
         heightAnchor.constraint(equalToConstant: 40).isActive = true
     }
+    
+    
+
+        override func textRect(forBounds bounds: CGRect) -> CGRect {
+            let rect = super.textRect(forBounds: bounds)
+            return rect.inset(by: textPadding)
+        }
+
+        override func editingRect(forBounds bounds: CGRect) -> CGRect {
+            let rect = super.editingRect(forBounds: bounds)
+            return rect.inset(by: textPadding)
+        }
 }
 
