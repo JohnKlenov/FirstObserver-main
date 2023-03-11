@@ -108,6 +108,22 @@ final class NewSignInViewController: UIViewController {
         return label
     }()
     
+    var signingIn = false {
+        didSet {
+            signInButton.setNeedsUpdateConfiguration()
+        }
+    }
+    
+    let signInButton: UIButton = {
+        
+        var configuration = UIButton.Configuration.gray()
+        configuration.titleAlignment = .center
+        configuration.buttonSize = .large
+        configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
+        var grayButton = UIButton(configuration: configuration)
+        return grayButton
+    }()
+    
 //    private let deleteImage: DeleteView = {
 //        let view = DeleteView()
 //        view.translatesAutoresizingMaskIntoConstraints = false
@@ -130,17 +146,30 @@ final class NewSignInViewController: UIViewController {
     
     private let eyeButton = EyeButton()
     private var isPrivateEye = true
+    private var buttonCentre: CGPoint!
     
     
     // MARK: - override methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+       
         view.backgroundColor = .white
         passwordTextField.delegate = self
         emailTextField.delegate = self
-        
         setupView()
+        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShowSignIn), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHideSignIn), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        NotificationCenter.default.removeObserver(self)
     }
     
     
@@ -159,10 +188,38 @@ final class NewSignInViewController: UIViewController {
     @objc func didTapDeleteImage(_ gestureRcognizer: UITapGestureRecognizer) {
         self.dismiss(animated: true, completion: nil)
     }
+    
+    @objc func didTapSignInButton(_ sender: UIButton) {
+        
+        self.signingIn = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            print("DispatchQueue.main.asyncAfter")
+            self.signingIn = false
+        }
+        print("didTapSignInButton")
+    }
+    
+    // этот селектор вызывается даже когда поднимается keyboard в SignUpVC(SignInVC не умерает когда поверх него ложится SignUpVC)
+    @objc func keyboardWillHideSignIn(notification: Notification) {
+        signInButton.center = buttonCentre
+//        activityIndicator.center = button.center
+    }
+    
+    // этот селектор вызывается даже когда поднимается keyboard в SignUpVC
+    @objc func keyboardWillShowSignIn(notification: Notification) {
+        
+        let userInfo = notification.userInfo!
+        let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
+        
+        signInButton.center = CGPoint(x: view.center.x, y: view.frame.height - keyboardFrame.height - 25 - signInButton.frame.height/2)
+//
+//        activityIndicator.center = button.center
+        
+    }
 }
 
 
-// MARK: -Setting Views
+// MARK: - Setting Views
 // Что бы не делать все методы private мы сделаем private extension.
 private extension NewSignInViewController {
     func setupView() {
@@ -180,6 +237,7 @@ private extension NewSignInViewController {
     
     func addSubViews() {
         view.addGestureRecognizer(tapRootViewGestureRecognizer)
+        view.addSubview(signInButton)
 //        deleteImage.addGestureRecognizer(tapDeleteImageGestureRecognizer)
 //        view.addSubview(deleteImage)
         view.addSubview(exitTopView)
@@ -191,6 +249,21 @@ private extension NewSignInViewController {
         
         eyeButton.addTarget(self, action: #selector(displayBookMarks ), for: .touchUpInside)
         tapRootViewGestureRecognizer.addTarget(self, action: #selector(gestureDidTap))
+        signInButton.addTarget(self, action: #selector(didTapSignInButton(_:)), for: .touchUpInside)
+        
+        signInButton.configurationUpdateHandler = { button in
+            var config = button.configuration
+            config?.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+                var outgoing = incoming
+                outgoing.foregroundColor = .white
+                outgoing.font = UIFont.boldSystemFont(ofSize: 15)
+                return outgoing
+            }
+            config?.showsActivityIndicator = self.signingIn
+            config?.title = self.signingIn ? "Signing In..." : "Sign In"
+            button.isUserInteractionEnabled = !self.signingIn
+            button.configuration = config
+        }
 //        tapDeleteImageGestureRecognizer.addTarget(self, action: #selector(didTapDeleteImage(_:)))
     }
     
@@ -223,6 +296,10 @@ private extension NewSignInViewController {
 //        deleteImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
 //        deleteImage.widthAnchor.constraint(equalToConstant: 30).isActive = true
 //        deleteImage.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        
+        signInButton.frame = CGRect(x: 0, y: 0, width: view.frame.width * 0.7, height: 50)
+        signInButton.center = CGPoint(x: view.center.x, y: view.frame.height - 150)
+        buttonCentre = signInButton.center
         
         exitTopView.topAnchor.constraint(equalTo: view.topAnchor, constant: 5).isActive = true
         exitTopView.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: 0).isActive = true

@@ -73,7 +73,7 @@ class NewMallViewController: UIViewController {
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
         configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
-
+//        configuration.showsActivityIndicator
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
         
