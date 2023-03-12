@@ -179,7 +179,7 @@ final class NewSignInViewController: UIViewController {
     // MARK: - override methods
     override func viewDidLoad() {
         super.viewDidLoad()
-       
+        
         view.backgroundColor = .white
         passwordTextField.delegate = self
         emailTextField.delegate = self
@@ -201,7 +201,10 @@ final class NewSignInViewController: UIViewController {
     
     
     
+    
+    
     // MARK: - Actions
+    
     @objc private func displayBookMarks() {
         let imageName = isPrivateEye ? "eye" : "eye.slash"
         passwordTextField.isSecureTextEntry.toggle()
@@ -224,18 +227,26 @@ final class NewSignInViewController: UIViewController {
             print("DispatchQueue.main.asyncAfter")
             self.signingIn = false
         }
-        print("didTapSignInButton")
     }
     
     @objc func didTapSignUpButton(_ sender: UIButton) {
-        print("didTapSignUpButton")
+        self.dismiss(animated: true, completion: nil)
     }
     
     @objc func didTapForgotPasswordButton(_ sender: UIButton) {
         print("didTapForgotPasswordButton")
     }
     
-    
+    @IBAction func signInTextFieldChanged(_ sender: UITextField) {
+       
+        separatorEmailView.backgroundColor = Validators.isValidEmailAddr(strToValidate: emailTextField.text ?? "") ? .black : .red.withAlphaComponent(0.8)
+        
+        guard let email = emailTextField.text,
+              let password = passwordTextField.text else {return}
+//        !(email.isEmpty)
+        let isValid = Validators.isValidEmailAddr(strToValidate: email) && !(password.isEmpty)
+        isEnabledSignInButton(enabled: isValid)
+    }
     
     // этот селектор вызывается даже когда поднимается keyboard в SignUpVC(SignInVC не умерает когда поверх него ложится SignUpVC)
     @objc func keyboardWillHideSignIn(notification: Notification) {
@@ -250,6 +261,11 @@ final class NewSignInViewController: UIViewController {
         
         signInButton.center = CGPoint(x: view.center.x, y: view.frame.height - keyboardFrame.height - 15 - signInButton.frame.height/2)
     }
+
+    deinit {
+        print("Deinit NewSignInViewController")
+    }
+    
 }
 
 
@@ -262,6 +278,7 @@ private extension NewSignInViewController {
         setupStackView()
         addSubViews()
         setupLayout()
+        isEnabledSignInButton(enabled: false)
     }
 }
 
@@ -285,7 +302,12 @@ private extension NewSignInViewController {
         signInButton.addTarget(self, action: #selector(didTapSignInButton(_:)), for: .touchUpInside)
         signUpButton.addTarget(self, action: #selector(didTapSignUpButton(_:)), for: .touchUpInside)
         forgotPasswordButton.addTarget(self, action: #selector(didTapForgotPasswordButton(_:)), for: .touchUpInside)
-        signInButton.configurationUpdateHandler = { button in
+        passwordTextField.addTarget(self, action: #selector(signInTextFieldChanged), for: .editingChanged)
+        emailTextField.addTarget(self, action: #selector(signInTextFieldChanged), for: .editingChanged)
+        
+        signInButton.configurationUpdateHandler = { [weak self] button in
+            
+            guard let signingIn = self?.signingIn else {return}
             var config = button.configuration
             config?.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
                 var outgoing = incoming
@@ -295,9 +317,9 @@ private extension NewSignInViewController {
             }
             config?.imagePadding = 10
             config?.imagePlacement = .trailing
-            config?.showsActivityIndicator = self.signingIn
-            config?.title = self.signingIn ? "Signing In..." : "Sign In"
-            button.isUserInteractionEnabled = !self.signingIn
+            config?.showsActivityIndicator = signingIn
+            config?.title = signingIn ? "Signing In..." : "Sign In"
+            button.isUserInteractionEnabled = !signingIn
             button.configuration = config
         }
         
@@ -324,6 +346,15 @@ private extension NewSignInViewController {
     func setupPasswordTF() {
         passwordTextField.rightView = eyeButton
         passwordTextField.rightViewMode = .always
+    }
+    
+    private func isEnabledSignInButton(enabled: Bool) {
+        
+        if enabled {
+            signInButton.isEnabled = true
+        } else {
+            signInButton.isEnabled = false
+        }
     }
 }
 
@@ -374,6 +405,7 @@ extension NewSignInViewController: UITextFieldDelegate {
         eyeButton.isEnabled = !text.isEmpty
     }
 }
+
 
 
 

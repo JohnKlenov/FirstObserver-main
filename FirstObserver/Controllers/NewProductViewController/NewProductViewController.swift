@@ -13,6 +13,7 @@ class NewProductViewController: UIViewController {
     
     private let modelImage = ModelForProductVC.shared.imagesProduct()
 
+    
     private let scrollView: UIScrollView = {
         let scroll = UIScrollView()
         scroll.translatesAutoresizingMaskIntoConstraints = false
@@ -239,13 +240,11 @@ class NewProductViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tabBarController?.tabBar.isHidden = true
-        print("viewWillAppear")
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         tabBarController?.tabBar.isHidden = false
-        print("viewWillDisappear")
     }
     
     override func viewDidLayoutSubviews() {
@@ -253,6 +252,8 @@ class NewProductViewController: UIViewController {
         let heightTV:CGFloat = CGFloat(arrayPin.count)*50
         heightCnstrTableView.constant = heightTV
     }
+    
+    
     
     @objc func didTapRecognizer(_ gestureRecognizer: UITapGestureRecognizer) {
         
@@ -284,17 +285,18 @@ class NewProductViewController: UIViewController {
     
     private func configureToCardButton() {
         
-        addToCardButton.configurationUpdateHandler = { button in
-            var config = button.configuration
+        addToCardButton.configurationUpdateHandler = { [weak self] button in
             
+            guard let isAddedToCard = self?.isAddedToCard else {return}
+            var config = button.configuration
             var container = AttributeContainer()
             container.font = UIFont.boldSystemFont(ofSize: 15)
             container.foregroundColor = UIColor.white
             
-            config?.attributedTitle = self.isAddedToCard ? AttributedString("Added to card", attributes: container) : AttributedString("Add to card", attributes: container)
-            config?.image = self.isAddedToCard ? UIImage(systemName: "cart.fill")?.withTintColor(.white, renderingMode: .alwaysOriginal) : UIImage(systemName: "cart")?.withTintColor(.white, renderingMode: .alwaysOriginal)
+            config?.attributedTitle = isAddedToCard ? AttributedString("Added to card", attributes: container) : AttributedString("Add to card", attributes: container)
+            config?.image = isAddedToCard ? UIImage(systemName: "cart.fill")?.withTintColor(.white, renderingMode: .alwaysOriginal) : UIImage(systemName: "cart")?.withTintColor(.white, renderingMode: .alwaysOriginal)
             
-            button.isEnabled = !self.isAddedToCard
+            button.isEnabled = !isAddedToCard
             button.configuration = config
         }
     }
@@ -454,11 +456,10 @@ class NewProductViewController: UIViewController {
     }
     
     @objc func websiteButtonPressed(_ sender: UIButton) {
-        print("websiteButtonPressed")
 
         let signInVC = NewSignInViewController()
+//        signInVC.modalPresentationStyle = .fullScreen
         signInVC.presentationController?.delegate = self
-//        signInVC.modalPresentationStyle = .automatic
         present(signInVC, animated: true, completion: nil)
     }
     
@@ -470,6 +471,11 @@ class NewProductViewController: UIViewController {
 //                imageProductCollectionView.setContentOffset(CGPoint(x:x, y:0), animated: true)
     
     }
+    
+    deinit {
+        print("Deinit NewProductViewController")
+    }
+    
 }
 
 
