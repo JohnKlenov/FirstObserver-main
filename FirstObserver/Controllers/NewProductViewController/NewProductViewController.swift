@@ -239,11 +239,13 @@ class NewProductViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tabBarController?.tabBar.isHidden = true
+        print("viewWillAppear")
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         tabBarController?.tabBar.isHidden = false
+        print("viewWillDisappear")
     }
     
     override func viewDidLayoutSubviews() {
@@ -455,7 +457,8 @@ class NewProductViewController: UIViewController {
         print("websiteButtonPressed")
 
         let signInVC = NewSignInViewController()
-//        signInVC.modalPresentationStyle = .fullScreen
+        signInVC.presentationController?.delegate = self
+//        signInVC.modalPresentationStyle = .automatic
         present(signInVC, animated: true, completion: nil)
     }
     
@@ -535,6 +538,17 @@ extension NewProductViewController: MapViewManagerDelegate {
     
     func selectAnnotationView(isSelect: Bool) {
         isMapSelected = isSelect
+    }
+}
+
+
+// MARK: UIAdaptivePresentationControllerDelegate
+extension UIViewController: UIAdaptivePresentationControllerDelegate {
+    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        if #available(iOS 13, *) {
+                        //Call viewWillAppear only in iOS 13
+                        viewWillAppear(true)
+                    }
     }
 }
 

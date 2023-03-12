@@ -69,6 +69,15 @@ final class NewSignInViewController: UIViewController {
         return stackView
     }()
     
+    let signUpStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
+        stackView.distribution = .fill
+        stackView.spacing = 5
+        return stackView
+    }()
+    
     let allStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -124,19 +133,36 @@ final class NewSignInViewController: UIViewController {
         return grayButton
     }()
     
-//    private let deleteImage: DeleteView = {
-//        let view = DeleteView()
-//        view.translatesAutoresizingMaskIntoConstraints = false
-//        view.isUserInteractionEnabled = true
-//        view.layer.cornerRadius = 10
-//        return view
-//    }()
-//
-//    let tapDeleteImageGestureRecognizer: UITapGestureRecognizer = {
-//        let recognizer = UITapGestureRecognizer()
-//        recognizer.numberOfTapsRequired = 1
-//        return recognizer
-//    }()
+    let signUpButton: UIButton = {
+        
+        var configuration = UIButton.Configuration.gray()
+       
+        var container = AttributeContainer()
+        container.font = UIFont.boldSystemFont(ofSize: 25)
+        container.foregroundColor = UIColor.white
+        configuration.attributedTitle = AttributedString("Sign Up", attributes: container)
+       
+        configuration.titleAlignment = .center
+        configuration.buttonSize = .small
+        configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
+        var grayButton = UIButton(configuration: configuration)
+        return grayButton
+    }()
+    
+    let forgotPasswordButton: UIButton = {
+        
+        var configuration = UIButton.Configuration.plain()
+       
+        var container = AttributeContainer()
+        container.font = UIFont.boldSystemFont(ofSize: 14)
+        container.foregroundColor = UIColor.black
+        configuration.attributedTitle = AttributedString("Forgot password?", attributes: container)
+       
+        configuration.titleAlignment = .center
+        configuration.buttonSize = .mini
+        var grayButton = UIButton(configuration: configuration)
+        return grayButton
+    }()
     
     let tapRootViewGestureRecognizer : UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer()
@@ -147,6 +173,7 @@ final class NewSignInViewController: UIViewController {
     private let eyeButton = EyeButton()
     private var isPrivateEye = true
     private var buttonCentre: CGPoint!
+    
     
     
     // MARK: - override methods
@@ -171,6 +198,7 @@ final class NewSignInViewController: UIViewController {
         super.viewWillDisappear(animated)
         NotificationCenter.default.removeObserver(self)
     }
+    
     
     
     // MARK: - Actions
@@ -199,10 +227,19 @@ final class NewSignInViewController: UIViewController {
         print("didTapSignInButton")
     }
     
+    @objc func didTapSignUpButton(_ sender: UIButton) {
+        print("didTapSignUpButton")
+    }
+    
+    @objc func didTapForgotPasswordButton(_ sender: UIButton) {
+        print("didTapForgotPasswordButton")
+    }
+    
+    
+    
     // этот селектор вызывается даже когда поднимается keyboard в SignUpVC(SignInVC не умерает когда поверх него ложится SignUpVC)
     @objc func keyboardWillHideSignIn(notification: Notification) {
         signInButton.center = buttonCentre
-//        activityIndicator.center = button.center
     }
     
     // этот селектор вызывается даже когда поднимается keyboard в SignUpVC
@@ -211,10 +248,7 @@ final class NewSignInViewController: UIViewController {
         let userInfo = notification.userInfo!
         let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
         
-        signInButton.center = CGPoint(x: view.center.x, y: view.frame.height - keyboardFrame.height - 25 - signInButton.frame.height/2)
-//
-//        activityIndicator.center = button.center
-        
+        signInButton.center = CGPoint(x: view.center.x, y: view.frame.height - keyboardFrame.height - 15 - signInButton.frame.height/2)
     }
 }
 
@@ -238,11 +272,10 @@ private extension NewSignInViewController {
     func addSubViews() {
         view.addGestureRecognizer(tapRootViewGestureRecognizer)
         view.addSubview(signInButton)
-//        deleteImage.addGestureRecognizer(tapDeleteImageGestureRecognizer)
-//        view.addSubview(deleteImage)
         view.addSubview(exitTopView)
         view.addSubview(signInLabel)
         view.addSubview(allStackView)
+        view.addSubview(signUpStackView)
     }
     
     func addActions() {
@@ -250,7 +283,8 @@ private extension NewSignInViewController {
         eyeButton.addTarget(self, action: #selector(displayBookMarks ), for: .touchUpInside)
         tapRootViewGestureRecognizer.addTarget(self, action: #selector(gestureDidTap))
         signInButton.addTarget(self, action: #selector(didTapSignInButton(_:)), for: .touchUpInside)
-        
+        signUpButton.addTarget(self, action: #selector(didTapSignUpButton(_:)), for: .touchUpInside)
+        forgotPasswordButton.addTarget(self, action: #selector(didTapForgotPasswordButton(_:)), for: .touchUpInside)
         signInButton.configurationUpdateHandler = { button in
             var config = button.configuration
             config?.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
@@ -259,12 +293,15 @@ private extension NewSignInViewController {
                 outgoing.font = UIFont.boldSystemFont(ofSize: 15)
                 return outgoing
             }
+            config?.imagePadding = 10
+            config?.imagePlacement = .trailing
             config?.showsActivityIndicator = self.signingIn
             config?.title = self.signingIn ? "Signing In..." : "Sign In"
             button.isUserInteractionEnabled = !self.signingIn
             button.configuration = config
         }
-//        tapDeleteImageGestureRecognizer.addTarget(self, action: #selector(didTapDeleteImage(_:)))
+        
+        
     }
     
     func setupStackView() {
@@ -276,6 +313,9 @@ private extension NewSignInViewController {
         authPasswordStackView.addArrangedSubview(passwordLabel)
         authPasswordStackView.addArrangedSubview(passwordTextField)
         authPasswordStackView.addArrangedSubview(separatorPasswordView)
+        
+        signUpStackView.addArrangedSubview(signUpButton)
+        signUpStackView.addArrangedSubview(forgotPasswordButton)
         
         allStackView.addArrangedSubview(authEmailStackView)
         allStackView.addArrangedSubview(authPasswordStackView)
@@ -292,11 +332,6 @@ private extension NewSignInViewController {
 private extension NewSignInViewController {
     func setupLayout() {
         
-//        deleteImage.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 20).isActive = true
-//        deleteImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
-//        deleteImage.widthAnchor.constraint(equalToConstant: 30).isActive = true
-//        deleteImage.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        
         signInButton.frame = CGRect(x: 0, y: 0, width: view.frame.width * 0.7, height: 50)
         signInButton.center = CGPoint(x: view.center.x, y: view.frame.height - 150)
         buttonCentre = signInButton.center
@@ -311,6 +346,9 @@ private extension NewSignInViewController {
         allStackView.topAnchor.constraint(equalTo: signInLabel.bottomAnchor, constant: 20).isActive = true
         allStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30).isActive = true
         allStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
+        allStackView.bottomAnchor.constraint(equalTo: signUpStackView.topAnchor, constant: -20).isActive = true
+        
+        signUpStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
     }
 }
 
@@ -338,3 +376,28 @@ extension NewSignInViewController: UITextFieldDelegate {
 }
 
 
+
+
+//    private let deleteImage: DeleteView = {
+//        let view = DeleteView()
+//        view.translatesAutoresizingMaskIntoConstraints = false
+//        view.isUserInteractionEnabled = true
+//        view.layer.cornerRadius = 10
+//        return view
+//    }()
+//
+//    let tapDeleteImageGestureRecognizer: UITapGestureRecognizer = {
+//        let recognizer = UITapGestureRecognizer()
+//        recognizer.numberOfTapsRequired = 1
+//        return recognizer
+//    }()
+
+//        deleteImage.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 20).isActive = true
+//        deleteImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
+//        deleteImage.widthAnchor.constraint(equalToConstant: 30).isActive = true
+//        deleteImage.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        
+//        deleteImage.addGestureRecognizer(tapDeleteImageGestureRecognizer)
+//        view.addSubview(deleteImage)
+
+//        tapDeleteImageGestureRecognizer.addTarget(self, action: #selector(didTapDeleteImage(_:)))
