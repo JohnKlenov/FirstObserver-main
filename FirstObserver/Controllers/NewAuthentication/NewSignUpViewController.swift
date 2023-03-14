@@ -73,7 +73,7 @@ final class NewSignUpViewController: UIViewController {
     }()
     
     let reEnterTextField: AuthTextField = {
-        let textField = AuthTextField(placeholder: "Re-enter password")
+        let textField = AuthTextField(placeholder: "Enter password")
         textField.textContentType = .newPassword
         textField.isSecureTextEntry = true
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -223,11 +223,40 @@ final class NewSignUpViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHideSignUp), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        print("view height - \(view.frame.height)")
+        print("allStackView height - \(allStackView.frame.height)")
+        print("5+5+45+20+15 = 90")
+        print("signUpLabel.frame.height - \(signUpLabel.frame.height)")
+        print("signUpButton.frame.height - \(signUpButton.frame.height)")
+        print("all heightViews = \(90 + allStackView.frame.height + signUpLabel.frame.height + signUpButton.frame.height)")
+        
+    }
+    
     
     // MARK: - Actions
     
     @IBAction func signUpTextFieldChanged(_ sender: UITextField) {
        
+        switch sender {
+        case emailTextField:
+            separatorEmailView.backgroundColor = emailTextField.text?.isEmpty ?? true ? .red.withAlphaComponent(0.8) : .black
+        case nameTextField:
+            separatorNameView.backgroundColor = nameTextField.text?.isEmpty ?? true ? .red.withAlphaComponent(0.8) : .black
+        case passwordTextField:
+            separatorPasswordView.backgroundColor = passwordTextField.text?.isEmpty ?? true ? .red.withAlphaComponent(0.8) : .black
+        case reEnterTextField:
+            separatorReEnterPasswordView.backgroundColor = reEnterTextField.text?.isEmpty ?? true ? .red.withAlphaComponent(0.8) : .black
+        default:
+            return
+        }
+        
+        guard let name = nameTextField.text, let email = emailTextField.text, let password = passwordTextField.text, let rePassword = reEnterTextField.text else {return}
+        
+        let isValid = !(name.isEmpty) && !(email.isEmpty) && !(password.isEmpty) && password == rePassword
+        isEnabledSignUpButton(enabled: isValid)
     }
     
     @objc private func displayBookMarksSignUp() {
@@ -280,6 +309,7 @@ private extension NewSignUpViewController {
         setupStackView()
         addSubViews()
         setupLayout()
+        isEnabledSignUpButton(enabled: false)
     }
 }
 
@@ -340,7 +370,7 @@ private extension NewSignUpViewController {
         
         reEnterPasswordStackView.addArrangedSubview(reEnterPasswordLabel)
         reEnterPasswordStackView.addArrangedSubview(reEnterTextField)
-        reEnterPasswordStackView.addArrangedSubview(reEnterPasswordStackView)
+        reEnterPasswordStackView.addArrangedSubview(separatorReEnterPasswordView)
         
         allStackView.addArrangedSubview(nameStackView)
         allStackView.addArrangedSubview(emailStackView)
@@ -354,6 +384,15 @@ private extension NewSignUpViewController {
         
         reEnterTextField.rightView = eyeRePassswordButton
         reEnterTextField.rightViewMode = .always
+    }
+    
+    func isEnabledSignUpButton(enabled: Bool) {
+        
+        if enabled {
+            signUpButton.isEnabled = true
+        } else {
+            signUpButton.isEnabled = false
+        }
     }
 }
 
@@ -374,6 +413,7 @@ private extension NewSignUpViewController {
         
         signUpButton.frame = CGRect(x: 0, y: 0, width: view.frame.width * 0.7, height: 50)
         signUpButton.center = CGPoint(x: view.center.x, y: view.frame.height - 150)
+        buttonCentre = signUpButton.center
     }
 }
 

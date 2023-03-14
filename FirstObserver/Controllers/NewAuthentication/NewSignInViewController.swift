@@ -190,6 +190,8 @@ final class NewSignInViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        print("viewWillAppear NewSignUpViewController")
+        
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShowSignIn), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHideSignIn), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
@@ -230,6 +232,10 @@ final class NewSignInViewController: UIViewController {
     }
     
     @objc func didTapSignUpButton(_ sender: UIButton) {
+        let signUpVC = NewSignUpViewController()
+        signUpVC.presentationController?.delegate = self
+//        signUpVC.modalPresentationStyle = .fullScreen
+        present(signUpVC, animated: true, completion: nil)
 //        self.dismiss(animated: true, completion: nil)
     }
     
@@ -405,6 +411,7 @@ extension NewSignInViewController: UITextFieldDelegate {
         eyeButton.isEnabled = !text.isEmpty
     }
 }
+
 
 
 
