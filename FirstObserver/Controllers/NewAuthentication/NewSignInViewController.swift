@@ -230,7 +230,7 @@ final class NewSignInViewController: UIViewController {
     }
     
     @objc func didTapSignUpButton(_ sender: UIButton) {
-        self.dismiss(animated: true, completion: nil)
+//        self.dismiss(animated: true, completion: nil)
     }
     
     @objc func didTapForgotPasswordButton(_ sender: UIButton) {
@@ -348,7 +348,7 @@ private extension NewSignInViewController {
         passwordTextField.rightViewMode = .always
     }
     
-    private func isEnabledSignInButton(enabled: Bool) {
+    func isEnabledSignInButton(enabled: Bool) {
         
         if enabled {
             signInButton.isEnabled = true
