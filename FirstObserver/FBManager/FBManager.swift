@@ -43,6 +43,13 @@ enum ResetProfile {
     case photoURL
 }
 
+enum SignInCallback {
+    case success
+    case invalidEmail
+    case invalidPassword
+    case wentWrong
+}
+
 // в productCell поиграть с приоритетами и >= для constraint
 final class FBManager {
 
@@ -256,6 +263,7 @@ final class FBManager {
         Auth.auth().addStateDidChangeListener { (auth, user) in
             self.currentUser = user
             currentUser(user)
+            print("FBManager func userListener")
         }
     }
 
@@ -712,7 +720,90 @@ final class FBManager {
         }
     }
 
+    
+    // MARK: - NewSignInViewController -
 
+//    func deleteAnonymusUSer(anonymusUser:User) {
+//
+//
+//        anonymusUser.delete { (error) in
+//            if error != nil {
+//            } else {
+//            }
+//        }
+//    }
+    
+    func signIn(email: String, password: String, callBack: @escaping (SignInCallback) -> Void) {
+        
+        guard let currentUser = currentUser else {
+            return
+        }
+        
+        if currentUser.isAnonymous {
+            let uidUser = currentUser.uid
+            Database.database().reference().child("usersAccaunt").child(uidUser).removeValue()
+        }
+        
+        Auth.auth().signIn(withEmail: email, password: password) { (result, error) in
+            
+            if let error = error as? AuthErrorCode {
+                
+                switch error.code {
+                    
+                case .invalidEmail:
+                    callBack(.invalidEmail)
+                case .wrongPassword:
+                    callBack(.invalidPassword)
+                default:
+                    callBack(.wentWrong)
+                }
+            } else {
+                if currentUser.isAnonymous {
+                    currentUser.delete { (error) in
+                        print("Error currentUser.delete")
+                    }
+                }
+                callBack(.success)
+            }
+        }
+    }
+    
+    func saveDeletedFromCart(products: [PopularProduct]) {
+        
+        guard let currentUser = currentUser else { return }
+        
+        if currentUser.isAnonymous {
+            
+            let encoder = JSONEncoder()
+            let uid = currentUser.uid
+
+            let refFBR = Database.database().reference()
+            refFBR.child("usersAccaunt/\(uid)").setValue(["uidAnonymous":uid])
+            var removeCartProduct: [String:AddedProduct] = [:]
+
+            products.forEach { (cartProduct) in
+                let productEncode = AddedProduct(product: cartProduct)
+                print("cartProduct - \(productEncode)")
+                removeCartProduct[cartProduct.model] = productEncode
+            }
+
+            removeCartProduct.forEach { (addedProduct) in
+                do {
+                    let data = try encoder.encode(addedProduct.value)
+                    let json = try JSONSerialization.jsonObject(with: data)
+                    let ref = Database.database().reference(withPath: "usersAccaunt/\(uid)/AddedProducts")
+                    ref.updateChildValues([addedProduct.key:json])
+
+                } catch {
+                    print("an error occured", error)
+                }
+            }
+            
+        }
+        
+        
+        
+    }
 }
 
 

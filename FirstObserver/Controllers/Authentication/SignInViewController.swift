@@ -448,7 +448,6 @@ extension SignInViewController: SignUpViewControllerDelegate {
     
     
     func anonymousUserDidRegistered() {
-        print("anonymousUserDidRegistered anonymousUserDidRegistered anonymousUserDidRegistered")
         profileDelegate?.userIsPermanent()
     }
 }

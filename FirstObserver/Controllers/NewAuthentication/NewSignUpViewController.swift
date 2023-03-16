@@ -203,6 +203,10 @@ final class NewSignUpViewController: UIViewController {
         }
     }
     
+    let managerFB = FBManager.shared
+    var isInvalidSignIn = false
+    weak var signInDelegate:NewSignUpViewControllerDelegate?
+    
     // MARK: - Methods
     
     override func viewDidLoad() {
@@ -226,12 +230,7 @@ final class NewSignUpViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        print("view height - \(view.frame.height)")
-        print("allStackView height - \(allStackView.frame.height)")
-        print("5+5+45+20+15 = 90")
-        print("signUpLabel.frame.height - \(signUpLabel.frame.height)")
-        print("signUpButton.frame.height - \(signUpButton.frame.height)")
-        print("all heightViews = \(90 + allStackView.frame.height + signUpLabel.frame.height + signUpButton.frame.height)")
+
         
     }
     
@@ -454,3 +453,11 @@ extension NewSignUpViewController: UITextFieldDelegate {
     }
     
 }
+
+
+//        print("view height - \(view.frame.height)")
+//        print("allStackView height - \(allStackView.frame.height)")
+//        print("5+5+45+20+15 = 90")
+//        print("signUpLabel.frame.height - \(signUpLabel.frame.height)")
+//        print("signUpButton.frame.height - \(signUpButton.frame.height)")
+//        print("all heightViews = \(90 + allStackView.frame.height + signUpLabel.frame.height + signUpButton.frame.height)")

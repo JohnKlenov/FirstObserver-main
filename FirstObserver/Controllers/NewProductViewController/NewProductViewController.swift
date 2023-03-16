@@ -215,6 +215,7 @@ class NewProductViewController: UIViewController {
             addToCardButton.setNeedsUpdateConfiguration()
         }
     }
+    
     private let encoder = JSONEncoder()
     let managerFB = FBManager.shared
     private var isMapSelected = false

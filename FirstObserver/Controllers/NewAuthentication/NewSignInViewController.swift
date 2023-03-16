@@ -8,6 +8,13 @@
 import Foundation
 import UIKit
 
+
+@objc protocol NewSignUpViewControllerDelegate: AnyObject {
+    @objc optional func saveCartProductFBNew()
+    @objc optional func anonymousUserDidRegisteredNew()
+    
+}
+
 // class final - это ускоряет диспетчеризация от него никто не будет в дальнейшем наследоваться.
 final class NewSignInViewController: UIViewController {
     
@@ -174,7 +181,12 @@ final class NewSignInViewController: UIViewController {
     private var isPrivateEye = true
     private var buttonCentre: CGPoint!
     
+    var isInvalidSignIn = false
+    let managerFB = FBManager.shared
+    var cardProducts: [PopularProduct] = []
     
+    // profileVC - userIsPermanentUpdateUI
+    weak var profileDelegate:SignInViewControllerDelegate?
     
     // MARK: - override methods
     override func viewDidLoad() {
@@ -190,6 +202,7 @@ final class NewSignInViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        
         print("viewWillAppear NewSignUpViewController")
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShowSignIn), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -200,8 +213,6 @@ final class NewSignInViewController: UIViewController {
         super.viewWillDisappear(animated)
         NotificationCenter.default.removeObserver(self)
     }
-    
-    
     
     
     
@@ -224,19 +235,50 @@ final class NewSignInViewController: UIViewController {
     
     @objc func didTapSignInButton(_ sender: UIButton) {
         
-        self.signingIn = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            print("DispatchQueue.main.asyncAfter")
-            self.signingIn = false
+//        self.signingIn = true
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+//            print("DispatchQueue.main.asyncAfter")
+//            self.signingIn = false
+//        }
+        guard let email = emailTextField.text, let password = passwordTextField.text else { return }
+        
+        signingIn = true
+        managerFB.signIn(email: email, password: password) { [weak self] (response) in
+            
+            switch response {
+            case .success:
+                self?.signingIn = false
+                self?.isEnabledSignInButton(enabled: false)
+                self?.presentingViewController?.dismiss(animated: true, completion: nil)
+            case .invalidEmail:
+                self?.signingIn = false
+                self?.signInNewAlert(title: "Error", message: "Invalid email", comletionHandler: {
+                    self?.separatorEmailView.backgroundColor = .red.withAlphaComponent(0.8)
+                    self?.isInvalidSignIn = true
+                })
+            case .invalidPassword:
+                self?.signingIn = false
+                self?.signInNewAlert(title: "Error", message: "Invalid password", comletionHandler: {
+                    self?.separatorPasswordView.backgroundColor = .red.withAlphaComponent(0.8)
+                    self?.isInvalidSignIn = true
+                })
+            case .wentWrong:
+                self?.signingIn = false
+                self?.signInNewAlert(title: "Error", message: "Something went wrong try again", comletionHandler: {
+                    self?.isInvalidSignIn = true
+                })
+            }
         }
+        
     }
     
     @objc func didTapSignUpButton(_ sender: UIButton) {
+        
         let signUpVC = NewSignUpViewController()
+        signUpVC.signInDelegate = self
+        signUpVC.isInvalidSignIn = isInvalidSignIn
         signUpVC.presentationController?.delegate = self
-//        signUpVC.modalPresentationStyle = .fullScreen
         present(signUpVC, animated: true, completion: nil)
-//        self.dismiss(animated: true, completion: nil)
     }
     
     @objc func didTapForgotPasswordButton(_ sender: UIButton) {
@@ -269,6 +311,9 @@ final class NewSignInViewController: UIViewController {
     }
 
     deinit {
+        if isInvalidSignIn {
+            saveCartProductFBNew()
+        }
         print("Deinit NewSignInViewController")
     }
     
@@ -413,7 +458,39 @@ extension NewSignInViewController: UITextFieldDelegate {
 }
 
 
+// MARK: - SignUpViewControllerDelegate
+extension NewSignInViewController: NewSignUpViewControllerDelegate {
+    
+    func saveCartProductFBNew() {
+        managerFB.saveDeletedFromCart(products: cardProducts)
+    }
+    
+    func anonymousUserDidRegisteredNew() {
+        profileDelegate?.userIsPermanent()
+    }
+}
 
+
+
+// MARK: - Alert
+extension NewSignInViewController {
+    
+    private func signInNewAlert(title:String, message:String, comletionHandler: @escaping () -> Void) {
+        
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+//        let okAction = UIAlertAction(title: "Ok", style: .default) { (_) in
+//            if comletionHandler != nil {
+//                comletionHandler!()
+//            }
+//        }
+        let  okAction = UIAlertAction(title: "Ok", style: .default) { _ in
+            comletionHandler()
+        }
+
+        alertController.addAction(okAction)
+        self.present(alertController, animated: true, completion: nil)
+    }
+}
 
 
 
