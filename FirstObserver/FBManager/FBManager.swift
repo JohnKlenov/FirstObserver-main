@@ -800,10 +800,18 @@ final class FBManager {
             }
             
         }
-        
-        
-        
     }
+    
+    func sendPasswordReset(email: String, _ callBack: @escaping (StateCallback) -> Void) {
+        Auth.auth().sendPasswordReset(withEmail: email) { (error) in
+            if error != nil {
+                callBack(.failed)
+            } else {
+                callBack(.success)
+            }
+        }
+    }
+    
 }
 
 

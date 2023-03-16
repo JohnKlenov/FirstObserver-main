@@ -252,19 +252,19 @@ final class NewSignInViewController: UIViewController {
                 self?.presentingViewController?.dismiss(animated: true, completion: nil)
             case .invalidEmail:
                 self?.signingIn = false
-                self?.signInNewAlert(title: "Error", message: "Invalid email", comletionHandler: {
+                self?.signInAlert(title: "Error", message: "Invalid email", comletionHandler: {
                     self?.separatorEmailView.backgroundColor = .red.withAlphaComponent(0.8)
                     self?.isInvalidSignIn = true
                 })
             case .invalidPassword:
                 self?.signingIn = false
-                self?.signInNewAlert(title: "Error", message: "Invalid password", comletionHandler: {
+                self?.signInAlert(title: "Error", message: "Invalid password", comletionHandler: {
                     self?.separatorPasswordView.backgroundColor = .red.withAlphaComponent(0.8)
                     self?.isInvalidSignIn = true
                 })
             case .wentWrong:
                 self?.signingIn = false
-                self?.signInNewAlert(title: "Error", message: "Something went wrong try again", comletionHandler: {
+                self?.signInAlert(title: "Error", message: "Something went wrong try again", comletionHandler: {
                     self?.isInvalidSignIn = true
                 })
             }
@@ -282,7 +282,32 @@ final class NewSignInViewController: UIViewController {
     }
     
     @objc func didTapForgotPasswordButton(_ sender: UIButton) {
-        print("didTapForgotPasswordButton")
+        
+        sendPasswordResetAlert(title: "We will send you a link to reset your password", placeholder: "Enter your email") { [weak self] (enteredEmail) in
+            self?.managerFB.sendPasswordReset(email: enteredEmail) { [weak self] (state) in
+                switch state {
+                case .success:
+                    self?.createTopView(textWarning: "Password was reset. Please check you email.", color: .systemGreen) { (alertView) in
+
+                        UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 0.2, initialSpringVelocity: 0.1, options: .curveEaseIn, animations: {alertView.frame.origin = CGPoint(x: 0, y: -20)}) { (isFinished) in
+                            if isFinished {
+                                UIView.animate(withDuration: 0.5, delay: 5, options: .curveEaseOut, animations: {alertView.frame.origin = CGPoint(x: 0, y: -64)}, completion: nil)
+                            }
+                        }
+                    }
+                case .failed:
+                    self?.createTopView(textWarning: "Incorrect email. Please try again.", color: .systemRed) { (alertView) in
+
+                        UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 0.2, initialSpringVelocity: 0.1, options: .curveEaseIn, animations: {alertView.frame.origin = CGPoint(x: 0, y: -20)}) { (isFinished) in
+                            if isFinished {
+                                // возможно придется скрыть cancel button
+                                UIView.animate(withDuration: 0.5, delay: 5, options: .curveEaseOut, animations: {alertView.frame.origin = CGPoint(x: 0, y: -64)}, completion: nil)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
     @IBAction func signInTextFieldChanged(_ sender: UITextField) {
@@ -309,7 +334,7 @@ final class NewSignInViewController: UIViewController {
         
         signInButton.center = CGPoint(x: view.center.x, y: view.frame.height - keyboardFrame.height - 15 - signInButton.frame.height/2)
     }
-
+    
     deinit {
         if isInvalidSignIn {
             saveCartProductFBNew()
@@ -330,6 +355,13 @@ private extension NewSignInViewController {
         addSubViews()
         setupLayout()
         isEnabledSignInButton(enabled: false)
+    }
+    
+    func createTopView(textWarning:String, color: UIColor, comletionHandler: (AlertTopView) -> Void) {
+        let alert = AlertTopView(frame: CGRect(origin: CGPoint(x: 0, y: -64), size: CGSize(width: self.view.frame.width, height: 64)))
+        alert.setupAlertTopView(labelText: textWarning, backgroundColor: color)
+        self.view.addSubview(alert)
+        comletionHandler(alert)
     }
 }
 
@@ -473,9 +505,9 @@ extension NewSignInViewController: NewSignUpViewControllerDelegate {
 
 
 // MARK: - Alert
-extension NewSignInViewController {
+private extension NewSignInViewController {
     
-    private func signInNewAlert(title:String, message:String, comletionHandler: @escaping () -> Void) {
+    func signInAlert(title:String, message:String, comletionHandler: @escaping () -> Void) {
         
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
 //        let okAction = UIAlertAction(title: "Ok", style: .default) { (_) in
@@ -489,6 +521,30 @@ extension NewSignInViewController {
 
         alertController.addAction(okAction)
         self.present(alertController, animated: true, completion: nil)
+    }
+    
+    func sendPasswordResetAlert(title:String, placeholder: String, completionHandler: @escaping (String) -> Void) {
+        
+        let alertController = UIAlertController(title: title, message: nil, preferredStyle: .alert)
+        
+        let alertOK = UIAlertAction(title: "OK", style: .default) { (action) in
+            
+            let textField = alertController.textFields?.first
+            guard let text = textField?.text else {return}
+            completionHandler(text)
+        }
+        
+        let alertCancel = UIAlertAction(title: "Cancel", style: .cancel) { (action) in
+            ///
+        }
+        
+        alertController.addAction(alertOK)
+        alertController.addAction(alertCancel)
+        alertController.addTextField { (textField) in
+            textField.placeholder = placeholder
+        }
+        
+        present(alertController, animated: true, completion: nil)
     }
 }
 
