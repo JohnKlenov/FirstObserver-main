@@ -8,6 +8,13 @@
 import Foundation
 import UIKit
 
+
+@objc protocol NewSignUpViewControllerDelegate: AnyObject {
+    @objc optional func saveCartProductFBNew()
+    @objc optional func userDidRegisteredNew()
+}
+
+
 final class NewSignUpViewController: UIViewController {
     
     let nameLabel: UILabel = {
@@ -227,6 +234,11 @@ final class NewSignUpViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHideSignUp), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
@@ -275,11 +287,53 @@ final class NewSignUpViewController: UIViewController {
     
     @objc func didTapSignUpButton(_ sender: UIButton) {
         
+
+        guard let name = nameTextField.text, let email = emailTextField.text, let password = passwordTextField.text else { return }
+        
         self.signingIn = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            print("DispatchQueue.main.asyncAfter")
-            self.signingIn = false
+        
+        if isInvalidSignIn {
+            signInDelegate?.saveCartProductFBNew?()
+            isInvalidSignIn = false
         }
+        
+        managerFB.registerUserSignUpVC(email: email, password: password, name: name) { [weak self] (state) in
+            
+            switch state {
+            case .success:
+                self?.signingIn = false
+                self?.isEnabledSignUpButton(enabled: false)
+                print("$$$$$managerFB.registerUserSignUpVC")
+                self?.signInDelegate?.userDidRegisteredNew?()
+                self?.registerShowAlert(title: "Success", message: "An email has been sent to \(email), please confirm your email address.") {
+                    self?.presentingViewController?.presentingViewController?.dismiss(animated: true, completion: nil)
+                }
+            case .failure(let error):
+                
+                self?.signingIn = false
+                self?.isEnabledSignUpButton(enabled: false)
+                
+                switch error {
+                    
+                case .invalidEmail:
+                    self?.registerShowAlert(title: "Error", message: "Email address is not in the correct format!")
+                    self?.separatorEmailView.backgroundColor = .red.withAlphaComponent(0.8)
+                case .emailAlreadyInUse:
+                    self?.registerShowAlert(title: "Error", message: "The email address used to attempt registration already exists!")
+                    self?.separatorEmailView.backgroundColor = .red.withAlphaComponent(0.8)
+                case .weakPassword:
+                    self?.registerShowAlert(title: "Error", message: "The entered password is too weak!")
+                    self?.separatorPasswordView.backgroundColor = .red.withAlphaComponent(0.8)
+                case .wrongPassword:
+                    self?.registerShowAlert(title: "Error", message: "Wrong Password!")
+                    self?.separatorPasswordView.backgroundColor = .red.withAlphaComponent(0.8)
+                case .somethingWentWrong:
+                    self?.registerShowAlert(title: "Error", message: "Something went wrong try again!")
+                }
+            }
+
+        }
+        
     }
     
     @objc func keyboardWillHideSignUp(notification: Notification) {
@@ -450,6 +504,22 @@ extension NewSignUpViewController: UITextFieldDelegate {
             print("default textFieldDidChangeSelection")
             return
         }
+    }
+    
+}
+
+
+// MARK: - Alert
+
+private extension NewSignUpViewController {
+    
+    func registerShowAlert(title: String, message: String, completion: @escaping () -> Void = {}) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let actionOK = UIAlertAction(title: "ok", style: .default) { (_) in
+            completion()
+        }
+        alert.addAction(actionOK)
+        self.present(alert, animated: true, completion: nil)
     }
     
 }

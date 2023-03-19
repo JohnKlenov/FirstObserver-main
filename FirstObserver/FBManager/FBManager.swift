@@ -22,6 +22,19 @@ enum StateProfileInfo {
     case nul
 }
 
+enum AuthResulSignUp {
+    case success
+    case failure(ErrorSignUp)
+}
+
+enum ErrorSignUp {
+    case invalidEmail
+    case emailAlreadyInUse
+    case weakPassword
+    case wrongPassword
+    case somethingWentWrong
+}
+
 enum StateCallback {
     case success
     case failed
@@ -759,6 +772,7 @@ final class FBManager {
                 }
             } else {
                 if currentUser.isAnonymous {
+                    print("func signIn - currentUser.isAnonymous")
                     currentUser.delete { (error) in
                         print("Error currentUser.delete")
                     }
@@ -810,6 +824,164 @@ final class FBManager {
                 callBack(.success)
             }
         }
+    }
+    
+    
+    // MARK: - NewSignUpViewController
+    
+    func registerUserSignUpVC(email: String, password: String, name: String, completion: @escaping (AuthResulSignUp) -> Void) {
+        
+        guard let currentUser = currentUser else {
+            return
+        }
+
+        if currentUser.isAnonymous {
+            
+            let credential = EmailAuthProvider.credential(withEmail: email, password: password)
+            currentUser.link(with: credential) { [weak self] (result, error) in
+                
+                guard error == nil else {
+                    completion(.failure(.somethingWentWrong))
+                    return
+                }
+                
+                guard let user = result?.user else {
+                    completion(.failure(.somethingWentWrong))
+                    return
+                }
+                
+//                self?.createProfileChangeRequestSignUp(name:name)
+                self?.createProfileChangeRequestSignUp(name: name, { [weak self] (state) in
+                    let uid = user.uid
+                    let refFBR = Database.database().reference()
+                    refFBR.child("usersAccaunt/\(uid)").updateChildValues(["uidPermanent":user.uid])
+                    refFBR.child("usersAccaunt/\(uid)/uidAnonymous").setValue(nil)
+                    self?.verificationEmailSignUp()
+                    completion(.success)
+                })
+                
+//                let uid = user.uid
+//                let refFBR = Database.database().reference()
+//                refFBR.child("usersAccaunt/\(uid)").updateChildValues(["uidPermanent":user.uid])
+//                refFBR.child("usersAccaunt/\(uid)/uidAnonymous").setValue(nil)
+//                self?.verificationEmailSignUp()
+//                completion(.success)
+            }
+        } else {
+            
+            Auth.auth().createUser(withEmail: email, password: password) { [weak self] (result, error) in
+                
+                guard error == nil else {
+                    
+                    if let error = error as? AuthErrorCode {
+    
+                        switch error.code {
+                        case .emailAlreadyInUse:
+                            completion(.failure(.emailAlreadyInUse))
+                            return
+                        case .invalidEmail:
+                            completion(.failure(.invalidEmail))
+                            return
+                        case .wrongPassword:
+                            completion(.failure(.wrongPassword))
+                            return
+                        case .weakPassword:
+                            completion(.failure(.weakPassword))
+                            return
+                        default:
+                            completion(.failure(.somethingWentWrong))
+                            return
+                        }
+                    } else {
+                        completion(.failure(.somethingWentWrong))
+                        return
+                    }
+                }
+                
+                guard let user = result?.user else {
+                    completion(.failure(.somethingWentWrong))
+                    return
+                }
+                
+//                self?.createProfileChangeRequestSignUp(name: name)
+                self?.createProfileChangeRequestSignUp(name: name, { [weak self] (state) in
+                    let uid = user.uid
+                    let refFBR = Database.database().reference()
+                    refFBR.child("usersAccaunt/\(uid)").setValue(["uidPermanent":user.uid])
+                    self?.verificationEmailSignUp()
+                    completion(.success)
+                })
+//                let uid = user.uid
+//                let refFBR = Database.database().reference()
+//                refFBR.child("usersAccaunt/\(uid)").setValue(["uidPermanent":user.uid])
+//                self?.verificationEmailSignUp()
+//                completion(.success)
+            }
+//            
+        }
+    }
+    
+    // мы не можем из этого метода выслать .failed(error) так как accaunt будет создан на FB
+    
+    func createProfileChangeRequestSignUp(name: String? = nil, photoURL: URL? = nil,_ callBack: @escaping (StateCallback) -> Void) {
+
+        if let request = Auth.auth().currentUser?.createProfileChangeRequest() {
+            if let name = name {
+                request.displayName = name
+            }
+
+            if let photoURL = photoURL {
+                request.photoURL = photoURL
+            }
+
+            request.commitChanges { error in
+                if error != nil {
+                    callBack(.failed)
+                    print("$$$$createProfileChangeRequest .failure!")
+//                    callBack?(error)
+                } else {
+                    print("$$$$createProfileChangeRequest .success!")
+                    callBack(.success)
+                    // configure profile success
+//                    self.delegate?.anonymousUserDidRegistered?()
+                }
+            }
+        }
+    }
+//    func createProfileChangeRequestSignUp(name: String? = nil, photoURL: URL? = nil,_ callBack: ((Error?) -> Void)? = nil) {
+//
+//        if let request = Auth.auth().currentUser?.createProfileChangeRequest() {
+//            if let name = name {
+//                request.displayName = name
+//            }
+//
+//            if let photoURL = photoURL {
+//                request.photoURL = photoURL
+//            }
+//
+//            request.commitChanges { error in
+//                if error != nil {
+//                    print("$$$$createProfileChangeRequest .failure!")
+////                    callBack?(error)
+//                } else {
+//                    print("$$$$createProfileChangeRequest .success!")
+//                    // configure profile success
+////                    self.delegate?.anonymousUserDidRegistered?()
+//                }
+//            }
+//        }
+//    }
+    
+    
+    // Отправить пользователю электронное письмо с подтверждением регистрации
+    func verificationEmailSignUp() {
+        Auth.auth().currentUser?.sendEmailVerification(completion: { (error) in
+            if error != nil {
+                print("sendEmailVerification - Что то пошло не так!!!!")
+            } else {
+                print("sendEmailVerification - Мы отправили подтверждение на email")
+            }
+        })
     }
     
 }

@@ -8,11 +8,9 @@
 import Foundation
 import UIKit
 
-
-@objc protocol NewSignUpViewControllerDelegate: AnyObject {
-    @objc optional func saveCartProductFBNew()
-    @objc optional func anonymousUserDidRegisteredNew()
-    
+// NewSignInViewController BOSS he says Intern(NewProfileViewController) to do
+protocol SignInViewControllerDelegate : AnyObject {
+    func userIsPermanent()
 }
 
 // class final - это ускоряет диспетчеризация от него никто не будет в дальнейшем наследоваться.
@@ -249,6 +247,7 @@ final class NewSignInViewController: UIViewController {
             case .success:
                 self?.signingIn = false
                 self?.isEnabledSignInButton(enabled: false)
+                self?.userDidRegisteredNew()
                 self?.presentingViewController?.dismiss(animated: true, completion: nil)
             case .invalidEmail:
                 self?.signingIn = false
@@ -317,7 +316,8 @@ final class NewSignInViewController: UIViewController {
         guard let email = emailTextField.text,
               let password = passwordTextField.text else {return}
 //        !(email.isEmpty)
-        let isValid = Validators.isValidEmailAddr(strToValidate: email) && !(password.isEmpty)
+//        Validators.isValidEmailAddr(strToValidate: email)
+        let isValid = !(email.isEmpty) && !(password.isEmpty)
         isEnabledSignInButton(enabled: isValid)
     }
     
@@ -495,9 +495,11 @@ extension NewSignInViewController: NewSignUpViewControllerDelegate {
     
     func saveCartProductFBNew() {
         managerFB.saveDeletedFromCart(products: cardProducts)
+        self.isInvalidSignIn = false
     }
     
-    func anonymousUserDidRegisteredNew() {
+    func userDidRegisteredNew() {
+        print("$$$$$$func userDidRegisteredNew()")
         profileDelegate?.userIsPermanent()
     }
 }

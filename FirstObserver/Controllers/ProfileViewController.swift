@@ -218,11 +218,18 @@ import Firebase
 
         @IBAction func didTapSignInSignUp(_ sender: UIButton) {
 
-            performSegue(withIdentifier: "signInVCfromProfile", sender: nil)
+//            performSegue(withIdentifier: "signInVCfromProfile", sender: nil)
 //            let isBoolFlag = UserDefaults.standard.bool(forKey: "WarningKey")
 //            if !isBoolFlag {
 //                UserDefaults.standard.set(true, forKey: "WarningKey")
 //            }
+            getFetchDataHVC()
+            let signInVC = NewSignInViewController()
+            signInVC.cardProducts = addedToCardProducts
+            signInVC.profileDelegate = self
+            signInVC.presentationController?.delegate = self
+            present(signInVC, animated: true, completion: nil)
+            
         }
 
 
@@ -231,46 +238,47 @@ import Firebase
         }
 
         @IBAction func didTapDeleteAccount(_ sender: UIButton) {
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let newHVC = storyboard.instantiateViewController(withIdentifier: "NewHomeViewController") as! NewHomeViewController
-            
-//            let vc = NewHomeViewController()
-            newHVC.modalPresentationStyle = .fullScreen
-            present(newHVC, animated: true, completion: nil)
+//            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+//            let newHVC = storyboard.instantiateViewController(withIdentifier: "NewHomeViewController") as! NewHomeViewController
+//
+////            let vc = NewHomeViewController()
+//            newHVC.modalPresentationStyle = .fullScreen
+//            present(newHVC, animated: true, completion: nil)
 
-//            getFetchDataHVC()
-//            setupDeleteAlert(title: "Warning", message: "Deleting your account will permanently lose your data!") { isDelete in
-//
-//                if isDelete {
-//                    self.isAnimateDeleteButtonAnonUser = true
-////                     удаляем корзину user и в случае не успеха deleteAccaunt должны ее вернуть
-//                    self.managerFB.deleteCurrentUserProducts()
-//                    self.deleteAccountButton.configuration?.showsActivityIndicator = true
-//
-//                    self.managerFB.deleteAccaunt { (stateCallback) in
-//                        switch stateCallback {
-//
-//                        case .success:
-//                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-//                            self.managerFB.removeAvatarFromDeletedUser()
-//                            self.setupAlert(title: "Success", message: "Current accaunt delete!")
-//                        case .failed:
-//                            // сохранить данные обратно в корзину?
-//
-//                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-//                            self.isAnimateDeleteButtonAnonUser = false
-//                            self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again!")
-//                        case .failedRequiresRecentLogin:
-//                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-//                            self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
-//                        }
-//                    }
-//
-//                } else {
-//                    self.isAnimateDeleteButtonAnonUser = false
-//                    print("Cancel delete Accaunt!")
-//                }
-//            }
+            getFetchDataHVC()
+            setupDeleteAlert(title: "Warning", message: "Deleting your account will permanently lose your data!") { isDelete in
+
+                if isDelete {
+                    self.isAnimateDeleteButtonAnonUser = true
+//                     удаляем корзину user и в случае не успеха deleteAccaunt должны ее вернуть
+                    self.managerFB.deleteCurrentUserProducts()
+                    self.deleteAccountButton.configuration?.showsActivityIndicator = true
+
+                    self.managerFB.deleteAccaunt { (stateCallback) in
+                        switch stateCallback {
+
+                        case .success:
+                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+                            self.managerFB.removeAvatarFromDeletedUser()
+                            self.setupAlert(title: "Success", message: "Current accaunt delete!")
+                        case .failed:
+                            // сохранить данные обратно в корзину?
+//                            saveRemuveCartProductFB
+
+                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+                            self.isAnimateDeleteButtonAnonUser = false
+                            self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again!")
+                        case .failedRequiresRecentLogin:
+                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+                            self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+                        }
+                    }
+
+                } else {
+                    self.isAnimateDeleteButtonAnonUser = false
+                    print("Cancel delete Accaunt!")
+                }
+            }
         }
 
 
@@ -285,6 +293,8 @@ import Firebase
         // MARK: - helper methods -
 
         private func userIsPermanentUpdateUI(_ user:User) {
+            print("$$$$$$private func userIsPermanentUpdateUI")
+            print("user.displayName - \(String(describing: user.displayName))")
             editOrDoneButton.isHidden = false
             emailUserTextField.isHidden = false
             emailUserTextField.text = user.email
@@ -468,7 +478,9 @@ import Firebase
 
 extension ProfileViewController: SignInViewControllerDelegate {
     func userIsPermanent() {
+        print("$$$$$func userIsPermanent()")
         guard let user = currentUser else {return}
+        print(" $$$$$guard let user = currentUser")
         self.userIsPermanentUpdateUI(user)
     }
 }

@@ -458,10 +458,9 @@ class NewProductViewController: UIViewController {
     
     @objc func websiteButtonPressed(_ sender: UIButton) {
 
-        let signInVC = NewSignInViewController()
-//        signInVC.modalPresentationStyle = .fullScreen
-        signInVC.presentationController?.delegate = self
-        present(signInVC, animated: true, completion: nil)
+//        let signInVC = NewSignInViewController()
+//        signInVC.presentationController?.delegate = self
+//        present(signInVC, animated: true, completion: nil)
     }
     
     @objc func didTapPageControl(_ sender: UIPageControl) {

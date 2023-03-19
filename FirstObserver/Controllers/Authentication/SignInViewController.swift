@@ -11,9 +11,7 @@ import Firebase
 
 
 
-protocol SignInViewControllerDelegate : AnyObject {
-    func userIsPermanent()
-}
+
 
 class SignInViewController: UIViewController {
     

@@ -21,6 +21,7 @@ class CartViewController: UIViewController {
     var arrayPlaces: [PlacesTest] = []
     var addedInCartProducts: [PopularProduct] = [] {
         didSet {
+            // true if empty
             if addedInCartProducts.isEmpty {
                 visibleCartView()
                 animateCartView()
@@ -44,6 +45,8 @@ class CartViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        print("CartViewController viewWillAppear")
+        print("cartView - \(String(describing: cartView))")
         getFetchDataHVC()
     }
     
@@ -62,9 +65,12 @@ class CartViewController: UIViewController {
     
     private func animateCartView() {
         cartView.alpha = 0
-        UIView.animate(withDuration: 0.1, delay: 0.1, options: .curveLinear, animations: {
-            self.cartView.alpha = 1
-        }, completion: nil)
+//        UIView.animate(withDuration: 0.1, delay: 0.1, options: .curveLinear, animations: {
+//            self.cartView.alpha = 1
+//        }, completion: nil)
+        UIView.animate(withDuration: 0.1, delay: 0.1, options: .curveLinear) { [weak self] in
+            self?.cartView.alpha = 1
+        }
     }
     
     private func visibleCartView() {
@@ -76,23 +82,33 @@ class CartViewController: UIViewController {
     }
     
     private func getFetchDataHVC() {
-        
+        print("func getFetchDataHVC() ")
         guard let tabBarVCs = tabBarController?.viewControllers else { return }
-        tabBarVCs.forEach { (vc) in
+        print("guard let tabBarVCs")
+        tabBarVCs.forEach { [weak self] (vc) in
+            print("tabBarVCs.forEach ")
             if let nc = vc as? UINavigationController {
+                print("if let nc = vc as? ")
                 if let homeVC = nc.topViewController as? NewHomeViewController {
+                    //
+                    print("if let homeVC = nc.topViewController")
                     if homeVC.cardProducts.count == 0 {
-                        if cartView == nil {
-                            visibleCartView()
+                        print("if homeVC.cardProducts.count == 0")
+                        // видимо он был не нил и таблица осталась видна tableView.isHidden = false
+                        if self?.cartView == nil {
+                            print("if self?.cartView == nil")
+                            self?.visibleCartView()
                         }
                     } else {
-                        if cartView != nil {
-                            cartView.removeFromSuperview()
+                        print("homeVC.cardProducts.count != 0")
+                        if self?.cartView != nil {
+                            print("if self?.cartView != nil {")
+                            self?.cartView.removeFromSuperview()
                         }
-                        tableView.isHidden = false
-                        arrayPlaces = homeVC.placesMap
-                        addedInCartProducts = homeVC.cardProducts
-                        tableView.reloadData()
+                        self?.tableView.isHidden = false
+                        self?.arrayPlaces = homeVC.placesMap
+                        self?.addedInCartProducts = homeVC.cardProducts
+                        self?.tableView.reloadData()
                     }
                 }
             }
