@@ -21,10 +21,20 @@ class CartViewController: UIViewController {
     var arrayPlaces: [PlacesTest] = []
     var addedInCartProducts: [PopularProduct] = [] {
         didSet {
+            print("didSet addedInCartProducts")
             // true if empty
-            if addedInCartProducts.isEmpty {
-                visibleCartView()
+            if addedInCartProducts.count == 0 {
+                print("addedInCartProducts.count == 0")
+//                tableView.reloadData()
+                tableView.isHidden = true
+                cartView.isHidden = false
+//                visibleCartView()
                 animateCartView()
+            } else {
+                print("addedInCartProducts.count != 0")
+//                tableView.reloadData()
+                tableView.isHidden = false
+                cartView.isHidden = true
             }
         }
     }
@@ -41,6 +51,9 @@ class CartViewController: UIViewController {
     
         tableView.delegate = self
         tableView.dataSource = self
+        
+        // new
+        visibleCartView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -74,46 +87,80 @@ class CartViewController: UIViewController {
     }
     
     private func visibleCartView() {
-        tableView.isHidden = true
+//        tableView.isHidden = true
         cartView = CartView()
         cartView.delegate = self
         view.addSubview(cartView)
         setupCartViewConstraints()
     }
     
+//    private func getFetchDataHVC() {
+//
+//        guard let tabBarVCs = tabBarController?.viewControllers else { return }
+//
+//        tabBarVCs.forEach { [weak self] (vc) in
+//            if let nc = vc as? UINavigationController {
+//                if let homeVC = nc.topViewController as? NewHomeViewController {
+//
+//                    if homeVC.cardProducts.count == 0 {
+//                        print("if homeVC.cardProducts.count == 0")
+//                        // видимо он был не нил и таблица осталась видна tableView.isHidden = false
+//                        if self?.cartView == nil {
+//                            print("if self?.cartView == nil")
+//                            self?.visibleCartView()
+//                        }
+//                    } else {
+//                        print("homeVC.cardProducts.count != 0")
+//                        if self?.cartView != nil {
+//                            print("if self?.cartView != nil {")
+//                            self?.cartView.removeFromSuperview()
+//                        }
+//                        self?.tableView.isHidden = false
+//                        self?.arrayPlaces = homeVC.placesMap
+//                        self?.addedInCartProducts = homeVC.cardProducts
+//                        self?.tableView.reloadData()
+//                    }
+//                }
+//            }
+//        }
+//    }
+    
     private func getFetchDataHVC() {
-        print("func getFetchDataHVC() ")
+       
         guard let tabBarVCs = tabBarController?.viewControllers else { return }
-        print("guard let tabBarVCs")
+       
         tabBarVCs.forEach { [weak self] (vc) in
-            print("tabBarVCs.forEach ")
             if let nc = vc as? UINavigationController {
-                print("if let nc = vc as? ")
                 if let homeVC = nc.topViewController as? NewHomeViewController {
-                    //
-                    print("if let homeVC = nc.topViewController")
-                    if homeVC.cardProducts.count == 0 {
-                        print("if homeVC.cardProducts.count == 0")
-                        // видимо он был не нил и таблица осталась видна tableView.isHidden = false
-                        if self?.cartView == nil {
-                            print("if self?.cartView == nil")
-                            self?.visibleCartView()
-                        }
-                    } else {
-                        print("homeVC.cardProducts.count != 0")
-                        if self?.cartView != nil {
-                            print("if self?.cartView != nil {")
-                            self?.cartView.removeFromSuperview()
-                        }
-                        self?.tableView.isHidden = false
-                        self?.arrayPlaces = homeVC.placesMap
-                        self?.addedInCartProducts = homeVC.cardProducts
-                        self?.tableView.reloadData()
-                    }
+                    
+                    self?.addedInCartProducts = homeVC.cardProducts
+                    self?.arrayPlaces = homeVC.placesMap
+                    tableView.reloadData()
+                    
+                   
+//                    if homeVC.cardProducts.count == 0 {
+//                        print("if homeVC.cardProducts.count == 0")
+//                        // видимо он был не нил и таблица осталась видна tableView.isHidden = false
+//                        if self?.cartView == nil {
+//                            print("if self?.cartView == nil")
+//                            self?.visibleCartView()
+//                        }
+//                    } else {
+//                        print("homeVC.cardProducts.count != 0")
+//                        if self?.cartView != nil {
+//                            print("if self?.cartView != nil {")
+//                            self?.cartView.removeFromSuperview()
+//                        }
+//                        self?.tableView.isHidden = false
+//                        self?.arrayPlaces = homeVC.placesMap
+//                        self?.addedInCartProducts = homeVC.cardProducts
+//                        self?.tableView.reloadData()
+//                    }
                 }
             }
         }
     }
+
     
 }
 
@@ -140,6 +187,7 @@ extension CartViewController: UITableViewDelegate, UITableViewDataSource {
             managerFB.removeProduct(refProduct: product.refProduct)
             addedInCartProducts.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
+//            addedInCartProducts.remove(at: indexPath.row)
 //            tableView.reloadRows(at: [indexPath], with: .automatic)
         }
     }
