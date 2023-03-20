@@ -458,9 +458,25 @@ class NewProductViewController: UIViewController {
     
     @objc func websiteButtonPressed(_ sender: UIButton) {
 
-//        let signInVC = NewSignInViewController()
+        let profileVC = NewProfileViewController()
+        let nav = UINavigationController(rootViewController: profileVC)
+        let button = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(didTapButtonItem))
+//        nav.navigationBar.topItem?.leftBarButtonItem = button
+//        nav.title = "Profile"
+        profileVC.navigationController?.navigationBar.topItem?.leftBarButtonItem = button
+        profileVC.title = "Profile"
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true, completion: nil)
+        
+//        profileVC.navigationController?.navigationBar.topItem?.leftBarButtonItem = button
+//        profileVC.title = "Profile"
+        
 //        signInVC.presentationController?.delegate = self
 //        present(signInVC, animated: true, completion: nil)
+    }
+    
+    @objc func didTapButtonItem() {
+        print("didTapButtonItem")
     }
     
     @objc func didTapPageControl(_ sender: UIPageControl) {
