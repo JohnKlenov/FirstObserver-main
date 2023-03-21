@@ -459,17 +459,10 @@ class NewProductViewController: UIViewController {
     @objc func websiteButtonPressed(_ sender: UIButton) {
 
         let profileVC = NewProfileViewController()
-        let nav = UINavigationController(rootViewController: profileVC)
-        let button = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(didTapButtonItem))
-//        nav.navigationBar.topItem?.leftBarButtonItem = button
-//        nav.title = "Profile"
-        profileVC.navigationController?.navigationBar.topItem?.leftBarButtonItem = button
-        profileVC.title = "Profile"
+        let nav = NavigationController(rootViewController: profileVC)
+
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true, completion: nil)
-        
-//        profileVC.navigationController?.navigationBar.topItem?.leftBarButtonItem = button
-//        profileVC.title = "Profile"
         
 //        signInVC.presentationController?.delegate = self
 //        present(signInVC, animated: true, completion: nil)

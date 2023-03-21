@@ -1,0 +1,16 @@
+//
+//  NavigationController.swift
+//  FirstObserver
+//
+//  Created by Evgenyi on 22.03.23.
+//
+
+import Foundation
+import UIKit
+
+class NavigationController: UINavigationController {
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+}
