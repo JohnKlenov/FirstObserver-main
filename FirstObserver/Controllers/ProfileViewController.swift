@@ -476,6 +476,7 @@ import Firebase
         }
     }
 
+// закончили
 extension ProfileViewController: SignInViewControllerDelegate {
     func userIsPermanent() {
         print("$$$$$func userIsPermanent()")
