@@ -21,6 +21,7 @@ final class NewProfileViewController: UIViewController {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
 //        view.backgroundColor = .darkGray
+        image.isUserInteractionEnabled = true
         image.layer.cornerRadius = 10
         image.clipsToBounds = true
         image.contentMode = .scaleAspectFill
@@ -158,7 +159,11 @@ final class NewProfileViewController: UIViewController {
         return button
     }()
     
-//    var cnstr: NSLayoutConstraint!
+    let tapGestureRecognizer : UITapGestureRecognizer = {
+        let gesture = UITapGestureRecognizer()
+        gesture.numberOfTapsRequired = 1
+        return gesture
+    }()
     
 
     
@@ -170,12 +175,15 @@ final class NewProfileViewController: UIViewController {
         configureNavigationBar(largeTitleColor: .white, backgoundColor: .black, tintColor: .white, title: "Profile", preferredLargeTitle: false)
         configureNavigationItem()
         setupStackView()
+        imageUser.addGestureRecognizer(tapGestureRecognizer)
         addActions()
+        
         
         view.addSubview(topView)
         view.addSubview(imageUser)
         view.addSubview(infoUserStackView)
         view.addSubview(buttonsStackView)
+        
         
         imageUser.image = UIImage(named: "DefaultImage")
         setupConstraints()
@@ -185,21 +193,11 @@ final class NewProfileViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
-//        imageUser.frame  = CGRect(x: 0, y: 0, width: view.frame.height * 0.2, height: view.frame.height * 0.2)
-//        imageUser.center = CGPoint(x: topView.center.x, y: topView.frame.height)
     }
     
     
     
-    @objc func navBarRightButtonHandler() {
-        navBarRightButton.configuration?.showsActivityIndicator.toggle()
-        print("navBarRightButtonHandler()")
-    }
-    
-    @objc func navBarLeftButtonHandler() {
-        print("navBarLeftButtonHandler()")
-    }
+   
     
     
     func configureNavigationItem() {
@@ -243,27 +241,12 @@ final class NewProfileViewController: UIViewController {
     
     func addActions() {
         
+        userNameTextField.addTarget(self, action: #selector(didChangeTextFieldNameOrEmail), for: .editingChanged)
+        
         signInSignUp.addTarget(self, action: #selector(didTapsignInSignUp(_:)), for: .touchUpInside)
         signOutButton.addTarget(self, action: #selector(didTapSignOut(_:)), for: .touchUpInside)
         deleteAccountButton.addTarget(self, action: #selector(didTapDeleteAccount(_:)), for: .touchUpInside)
-        
-//        signOutButton.configurationUpdateHandler = { [weak self] button in
-//
-//            guard let signingIn = self?.signingIn else {return}
-//            var config = button.configuration
-//            config?.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
-//                var outgoing = incoming
-//                outgoing.foregroundColor = .white
-//                outgoing.font = UIFont.boldSystemFont(ofSize: 15)
-//                return outgoing
-//            }
-//            config?.imagePadding = 10
-//            config?.imagePlacement = .trailing
-//            config?.showsActivityIndicator = signingIn
-//            config?.title = signingIn ? "Signing In..." : "Sign In"
-//            button.isUserInteractionEnabled = !signingIn
-//            button.configuration = config
-//        }
+        tapGestureRecognizer.addTarget(self, action: #selector(handleTapSingleGesture))
     }
     
     
@@ -277,6 +260,23 @@ final class NewProfileViewController: UIViewController {
     
     @objc func didTapDeleteAccount(_ sender: UIButton) {
         print("didTapSignOut")
+    }
+    
+    @objc func navBarRightButtonHandler() {
+        navBarRightButton.configuration?.showsActivityIndicator.toggle()
+        print("navBarRightButtonHandler()")
+    }
+    
+    @objc func navBarLeftButtonHandler() {
+        print("navBarLeftButtonHandler()")
+    }
+    
+    @objc func didChangeTextFieldNameOrEmail() {
+        print("didChangeTextFieldNameOrEmail()")
+    }
+    
+    @objc func handleTapSingleGesture() {
+        print("handleTapSingleGesture")
     }
     
 }
