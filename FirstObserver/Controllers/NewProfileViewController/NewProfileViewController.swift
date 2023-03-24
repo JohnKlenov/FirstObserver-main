@@ -14,7 +14,7 @@ final class NewProfileViewController: UIViewController {
     private let topView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .black
+        view.backgroundColor = UIColor.init(hexString: "#1C1C1C")
         return view
     }()
     
@@ -34,7 +34,7 @@ final class NewProfileViewController: UIViewController {
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.borderStyle = .none
         textField.textAlignment = .center
-        textField.font = .systemFont(ofSize: 20, weight: .regular)
+        textField.font = .systemFont(ofSize: 20, weight: .bold)
         textField.tintColor = .black
         textField.textContentType = .name
         textField.backgroundColor = .clear
@@ -62,8 +62,8 @@ final class NewProfileViewController: UIViewController {
         stackView.axis = .vertical
         stackView.distribution = .fill
         stackView.alignment = .center
-        stackView.spacing = 8
-        stackView.backgroundColor = .lightGray
+        stackView.spacing = 2
+//        stackView.backgroundColor = .lightGray
         return stackView
     }()
    
@@ -78,7 +78,7 @@ final class NewProfileViewController: UIViewController {
 
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = .black
+        configuration.baseBackgroundColor = UIColor.init(hexString: "#1C1C1C")
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
         return grayButton
@@ -95,7 +95,7 @@ final class NewProfileViewController: UIViewController {
        
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = .black
+        configuration.baseBackgroundColor = UIColor.init(hexString: "#1C1C1C")
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
         return grayButton
@@ -112,7 +112,7 @@ final class NewProfileViewController: UIViewController {
        
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = .black
+        configuration.baseBackgroundColor = UIColor.init(hexString: "#1C1C1C")
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
         return grayButton
@@ -128,7 +128,7 @@ final class NewProfileViewController: UIViewController {
         return stackView
     }()
     
-    let navBarRightButton: UIButton = {
+    let editButton: UIButton = {
         var configButton = UIButton.Configuration.plain()
         configButton.title = "Edit"
         configButton.baseForegroundColor = .systemPurple
@@ -144,7 +144,7 @@ final class NewProfileViewController: UIViewController {
         return button
     }()
     
-    let navBarLeftButton: UIButton = {
+    let cancelButton: UIButton = {
         var configButton = UIButton.Configuration.plain()
         configButton.title = "Cancel"
         configButton.baseForegroundColor = .systemPurple
@@ -160,20 +160,22 @@ final class NewProfileViewController: UIViewController {
         return button
     }()
     
-    let tapGestureRecognizer : UITapGestureRecognizer = {
+    let imageUserTapGestureRecognizer : UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer()
         gesture.numberOfTapsRequired = 1
         return gesture
     }()
     
     private var addedToCardProducts: [PopularProduct] = []
-    private var isStateEditButton = true
-    private var isAnimateDeleteButtonAnonUser = false
+    private var isStateEditingModeProfile = true
+    private var isAnimatedRemovalOfButtonsForAnonUser = false
     
+    
+    // MARK: property for working with image
     private let encoder = JSONEncoder()
-    private var imageIsChanged = false
-    private var imageData: Data?
-    private var imageReturn: UIImage?
+    private var isChangedCurrentImageUser = false
+    private var dataForNewImageUser: Data?
+    private var casheImageUserSavedOnTheServer: UIImage?
     
     // MARK: FB property
     let managerFB = FBManager.shared
@@ -187,17 +189,17 @@ final class NewProfileViewController: UIViewController {
             self?.currentUser = user
 
             if let user = user, !user.isAnonymous {
-                self?.userIsPermanentUpdateUI(user)
+                self?.updateUIForPermanentUser(user)
             } else {
-                self?.UserIsAnonymousUpdateUI()
+                self?.updateUIForAnonymousUser()
             }
         }
         
         view.backgroundColor = .white
-        configureNavigationBar(largeTitleColor: .white, backgoundColor: .black, tintColor: .white, title: "Profile", preferredLargeTitle: false)
+        configureNavigationBar(largeTitleColor: .white, backgoundColor: UIColor.init(hexString: "#1C1C1C"), tintColor: .white, title: "Profile", preferredLargeTitle: false)
         configureNavigationItem()
         setupStackView()
-        imageUser.addGestureRecognizer(tapGestureRecognizer)
+        imageUser.addGestureRecognizer(imageUserTapGestureRecognizer)
         addActions()
         
         
@@ -221,25 +223,25 @@ final class NewProfileViewController: UIViewController {
     
     
     
-    // MARK: - helper methods for func managerFB.updateProfileInfo() -
+    // MARK: - helper methods for func managerFB.updateProfileInfo()
 
     private func failedUpdateImage() {
-        navBarRightButton.configuration?.showsActivityIndicator = false
-        switchSaveButton(isSwitch: false)
-        if imageIsChanged {
-            imageData = nil
-            imageUser.image = imageReturn
-            imageIsChanged = false
-            imageReturn = nil
+        editButton.configuration?.showsActivityIndicator = false
+//        switchSaveButton(isSwitch: false)
+        if isChangedCurrentImageUser {
+            dataForNewImageUser = nil
+            imageUser.image = casheImageUserSavedOnTheServer
+            isChangedCurrentImageUser = false
+            casheImageUserSavedOnTheServer = nil
         }
     }
     private func successUpdateImage() {
-        if imageIsChanged {
+        if isChangedCurrentImageUser {
 //                cacheImageRemoveMemoryAndDisk()
             managerFB.cacheImageRemoveMemoryAndDisk(imageView: imageUser)
-            imageIsChanged = false
-            imageData = nil
-            imageReturn = nil
+            isChangedCurrentImageUser = false
+            dataForNewImageUser = nil
+            casheImageUserSavedOnTheServer = nil
         }
     }
 
@@ -248,16 +250,14 @@ final class NewProfileViewController: UIViewController {
     }
 
     
-    // MARK: - helper methods -
+    // MARK: - update UI methods
 
-    private func userIsPermanentUpdateUI(_ user:User) {
-        print("$$$$$$private func userIsPermanentUpdateUI")
-        print("user.displayName - \(String(describing: user.displayName))")
-        navBarRightButton.isHidden = false
+    private func updateUIForPermanentUser(_ user:User) {
+        editButton.isHidden = false
         emailUserTextField.isHidden = false
         emailUserTextField.text = user.email
         userNameTextField.text = user.displayName
-        navBarLeftButton.isHidden = true
+        cancelButton.isHidden = true
         userNameTextField.isUserInteractionEnabled = false
         emailUserTextField.isUserInteractionEnabled = false
         imageUser.isUserInteractionEnabled = false
@@ -279,9 +279,9 @@ final class NewProfileViewController: UIViewController {
         }
     }
 
-    private func UserIsAnonymousUpdateUI() {
-        navBarRightButton.isHidden = true
-        navBarLeftButton.isHidden = true
+    private func updateUIForAnonymousUser() {
+        editButton.isHidden = true
+        cancelButton.isHidden = true
         userNameTextField.text = "User is anonymous"
         userNameTextField.isUserInteractionEnabled = false
         imageUser.image = UIImage(named: "DefaultImage")
@@ -289,12 +289,11 @@ final class NewProfileViewController: UIViewController {
         emailUserTextField.isHidden = true
         signInSignUp.isHidden = false
         signOutButton.configuration?.showsActivityIndicator = false
-        if isAnimateDeleteButtonAnonUser {
-            print("if isAnimateDeleteButtonAnonUser")
+        if isAnimatedRemovalOfButtonsForAnonUser {
             UIView.animate(withDuration: 0.2) {
                 self.signOutButton.isHidden = true
                 self.deleteAccountButton.isHidden = true
-                self.isAnimateDeleteButtonAnonUser = false
+                self.isAnimatedRemovalOfButtonsForAnonUser = false
             }
         } else {
             signOutButton.isHidden = true
@@ -303,51 +302,58 @@ final class NewProfileViewController: UIViewController {
 
     }
     
+    // MARK: - helper methods for updateImageProfile
+    
     private func startRemoveAvatarUpdateUI() {
 //        editOrDoneButton.configuration?.title = ""
-        navBarRightButton.configuration?.showsActivityIndicator = true
-        navBarRightButton.isUserInteractionEnabled = false
+        editButton.configuration?.showsActivityIndicator = true
+        editButton.isUserInteractionEnabled = false
     }
 
     private func endRemoveAvatarUpdateUI() {
-        self.navBarRightButton.configuration?.showsActivityIndicator = false
-        self.stateEditSaveButton(isSwitch: self.isStateEditButton)
+        self.editButton.configuration?.showsActivityIndicator = false
+        self.enableEditingModeForProfile(isSwitch: self.isStateEditingModeProfile)
         self.setupAlert(title: "Success", message: "Profile avatar is delete!")
-        self.imageIsChanged = false
+        self.isChangedCurrentImageUser = false
     }
 
     private func failedRemoveAvatarUpdateUI() {
-        self.navBarRightButton.configuration?.showsActivityIndicator = false
-        self.switchSaveButton(isSwitch: false)
+        self.editButton.configuration?.showsActivityIndicator = false
+        self.enableSaveButton(isSwitch: false)
         self.setupAlert(title: "Error", message: "Failed to delete profile avatar")
     }
     
-    private func isValidTextField(comletion: (Bool) -> Void) {
+    
+    
+    // MARK: - methods for changing state buttons
+    
+    private func enableEditingModeForProfile(isSwitch: Bool) {
+         isSwitch ? enableSaveButton(isSwitch: !isSwitch) : enableEditButton(isSwitch: !isSwitch)
+         self.cancelButton.isHidden = !isSwitch
+         self.userNameTextField.isUserInteractionEnabled = isSwitch
+         self.imageUser.isUserInteractionEnabled = isSwitch
+         self.isStateEditingModeProfile = !isSwitch
+    }
+
+    private func enableSaveButton(isSwitch: Bool) {
+        editButton.configuration?.title = "Save"
+        editButton.configuration?.baseForegroundColor = isSwitch ? .systemPurple : .lightGray
+        editButton.isUserInteractionEnabled = isSwitch ? true : false
+    }
+
+    private func enableEditButton(isSwitch: Bool) {
+        editButton.configuration?.title = "Edit"
+        editButton.configuration?.baseForegroundColor = isSwitch ? .systemPurple : .lightGray
+        editButton.isUserInteractionEnabled = isSwitch ? true : false
+    }
+    
+    private func changedToSaveNameTextField(comletion: (Bool) -> Void) {
         // logic valid email need not
         guard let email = emailUserTextField.text, let name = userNameTextField.text, let emailUser = currentUser?.email else { return }
         let isValid = (!(email.isEmpty) && email != emailUser) || (!(name.isEmpty) && name != currentUser?.displayName)
         comletion(isValid)
     }
     
-    private func stateEditSaveButton(isSwitch: Bool) {
-         isSwitch ? switchSaveButton(isSwitch: !isSwitch) : switchEditButton(isSwitch: !isSwitch)
-         self.navBarLeftButton.isHidden = !isSwitch
-         self.userNameTextField.isUserInteractionEnabled = isSwitch
-         self.imageUser.isUserInteractionEnabled = isSwitch
-         self.isStateEditButton = !isSwitch
-    }
-
-    private func switchSaveButton(isSwitch: Bool) {
-        navBarRightButton.configuration?.title = "Save"
-        navBarRightButton.configuration?.baseForegroundColor = isSwitch ? .systemPurple : .lightGray
-        navBarRightButton.isUserInteractionEnabled = isSwitch ? true : false
-    }
-
-    private func switchEditButton(isSwitch: Bool) {
-        navBarRightButton.configuration?.title = "Edit"
-        navBarRightButton.configuration?.baseForegroundColor = isSwitch ? .systemPurple : .lightGray
-        navBarRightButton.isUserInteractionEnabled = isSwitch ? true : false
-    }
     
     private func getFetchDataHVC() {
 
@@ -361,7 +367,7 @@ final class NewProfileViewController: UIViewController {
         }
     }
     
-    // MARK: - FB methods -
+    // MARK: - FB methods
 
 
     private func saveRemuveCartProductFB() {
@@ -400,10 +406,10 @@ final class NewProfileViewController: UIViewController {
     
     func configureNavigationItem() {
         
-        navBarRightButton.addTarget(self, action: #selector(navBarRightButtonHandler), for: .touchUpInside)
-        navBarLeftButton.addTarget(self, action: #selector(navBarLeftButtonHandler), for: .touchUpInside)
-        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: navBarLeftButton)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: navBarRightButton)
+        editButton.addTarget(self, action: #selector(editingModeButtonHandler), for: .touchUpInside)
+        cancelButton.addTarget(self, action: #selector(cancelButtonHandler), for: .touchUpInside)
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: cancelButton)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: editButton)
     }
     
     func setupStackView() {
@@ -414,7 +420,6 @@ final class NewProfileViewController: UIViewController {
         buttonsStackView.addArrangedSubview(signInSignUp)
         buttonsStackView.addArrangedSubview(signOutButton)
         buttonsStackView.addArrangedSubview(deleteAccountButton)
-        
     }
     
     func setupConstraints() {
@@ -439,14 +444,20 @@ final class NewProfileViewController: UIViewController {
     
     func addActions() {
         
-        userNameTextField.addTarget(self, action: #selector(didChangeTextFieldNameOrEmail), for: .editingChanged)
+        userNameTextField.addTarget(self, action: #selector(didChangeNameTextField), for: .editingChanged)
         
         signInSignUp.addTarget(self, action: #selector(didTapsignInSignUp(_:)), for: .touchUpInside)
         signOutButton.addTarget(self, action: #selector(didTapSignOut(_:)), for: .touchUpInside)
         deleteAccountButton.addTarget(self, action: #selector(didTapDeleteAccount(_:)), for: .touchUpInside)
-        tapGestureRecognizer.addTarget(self, action: #selector(handleTapSingleGesture))
+        imageUserTapGestureRecognizer.addTarget(self, action: #selector(handleTapSingleGesture))
     }
-    
+}
+
+
+
+// MARK: - @objc func
+
+private extension NewProfileViewController {
     
     @objc func didTapsignInSignUp(_ sender: UIButton) {
         print("didTapsignInSignUp")
@@ -468,17 +479,17 @@ final class NewProfileViewController: UIViewController {
     
     @objc func didTapSignOut(_ sender: UIButton) {
         
-        isAnimateDeleteButtonAnonUser = true
+        isAnimatedRemovalOfButtonsForAnonUser = true
         signOutButton.configuration?.showsActivityIndicator = true
-
+        
         managerFB.signOut { (stateCallback) in
-
+            
             switch stateCallback {
             case .success:
                 setupAlert(title: "Success", message: "You are logged out!")
             case .failed:
                 signOutButton.configuration?.showsActivityIndicator = false
-                isAnimateDeleteButtonAnonUser = false
+                isAnimatedRemovalOfButtonsForAnonUser = false
                 setupAlert(title: "Failed SignOut", message: "Something went wrong! Try again!")
             }
         }
@@ -491,7 +502,7 @@ final class NewProfileViewController: UIViewController {
         setupDeleteAlert(title: "Warning", message: "Deleting your account will permanently lose your data!") { isDelete in
 
             if isDelete {
-                self.isAnimateDeleteButtonAnonUser = true
+                self.isAnimatedRemovalOfButtonsForAnonUser = true
 //                     удаляем корзину user и в случае не успеха deleteAccaunt должны ее вернуть
                 self.managerFB.deleteCurrentUserProducts()
                 self.deleteAccountButton.configuration?.showsActivityIndicator = true
@@ -505,10 +516,10 @@ final class NewProfileViewController: UIViewController {
                         self.setupAlert(title: "Success", message: "Current accaunt delete!")
                     case .failed:
                         // сохранить данные обратно в корзину?
-//                            saveRemuveCartProductFB
+                        self.saveRemuveCartProductFB()
 
                         self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                        self.isAnimateDeleteButtonAnonUser = false
+                        self.isAnimatedRemovalOfButtonsForAnonUser = false
                         self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again!")
                     case .failedRequiresRecentLogin:
                         self.deleteAccountButton.configuration?.showsActivityIndicator = false
@@ -517,104 +528,100 @@ final class NewProfileViewController: UIViewController {
                 }
 
             } else {
-                self.isAnimateDeleteButtonAnonUser = false
+                self.isAnimatedRemovalOfButtonsForAnonUser = false
                 print("Cancel delete Accaunt!")
             }
         }
-        print("didTapSignOut")
     }
     
-    @objc func navBarRightButtonHandler() {
-//        navBarRightButton.configuration?.showsActivityIndicator.toggle()
-        if isStateEditButton {
-            stateEditSaveButton(isSwitch: isStateEditButton)
+    @objc func editingModeButtonHandler() {
+        
+        if isStateEditingModeProfile {
+            enableEditingModeForProfile(isSwitch: isStateEditingModeProfile)
         } else {
-            navBarRightButton.configuration?.title = ""
-            navBarRightButton.configuration?.showsActivityIndicator = true
-            navBarRightButton.isUserInteractionEnabled = false
-
-            let image = imageIsChanged ? imageData : nil
+            //            navBarRightButton.configuration?.title = ""
+            editButton.configuration?.showsActivityIndicator = true
+            editButton.isUserInteractionEnabled = false
+            
+            let image = isChangedCurrentImageUser ? dataForNewImageUser : nil
             // if currentUser = nil ???
             let name = userNameTextField.text != currentUser?.displayName ? userNameTextField.text : nil
-
+            
             managerFB.updateProfileInfo(withImage: image, name: name) { (state) in
-
+                
                 switch state {
-
+                    
                 case .success:
-                    self.navBarRightButton.configuration?.showsActivityIndicator = false
-                    self.stateEditSaveButton(isSwitch: self.isStateEditButton)
+                    self.editButton.configuration?.showsActivityIndicator = false
+                    self.enableEditingModeForProfile(isSwitch: self.isStateEditingModeProfile)
                     self.setupAlert(title: "Success", message: "Data changed!")
                     self.successUpdateImage()
-
+                    
                 case .failed(image: let image, name: let name):
                     if let image = image, let name = name {
                         if image && name {
+                            self.enableSaveButton(isSwitch: false)
                             self.failedUpdateImage()
                             self.failedUpdateName()
                             self.setupAlert(title: "Error", message: "Something went wrong! Try again!")
                         } else if image {
+                            self.enableSaveButton(isSwitch: false)
                             self.failedUpdateImage()
                             self.setupAlert(title: "Error", message: "Avatar not saved! Try again!")
-
+                            
                         } else if name {
-
-                            self.navBarRightButton.configuration?.showsActivityIndicator = false
-                            self.switchSaveButton(isSwitch: false)
+                            
+                            self.editButton.configuration?.showsActivityIndicator = false
+                            self.enableSaveButton(isSwitch: false)
                             self.failedUpdateName()
                             self.successUpdateImage()
                             self.setupAlert(title: "Error", message: "Name not saved! Try again!")
                         }
                     } else if let name = name, name {
-                        self.navBarRightButton.configuration?.showsActivityIndicator = false
-                        self.switchSaveButton(isSwitch: false)
+                        self.editButton.configuration?.showsActivityIndicator = false
+                        self.enableSaveButton(isSwitch: false)
                         self.failedUpdateName()
                         self.setupAlert(title: "Error", message: "Name not saved! Try again!")
                     }
                 case .nul:
-                    self.navBarRightButton.configuration?.showsActivityIndicator = false
-                    self.switchSaveButton(isSwitch: false)
+                    self.editButton.configuration?.showsActivityIndicator = false
+                    self.enableSaveButton(isSwitch: false)
                     self.setupAlert(title: "Error", message: "Something went wrong! Try again!")
                 }
+            }
         }
-        }
-        
-        print("navBarRightButtonHandler()")
     }
     
-    @objc func navBarLeftButtonHandler() {
+    @objc func cancelButtonHandler() {
         
-        if imageIsChanged {
-            imageData = nil
-            imageUser.image = imageReturn
-            imageIsChanged = false
-            imageReturn = nil
+        if isChangedCurrentImageUser {
+            dataForNewImageUser = nil
+            imageUser.image = casheImageUserSavedOnTheServer
+            isChangedCurrentImageUser = false
+            casheImageUserSavedOnTheServer = nil
         }
-        navBarLeftButton.isHidden = true
+        cancelButton.isHidden = true
         userNameTextField.text = currentUser?.displayName
-        switchEditButton(isSwitch: true)
+        enableEditButton(isSwitch: true)
         userNameTextField.isUserInteractionEnabled = false
         imageUser.isUserInteractionEnabled = false
-        isStateEditButton = !isStateEditButton
-        print("navBarLeftButtonHandler()")
+        isStateEditingModeProfile = !isStateEditingModeProfile
     }
     
-    @objc func didChangeTextFieldNameOrEmail() {
+    @objc func didChangeNameTextField() {
         
-        isValidTextField { (isValid) in
-            switchSaveButton(isSwitch: isValid)
+        changedToSaveNameTextField { (isValid) in
+            enableSaveButton(isSwitch: isValid)
         }
         print("didChangeTextFieldNameOrEmail()")
     }
     
     @objc func handleTapSingleGesture() {
         setupAlertEditImageAvatar()
-        print("handleTapSingleGesture")
     }
-    
 }
 
-// MARK: - extension Alerts -
+// MARK: - extension Alerts
 
 private extension NewProfileViewController {
 
@@ -658,7 +665,7 @@ private extension NewProfileViewController {
         alert.addAction(gallery)
         alert.addAction(cancel)
 
-        if let _ = managerFB.avatarRef, imageIsChanged == false {
+        if let _ = managerFB.avatarRef, isChangedCurrentImageUser == false {
             alert.addAction(deleteAvatar)
         }
         present(alert, animated: true, completion: nil)
@@ -711,7 +718,7 @@ private extension NewProfileViewController {
                             self.deleteAccountButton.configuration?.showsActivityIndicator = false
                             self.setupAlert(title: "Success", message: "Current accaunt delete!")
                         case .failed:
-                            self.isAnimateDeleteButtonAnonUser = false
+                            self.isAnimatedRemovalOfButtonsForAnonUser = false
                             self.deleteAccountButton.configuration?.showsActivityIndicator = false
                             self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again!")
                         case .failedRequiresRecentLogin:
@@ -725,7 +732,7 @@ private extension NewProfileViewController {
                     // потому что иначе мы заново будем создавать удаление -> deleteAccaunt { error in } а оно уже вызвано и привело сюда.
                     // или написать [weak self] в setupAlertRecentLogin
 
-                    self.isAnimateDeleteButtonAnonUser = false
+                    self.isAnimatedRemovalOfButtonsForAnonUser = false
                     self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again later!")
                 case .wrongPassword:
                     self.deleteAccountButton.configuration?.showsActivityIndicator = false
@@ -781,14 +788,20 @@ private extension NewProfileViewController {
 
 }
 
+
+// MARK: -SignInViewControllerDelegate
+
 extension NewProfileViewController: SignInViewControllerDelegate {
     func userIsPermanent() {
         print("$$$$$func userIsPermanent()")
         guard let user = currentUser else {return}
         print(" $$$$$guard let user = currentUser")
-        self.userIsPermanentUpdateUI(user)
+        self.updateUIForPermanentUser(user)
     }
 }
+
+
+// MARK: - UIImagePickerControllerDelegate + UINavigationControllerDelegate
 
 extension NewProfileViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
@@ -808,19 +821,25 @@ extension NewProfileViewController: UIImagePickerControllerDelegate, UINavigatio
         let size = CGSize(width: 400, height: 400)
         // а что если compressedImage придет nil?
         let compressedImage = originImage?.thumbnailOfSize(size)
-        imageReturn = imageUser.image
+        casheImageUserSavedOnTheServer = imageUser.image
         imageUser.image = compressedImage
         imageUser.contentMode = .scaleAspectFill
         imageUser.clipsToBounds = true
-        imageData = compressedImage?.jpegData(compressionQuality: 0.2)
-        imageIsChanged = true
-        switchSaveButton(isSwitch: true)
+        dataForNewImageUser = compressedImage?.jpegData(compressionQuality: 0.2)
+        isChangedCurrentImageUser = true
+        enableSaveButton(isSwitch: true)
         dismiss(animated: true, completion: nil)
 
     }
 }
+
+
+// MARK: - configureNavigationBar
+
 extension UIViewController {
-func configureNavigationBar(largeTitleColor: UIColor, backgoundColor: UIColor, tintColor: UIColor, title: String, preferredLargeTitle: Bool) {
+
+    /// configure navigationBar and combines status bar with navigationBar
+    func configureNavigationBar(largeTitleColor: UIColor, backgoundColor: UIColor, tintColor: UIColor, title: String, preferredLargeTitle: Bool) {
     if #available(iOS 13.0, *) {
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithOpaqueBackground()

@@ -519,7 +519,7 @@ final class FBManager {
     }
 
 
-    // MARK: - ProfileViewController -
+    // MARK: - NewProfileViewController -
     
     func updateProfileInfo(withImage image: Data? = nil, name: String? = nil, _ callback: ((StateProfileInfo) -> ())? = nil) {
         guard let user = currentUser else {
