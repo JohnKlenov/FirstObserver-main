@@ -310,8 +310,18 @@ final class NewSignInViewController: UIViewController {
     }
     
     @IBAction func signInTextFieldChanged(_ sender: UITextField) {
-       
-        separatorEmailView.backgroundColor = Validators.isValidEmailAddr(strToValidate: emailTextField.text ?? "") ? .black : .red.withAlphaComponent(0.8)
+        switch sender {
+        case emailTextField:
+            separatorEmailView.backgroundColor = Validators.isValidEmailAddr(strToValidate: emailTextField.text ?? "") ? .black : .red.withAlphaComponent(0.8)
+        case passwordTextField:
+            separatorPasswordView.backgroundColor = passwordTextField.text?.isEmpty ?? true ? .red.withAlphaComponent(0.8) : .black
+//            Validators.isValidEmailAddr(strToValidate: passwordTextField.text ?? "")
+        default:
+            break
+        }
+//        separatorEmailView.backgroundColor = Validators.isValidEmailAddr(strToValidate: emailTextField.text ?? "") ? .black : .red.withAlphaComponent(0.8)
+        
+//        separatorPasswordView.backgroundColor = Validators.isValidEmailAddr(strToValidate: passwordTextField.text ?? "") ? .black : .red.withAlphaComponent(0.8)
         
         guard let email = emailTextField.text,
               let password = passwordTextField.text else {return}

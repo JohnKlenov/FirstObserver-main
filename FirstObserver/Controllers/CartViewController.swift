@@ -19,20 +19,21 @@ class CartViewController: UIViewController {
     
     var model: [Product]!
     var arrayPlaces: [PlacesTest] = []
+    
+    // bug когда удаляем последний product анимации удаления не видно(потому что сразу tableView.isHidden = true)
     var addedInCartProducts: [PopularProduct] = [] {
         didSet {
-            print("didSet addedInCartProducts")
             // true if empty
             if addedInCartProducts.count == 0 {
-                print("addedInCartProducts.count == 0")
-//                tableView.reloadData()
-                tableView.isHidden = true
-                cartView.isHidden = false
-//                visibleCartView()
-                animateCartView()
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//                    self.tableView.isHidden = true
+//                    self.cartView.isHidden = false
+//                    self.animateCartView()
+//                }
+                self.tableView.isHidden = true
+                self.cartView.isHidden = false
+                self.animateCartView()
             } else {
-                print("addedInCartProducts.count != 0")
-//                tableView.reloadData()
                 tableView.isHidden = false
                 cartView.isHidden = true
             }
@@ -58,14 +59,13 @@ class CartViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("CartViewController viewWillAppear")
-        print("cartView - \(String(describing: cartView))")
         getFetchDataHVC()
     }
     
     private func setupCartViewConstraints() {
+//        cartView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20)
         cartView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([cartView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20), cartView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 10), cartView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10)])
+        NSLayoutConstraint.activate([cartView.centerXAnchor.constraint(equalTo: view.centerXAnchor), cartView.centerYAnchor.constraint(equalTo: view.centerYAnchor), cartView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 10), cartView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10)])
     }
     
     func setupHeaderView() {
@@ -223,7 +223,6 @@ extension CartViewController: CartViewDelegate {
     func goToCatalogVC() {
         let catalogVC = UIStoryboard.vcById("CatalogViewController") as! CatalogViewController
         navigationController?.pushViewController(catalogVC, animated: true)
-        print("goToCatalogVC")
     }
     
     

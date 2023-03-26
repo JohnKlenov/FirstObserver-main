@@ -5,7 +5,6 @@
 //  Created by Evgenyi on 20.03.23.
 //
 
-import Foundation
 import UIKit
 import Firebase
 
@@ -14,16 +13,17 @@ final class NewProfileViewController: UIViewController {
     private let topView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor.init(hexString: "#1C1C1C")
+        view.backgroundColor = R.Colors.backgroundBlack
         return view
     }()
     
     private let imageUser: UIImageView = {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
-//        view.backgroundColor = .darkGray
         image.isUserInteractionEnabled = true
         image.layer.cornerRadius = 10
+        image.layer.borderColor = UIColor.black.cgColor
+        image.layer.borderWidth = 2
         image.clipsToBounds = true
         image.contentMode = .scaleAspectFill
         return image
@@ -34,12 +34,12 @@ final class NewProfileViewController: UIViewController {
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.borderStyle = .none
         textField.textAlignment = .center
-        textField.font = .systemFont(ofSize: 20, weight: .bold)
-        textField.tintColor = .black
+        textField.font = .systemFont(ofSize: 20, weight: .medium)
+        
+        textField.tintColor = R.Colors.tintColorBlack
         textField.textContentType = .name
         textField.backgroundColor = .clear
-        textField.placeholder = "enter you name"
-        textField.text = "Johan Klenov"
+        textField.placeholder = R.Strings.TabBarController.Profile.Views.placeholderNameTextField
         return textField
     }()
     
@@ -48,11 +48,10 @@ final class NewProfileViewController: UIViewController {
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.borderStyle = .none
         textField.textAlignment = .center
-        textField.font = .systemFont(ofSize: 17, weight: .medium)
-        textField.tintColor = .black
+        textField.font = .systemFont(ofSize: 15, weight: .regular)
+        textField.tintColor = R.Colors.tintColorBlack
         textField.textContentType = .emailAddress
         textField.backgroundColor = .clear
-        textField.text = "klenovptz@mail.ru"
         return textField
     }()
     
@@ -63,7 +62,6 @@ final class NewProfileViewController: UIViewController {
         stackView.distribution = .fill
         stackView.alignment = .center
         stackView.spacing = 2
-//        stackView.backgroundColor = .lightGray
         return stackView
     }()
    
@@ -72,13 +70,13 @@ final class NewProfileViewController: UIViewController {
         var configuration = UIButton.Configuration.gray()
 
         var container = AttributeContainer()
-        container.font = UIFont.boldSystemFont(ofSize: 17)
-        container.foregroundColor = UIColor.white
-        configuration.attributedTitle = AttributedString("SignIn/SignUp", attributes: container)
+        container.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+        container.foregroundColor = R.Colors.tintColorWhite
+        configuration.attributedTitle = AttributedString(R.Strings.TabBarController.Profile.Views.signInUpButton, attributes: container)
 
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = UIColor.init(hexString: "#1C1C1C")
+        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
         return grayButton
@@ -89,13 +87,13 @@ final class NewProfileViewController: UIViewController {
         var configuration = UIButton.Configuration.gray()
        
         var container = AttributeContainer()
-        container.font = UIFont.boldSystemFont(ofSize: 17)
-        container.foregroundColor = UIColor.white
-        configuration.attributedTitle = AttributedString("Sign Out", attributes: container)
+        container.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+        container.foregroundColor = R.Colors.tintColorWhite
+        configuration.attributedTitle = AttributedString(R.Strings.TabBarController.Profile.Views.signOutButton, attributes: container)
        
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = UIColor.init(hexString: "#1C1C1C")
+        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
         return grayButton
@@ -106,13 +104,13 @@ final class NewProfileViewController: UIViewController {
         var configuration = UIButton.Configuration.gray()
        
         var container = AttributeContainer()
-        container.font = UIFont.boldSystemFont(ofSize: 17)
-        container.foregroundColor = UIColor.red
-        configuration.attributedTitle = AttributedString("Delete Account", attributes: container)
+        container.font = UIFont.systemFont(ofSize: 17, weight: .medium)
+        container.foregroundColor = R.Colors.tintColorRed
+        configuration.attributedTitle = AttributedString(R.Strings.TabBarController.Profile.Views.deleteButton, attributes: container)
        
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = UIColor.init(hexString: "#1C1C1C")
+        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
         return grayButton
@@ -130,8 +128,8 @@ final class NewProfileViewController: UIViewController {
     
     let editButton: UIButton = {
         var configButton = UIButton.Configuration.plain()
-        configButton.title = "Edit"
-        configButton.baseForegroundColor = .systemPurple
+        configButton.title = R.Strings.TabBarController.Profile.Views.navBarButtonEdit
+        configButton.baseForegroundColor = R.Colors.tintColorActive
         configButton.titleAlignment = .trailing
         configButton.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incomig in
 
@@ -146,8 +144,8 @@ final class NewProfileViewController: UIViewController {
     
     let cancelButton: UIButton = {
         var configButton = UIButton.Configuration.plain()
-        configButton.title = "Cancel"
-        configButton.baseForegroundColor = .systemPurple
+        configButton.title = R.Strings.TabBarController.Profile.Views.navBarButtonCancel
+        configButton.baseForegroundColor = R.Colors.tintColorActive
         configButton.titleAlignment = .trailing
         configButton.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incomig in
 
@@ -166,7 +164,7 @@ final class NewProfileViewController: UIViewController {
         return gesture
     }()
     
-    private var addedToCardProducts: [PopularProduct] = []
+    private var cardProducts: [PopularProduct] = []
     private var isStateEditingModeProfile = true
     private var isAnimatedRemovalOfButtonsForAnonUser = false
     
@@ -181,9 +179,11 @@ final class NewProfileViewController: UIViewController {
     let managerFB = FBManager.shared
     private var currentUser: User?
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+//        setNeedsStatusBarAppearanceUpdate()
+        self.navigationController?.navigationBar.barStyle = .black
         
         managerFB.userListener { [weak self] (user) in
             self?.currentUser = user
@@ -195,8 +195,8 @@ final class NewProfileViewController: UIViewController {
             }
         }
         
-        view.backgroundColor = .white
-        configureNavigationBar(largeTitleColor: .white, backgoundColor: UIColor.init(hexString: "#1C1C1C"), tintColor: .white, title: "Profile", preferredLargeTitle: false)
+        view.backgroundColor = R.Colors.backgroundWhite
+        configureNavigationBar(largeTitleColor: R.Colors.tintColorWhite, backgoundColor: R.Colors.backgroundBlack, tintColor: R.Colors.tintColorWhite, title: R.Strings.NavBar.profile, preferredLargeTitle: false)
         configureNavigationItem()
         setupStackView()
         imageUser.addGestureRecognizer(imageUserTapGestureRecognizer)
@@ -209,7 +209,7 @@ final class NewProfileViewController: UIViewController {
         view.addSubview(buttonsStackView)
         
         
-        imageUser.image = UIImage(named: "DefaultImage")
+//        imageUser.image = UIImage(named: "DefaultImage")
         setupConstraints()
         
         
@@ -217,7 +217,7 @@ final class NewProfileViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        self.addedToCardProducts = []
+        self.cardProducts = []
     }
     
     
@@ -266,7 +266,7 @@ final class NewProfileViewController: UIViewController {
         deleteAccountButton.isHidden = false
 
         if let photoURL = user.photoURL?.absoluteString {
-            imageUser.fetchingImageWithPlaceholder(url: photoURL, placeholder: "DefaultImage")
+            imageUser.fetchingImageWithPlaceholder(url: photoURL, defaultImage: R.Images.Profile.defaultAvatarImage)
 //                let urlRef = storage.reference(forURL: photoURL)
 //                imageUser.sd_setImage(with: urlRef, maxImageSize: 1024*1024, placeholderImage: UIImage(named: "DefaultImage"), options: .refreshCached) { (image, error, cashType, storageRef) in
 //                    self.urlRefDelete = storageRef
@@ -275,16 +275,16 @@ final class NewProfileViewController: UIViewController {
 //                    }
 //                }
         } else {
-            self.imageUser.image = UIImage(named: "DefaultImage")
+            self.imageUser.image = R.Images.Profile.defaultAvatarImage
         }
     }
 
     private func updateUIForAnonymousUser() {
         editButton.isHidden = true
         cancelButton.isHidden = true
-        userNameTextField.text = "User is anonymous"
+        userNameTextField.text = R.Strings.TabBarController.Profile.Views.anonymousNameTextField
         userNameTextField.isUserInteractionEnabled = false
-        imageUser.image = UIImage(named: "DefaultImage")
+        imageUser.image = R.Images.Profile.defaultAvatarImage
         imageUser.isUserInteractionEnabled = false
         emailUserTextField.isHidden = true
         signInSignUp.isHidden = false
@@ -336,14 +336,14 @@ final class NewProfileViewController: UIViewController {
     }
 
     private func enableSaveButton(isSwitch: Bool) {
-        editButton.configuration?.title = "Save"
-        editButton.configuration?.baseForegroundColor = isSwitch ? .systemPurple : .lightGray
+        editButton.configuration?.title = R.Strings.TabBarController.Profile.Views.navBarButtonSave
+        editButton.configuration?.baseForegroundColor = isSwitch ? R.Colors.tintColorActive : R.Colors.tintColorLithGray
         editButton.isUserInteractionEnabled = isSwitch ? true : false
     }
 
     private func enableEditButton(isSwitch: Bool) {
-        editButton.configuration?.title = "Edit"
-        editButton.configuration?.baseForegroundColor = isSwitch ? .systemPurple : .lightGray
+        editButton.configuration?.title = R.Strings.TabBarController.Profile.Views.navBarButtonEdit
+        editButton.configuration?.baseForegroundColor = isSwitch ? R.Colors.tintColorActive : R.Colors.tintColorLithGray
         editButton.isUserInteractionEnabled = isSwitch ? true : false
     }
     
@@ -361,7 +361,7 @@ final class NewProfileViewController: UIViewController {
         tabBarVCs.forEach { (vc) in
             if let nc = vc as? UINavigationController {
                 if let homeVC = nc.topViewController as? NewHomeViewController {
-                    self.addedToCardProducts = homeVC.cardProducts
+                    self.cardProducts = homeVC.cardProducts
                 }
             }
         }
@@ -381,9 +381,8 @@ final class NewProfileViewController: UIViewController {
             managerFB.addUidFromCurrentUserAccount()
             var removeCartProduct: [String:AddedProduct] = [:]
 
-            addedToCardProducts.forEach { (cartProduct) in
+            cardProducts.forEach { (cartProduct) in
                 let productEncode = AddedProduct(product: cartProduct)
-                print("cartProduct - \(productEncode)")
                 removeCartProduct[cartProduct.model] = productEncode
             }
 
@@ -460,11 +459,10 @@ final class NewProfileViewController: UIViewController {
 private extension NewProfileViewController {
     
     @objc func didTapsignInSignUp(_ sender: UIButton) {
-        print("didTapsignInSignUp")
         
         getFetchDataHVC()
         let signInVC = NewSignInViewController()
-        signInVC.cardProducts = addedToCardProducts
+        signInVC.cardProducts = cardProducts
         signInVC.profileDelegate = self
         signInVC.presentationController?.delegate = self
         present(signInVC, animated: true, completion: nil)
@@ -479,21 +477,27 @@ private extension NewProfileViewController {
     
     @objc func didTapSignOut(_ sender: UIButton) {
         
-        isAnimatedRemovalOfButtonsForAnonUser = true
-        signOutButton.configuration?.showsActivityIndicator = true
+        setupSignOutAlert(title: "Warning", message: "You want to log out?") { [weak self] isSignOut in
         
-        managerFB.signOut { (stateCallback) in
-            
-            switch stateCallback {
-            case .success:
-                setupAlert(title: "Success", message: "You are logged out!")
-            case .failed:
-                signOutButton.configuration?.showsActivityIndicator = false
-                isAnimatedRemovalOfButtonsForAnonUser = false
-                setupAlert(title: "Failed SignOut", message: "Something went wrong! Try again!")
+            if isSignOut {
+                self?.isAnimatedRemovalOfButtonsForAnonUser = true
+                self?.signOutButton.configuration?.showsActivityIndicator = true
+                
+                self?.managerFB.signOut { (stateCallback) in
+                    
+                    switch stateCallback {
+                    case .success:
+                        self?.setupAlert(title: "Success", message: "You are logged out!")
+                    case .failed:
+                        self?.signOutButton.configuration?.showsActivityIndicator = false
+                        self?.isAnimatedRemovalOfButtonsForAnonUser = false
+                        self?.setupAlert(title: "Failed SignOut", message: "Something went wrong! Try again!")
+                    }
+                }
+            } else {
+                self?.isAnimatedRemovalOfButtonsForAnonUser = false
             }
         }
-        print("didTapSignOut")
     }
     
     @objc func didTapDeleteAccount(_ sender: UIButton) {
@@ -529,7 +533,6 @@ private extension NewProfileViewController {
 
             } else {
                 self.isAnimatedRemovalOfButtonsForAnonUser = false
-                print("Cancel delete Accaunt!")
             }
         }
     }
@@ -613,7 +616,6 @@ private extension NewProfileViewController {
         changedToSaveNameTextField { (isValid) in
             enableSaveButton(isSwitch: isValid)
         }
-        print("didChangeTextFieldNameOrEmail()")
     }
     
     @objc func handleTapSingleGesture() {
@@ -678,14 +680,12 @@ private extension NewProfileViewController {
 
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let actionOK = UIAlertAction(title: "OK", style: .default) { action in
-            print("did OK")
             let textField = alertController.textFields?.first
             guard let text = textField?.text else {return}
             completionHandler(text)
         }
 
         let actionCancel = UIAlertAction(title: "Cancel", style: .cancel) { action in
-            print("did cancel")
             // isDelete = false
             self.saveRemuveCartProductFB()
         }
@@ -771,19 +771,30 @@ private extension NewProfileViewController {
 
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let deleteAction = UIAlertAction(title: "DELETE", style: .destructive) { action in
-            print(" Did Delete")
             isDeleteCompletion(true)
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { action in
-            print("Did Cancel")
             isDeleteCompletion(false)
         }
 
         alert.addAction(deleteAction)
         alert.addAction(cancelAction)
-        present(alert, animated: true) {
-            print("Did Delete Accaunt")
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func setupSignOutAlert(title: String, message: String, isDeleteCompletion: @escaping (Bool) -> Void) {
+
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let signOutAction = UIAlertAction(title: "SignOut", style: .destructive) { action in
+            isDeleteCompletion(true)
         }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { action in
+            isDeleteCompletion(false)
+        }
+
+        alert.addAction(signOutAction)
+        alert.addAction(cancelAction)
+        present(alert, animated: true, completion: nil)
     }
 
 }
@@ -793,9 +804,7 @@ private extension NewProfileViewController {
 
 extension NewProfileViewController: SignInViewControllerDelegate {
     func userIsPermanent() {
-        print("$$$$$func userIsPermanent()")
         guard let user = currentUser else {return}
-        print(" $$$$$guard let user = currentUser")
         self.updateUIForPermanentUser(user)
     }
 }

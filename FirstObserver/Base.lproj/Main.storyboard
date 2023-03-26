@@ -700,7 +700,7 @@
                         <segue destination="xSW-04-0ye" kind="relationship" relationship="viewControllers" id="vcm-05-cth"/>
                         <segue destination="MwW-j9-Mmy" kind="relationship" relationship="viewControllers" id="aXI-zb-TRx"/>
                         <segue destination="9qU-ZA-S89" kind="relationship" relationship="viewControllers" id="bHD-jz-Kwd"/>
-                        <segue destination="8no-GF-TRu" kind="relationship" relationship="viewControllers" id="knR-Bz-9FI"/>
+                        <segue destination="vgF-8d-844" kind="relationship" relationship="viewControllers" id="2S8-j7-SWP"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MJF-9l-xgv" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -815,7 +815,7 @@
                                 </constraints>
                             </view>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="2Hq-Ls-5UO">
-                                <rect key="frame" x="30" y="657" width="368" height="166"/>
+                                <rect key="frame" x="30" y="706" width="368" height="166"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mTn-EF-txI">
                                         <rect key="frame" x="0.0" y="0.0" width="368" height="50"/>
@@ -898,7 +898,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="IOn-6i-hJU" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1226.6355140186915" y="727.64578833693315"/>
+            <point key="canvasLocation" x="-2136" y="4062"/>
         </scene>
         <!--New Home View Controller-->
         <scene sceneID="NgT-fq-9Gb">
@@ -1504,7 +1504,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ll9-Be-Ykp" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1227" y="1486"/>
+            <point key="canvasLocation" x="-2136" y="4826"/>
         </scene>
         <!--Sign Up View Controller-->
         <scene sceneID="f1R-rC-lC3">
@@ -1670,7 +1670,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xdx-9e-K9D" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2024" y="1486"/>
+            <point key="canvasLocation" x="-1263" y="4826"/>
         </scene>
         <!--Map View Controller-->
         <scene sceneID="CBk-fl-TiB">
@@ -1790,6 +1790,22 @@
             </objects>
             <point key="canvasLocation" x="300" y="728"/>
         </scene>
+        <!--New Profile View Controller-->
+        <scene sceneID="3vr-kn-lNN">
+            <objects>
+                <viewController storyboardIdentifier="NewProfileViewController" id="LRx-kS-rfw" customClass="NewProfileViewController" customModule="FirstObserver" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="kDL-hp-His">
+                        <rect key="frame" x="0.0" y="0.0" width="428" height="926"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="3eK-Yq-Xc6"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="hGw-Oz-gZU"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="e57-Xz-Qul" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1157" y="1486"/>
+        </scene>
         <!--Mall-->
         <scene sceneID="p3f-8y-vV0">
             <objects>
@@ -1808,6 +1824,25 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3TP-ho-qOP" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-650.46728971962614" y="727.64578833693315"/>
+        </scene>
+        <!--Profile-->
+        <scene sceneID="lRO-BY-BEO">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="vgF-8d-844" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Profile" id="SkE-8c-nzs"/>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="ER6-Dl-t5c">
+                        <rect key="frame" x="0.0" y="44" width="428" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="LRx-kS-rfw" kind="relationship" relationship="rootViewController" id="pcJ-PS-raO"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Mpi-ct-oP3" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1157" y="728"/>
         </scene>
     </scenes>
     <resources>

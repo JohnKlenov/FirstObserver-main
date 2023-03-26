@@ -991,13 +991,13 @@ extension UIImageView {
 
 
 
-    func fetchingImageWithPlaceholder(url: String, placeholder: String) {
+    func fetchingImageWithPlaceholder(url: String, defaultImage: UIImage?) {
         let storage = Storage.storage()
         let urlRef = storage.reference(forURL: url)
-        self.sd_setImage(with: urlRef, maxImageSize: 1024*1024, placeholderImage: UIImage(named: placeholder), options: .refreshCached) { (image, error, cashType, storageRef) in
+        self.sd_setImage(with: urlRef, maxImageSize: 1024*1024, placeholderImage: defaultImage, options: .refreshCached) { (image, error, cashType, storageRef) in
             FBManager.shared.avatarRef = storageRef
             if error != nil {
-                self.image = UIImage(named: placeholder)
+                self.image = defaultImage
             }
         }
     }

@@ -308,7 +308,8 @@ import Firebase
             deleteAccountButton.isHidden = false
 
             if let photoURL = user.photoURL?.absoluteString {
-                imageUser.fetchingImageWithPlaceholder(url: photoURL, placeholder: "DefaultImage")
+//                imageUser.fetchingImageWithPlaceholder(url: photoURL, placeholder: "DefaultImage")
+                imageUser.fetchingImageWithPlaceholder(url: photoURL, defaultImage: R.Images.Profile.defaultAvatarImage)
 //                let urlRef = storage.reference(forURL: photoURL)
 //                imageUser.sd_setImage(with: urlRef, maxImageSize: 1024*1024, placeholderImage: UIImage(named: "DefaultImage"), options: .refreshCached) { (image, error, cashType, storageRef) in
 //                    self.urlRefDelete = storageRef

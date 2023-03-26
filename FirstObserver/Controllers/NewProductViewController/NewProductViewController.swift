@@ -458,11 +458,11 @@ class NewProductViewController: UIViewController {
     
     @objc func websiteButtonPressed(_ sender: UIButton) {
 
-        let profileVC = NewProfileViewController()
-        let nav = NavigationController(rootViewController: profileVC)
-
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true, completion: nil)
+//        let profileVC = NewProfileViewController()
+//        let nav = NavigationController(rootViewController: profileVC)
+//
+//        nav.modalPresentationStyle = .fullScreen
+//        present(nav, animated: true, completion: nil)
         
 //        signInVC.presentationController?.delegate = self
 //        present(signInVC, animated: true, completion: nil)
