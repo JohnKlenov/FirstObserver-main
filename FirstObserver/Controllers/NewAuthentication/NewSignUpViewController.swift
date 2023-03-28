@@ -20,59 +20,59 @@ final class NewSignUpViewController: UIViewController {
     let nameLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Name"
+        label.text = R.Strings.AuthControllers.SignUP.nameLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        label.textColor = .darkGray
+        label.textColor = R.Colors.textColorDarkGray
         return label
     }()
     
     let emailLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Email"
+        label.text = R.Strings.AuthControllers.SignUP.emailLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        label.textColor = .darkGray
+        label.textColor = R.Colors.textColorDarkGray
         return label
     }()
     
     let passwordLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Password"
+        label.text = R.Strings.AuthControllers.SignUP.passwordLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        label.textColor = .darkGray
+        label.textColor = R.Colors.textColorDarkGray
         return label
     }()
     
     let reEnterPasswordLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Re-enter password "
+        label.text = R.Strings.AuthControllers.SignUP.reEnterPasswordLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        label.textColor = .darkGray
+        label.textColor = R.Colors.textColorDarkGray
         return label
     }()
     
     let nameTextField: AuthTextField = {
-        let textField = AuthTextField(placeholder: "Enter user name")
+        let textField = AuthTextField(placeholder: R.Strings.AuthControllers.SignUP.placeholderNameTextField)
         textField.textContentType = .name
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
     let emailTextField: AuthTextField = {
-        let textField = AuthTextField(placeholder: "Enter email")
+        let textField = AuthTextField(placeholder: R.Strings.AuthControllers.SignUP.placeholderEmailTextField)
         textField.textContentType = .emailAddress
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
     let passwordTextField: AuthTextField = {
-        let textField = AuthTextField(placeholder: "Enter password")
+        let textField = AuthTextField(placeholder: R.Strings.AuthControllers.SignUP.placeholderPasswordTextField)
         textField.textContentType = .newPassword
         textField.isSecureTextEntry = true
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -80,7 +80,7 @@ final class NewSignUpViewController: UIViewController {
     }()
     
     let reEnterTextField: AuthTextField = {
-        let textField = AuthTextField(placeholder: "Enter password")
+        let textField = AuthTextField(placeholder: R.Strings.AuthControllers.SignUP.placeholderReEnterTextField)
         textField.textContentType = .newPassword
         textField.isSecureTextEntry = true
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -91,7 +91,7 @@ final class NewSignUpViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = .black
+        view.backgroundColor = R.Colors.backgroundViewBlack
         return view
     }()
     
@@ -99,7 +99,7 @@ final class NewSignUpViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = .black
+        view.backgroundColor = R.Colors.backgroundViewBlack
         return view
     }()
     
@@ -107,7 +107,7 @@ final class NewSignUpViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = .black
+        view.backgroundColor = R.Colors.backgroundViewBlack
         return view
     }()
     
@@ -115,7 +115,7 @@ final class NewSignUpViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = .black
+        view.backgroundColor = R.Colors.backgroundViewBlack
         return view
     }()
     
@@ -167,10 +167,10 @@ final class NewSignUpViewController: UIViewController {
     let signUpLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Sign Up"
+        label.text = R.Strings.AuthControllers.SignUP.signUpLabel
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 25, weight: .bold)
-        label.textColor = .black
+        label.textColor = R.Colors.textColorBlack
         return label
     }()
     
@@ -178,7 +178,7 @@ final class NewSignUpViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 5).isActive = true
-        view.backgroundColor = .darkGray.withAlphaComponent(0.5)
+        view.backgroundColor = R.Colors.backgroundViewLithGray
         view.layer.cornerRadius = 2
         return view
     }()
@@ -194,7 +194,7 @@ final class NewSignUpViewController: UIViewController {
         var configuration = UIButton.Configuration.gray()
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
+        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
         var grayButton = UIButton(configuration: configuration)
         return grayButton
     }()
@@ -253,13 +253,13 @@ final class NewSignUpViewController: UIViewController {
        
         switch sender {
         case emailTextField:
-            separatorEmailView.backgroundColor = emailTextField.text?.isEmpty ?? true ? .red.withAlphaComponent(0.8) : .black
+            separatorEmailView.backgroundColor = emailTextField.text?.isEmpty ?? true ? R.Colors.backgroundViewRed : R.Colors.backgroundViewBlack
         case nameTextField:
-            separatorNameView.backgroundColor = nameTextField.text?.isEmpty ?? true ? .red.withAlphaComponent(0.8) : .black
+            separatorNameView.backgroundColor = nameTextField.text?.isEmpty ?? true ? R.Colors.backgroundViewRed : R.Colors.backgroundViewBlack
         case passwordTextField:
-            separatorPasswordView.backgroundColor = passwordTextField.text?.isEmpty ?? true ? .red.withAlphaComponent(0.8) : .black
+            separatorPasswordView.backgroundColor = passwordTextField.text?.isEmpty ?? true ? R.Colors.backgroundViewRed : R.Colors.backgroundViewBlack
         case reEnterTextField:
-            separatorReEnterPasswordView.backgroundColor = reEnterTextField.text?.isEmpty ?? true ? .red.withAlphaComponent(0.8) : .black
+            separatorReEnterPasswordView.backgroundColor = reEnterTextField.text?.isEmpty ?? true ? R.Colors.backgroundViewRed : R.Colors.backgroundViewBlack
         default:
             return
         }
@@ -272,7 +272,7 @@ final class NewSignUpViewController: UIViewController {
     
     @objc private func displayBookMarksSignUp() {
         
-        let imageName = isPrivateEye ? "eye" : "eye.slash"
+        let imageName = isPrivateEye ? R.Strings.AuthControllers.SignUP.imageSystemNameEye : R.Strings.AuthControllers.SignUP.imageSystemNameEyeSlash
         passwordTextField.isSecureTextEntry.toggle()
         eyePassswordButton.setImage(UIImage(systemName: imageName), for: .normal)
         
@@ -303,7 +303,6 @@ final class NewSignUpViewController: UIViewController {
             case .success:
                 self?.signingIn = false
                 self?.isEnabledSignUpButton(enabled: false)
-                print("$$$$$managerFB.registerUserSignUpVC")
                 self?.signInDelegate?.userDidRegisteredNew?()
                 self?.registerShowAlert(title: "Success", message: "An email has been sent to \(email), please confirm your email address.") {
                     self?.presentingViewController?.presentingViewController?.dismiss(animated: true, completion: nil)
@@ -317,16 +316,16 @@ final class NewSignUpViewController: UIViewController {
                     
                 case .invalidEmail:
                     self?.registerShowAlert(title: "Error", message: "Email address is not in the correct format!")
-                    self?.separatorEmailView.backgroundColor = .red.withAlphaComponent(0.8)
+                    self?.separatorEmailView.backgroundColor = R.Colors.backgroundViewRed
                 case .emailAlreadyInUse:
                     self?.registerShowAlert(title: "Error", message: "The email address used to attempt registration already exists!")
-                    self?.separatorEmailView.backgroundColor = .red.withAlphaComponent(0.8)
+                    self?.separatorEmailView.backgroundColor = R.Colors.backgroundViewRed
                 case .weakPassword:
                     self?.registerShowAlert(title: "Error", message: "The entered password is too weak!")
-                    self?.separatorPasswordView.backgroundColor = .red.withAlphaComponent(0.8)
+                    self?.separatorPasswordView.backgroundColor = R.Colors.backgroundViewRed
                 case .wrongPassword:
                     self?.registerShowAlert(title: "Error", message: "Wrong Password!")
-                    self?.separatorPasswordView.backgroundColor = .red.withAlphaComponent(0.8)
+                    self?.separatorPasswordView.backgroundColor = R.Colors.backgroundViewRed
                 case .somethingWentWrong:
                     self?.registerShowAlert(title: "Error", message: "Something went wrong try again!")
                 }
@@ -349,7 +348,7 @@ final class NewSignUpViewController: UIViewController {
     }
 
     deinit {
-        print("Deinit NewSignUpViewController")
+        
     }
 }
 
@@ -393,14 +392,14 @@ private extension NewSignUpViewController {
             var config = button.configuration
             config?.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
                 var outgoing = incoming
-                outgoing.foregroundColor = .white
-                outgoing.font = UIFont.boldSystemFont(ofSize: 15)
+                outgoing.foregroundColor = R.Colors.textColorLithWhite
+                outgoing.font = UIFont.boldSystemFont(ofSize: 17)
                 return outgoing
             }
             config?.imagePadding = 10
             config?.imagePlacement = .trailing
             config?.showsActivityIndicator = signingIn
-            config?.title = signingIn ? "Signing In..." : "Sign In"
+            config?.title = signingIn ? R.Strings.AuthControllers.SignUP.signUpButtonProcess : R.Strings.AuthControllers.SignUP.signUpButtonStart
             button.isUserInteractionEnabled = !signingIn
             button.configuration = config
         }
@@ -501,8 +500,7 @@ extension NewSignUpViewController: UITextFieldDelegate {
         case reEnterTextField:
             eyeRePassswordButton.isEnabled = !text.isEmpty
         default:
-            print("default textFieldDidChangeSelection")
-            return
+            break
         }
     }
     
@@ -524,10 +522,3 @@ private extension NewSignUpViewController {
     
 }
 
-
-//        print("view height - \(view.frame.height)")
-//        print("allStackView height - \(allStackView.frame.height)")
-//        print("5+5+45+20+15 = 90")
-//        print("signUpLabel.frame.height - \(signUpLabel.frame.height)")
-//        print("signUpButton.frame.height - \(signUpButton.frame.height)")
-//        print("all heightViews = \(90 + allStackView.frame.height + signUpLabel.frame.height + signUpButton.frame.height)")

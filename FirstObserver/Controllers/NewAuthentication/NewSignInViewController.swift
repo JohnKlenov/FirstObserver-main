@@ -17,14 +17,14 @@ protocol SignInViewControllerDelegate : AnyObject {
 final class NewSignInViewController: UIViewController {
     
     let emailTextField: AuthTextField = {
-        let textField = AuthTextField(placeholder: "Enter email")
+        let textField = AuthTextField(placeholder: R.Strings.AuthControllers.SignIn.placeholderEmailTextField)
         textField.textContentType = .emailAddress
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
     let passwordTextField: AuthTextField = {
-        let textField = AuthTextField(placeholder: "Enter password")
+        let textField = AuthTextField(placeholder: R.Strings.AuthControllers.SignIn.placeholderPasswordTextField)
         textField.textContentType = .password
         textField.isSecureTextEntry = true
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -35,7 +35,7 @@ final class NewSignInViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = .black
+        view.backgroundColor = R.Colors.backgroundViewBlack
         return view
     }()
     
@@ -43,7 +43,7 @@ final class NewSignInViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = .black
+        view.backgroundColor = R.Colors.backgroundViewBlack
         return view
     }()
     
@@ -51,7 +51,7 @@ final class NewSignInViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 5).isActive = true
-        view.backgroundColor = .darkGray.withAlphaComponent(0.5)
+        view.backgroundColor = R.Colors.backgroundViewLithGray
         view.layer.cornerRadius = 2
         return view
     }()
@@ -95,30 +95,30 @@ final class NewSignInViewController: UIViewController {
     let emailLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Email"
+        label.text = R.Strings.AuthControllers.SignIn.emailLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        label.textColor = .darkGray
+        label.textColor = R.Colors.textColorDarkGray
         return label
     }()
     
     let passwordLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Password"
+        label.text = R.Strings.AuthControllers.SignIn.passwordLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        label.textColor = .darkGray
+        label.textColor = R.Colors.textColorDarkGray
         return label
     }()
     
     let signInLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Sign In"
+        label.text = R.Strings.AuthControllers.SignIn.signInLabel
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 25, weight: .bold)
-        label.textColor = .black
+        label.textColor = R.Colors.textColorBlack
         return label
     }()
     
@@ -133,7 +133,7 @@ final class NewSignInViewController: UIViewController {
         var configuration = UIButton.Configuration.gray()
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
+        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
         var grayButton = UIButton(configuration: configuration)
         return grayButton
     }()
@@ -143,13 +143,13 @@ final class NewSignInViewController: UIViewController {
         var configuration = UIButton.Configuration.gray()
        
         var container = AttributeContainer()
-        container.font = UIFont.boldSystemFont(ofSize: 25)
-        container.foregroundColor = UIColor.white
-        configuration.attributedTitle = AttributedString("Sign Up", attributes: container)
+        container.font = UIFont.systemFont(ofSize: 17, weight: .medium)
+        container.foregroundColor = R.Colors.textColorLithWhite
+        configuration.attributedTitle = AttributedString(R.Strings.AuthControllers.SignIn.signUpButton, attributes: container)
        
         configuration.titleAlignment = .center
-        configuration.buttonSize = .small
-        configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
+        configuration.buttonSize = .medium
+        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
         var grayButton = UIButton(configuration: configuration)
         return grayButton
     }()
@@ -159,9 +159,9 @@ final class NewSignInViewController: UIViewController {
         var configuration = UIButton.Configuration.plain()
        
         var container = AttributeContainer()
-        container.font = UIFont.boldSystemFont(ofSize: 14)
-        container.foregroundColor = UIColor.black
-        configuration.attributedTitle = AttributedString("Forgot password?", attributes: container)
+        container.font = UIFont.boldSystemFont(ofSize: 15)
+        container.foregroundColor = R.Colors.textColorBlack
+        configuration.attributedTitle = AttributedString(R.Strings.AuthControllers.SignIn.forgotPasswordButton, attributes: container)
        
         configuration.titleAlignment = .center
         configuration.buttonSize = .mini
@@ -190,7 +190,7 @@ final class NewSignInViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .white
+        view.backgroundColor = R.Colors.baseBackgroundWhite
         passwordTextField.delegate = self
         emailTextField.delegate = self
         setupView()
@@ -199,9 +199,6 @@ final class NewSignInViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        
-        print("viewWillAppear NewSignUpViewController")
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShowSignIn), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHideSignIn), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -217,7 +214,7 @@ final class NewSignInViewController: UIViewController {
     // MARK: - Actions
     
     @objc private func displayBookMarks() {
-        let imageName = isPrivateEye ? "eye" : "eye.slash"
+        let imageName = isPrivateEye ? R.Strings.AuthControllers.SignIn.imageSystemNameEye : R.Strings.AuthControllers.SignIn.imageSystemNameEyeSlash
         passwordTextField.isSecureTextEntry.toggle()
         eyeButton.setImage(UIImage(systemName: imageName), for: .normal)
         isPrivateEye.toggle()
@@ -312,9 +309,9 @@ final class NewSignInViewController: UIViewController {
     @IBAction func signInTextFieldChanged(_ sender: UITextField) {
         switch sender {
         case emailTextField:
-            separatorEmailView.backgroundColor = Validators.isValidEmailAddr(strToValidate: emailTextField.text ?? "") ? .black : .red.withAlphaComponent(0.8)
+            separatorEmailView.backgroundColor = Validators.isValidEmailAddr(strToValidate: emailTextField.text ?? "") ? R.Colors.backgroundViewBlack : R.Colors.backgroundViewRed
         case passwordTextField:
-            separatorPasswordView.backgroundColor = passwordTextField.text?.isEmpty ?? true ? .red.withAlphaComponent(0.8) : .black
+            separatorPasswordView.backgroundColor = passwordTextField.text?.isEmpty ?? true ? R.Colors.backgroundViewRed : R.Colors.backgroundViewBlack
 //            Validators.isValidEmailAddr(strToValidate: passwordTextField.text ?? "")
         default:
             break
@@ -349,7 +346,6 @@ final class NewSignInViewController: UIViewController {
         if isInvalidSignIn {
             saveCartProductFBNew()
         }
-        print("Deinit NewSignInViewController")
     }
     
 }
@@ -404,14 +400,14 @@ private extension NewSignInViewController {
             var config = button.configuration
             config?.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
                 var outgoing = incoming
-                outgoing.foregroundColor = .white
-                outgoing.font = UIFont.boldSystemFont(ofSize: 15)
+                outgoing.foregroundColor = R.Colors.textColorLithWhite
+                outgoing.font = UIFont.systemFont(ofSize: 17, weight: .bold)
                 return outgoing
             }
             config?.imagePadding = 10
             config?.imagePlacement = .trailing
             config?.showsActivityIndicator = signingIn
-            config?.title = signingIn ? "Signing In..." : "Sign In"
+            config?.title = signingIn ? R.Strings.AuthControllers.SignIn.signInButtonProcess : R.Strings.AuthControllers.SignIn.signInButtonStart
             button.isUserInteractionEnabled = !signingIn
             button.configuration = config
         }
@@ -509,7 +505,6 @@ extension NewSignInViewController: NewSignUpViewControllerDelegate {
     }
     
     func userDidRegisteredNew() {
-        print("$$$$$$func userDidRegisteredNew()")
         profileDelegate?.userIsPermanent()
     }
 }
@@ -522,11 +517,6 @@ private extension NewSignInViewController {
     func signInAlert(title:String, message:String, comletionHandler: @escaping () -> Void) {
         
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-//        let okAction = UIAlertAction(title: "Ok", style: .default) { (_) in
-//            if comletionHandler != nil {
-//                comletionHandler!()
-//            }
-//        }
         let  okAction = UIAlertAction(title: "Ok", style: .default) { _ in
             comletionHandler()
         }
@@ -559,29 +549,3 @@ private extension NewSignInViewController {
         present(alertController, animated: true, completion: nil)
     }
 }
-
-
-
-//    private let deleteImage: DeleteView = {
-//        let view = DeleteView()
-//        view.translatesAutoresizingMaskIntoConstraints = false
-//        view.isUserInteractionEnabled = true
-//        view.layer.cornerRadius = 10
-//        return view
-//    }()
-//
-//    let tapDeleteImageGestureRecognizer: UITapGestureRecognizer = {
-//        let recognizer = UITapGestureRecognizer()
-//        recognizer.numberOfTapsRequired = 1
-//        return recognizer
-//    }()
-
-//        deleteImage.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 20).isActive = true
-//        deleteImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
-//        deleteImage.widthAnchor.constraint(equalToConstant: 30).isActive = true
-//        deleteImage.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        
-//        deleteImage.addGestureRecognizer(tapDeleteImageGestureRecognizer)
-//        view.addSubview(deleteImage)
-
-//        tapDeleteImageGestureRecognizer.addTarget(self, action: #selector(didTapDeleteImage(_:)))

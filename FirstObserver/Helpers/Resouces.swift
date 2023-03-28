@@ -19,23 +19,30 @@ enum R {
     
     // MARK: - Colors -
     enum Colors {
-        static let activeFirst = UIColor(hexString: "#FBD86D")
-        static let activeSecond = UIColor(hexString: "#8D5FF7")
-        static let activeThird = UIColor(hexString: "#59D7F9")
+//        static let activeFirst = UIColor(hexString: "#FBD86D")
+//        static let activeSecond = UIColor(hexString: "#8D5FF7")
+//        static let activeThird = UIColor(hexString: "#59D7F9")
 //        static let inactive = UIColor(hexString: "#929DA5")
-
-        static let red = UIColor(hexString: "#F8173E")
+//        static let red = UIColor(hexString: "#F8173E")
         
-        static let backgroundBlack = UIColor(hexString: "#1C1C1C")
-        static let backgroundBlack2 = UIColor(hexString: "#202020")
-        static let backgroundWhite = UIColor(hexString: "#F8F4FF")
+        static let baseBackgroundBlack = UIColor(hexString: "#1C1C1C")
+        static let baseBackgroundBlack2 = UIColor(hexString: "#202020")
+        static let baseBackgroundWhite = UIColor(hexString: "#F8F4FF")
         
-        static let tintColorWhite = UIColor(hexString: "#FFFFFF")
-        static let tintColorBlack = UIColor(hexString: "#000000")
-        static let tintColorLithGray = UIColor(hexString: "#B5B5B5")
-        static let tintColorLithGray2 = UIColor(hexString: "#838383")
-        static let tintColorRed = UIColor(hexString: "#F8173E")
-        static let tintColorActive = UIColor(hexString: "#BA55D3")
+        static let textColorWhite = UIColor(hexString: "#FFFFFF")
+        static let textColorLithWhite = UIColor(hexString: "#F8F4FF")
+        static let textColorBlack = UIColor(hexString: "#000000")
+        static let textColorDarkGray = UIColor(hexString: "#2c2c2c")
+        static let textColorLithGray = UIColor(hexString: "#B5B5B5")
+        static let textColorLithGray2 = UIColor(hexString: "#838383")
+        static let textColorRed = UIColor(hexString: "#F8173E")
+        static let textColorActive = UIColor(hexString: "#BA55D3")
+        
+        static let backgroundViewWhite = UIColor(hexString: "#FFFFFF")
+        static let backgroundViewBlack = UIColor(hexString: "#000000")
+        static let backgroundViewLithGray = UIColor(hexString: "#B5B5B5")
+        static let backgroundViewDarkGray = UIColor(hexString: "#2c2c2c")
+        static let backgroundViewRed = UIColor(hexString: "#F8173E")
         
         static let backgroundButtonBlack = UIColor(hexString: "#131313")
     }
@@ -82,8 +89,41 @@ enum R {
         }
         
         enum AuthControllers {
-            enum SignIn {}
-            enum SignUP {}
+            enum SignIn {
+                static let placeholderEmailTextField = "Enter email"
+                static let placeholderPasswordTextField = "Enter password"
+                
+                static let emailLabel = "Email"
+                static let passwordLabel = "Password"
+                static let signInLabel = "Sign In"
+                
+                static let signUpButton = "Sign Up"
+                static let forgotPasswordButton = "Forgot password?"
+                static let signInButtonStart = "Sign In"
+                static let signInButtonProcess = "Signing In..."
+                
+                static let imageSystemNameEye = "eye"
+                static let imageSystemNameEyeSlash = "eye.slash"
+                
+            }
+            enum SignUP {
+                static let nameLabel = "Name"
+                static let emailLabel = "Email"
+                static let passwordLabel = "Password"
+                static let reEnterPasswordLabel = "Re-enter password"
+                static let signUpLabel = "Sign Up"
+                
+                static let placeholderNameTextField = "Enter user name"
+                static let placeholderEmailTextField = "Enter email"
+                static let placeholderPasswordTextField = "Enter password"
+                static let placeholderReEnterTextField = "Enter password"
+                
+                static let imageSystemNameEye = "eye"
+                static let imageSystemNameEyeSlash = "eye.slash"
+                
+                static let signUpButtonStart = "Sign In"
+                static let signUpButtonProcess = "Signing In..."
+            }
         }
         
         enum OtherControllers {
@@ -120,11 +160,24 @@ enum R {
         }
     }
 
+//    enum Fonts {
+//        static func helvelticaRegular(with size: CGFloat) -> UIFont {
+//            UIFont(name: "Helvetica", size: size) ?? UIFont()
+//
+//        }
+//    }
+    
     enum Fonts {
-        static func helvelticaRegular(with size: CGFloat) -> UIFont {
-            UIFont(name: "Helvetica", size: size) ?? UIFont()
+        enum helveltica: String {
+            case bold = "Helvetica-Bold"
+            case regular = "Helvetica"
+            case medium = "Helvetica-BoldOblique"
             
+            public func font(size: CGFloat) -> UIFont {
+                return UIFont(name: self.rawValue, size: size)!
+            }
         }
     }
+  
 }
 
