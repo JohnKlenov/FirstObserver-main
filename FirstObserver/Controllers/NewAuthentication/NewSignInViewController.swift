@@ -35,7 +35,7 @@ final class NewSignInViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = R.Colors.backgroundViewBlack
+        view.backgroundColor = R.Colors.backgroundBlack
         return view
     }()
     
@@ -43,7 +43,7 @@ final class NewSignInViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = R.Colors.backgroundViewBlack
+        view.backgroundColor = R.Colors.backgroundBlack
         return view
     }()
     
@@ -51,7 +51,7 @@ final class NewSignInViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 5).isActive = true
-        view.backgroundColor = R.Colors.backgroundViewLithGray
+        view.backgroundColor = R.Colors.backgroundLithGray
         view.layer.cornerRadius = 2
         return view
     }()
@@ -190,7 +190,7 @@ final class NewSignInViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = R.Colors.baseBackgroundWhite
+        view.backgroundColor = R.Colors.backgroundWhiteLith
         passwordTextField.delegate = self
         emailTextField.delegate = self
         setupView()
@@ -309,9 +309,9 @@ final class NewSignInViewController: UIViewController {
     @IBAction func signInTextFieldChanged(_ sender: UITextField) {
         switch sender {
         case emailTextField:
-            separatorEmailView.backgroundColor = Validators.isValidEmailAddr(strToValidate: emailTextField.text ?? "") ? R.Colors.backgroundViewBlack : R.Colors.backgroundViewRed
+            separatorEmailView.backgroundColor = Validators.isValidEmailAddr(strToValidate: emailTextField.text ?? "") ? R.Colors.backgroundBlack : R.Colors.backgroundRed
         case passwordTextField:
-            separatorPasswordView.backgroundColor = passwordTextField.text?.isEmpty ?? true ? R.Colors.backgroundViewRed : R.Colors.backgroundViewBlack
+            separatorPasswordView.backgroundColor = passwordTextField.text?.isEmpty ?? true ? R.Colors.backgroundRed : R.Colors.backgroundBlack
 //            Validators.isValidEmailAddr(strToValidate: passwordTextField.text ?? "")
         default:
             break

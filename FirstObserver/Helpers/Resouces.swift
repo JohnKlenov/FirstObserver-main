@@ -25,26 +25,39 @@ enum R {
 //        static let inactive = UIColor(hexString: "#929DA5")
 //        static let red = UIColor(hexString: "#F8173E")
         
-        static let baseBackgroundBlack = UIColor(hexString: "#1C1C1C")
-        static let baseBackgroundBlack2 = UIColor(hexString: "#202020")
-        static let baseBackgroundWhite = UIColor(hexString: "#F8F4FF")
+        static let backgroundBlack = UIColor(hexString: "#000000")
+        static let backgroundBlackLith = UIColor(hexString: "#1C1C1C")
+        static let backgroundWhiteLith = UIColor(hexString: "#F8F4FF")
+        static let backgroundButtonBlack = UIColor(hexString: "#131313")
+        static let backgroundLithGray = UIColor(hexString: "#B5B5B5")
+        static let backgroundRed = UIColor(hexString: "#F8173E")
         
-        static let textColorWhite = UIColor(hexString: "#FFFFFF")
-        static let textColorLithWhite = UIColor(hexString: "#F8F4FF")
+        static let baseBackgroundBlack2 = UIColor(hexString: "#202020")
+        static let baseBackgroundWhite2 = UIColor(hexString: "#F8F8FF")
+        static let baseBackgroundLithGray = UIColor(hexString: "#F0F0F0")
+        static let baseBackgroundLithGray2 = UIColor(hexString: "#E0E0E0")
+        static let baseBackgroundLithGray3 = UIColor(hexString: "#D0D0D0")
+        static let baseBackgroundDarkGray = UIColor(hexString: "#888888")
+        static let baseBackgroundActive = UIColor(hexString: "#BA55D3")
+        
+        
         static let textColorBlack = UIColor(hexString: "#000000")
-        static let textColorDarkGray = UIColor(hexString: "#2c2c2c")
-        static let textColorLithGray = UIColor(hexString: "#B5B5B5")
-        static let textColorLithGray2 = UIColor(hexString: "#838383")
-        static let textColorRed = UIColor(hexString: "#F8173E")
         static let textColorActive = UIColor(hexString: "#BA55D3")
+        static let textColorLithWhite = UIColor(hexString: "#F8F4FF")
+        static let textColorRed = UIColor(hexString: "#F8173E")
+        static let textColorWhite = UIColor(hexString: "#FFFFFF")
+        static let textColorLithGray = UIColor(hexString: "#B5B5B5")
+        static let textColorDarkGray = UIColor(hexString: "#2c2c2c")
+        
+        static let textColorLithGray2 = UIColor(hexString: "#838383")
+        
+        
         
         static let backgroundViewWhite = UIColor(hexString: "#FFFFFF")
-        static let backgroundViewBlack = UIColor(hexString: "#000000")
-        static let backgroundViewLithGray = UIColor(hexString: "#B5B5B5")
         static let backgroundViewDarkGray = UIColor(hexString: "#2c2c2c")
-        static let backgroundViewRed = UIColor(hexString: "#F8173E")
         
-        static let backgroundButtonBlack = UIColor(hexString: "#131313")
+        
+        
     }
 
     
@@ -69,7 +82,18 @@ enum R {
             enum Home {}
             enum Catalog {}
             enum Malls {}
-            enum Cart {}
+            enum Cart {
+                static let title = "Cart"
+                enum CartView {
+                    static let imageSystemNameCart = "cart"
+                    
+                    static let titleLabel = "You cart is empty yet"
+                    static let subtitleLabel = "The basket is waiting to be filed!"
+                    
+                    static let catalogButton = "Go to the catalog"
+                    static let logInButton = "SignIn/SignUp"
+                }
+            }
             
             enum Profile {
                 enum Views {

@@ -686,14 +686,14 @@
             </objects>
             <point key="canvasLocation" x="-3711" y="3345"/>
         </scene>
-        <!--Tab Bar Controller-->
+        <!--Main Tab Bar Controller-->
         <scene sceneID="bHC-RE-jG5">
             <objects>
-                <tabBarController id="cS3-R0-02O" sceneMemberID="viewController">
+                <tabBarController id="cS3-R0-02O" customClass="MainTabBarController" customModule="FirstObserver" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="kXP-Y1-uWZ">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="49"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </tabBar>
                     <connections>
                         <segue destination="dUM-iv-DZC" kind="relationship" relationship="viewControllers" id="APj-ky-H81"/>
@@ -1828,7 +1828,7 @@
         <!--Profile-->
         <scene sceneID="lRO-BY-BEO">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="vgF-8d-844" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="vgF-8d-844" customClass="NewProfileNavigationController" customModule="FirstObserver" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Profile" id="SkE-8c-nzs"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="ER6-Dl-t5c">

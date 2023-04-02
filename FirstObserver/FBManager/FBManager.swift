@@ -276,7 +276,7 @@ final class FBManager {
         Auth.auth().addStateDidChangeListener { (auth, user) in
             self.currentUser = user
             currentUser(user)
-            print("FBManager func userListener")
+//            print("FBManager func userListener")
         }
     }
 
@@ -292,8 +292,10 @@ final class FBManager {
     func getCardProduct(completionHandler: @escaping ([PopularProduct]) -> Void) {
         let databaseRef = Database.database().reference()
         databaseRef.child("usersAccaunt/\(currentUser?.uid ?? "")").observe(.value) { (snapshot) in
+            print("databaseRef.child")
             var arrayProduct = [PopularProduct]()
             for item in snapshot.children {
+                print("Мы в цикле ")
                 let item = item as! DataSnapshot
                 switch item.key {
                     
@@ -334,12 +336,15 @@ final class FBManager {
                         let productModel = PopularProduct(snapshot: product, refArray: arrayRefe, malls: arrayMalls)
                         arrayProduct.append(productModel)
                     }
+                    print("completionHandler(arrayProduct)")
                     completionHandler(arrayProduct)
                 default:
                     break
+                
                 }
             }
             if arrayProduct == [] {
+                print("arrayProduct == [] {")
                 completionHandler(arrayProduct)
             }
         }

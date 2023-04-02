@@ -70,11 +70,13 @@ class NewHomeViewController: UIViewController {
         managerFB.userListener { currentUser in
             self.currentUser = currentUser
             if currentUser == nil {
+                print("currentUser == nil")
                 self.cardProducts = []
                 self.managerFB.signInAnonymously()
             }
             self.managerFB.getCardProduct { cardProduct in
                 self.cardProducts = cardProduct
+                print("managerFB.getCardProduct- \(self.cardProducts.count)")
             }
         }
         
@@ -177,7 +179,7 @@ class NewHomeViewController: UIViewController {
     }
     
     private func setupConstraints() {
-        NSLayoutConstraint.activate([segmentedControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor), segmentedControl.trailingAnchor.constraint(equalTo: view.trailingAnchor), segmentedControl.leadingAnchor.constraint(equalTo: view.leadingAnchor), collectionViewLayout.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor), collectionViewLayout.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor), collectionViewLayout.trailingAnchor.constraint(equalTo: view.trailingAnchor), collectionViewLayout.leadingAnchor.constraint(equalTo: view.leadingAnchor)])
+        NSLayoutConstraint.activate([segmentedControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor), segmentedControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40), segmentedControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40), collectionViewLayout.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor), collectionViewLayout.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor), collectionViewLayout.trailingAnchor.constraint(equalTo: view.trailingAnchor), collectionViewLayout.leadingAnchor.constraint(equalTo: view.leadingAnchor)])
     }
     
     private func createDataSource() {

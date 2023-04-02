@@ -13,7 +13,7 @@ final class NewProfileViewController: UIViewController {
     private let topView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = R.Colors.baseBackgroundBlack
+        view.backgroundColor = R.Colors.backgroundBlackLith
         return view
     }()
     
@@ -49,7 +49,6 @@ final class NewProfileViewController: UIViewController {
         textField.borderStyle = .none
         textField.textAlignment = .center
         textField.font = .systemFont(ofSize: 15, weight: .regular)
-//        textField.font = R.Fonts.helveltica.bold.font(size: 20)
         textField.tintColor = R.Colors.textColorBlack
         textField.textContentType = .emailAddress
         textField.backgroundColor = .clear
@@ -196,8 +195,8 @@ final class NewProfileViewController: UIViewController {
             }
         }
         
-        view.backgroundColor = R.Colors.baseBackgroundWhite
-        configureNavigationBar(largeTitleColor: R.Colors.textColorWhite, backgoundColor: R.Colors.baseBackgroundBlack, tintColor: R.Colors.textColorWhite, title: R.Strings.NavBar.profile, preferredLargeTitle: false)
+        view.backgroundColor = R.Colors.backgroundWhiteLith
+        configureNavigationBar(largeTitleColor: R.Colors.textColorWhite, backgoundColor: R.Colors.backgroundBlackLith, tintColor: R.Colors.textColorWhite, title: R.Strings.NavBar.profile, preferredLargeTitle: false)
         configureNavigationItem()
         setupStackView()
         imageUser.addGestureRecognizer(imageUserTapGestureRecognizer)
@@ -219,6 +218,8 @@ final class NewProfileViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 //        self.navigationController?.navigationBar.barStyle = .black
+//        setNeedsStatusBarAppearanceUpdate()
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -311,7 +312,6 @@ final class NewProfileViewController: UIViewController {
     // MARK: - helper methods for updateImageProfile
     
     private func startRemoveAvatarUpdateUI() {
-//        editOrDoneButton.configuration?.title = ""
         editButton.configuration?.showsActivityIndicator = true
         editButton.isUserInteractionEnabled = false
     }

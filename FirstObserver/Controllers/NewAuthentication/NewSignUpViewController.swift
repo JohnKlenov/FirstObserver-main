@@ -91,7 +91,7 @@ final class NewSignUpViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = R.Colors.backgroundViewBlack
+        view.backgroundColor = R.Colors.backgroundBlack
         return view
     }()
     
@@ -99,7 +99,7 @@ final class NewSignUpViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = R.Colors.backgroundViewBlack
+        view.backgroundColor = R.Colors.backgroundBlack
         return view
     }()
     
@@ -107,7 +107,7 @@ final class NewSignUpViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = R.Colors.backgroundViewBlack
+        view.backgroundColor = R.Colors.backgroundBlack
         return view
     }()
     
@@ -115,7 +115,7 @@ final class NewSignUpViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = R.Colors.backgroundViewBlack
+        view.backgroundColor = R.Colors.backgroundBlack
         return view
     }()
     
@@ -178,7 +178,7 @@ final class NewSignUpViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 5).isActive = true
-        view.backgroundColor = R.Colors.backgroundViewLithGray
+        view.backgroundColor = R.Colors.backgroundLithGray
         view.layer.cornerRadius = 2
         return view
     }()
@@ -219,7 +219,7 @@ final class NewSignUpViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .white
+        view.backgroundColor = R.Colors.backgroundWhiteLith
         nameTextField.delegate = self
         emailTextField.delegate = self
         passwordTextField.delegate = self
@@ -253,13 +253,13 @@ final class NewSignUpViewController: UIViewController {
        
         switch sender {
         case emailTextField:
-            separatorEmailView.backgroundColor = emailTextField.text?.isEmpty ?? true ? R.Colors.backgroundViewRed : R.Colors.backgroundViewBlack
+            separatorEmailView.backgroundColor = emailTextField.text?.isEmpty ?? true ? R.Colors.backgroundRed : R.Colors.backgroundBlack
         case nameTextField:
-            separatorNameView.backgroundColor = nameTextField.text?.isEmpty ?? true ? R.Colors.backgroundViewRed : R.Colors.backgroundViewBlack
+            separatorNameView.backgroundColor = nameTextField.text?.isEmpty ?? true ? R.Colors.backgroundRed : R.Colors.backgroundBlack
         case passwordTextField:
-            separatorPasswordView.backgroundColor = passwordTextField.text?.isEmpty ?? true ? R.Colors.backgroundViewRed : R.Colors.backgroundViewBlack
+            separatorPasswordView.backgroundColor = passwordTextField.text?.isEmpty ?? true ? R.Colors.backgroundRed : R.Colors.backgroundBlack
         case reEnterTextField:
-            separatorReEnterPasswordView.backgroundColor = reEnterTextField.text?.isEmpty ?? true ? R.Colors.backgroundViewRed : R.Colors.backgroundViewBlack
+            separatorReEnterPasswordView.backgroundColor = reEnterTextField.text?.isEmpty ?? true ? R.Colors.backgroundRed : R.Colors.backgroundBlack
         default:
             return
         }
@@ -316,16 +316,16 @@ final class NewSignUpViewController: UIViewController {
                     
                 case .invalidEmail:
                     self?.registerShowAlert(title: "Error", message: "Email address is not in the correct format!")
-                    self?.separatorEmailView.backgroundColor = R.Colors.backgroundViewRed
+                    self?.separatorEmailView.backgroundColor = R.Colors.backgroundRed
                 case .emailAlreadyInUse:
                     self?.registerShowAlert(title: "Error", message: "The email address used to attempt registration already exists!")
-                    self?.separatorEmailView.backgroundColor = R.Colors.backgroundViewRed
+                    self?.separatorEmailView.backgroundColor = R.Colors.backgroundRed
                 case .weakPassword:
                     self?.registerShowAlert(title: "Error", message: "The entered password is too weak!")
-                    self?.separatorPasswordView.backgroundColor = R.Colors.backgroundViewRed
+                    self?.separatorPasswordView.backgroundColor = R.Colors.backgroundRed
                 case .wrongPassword:
                     self?.registerShowAlert(title: "Error", message: "Wrong Password!")
-                    self?.separatorPasswordView.backgroundColor = R.Colors.backgroundViewRed
+                    self?.separatorPasswordView.backgroundColor = R.Colors.backgroundRed
                 case .somethingWentWrong:
                     self?.registerShowAlert(title: "Error", message: "Something went wrong try again!")
                 }

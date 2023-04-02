@@ -7,43 +7,47 @@
 
 import UIKit
 
+protocol CartViewControllerDelegate: AnyObject {
+    func didTaplogInButton()
+    func didTapCatalogButton()
+}
+
 class CartView: UIView {
 
-    let imageView: UIImageView = {
+    private let imageView: UIImageView = {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
-        image.image = UIImage(named: "cart")
+        image.image = UIImage(named: R.Strings.TabBarController.Cart.CartView.imageSystemNameCart)
         image.contentMode = .scaleAspectFit
-//        image.layer.cornerRadius = 10
         image.clipsToBounds = true
         return image
     }()
     
-    let titleLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
         label.backgroundColor = .clear
-        label.textColor = .black
-        label.text = "You cart is empty yet"
+        label.textColor = R.Colors.textColorBlack
+        label.text = R.Strings.TabBarController.Cart.CartView.titleLabel
         label.numberOfLines = 0
         return label
     }()
     
-    let subtitleLabel: UILabel = {
+    private let subtitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 13)
         label.backgroundColor = .clear
-        label.textColor = .black.withAlphaComponent(0.8)
-        label.text = "The basket is waiting to be filed!"
+        label.textColor = R.Colors.textColorBlack
+        label.text = R.Strings.TabBarController.Cart.CartView.subtitleLabel
         label.numberOfLines = 0
         return label
     }()
     
-    let stackViewForLabel: UIStackView = {
+    private let stackViewForLabel: UIStackView = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
@@ -52,18 +56,18 @@ class CartView: UIView {
         return stack
     }()
     
-    let catalogButton: UIButton = {
+    private let catalogButton: UIButton = {
         
         var configuration = UIButton.Configuration.gray()
        
         var container = AttributeContainer()
-        container.font = UIFont.boldSystemFont(ofSize: 15)
-        container.foregroundColor = UIColor.white
+        container.font = UIFont.boldSystemFont(ofSize: 17)
+        container.foregroundColor = R.Colors.textColorActive
         
-        configuration.attributedTitle = AttributedString("Go to the catalog", attributes: container)
+        configuration.attributedTitle = AttributedString(R.Strings.TabBarController.Cart.CartView.catalogButton, attributes: container)
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
+        configuration.baseBackgroundColor = R.Colors.backgroundBlackLith
 
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
@@ -73,18 +77,18 @@ class CartView: UIView {
         return grayButton
     }()
     
-    let logInButton: UIButton = {
+    let signInSignUpButton: UIButton = {
         
         var configuration = UIButton.Configuration.gray()
        
         var container = AttributeContainer()
-        container.font = UIFont.boldSystemFont(ofSize: 15)
-        container.foregroundColor = UIColor.white
+        container.font = UIFont.boldSystemFont(ofSize: 17)
+        container.foregroundColor = R.Colors.textColorActive
         
-        configuration.attributedTitle = AttributedString("LogIn", attributes: container)
+        configuration.attributedTitle = AttributedString(R.Strings.TabBarController.Cart.CartView.logInButton, attributes: container)
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
+        configuration.baseBackgroundColor = R.Colors.backgroundBlackLith
 
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
@@ -94,20 +98,20 @@ class CartView: UIView {
         return grayButton
     }()
     
-    let stackViewForButton: UIStackView = {
+    private let stackViewForButton: UIStackView = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
         stack.distribution = .fill
-        stack.spacing = 2
+        stack.spacing = 5
         return stack
     }()
     
-    weak var delegate: CartViewDelegate?
+    weak var delegate: CartViewControllerDelegate?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .lightGray.withAlphaComponent(0.3)
+        backgroundColor = .clear
         layer.cornerRadius = 10
         configureStackView()
         addSubview(imageView)
@@ -124,7 +128,7 @@ class CartView: UIView {
             stackViewForLabel.addArrangedSubview(view)
         }
         
-        let arrayButton = [catalogButton]
+        let arrayButton = [catalogButton, signInSignUpButton]
         arrayButton.forEach { view in
             stackViewForButton.addArrangedSubview(view)
         }
@@ -157,7 +161,7 @@ class CartView: UIView {
         
         // stackForButton
         
-        let topStackForButtonCnstr = stackViewForButton.topAnchor.constraint(equalTo: stackViewForLabel.bottomAnchor, constant: 10)
+        let topStackForButtonCnstr = stackViewForButton.topAnchor.constraint(equalTo: stackViewForLabel.bottomAnchor, constant: 20)
         topStackForButtonCnstr.isActive = true
         
         let trailingStackForButtonCnstr = stackViewForButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30)
@@ -173,11 +177,11 @@ class CartView: UIView {
 
     
     @objc func catalogButtonPressed(_ sender: UIButton) {
-        delegate?.goToCatalogVC()
+        delegate?.didTapCatalogButton()
     }
     
     @objc func logInButtonPressed(_ sender: UIButton) {
-        
+        delegate?.didTaplogInButton()
     }
     
     required init?(coder: NSCoder) {

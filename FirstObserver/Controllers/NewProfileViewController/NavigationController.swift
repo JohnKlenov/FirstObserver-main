@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class NavigationController: UINavigationController {
+class NewProfileNavigationController: UINavigationController {
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
