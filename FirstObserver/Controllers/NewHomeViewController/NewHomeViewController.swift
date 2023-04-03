@@ -67,18 +67,21 @@ class NewHomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        managerFB.userListener { currentUser in
-            self.currentUser = currentUser
+        managerFB.userListener { [weak self] (currentUser) in
+            self?.currentUser = currentUser
             if currentUser == nil {
                 print("currentUser == nil")
-                self.cardProducts = []
-                self.managerFB.signInAnonymously()
+                self?.cardProducts = []
+                self?.managerFB.signInAnonymously()
             }
-            self.managerFB.getCardProduct { cardProduct in
-                self.cardProducts = cardProduct
-                print("managerFB.getCardProduct- \(self.cardProducts.count)")
+            self?.managerFB.getCardProduct { cardProduct in
+                self?.cardProducts = cardProduct
+                print("managerFB.getCardProduct- \(self?.cardProducts.count)")
             }
+          
         }
+        
+       
         
         title = "HomeVC"
         view.backgroundColor = .white
@@ -90,7 +93,10 @@ class NewHomeViewController: UIViewController {
         createDataSource()
         collectionViewLayout.delegate = self
     }
-    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+//        managerFB.removeObserver()
+    }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         

@@ -71,7 +71,12 @@ class CartViewController: UIViewController {
         super.viewWillAppear(animated)
         getPlacesMap()
         configureUI()
-        
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        print("viewWillDisappear")
+        managerFB.removeObserver()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -91,7 +96,7 @@ class CartViewController: UIViewController {
             }
         }
         
-        managerFB.getCardProduct { [weak self] cartProduct in
+        managerFB.getCardProduct1 { [weak self] cartProduct in
             print("managerFB.getCardProduct { [weak self]")
             //            guard let self = self else {return}
             self?.addedInCartProducts = cartProduct
