@@ -69,6 +69,7 @@
 		5E7EF59428AE3F2900814F4D /* BrandsCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7EF59328AE3F2900814F4D /* BrandsCollectionViewCell.swift */; };
 		5E7EF59628AE5B2200814F4D /* ProductCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7EF59528AE5B2200814F4D /* ProductCollectionViewCell.swift */; };
 		5E86E80F29C891C900B26907 /* NewProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E86E80E29C891C900B26907 /* NewProfileViewController.swift */; };
+		5E87237F29DC0CAC00AF46F1 /* UIViewController + extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E87237E29DC0CAC00AF46F1 /* UIViewController + extension.swift */; };
 		5E890BBA290AA16D00147C5F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5E890BB9290AA16D00147C5F /* GoogleService-Info.plist */; };
 		5E890BBC290AB57E00147C5F /* ModelFB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E890BBB290AB57D00147C5F /* ModelFB.swift */; };
 		5E8BCE3229CD707D00AEA41C /* UIColor+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E8BCE3129CD707D00AEA41C /* UIColor+ext.swift */; };
@@ -168,6 +169,7 @@
 		5E7EF59328AE3F2900814F4D /* BrandsCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandsCollectionViewCell.swift; sourceTree = "<group>"; };
 		5E7EF59528AE5B2200814F4D /* ProductCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCollectionViewCell.swift; sourceTree = "<group>"; };
 		5E86E80E29C891C900B26907 /* NewProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewProfileViewController.swift; sourceTree = "<group>"; };
+		5E87237E29DC0CAC00AF46F1 /* UIViewController + extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController + extension.swift"; sourceTree = "<group>"; };
 		5E890BB9290AA16D00147C5F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5E890BBB290AB57D00147C5F /* ModelFB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelFB.swift; sourceTree = "<group>"; };
 		5E8BCE3129CD707D00AEA41C /* UIColor+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+ext.swift"; sourceTree = "<group>"; };
@@ -326,6 +328,7 @@
 				5E8C62BD297534B30089F430 /* AlertControllers.swift */,
 				5E8BCE3129CD707D00AEA41C /* UIColor+ext.swift */,
 				5E8BCE3329D0364D00AEA41C /* Resouces.swift */,
+				5E87237E29DC0CAC00AF46F1 /* UIViewController + extension.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -768,6 +771,7 @@
 				5E139C5E28C4C9E8004F963D /* CartTableViewCell.swift in Sources */,
 				5E139C5828C1FAB7004F963D /* CatalogCollectionViewCell.swift in Sources */,
 				5E139C5A28C4BEF9004F963D /* AllProductViewController.swift in Sources */,
+				5E87237F29DC0CAC00AF46F1 /* UIViewController + extension.swift in Sources */,
 				5E0BF4742993AF3700FB99BE /* ProductCellNew.swift in Sources */,
 				5E7B462329BC566E005D2701 /* EyeButton.swift in Sources */,
 				5EA9446E294B0522007C2AB5 /* Alerts.swift in Sources */,

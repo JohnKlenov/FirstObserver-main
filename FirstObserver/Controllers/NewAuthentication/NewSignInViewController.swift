@@ -184,7 +184,7 @@ final class NewSignInViewController: UIViewController {
     var cardProducts: [PopularProduct] = []
     
     // profileVC - userIsPermanentUpdateUI
-    weak var profileDelegate:SignInViewControllerDelegate?
+    weak var delegate:SignInViewControllerDelegate?
     
     // MARK: - override methods
     override func viewDidLoad() {
@@ -343,6 +343,7 @@ final class NewSignInViewController: UIViewController {
     }
     
     deinit {
+        print("Deinit")
         if isInvalidSignIn {
             saveCartProductFBNew()
         }
@@ -505,7 +506,7 @@ extension NewSignInViewController: NewSignUpViewControllerDelegate {
     }
     
     func userDidRegisteredNew() {
-        profileDelegate?.userIsPermanent()
+        delegate?.userIsPermanent()
     }
 }
 

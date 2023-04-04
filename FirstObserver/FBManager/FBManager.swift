@@ -71,7 +71,8 @@ final class FBManager {
     var avatarRef: StorageReference?
     var refHandle: DatabaseHandle?
 //    var databaseRef: DatabaseReference?
-    lazy var databaseRef = Database.database().reference().child("usersAccaunt/\(currentUser?.uid ?? "")")
+    //
+//    lazy var databaseRef = Database.database().reference().child("usersAccaunt/\(currentUser?.uid ?? "")")
 //    var databaseRef: DatabaseReference?
 //    var storage = Storage.storage()
 
@@ -291,88 +292,23 @@ final class FBManager {
         }
     }
     
-    func removeObserver() {
+    func removeObserverForUserAccaunt() {
         if let refHandle = refHandle {
-            print("if let refHandle = refHandle {")
-            databaseRef.removeObserver(withHandle: refHandle)
-        }
-//        databaseRef.removeAllObservers()
-    }
-
-    func getCardProduct1(completionHandler: @escaping ([PopularProduct]) -> Void) {
-//        databaseRef = Database.database().reference()
-        refHandle = databaseRef.observe(.value) { (snapshot) in
-            print("databaseRef.child")
-            var arrayProduct = [PopularProduct]()
-            for item in snapshot.children {
-                print("Мы в цикле ")
-                let item = item as! DataSnapshot
-                switch item.key {
-                    
-                case "AddedProducts":
-//                    var arrayProduct = [PopularProduct]()
-
-                    for item in item.children {
-                        let product = item as! DataSnapshot
-
-                        var arrayMalls = [String]()
-                        var arrayRefe = [String]()
-
-
-                        for mass in product.children {
-                            let item = mass as! DataSnapshot
-
-                            switch item.key {
-                            case "malls":
-                                for it in item.children {
-                                    let item = it as! DataSnapshot
-                                    if let refDictionary = item.value as? String {
-                                        arrayMalls.append(refDictionary)
-                                    }
-                                }
-
-                            case "refImage":
-                                for it in item.children {
-                                    let item = it as! DataSnapshot
-                                    if let refDictionary = item.value as? String {
-                                        arrayRefe.append(refDictionary)
-                                    }
-                                }
-                            default:
-                                break
-                            }
-
-                        }
-                        let productModel = PopularProduct(snapshot: product, refArray: arrayRefe, malls: arrayMalls)
-                        arrayProduct.append(productModel)
-                    }
-                    print("completionHandler(arrayProduct)")
-                    completionHandler(arrayProduct)
-                default:
-                    break
-                
-                }
-            }
-            if arrayProduct == [] {
-                print("arrayProduct == [] {")
-                completionHandler(arrayProduct)
-            }
+            Database.database().reference().child("usersAccaunt/\(currentUser?.uid ?? "")").removeObserver(withHandle: refHandle)
+            //        databaseRef.removeAllObservers()
         }
     }
 
     func getCardProduct(completionHandler: @escaping ([PopularProduct]) -> Void) {
-        let databaseRef = Database.database().reference()
-        databaseRef.child("usersAccaunt/\(currentUser?.uid ?? "")").observe(.value) { (snapshot) in
-            print("databaseRef.child")
+//        let databaseRef = Database.database().reference().child("usersAccaunt/\(currentUser?.uid ?? "")")
+        refHandle = Database.database().reference().child("usersAccaunt/\(currentUser?.uid ?? "")").observe(.value) { (snapshot) in
             var arrayProduct = [PopularProduct]()
             for item in snapshot.children {
-                print("Мы в цикле ")
                 let item = item as! DataSnapshot
                 switch item.key {
                     
                 case "AddedProducts":
-//                    var arrayProduct = [PopularProduct]()
-
+                    
                     for item in item.children {
                         let product = item as! DataSnapshot
 
@@ -407,7 +343,6 @@ final class FBManager {
                         let productModel = PopularProduct(snapshot: product, refArray: arrayRefe, malls: arrayMalls)
                         arrayProduct.append(productModel)
                     }
-                    print("completionHandler(arrayProduct)")
                     completionHandler(arrayProduct)
                 default:
                     break
@@ -415,11 +350,12 @@ final class FBManager {
                 }
             }
             if arrayProduct == [] {
-                print("arrayProduct == [] {")
                 completionHandler(arrayProduct)
             }
         }
     }
+
+
 //     for oldHVC
     func getPreviewMalls(completionHandler: @escaping ([PreviewCategory]) -> Void) {
         let databaseRef = Database.database().reference()

@@ -7,47 +7,19 @@
 
 import UIKit
 
-
-//protocol CartViewDelegate: AnyObject {
-//    func didTapCatalogButton()
-//}
-
-class CartViewController: UIViewController {
+final class CartViewController: UIViewController {
     
-    var managerFB = FBManager.shared
+    private var managerFB = FBManager.shared
     @IBOutlet weak var tableView: UITableView!
     
-    var model: [Product]!
-    var arrayPlaces: [PlacesTest] = []
-    var isAnimate = false
-    // bug когда удаляем последний product анимации удаления не видно(потому что сразу tableView.isHidden = true)
-    var addedInCartProducts: [PopularProduct] = []
-//    {
-//        didSet {
-//            // true if empty
-//            if addedInCartProducts.count == 0 {
-//                print("addedInCartProducts.count == 0")
-//                if isAnimate {
-//                    print("isAnimate = true")
-//                    isAnimate.toggle()
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-//                        self.tableView.isHidden = true
-//                        self.animateCartView()
-//                    }
-//                } else {
-//                    print("isAnimate = false")
-//                    self.tableView.isHidden = true
-//                    self.cartViewIsEmpty.isHidden = false
-//                }
-//
-//            } else {
-//                print("addedInCartProducts.count != 0")
-//                tableView.isHidden = false
-//                cartViewIsEmpty.isHidden = true
-//            }
-//        }
-//    }
-    var cartViewIsEmpty: CartView!
+    private var model: [Product]!
+    private var arrayPlaces: [PlacesTest] = []
+    private var isAnimateCartView = false
+    private var addedInCartProducts: [PopularProduct] = []
+    private var cartViewIsEmpty: CartView!
+    
+    
+    // MARK: - Life cycle methods
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,68 +30,63 @@ class CartViewController: UIViewController {
         tableView.estimatedRowHeight = 10
         tableView.rowHeight = UITableView.automaticDimension
         tableView.backgroundColor = R.Colors.backgroundWhiteLith
-        setupHeaderView()
+        createHeaderTableView()
     
         tableView.delegate = self
         tableView.dataSource = self
         
-        // new
-        visibleCartView()
+        createCartViewIsEmpty()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        print("viewWillAppear(animated)")
         getPlacesMap()
         configureUI()
     }
     
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        print("viewWillDisappear")
-        managerFB.removeObserver()
+        print("viewWillDisappear(animated)")
+        managerFB.removeObserverForUserAccaunt()
+        addedInCartProducts = []
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-//        self.cartView.isHidden = true
-    }
-    
+  
+    // MARK: - Another methods
+   
     private func configureUI() {
         
         managerFB.userIsAnonymously { [weak self] (isAnonymously) in
             if isAnonymously {
-                print("isAnonymously = true")
                 self?.cartViewIsEmpty.signInSignUpButton.isHidden = false
             } else {
-                print("isAnonymously = false")
                 self?.cartViewIsEmpty.signInSignUpButton.isHidden = true
             }
         }
         
-        managerFB.getCardProduct1 { [weak self] cartProduct in
-            print("managerFB.getCardProduct { [weak self]")
-            //            guard let self = self else {return}
+        managerFB.getCardProduct { [weak self] cartProduct in
+            print("managerFB.getCardProduct { [weak self] ")
+            
             self?.addedInCartProducts = cartProduct
+            print("cartProduct - \(cartProduct.count)")
             self?.tableView.reloadData()
             
-            if let isAnimate = self?.isAnimate {
+            if let isAnimate = self?.isAnimateCartView {
                 if self?.addedInCartProducts.count == 0 {
-                    print("addedInCartProducts.count == 0")
                     if isAnimate  {
-                        print("isAnimate = true")
-                        self?.isAnimate.toggle()
+                        self?.isAnimateCartView.toggle()
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                             self?.tableView.isHidden = true
                             self?.animateCartView()
                         }
                     } else {
-                        print("isAnimate = false")
                         self?.tableView.isHidden = true
                         self?.cartViewIsEmpty.isHidden = false
                     }
                     
                 } else {
-                    print("addedInCartProducts.count != 0")
                     self?.tableView.isHidden = false
                     self?.cartViewIsEmpty.isHidden = true
                 }
@@ -129,12 +96,11 @@ class CartViewController: UIViewController {
     }
     
     private func setupCartViewConstraints() {
-//        cartView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20)
         cartViewIsEmpty.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([cartViewIsEmpty.centerXAnchor.constraint(equalTo: view.centerXAnchor), cartViewIsEmpty.centerYAnchor.constraint(equalTo: view.centerYAnchor), cartViewIsEmpty.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 10), cartViewIsEmpty.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10)])
     }
     
-    func setupHeaderView() {
+    func createHeaderTableView() {
         
         let headView = UIView.init(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.width , height: 5))
         headView.backgroundColor = .clear
@@ -150,31 +116,28 @@ class CartViewController: UIViewController {
         }
     }
     
-    private func visibleCartView() {
+    private func createCartViewIsEmpty() {
         cartViewIsEmpty = CartView()
         cartViewIsEmpty.delegate = self
         cartViewIsEmpty.isHidden = true
         view.addSubview(cartViewIsEmpty)
-        
         setupCartViewConstraints()
     }
     
-        private func getPlacesMap() {
-    
-            guard let tabBarVCs = tabBarController?.viewControllers else { return }
-    
-            tabBarVCs.forEach { [weak self] (vc) in
-                if let nc = vc as? UINavigationController {
-                    if let homeVC = nc.topViewController as? NewHomeViewController {
-                        self?.arrayPlaces = homeVC.placesMap
-                    }
+    private func getPlacesMap() {
+        guard let tabBarVCs = tabBarController?.viewControllers else { return }
+        tabBarVCs.forEach { [weak self] (vc) in
+            if let nc = vc as? UINavigationController {
+                if let homeVC = nc.topViewController as? NewHomeViewController {
+                    self?.arrayPlaces = homeVC.placesMap
                 }
             }
         }
-
+    }
 }
 
 
+// MARK: - UITableViewDelegate, UITableViewDataSource
 extension CartViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -192,12 +155,9 @@ extension CartViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let product = addedInCartProducts[indexPath.row]
-            // удаление должен делать FBManager
-            isAnimate = addedInCartProducts.count == 1 ? true : false
-//            managerFB.removeProduct(refProduct: product.refProduct)
+            isAnimateCartView = addedInCartProducts.count == 1 ? true : false
             addedInCartProducts.remove(at: indexPath.row)
-            
-            tableView.deleteRows(at: [indexPath], with: .automatic)
+            tableView.deleteRows(at: [indexPath], with: .fade)
             managerFB.removeProduct(refProduct: product.refProduct)
         }
     }
@@ -235,7 +195,7 @@ extension CartViewController: CartViewControllerDelegate {
         
         let signInVC = NewSignInViewController()
         signInVC.cardProducts = addedInCartProducts
-        signInVC.profileDelegate = self
+        signInVC.delegate = self
         signInVC.presentationController?.delegate = self
         present(signInVC, animated: true, completion: nil)
     }
@@ -248,9 +208,12 @@ extension CartViewController: CartViewControllerDelegate {
 
 extension CartViewController: SignInViewControllerDelegate {
     func userIsPermanent() {
-        isAnimate = false
-        print("userIsPermanent")
+        managerFB.removeObserverForUserAccaunt()
         configureUI()
+        
+//        isAnimateCartView = false
+        print("userIsPermanent")
+//        configureUI()
     }
 }
 

@@ -226,7 +226,7 @@ import Firebase
             getFetchDataHVC()
             let signInVC = NewSignInViewController()
             signInVC.cardProducts = addedToCardProducts
-            signInVC.profileDelegate = self
+            signInVC.delegate = self
             signInVC.presentationController?.delegate = self
             present(signInVC, animated: true, completion: nil)
             

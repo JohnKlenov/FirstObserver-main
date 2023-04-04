@@ -557,15 +557,7 @@ extension NewProductViewController: MapViewManagerDelegate {
 }
 
 
-// MARK: UIAdaptivePresentationControllerDelegate
-extension UIViewController: UIAdaptivePresentationControllerDelegate {
-    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        if #available(iOS 13, *) {
-                        //Call viewWillAppear only in iOS 13
-                        viewWillAppear(true)
-                    }
-    }
-}
+
 
 
 

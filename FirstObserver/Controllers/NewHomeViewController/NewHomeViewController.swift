@@ -70,13 +70,12 @@ class NewHomeViewController: UIViewController {
         managerFB.userListener { [weak self] (currentUser) in
             self?.currentUser = currentUser
             if currentUser == nil {
-                print("currentUser == nil")
                 self?.cardProducts = []
                 self?.managerFB.signInAnonymously()
             }
             self?.managerFB.getCardProduct { cardProduct in
                 self?.cardProducts = cardProduct
-                print("managerFB.getCardProduct- \(self?.cardProducts.count)")
+//                print("managerFB.getCardProduct- \(self?.cardProducts.count)")
             }
           
         }
@@ -95,7 +94,7 @@ class NewHomeViewController: UIViewController {
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-//        managerFB.removeObserver()
+
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
