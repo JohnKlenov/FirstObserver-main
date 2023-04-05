@@ -29,12 +29,14 @@ class CatalogViewController: UIViewController {
         collectionView.dataSource = self
         
         heightCellCV = (collectionView.frame.height/3)*0.86
-        getFetchDataHVC()
+//        getFetchDataHVC()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        getFetchDataHVC()
+        // нужен removeObserver for viewWillDisapear 
         managerFB.getPreviewCatalog { catalog in
             self.arrayCatalog = catalog
             self.collectionView.reloadData()

@@ -26,6 +26,11 @@ class MallsViewController: UIViewController {
         collectionView.dataSource = self
         
         hightCellVC = (collectionView.frame.height/3)*0.86
+//        getFetchDataHVC()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
         getFetchDataHVC()
     }
     

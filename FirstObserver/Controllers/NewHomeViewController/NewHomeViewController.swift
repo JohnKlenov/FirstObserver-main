@@ -16,7 +16,7 @@ class NewHomeViewController: UIViewController {
 //    private var section: [MSectionImage]!
     // MARK: FB property
     let managerFB = FBManager.shared
-    private var currentUser: User?
+//    private var currentUser: User?
     
     private var segmentedControl: UISegmentedControl = {
         let item = ["Woman","Man"]
@@ -68,36 +68,19 @@ class NewHomeViewController: UIViewController {
         super.viewDidLoad()
         
         managerFB.userListener { [weak self] (currentUser) in
-            self?.currentUser = currentUser
+            print("managerFB.userListener { [weak self] ")
+//            self?.currentUser = currentUser
             if currentUser == nil {
                 self?.cardProducts = []
                 self?.managerFB.signInAnonymously()
             }
-            self?.managerFB.getCardProduct { cardProduct in
-                self?.cardProducts = cardProduct
-//                print("managerFB.getCardProduct- \(self?.cardProducts.count)")
-            }
+//            self?.managerFB.getCardProduct { cardProduct in
+//                self?.cardProducts = cardProduct
+//                print("self?.managerFB.getCardProduct {")
+////                print("managerFB.getCardProduct- \(self?.cardProducts.count)")
+//            }
           
         }
-        
-       
-        
-        title = "HomeVC"
-        view.backgroundColor = .white
-        tabBarController?.view.isUserInteractionEnabled = false
-        configureActivityIndicatorView()
-        view.addSubview(segmentedControl)
-        setupCollectionView()
-        setupConstraints()
-        createDataSource()
-        collectionViewLayout.delegate = self
-    }
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-
-    }
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
         
         managerFB.getPreviewMallsNew { malls in
             let section = SectionHVC(section: "Malls", items: malls)
@@ -117,7 +100,53 @@ class NewHomeViewController: UIViewController {
         managerFB.getPlaces { modelPlaces in
             self.placesFB = modelPlaces
         }
+       
         
+        title = "HomeVC"
+        view.backgroundColor = .white
+        tabBarController?.view.isUserInteractionEnabled = false
+        configureActivityIndicatorView()
+        view.addSubview(segmentedControl)
+        setupCollectionView()
+        setupConstraints()
+        createDataSource()
+        collectionViewLayout.delegate = self
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+         print("viewWillAppear")
+        
+//        managerFB.getPreviewMallsNew { malls in
+//            let section = SectionHVC(section: "Malls", items: malls)
+//            self.modelHomeViewController.append(section)
+//        }
+//
+//        managerFB.getPreviewBrandsNew { brands in
+//            let section = SectionHVC(section: "Brands", items: brands)
+//            self.modelHomeViewController.append(section)
+//        }
+//
+//        managerFB.getPopularProductNew { products in
+//            let section = SectionHVC(section: "PopularProducts", items: products)
+//            self.modelHomeViewController.append(section)
+//        }
+//
+//        managerFB.getPlaces { modelPlaces in
+//            self.placesFB = modelPlaces
+//        }
+        
+//        managerFB.getCardProduct { cardProduct in
+//            self.cardProducts = cardProduct
+//            print("self?.managerFB.getCardProduct {")
+//            //                print("managerFB.getCardProduct- \(self?.cardProducts.count)")
+//        }
+        
+        print("modelHomeViewController - \(modelHomeViewController.count)")
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {

@@ -6,7 +6,7 @@
 //
 
 import UIKit
-
+// а что если несколько VC подписанных будут в памяти какое будет поведение?
 
 // MARK: UIAdaptivePresentationControllerDelegate
 extension UIViewController: UIAdaptivePresentationControllerDelegate {
