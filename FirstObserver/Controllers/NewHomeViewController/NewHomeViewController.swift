@@ -36,7 +36,7 @@ class NewHomeViewController: UIViewController {
         return loader
     }()
     
-    private var activityContainerView: UIView = {
+    private var activityContainerView: UIView? = {
         let view = UIView()
         view.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
         view.backgroundColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1)
@@ -44,16 +44,35 @@ class NewHomeViewController: UIViewController {
         return view
     }()
     
+    var isNotVisableViewController = false
     var modelHomeViewController = [SectionHVC]() {
         didSet {
             if modelHomeViewController.count == 3 {
+                print("modelHomeViewController count == 3")
                 reloadData()
                 loader.stopAnimating()
-                activityContainerView.removeFromSuperview()
+                activityContainerView?.removeFromSuperview()
                 tabBarController?.view.isUserInteractionEnabled = true
             }
         }
     }
+    
+    var modelHomeViewControllerDict = [String:SectionHVC]() {
+        didSet {
+            if self.isOnScreen {
+                print(" if self.isOnScreen {")
+                if modelHomeViewControllerDict.count == 3 {
+                    print("modelHomeViewControllerDict count == 3")
+                    let sorted = modelHomeViewControllerDict.sorted { $0.key < $1.key }
+                    let valuesArraySorted = Array(sorted.map({ $0.value }))
+                    modelHomeViewController = valuesArraySorted
+                }
+            } else {
+                isNotVisableViewController = true
+            }
+        }
+    }
+    
     var placesMap:[PlacesTest] = []
     var placesFB:[PlacesFB] = [] {
         didSet {
@@ -69,38 +88,31 @@ class NewHomeViewController: UIViewController {
         
         managerFB.userListener { [weak self] (currentUser) in
             print("managerFB.userListener { [weak self] ")
-//            self?.currentUser = currentUser
             if currentUser == nil {
                 self?.cardProducts = []
                 self?.managerFB.signInAnonymously()
             }
-//            self?.managerFB.getCardProduct { cardProduct in
-//                self?.cardProducts = cardProduct
-//                print("self?.managerFB.getCardProduct {")
-////                print("managerFB.getCardProduct- \(self?.cardProducts.count)")
-//            }
-          
         }
         
         managerFB.getPreviewMallsNew { malls in
             let section = SectionHVC(section: "Malls", items: malls)
-            self.modelHomeViewController.append(section)
+            self.modelHomeViewControllerDict["A"] = section
         }
         
         managerFB.getPreviewBrandsNew { brands in
             let section = SectionHVC(section: "Brands", items: brands)
-            self.modelHomeViewController.append(section)
+            print("Brands")
+            self.modelHomeViewControllerDict["B"] = section
         }
         
         managerFB.getPopularProductNew { products in
             let section = SectionHVC(section: "PopularProducts", items: products)
-            self.modelHomeViewController.append(section)
+            self.modelHomeViewControllerDict["C"] = section
         }
         
         managerFB.getPlaces { modelPlaces in
             self.placesFB = modelPlaces
         }
-       
         
         title = "HomeVC"
         view.backgroundColor = .white
@@ -112,45 +124,36 @@ class NewHomeViewController: UIViewController {
         createDataSource()
         collectionViewLayout.delegate = self
     }
+
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-
+        
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
          print("viewWillAppear")
         
-//        managerFB.getPreviewMallsNew { malls in
-//            let section = SectionHVC(section: "Malls", items: malls)
-//            self.modelHomeViewController.append(section)
-//        }
-//
-//        managerFB.getPreviewBrandsNew { brands in
-//            let section = SectionHVC(section: "Brands", items: brands)
-//            self.modelHomeViewController.append(section)
-//        }
-//
-//        managerFB.getPopularProductNew { products in
-//            let section = SectionHVC(section: "PopularProducts", items: products)
-//            self.modelHomeViewController.append(section)
-//        }
-//
-//        managerFB.getPlaces { modelPlaces in
-//            self.placesFB = modelPlaces
-//        }
-        
-//        managerFB.getCardProduct { cardProduct in
-//            self.cardProducts = cardProduct
-//            print("self?.managerFB.getCardProduct {")
-//            //                print("managerFB.getCardProduct- \(self?.cardProducts.count)")
-//        }
+        if isNotVisableViewController {
+            let sorted = modelHomeViewControllerDict.sorted { $0.key < $1.key }
+            let valuesArraySorted = Array(sorted.map({ $0.value }))
+            modelHomeViewController = valuesArraySorted
+        }
         
         print("modelHomeViewController - \(modelHomeViewController.count)")
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-//        let collectionView = scrollView as? UICollectionView
         
     }
     
@@ -167,6 +170,9 @@ class NewHomeViewController: UIViewController {
     }
     
     private func configureActivityIndicatorView() {
+        guard let activityContainerView = activityContainerView else {
+            return
+        }
         activityContainerView.addSubview(loader)
         loader.center = activityContainerView.center
         view.addSubview(activityContainerView)

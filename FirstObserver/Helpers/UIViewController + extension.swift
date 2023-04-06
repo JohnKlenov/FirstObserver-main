@@ -29,3 +29,9 @@ extension UIViewController: UIAdaptivePresentationControllerDelegate {
     
 }
 
+extension UIViewController{
+    var isOnScreen: Bool{
+        return self.isViewLoaded && view.window != nil
+    }
+}
+
