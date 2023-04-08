@@ -66,7 +66,7 @@ final class CartViewController: UIViewController {
             }
         }
         
-        managerFB.getCardProduct { [weak self] cartProduct in
+        managerFB.getCartProduct { [weak self] cartProduct in
             print("managerFB.getCardProduct { [weak self] ")
             
             self?.addedInCartProducts = cartProduct

@@ -367,7 +367,7 @@ final class NewProfileViewController: UIViewController {
         tabBarVCs.forEach { (vc) in
             if let nc = vc as? UINavigationController {
                 if let homeVC = nc.topViewController as? NewHomeViewController {
-                    self.cardProducts = homeVC.cardProducts
+                    self.cardProducts = homeVC.cartProducts
                 }
             }
         }

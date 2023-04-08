@@ -302,11 +302,15 @@ final class FBManager {
         }
     }
 
-    func getCardProduct(completionHandler: @escaping ([PopularProduct]) -> Void) {
-//        let databaseRef = Database.database().reference().child("usersAccaunt/\(currentUser?.uid ?? "")")
-        print("func getCardProduct(completionHandler: @escaping - \(String(describing: self.currentUser?.uid))")
-//        let uid =
-        refHandle = Database.database().reference().child("usersAccaunt/\(currentUser?.uid ?? "")").observe(.value) { (snapshot) in
+    func getCartProduct(completionHandler: @escaping ([PopularProduct]) -> Void) {
+
+        guard let currentUser = currentUser else {
+            print("guard let currentUser = currentUser else")
+            completionHandler([])
+            return
+        }
+
+        refHandle = Database.database().reference().child("usersAccaunt/\(currentUser.uid)").observe(.value) { (snapshot) in
             print(".observe(.value) { (snapshot) - \(String(describing: self.currentUser?.uid))")
             var arrayProduct = [PopularProduct]()
             for item in snapshot.children {

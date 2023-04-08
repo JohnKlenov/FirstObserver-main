@@ -128,7 +128,7 @@ class BrandsViewController: UIViewController {
         for vc in tabBarVCs {
             if let nc = vc as? UINavigationController {
                 if let homeVC = nc.viewControllers.first as? NewHomeViewController {
-                    self.addedToCartProducts = homeVC.cardProducts
+                    self.addedToCartProducts = homeVC.cartProducts
                 }
             }
         }

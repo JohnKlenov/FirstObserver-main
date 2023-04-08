@@ -112,7 +112,7 @@ class HomeViewController: UIViewController {
                 self.managerFB.signInAnonymously()
             }
 
-            self.managerFB.getCardProduct { cardProduct in
+            self.managerFB.getCartProduct { cardProduct in
                 self.addedToCardProducts = cardProduct
             }
         }

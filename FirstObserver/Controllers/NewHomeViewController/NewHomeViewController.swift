@@ -45,6 +45,7 @@ class NewHomeViewController: UIViewController {
     }()
     
     var isNotVisableViewController = false
+    var isFirstStart = true
     var modelHomeViewController = [SectionHVC]() {
         didSet {
             if modelHomeViewController.count == 3 {
@@ -79,19 +80,32 @@ class NewHomeViewController: UIViewController {
             getPlacesMap()
         }
     }
-    var cardProducts:[PopularProduct] = []
+    var cartProducts:[PopularProduct] = []
     private var collectionViewLayout:UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<SectionHVC, ItemCell>?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        managerFB.userListener { [weak self] (currentUser) in
+        managerFB.userListener { currentUser in
             print("managerFB.userListener { [weak self] ")
+           
             if currentUser == nil {
-                self?.cardProducts = []
-                self?.managerFB.signInAnonymously()
+                self.cartProducts = []
+                self.managerFB.signInAnonymously()
             }
+            
+            if self.isFirstStart {
+                print("isFirstStart = true ")
+                self.isFirstStart = false
+                self.managerFB.getCartProduct { cartProducts in
+                    print(" managerFB.userListener { getCartProduct")
+                    self.cartProducts = cartProducts
+                }
+            } else {
+                print("isFirstStart = false ")
+            }
+            
         }
         
         managerFB.getPreviewMallsNew { malls in
@@ -128,26 +142,27 @@ class NewHomeViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+        print("viewWillDisappear")
+        managerFB.removeObserverForUserAccaunt()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
          print("viewWillAppear")
         
+        if !isFirstStart {
+            print("!isFirstStart")
+            managerFB.getCartProduct { cartProducts in
+                print("viewWillAppear managerFB.getCartProduct {")
+                self.cartProducts = cartProducts
+            }
+        }
+      
         if isNotVisableViewController {
             let sorted = modelHomeViewControllerDict.sorted { $0.key < $1.key }
             let valuesArraySorted = Array(sorted.map({ $0.value }))
             modelHomeViewController = valuesArraySorted
+            isNotVisableViewController = false
         }
         
         print("modelHomeViewController - \(modelHomeViewController.count)")
@@ -423,7 +438,7 @@ extension NewHomeViewController: UICollectionViewDelegate {
                     placesArray.append(places)
                 }
             }
-            cardProducts.forEach { (addedProduct) in
+            cartProducts.forEach { (addedProduct) in
                 if addedProduct.model == productSection.first?.items[indexPath.row].popularProduct?.model {
                     productVC.isAddedToCard = true
                 }
