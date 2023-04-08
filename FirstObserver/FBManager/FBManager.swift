@@ -293,25 +293,20 @@ final class FBManager {
     }
     
     func removeObserverForUserAccaunt() {
-        print("removeObserverForUserAccaunt")
         if let refHandle = refHandle {
-            print("if let refHandle = refHandle {")
-            print("if let refHandle = refHandle { - \(String(describing: self.currentUser?.uid))")
             Database.database().reference().child("usersAccaunt/\(currentUser?.uid ?? "")").removeObserver(withHandle: refHandle)
-            //        databaseRef.removeAllObservers()
         }
     }
 
     func getCartProduct(completionHandler: @escaping ([PopularProduct]) -> Void) {
 
         guard let currentUser = currentUser else {
-            print("guard let currentUser = currentUser else")
             completionHandler([])
             return
         }
 
         refHandle = Database.database().reference().child("usersAccaunt/\(currentUser.uid)").observe(.value) { (snapshot) in
-            print(".observe(.value) { (snapshot) - \(String(describing: self.currentUser?.uid))")
+//            print(".observe(.value) { (snapshot) - \(String(describing: self.currentUser?.uid))")
             var arrayProduct = [PopularProduct]()
             for item in snapshot.children {
                 let item = item as! DataSnapshot

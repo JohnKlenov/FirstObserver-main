@@ -181,7 +181,7 @@ final class NewSignInViewController: UIViewController {
     
     var isInvalidSignIn = false
     let managerFB = FBManager.shared
-    var cardProducts: [PopularProduct] = []
+    var cartProducts: [PopularProduct] = []
     
     // profileVC - userIsPermanentUpdateUI
     weak var delegate:SignInViewControllerDelegate?
@@ -501,7 +501,7 @@ extension NewSignInViewController: UITextFieldDelegate {
 extension NewSignInViewController: NewSignUpViewControllerDelegate {
     
     func saveCartProductFBNew() {
-        managerFB.saveDeletedFromCart(products: cardProducts)
+        managerFB.saveDeletedFromCart(products: cartProducts)
         self.isInvalidSignIn = false
     }
     

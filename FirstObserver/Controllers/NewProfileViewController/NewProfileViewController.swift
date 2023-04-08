@@ -164,7 +164,7 @@ final class NewProfileViewController: UIViewController {
         return gesture
     }()
     
-    private var cardProducts: [PopularProduct] = []
+    private var cartProducts: [PopularProduct] = []
     private var isStateEditingModeProfile = true
     private var isAnimatedRemovalOfButtonsForAnonUser = false
     
@@ -217,14 +217,15 @@ final class NewProfileViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        self.navigationController?.navigationBar.barStyle = .black
-//        setNeedsStatusBarAppearanceUpdate()
+        managerFB.getCartProduct { cartProducts in
+            self.cartProducts = cartProducts
+        }
         
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        self.cardProducts = []
+        managerFB.removeObserverForUserAccaunt()
     }
     
     
@@ -361,17 +362,17 @@ final class NewProfileViewController: UIViewController {
     }
     
     
-    private func getFetchDataHVC() {
-
-        guard let tabBarVCs = tabBarController?.viewControllers else { return }
-        tabBarVCs.forEach { (vc) in
-            if let nc = vc as? UINavigationController {
-                if let homeVC = nc.topViewController as? NewHomeViewController {
-                    self.cardProducts = homeVC.cartProducts
-                }
-            }
-        }
-    }
+//    private func getFetchDataHVC() {
+//
+//        guard let tabBarVCs = tabBarController?.viewControllers else { return }
+//        tabBarVCs.forEach { (vc) in
+//            if let nc = vc as? UINavigationController {
+//                if let homeVC = nc.topViewController as? NewHomeViewController {
+//                    self.cardProducts = homeVC.cartProducts
+//                }
+//            }
+//        }
+//    }
     
     // MARK: - FB methods
 
@@ -387,7 +388,7 @@ final class NewProfileViewController: UIViewController {
             managerFB.addUidFromCurrentUserAccount()
             var removeCartProduct: [String:AddedProduct] = [:]
 
-            cardProducts.forEach { (cartProduct) in
+            cartProducts.forEach { (cartProduct) in
                 let productEncode = AddedProduct(product: cartProduct)
                 removeCartProduct[cartProduct.model] = productEncode
             }
@@ -466,9 +467,9 @@ private extension NewProfileViewController {
     
     @objc func didTapsignInSignUp(_ sender: UIButton) {
         
-        getFetchDataHVC()
+//        getFetchDataHVC()
         let signInVC = NewSignInViewController()
-        signInVC.cardProducts = cardProducts
+        signInVC.cartProducts = cartProducts
         signInVC.delegate = self
         signInVC.presentationController?.delegate = self
         present(signInVC, animated: true, completion: nil)
@@ -508,7 +509,7 @@ private extension NewProfileViewController {
     
     @objc func didTapDeleteAccount(_ sender: UIButton) {
         
-        getFetchDataHVC()
+//        getFetchDataHVC()
         setupDeleteAlert(title: "Warning", message: "Deleting your account will permanently lose your data!") { isDelete in
 
             if isDelete {

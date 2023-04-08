@@ -8,27 +8,19 @@
 import UIKit
 // а что если несколько VC подписанных будут в памяти какое будет поведение?
 
-// MARK: UIAdaptivePresentationControllerDelegate
+// MARK: - UIAdaptivePresentationControllerDelegate
 extension UIViewController: UIAdaptivePresentationControllerDelegate {
     public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         if #available(iOS 13, *) {
             //Call viewWillAppear only in iOS 13
             viewWillDisappear(true)
             viewWillAppear(true)
-//            viewDidDisappear(true)
-            
         }
     }
-//    public func presentationControllerWillDismiss(_ presentationController: UIPresentationController) {
-//        if #available(iOS 13, *) {
-//            //Call viewWillAppear only in iOS 13
-//            viewWillDisappear(true)
-//        }
-//
-//    }
-    
 }
 
+
+// MARK: - ViewController on screen
 extension UIViewController{
     var isOnScreen: Bool{
         return self.isViewLoaded && view.window != nil

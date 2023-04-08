@@ -42,7 +42,7 @@ class BrandsViewController: UIViewController {
         }
     }
     var arrayPin: [PlacesTest] = []
-    var addedToCartProducts: [PopularProduct] = []
+    var cartProducts: [PopularProduct] = []
     
     
     override func viewDidLoad() {
@@ -74,13 +74,21 @@ class BrandsViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        getFetchDataHVC()
+        managerFB.getCartProduct { cartProducts in
+            self.cartProducts = cartProducts
+        }
+//        getFetchDataHVC()
         
         if let searchBrand = pathRefBrandVC {
             managerFB.getBrand(searchBrand: searchBrand) { garderob in
                 self.popularGarderob = garderob
             }
         }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        managerFB.removeObserverForUserAccaunt()
     }
     
     override func viewWillLayoutSubviews() {
@@ -122,17 +130,17 @@ class BrandsViewController: UIViewController {
     }
     
     
-    private func getFetchDataHVC() {
-        
-        guard let tabBarVCs = tabBarController?.viewControllers else { return }
-        for vc in tabBarVCs {
-            if let nc = vc as? UINavigationController {
-                if let homeVC = nc.viewControllers.first as? NewHomeViewController {
-                    self.addedToCartProducts = homeVC.cartProducts
-                }
-            }
-        }
-    }
+//    private func getFetchDataHVC() {
+//
+//        guard let tabBarVCs = tabBarController?.viewControllers else { return }
+//        for vc in tabBarVCs {
+//            if let nc = vc as? UINavigationController {
+//                if let homeVC = nc.viewControllers.first as? NewHomeViewController {
+//                    self.addedToCartProducts = homeVC.cartProducts
+//                }
+//            }
+//        }
+//    }
     
 
 }
@@ -229,7 +237,7 @@ extension BrandsViewController: ProductCellDelegtate {
             }
         }
         
-        addedToCartProducts.forEach { (addedProduct) in
+        cartProducts.forEach { (addedProduct) in
            
             if addedProduct.model == model.model {
                 productVC.isAddedToCard = true

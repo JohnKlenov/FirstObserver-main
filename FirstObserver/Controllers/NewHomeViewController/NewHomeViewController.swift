@@ -49,7 +49,6 @@ class NewHomeViewController: UIViewController {
     var modelHomeViewController = [SectionHVC]() {
         didSet {
             if modelHomeViewController.count == 3 {
-                print("modelHomeViewController count == 3")
                 reloadData()
                 loader.stopAnimating()
                 activityContainerView?.removeFromSuperview()
@@ -61,9 +60,7 @@ class NewHomeViewController: UIViewController {
     var modelHomeViewControllerDict = [String:SectionHVC]() {
         didSet {
             if self.isOnScreen {
-                print(" if self.isOnScreen {")
                 if modelHomeViewControllerDict.count == 3 {
-                    print("modelHomeViewControllerDict count == 3")
                     let sorted = modelHomeViewControllerDict.sorted { $0.key < $1.key }
                     let valuesArraySorted = Array(sorted.map({ $0.value }))
                     modelHomeViewController = valuesArraySorted
@@ -88,24 +85,17 @@ class NewHomeViewController: UIViewController {
         super.viewDidLoad()
         
         managerFB.userListener { currentUser in
-            print("managerFB.userListener { [weak self] ")
-           
             if currentUser == nil {
                 self.cartProducts = []
                 self.managerFB.signInAnonymously()
             }
             
             if self.isFirstStart {
-                print("isFirstStart = true ")
                 self.isFirstStart = false
                 self.managerFB.getCartProduct { cartProducts in
-                    print(" managerFB.userListener { getCartProduct")
                     self.cartProducts = cartProducts
                 }
-            } else {
-                print("isFirstStart = false ")
             }
-            
         }
         
         managerFB.getPreviewMallsNew { malls in
@@ -115,7 +105,6 @@ class NewHomeViewController: UIViewController {
         
         managerFB.getPreviewBrandsNew { brands in
             let section = SectionHVC(section: "Brands", items: brands)
-            print("Brands")
             self.modelHomeViewControllerDict["B"] = section
         }
         
@@ -142,30 +131,24 @@ class NewHomeViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        print("viewWillDisappear")
         managerFB.removeObserverForUserAccaunt()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-         print("viewWillAppear")
         
         if !isFirstStart {
-            print("!isFirstStart")
             managerFB.getCartProduct { cartProducts in
-                print("viewWillAppear managerFB.getCartProduct {")
                 self.cartProducts = cartProducts
             }
         }
-      
+        
         if isNotVisableViewController {
             let sorted = modelHomeViewControllerDict.sorted { $0.key < $1.key }
             let valuesArraySorted = Array(sorted.map({ $0.value }))
             modelHomeViewController = valuesArraySorted
             isNotVisableViewController = false
         }
-        
-        print("modelHomeViewController - \(modelHomeViewController.count)")
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {

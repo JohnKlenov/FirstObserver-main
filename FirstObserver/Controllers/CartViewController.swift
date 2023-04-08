@@ -15,7 +15,7 @@ final class CartViewController: UIViewController {
     private var model: [Product]!
     private var arrayPlaces: [PlacesTest] = []
     private var isAnimateCartView = false
-    private var addedInCartProducts: [PopularProduct] = []
+    private var cartProducts: [PopularProduct] = []
     private var cartViewIsEmpty: CartView!
     
     
@@ -40,7 +40,6 @@ final class CartViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("viewWillAppear(animated)")
         getPlacesMap()
         configureUI()
     }
@@ -48,9 +47,7 @@ final class CartViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        print("viewWillDisappear(animated)")
         managerFB.removeObserverForUserAccaunt()
-        addedInCartProducts = []
     }
     
   
@@ -66,15 +63,13 @@ final class CartViewController: UIViewController {
             }
         }
         
-        managerFB.getCartProduct { [weak self] cartProduct in
-            print("managerFB.getCardProduct { [weak self] ")
+        managerFB.getCartProduct { [weak self] cartProducts in
             
-            self?.addedInCartProducts = cartProduct
-            print("cartProduct - \(cartProduct.count)")
+            self?.cartProducts = cartProducts
             self?.tableView.reloadData()
             
             if let isAnimate = self?.isAnimateCartView {
-                if self?.addedInCartProducts.count == 0 {
+                if self?.cartProducts.count == 0 {
                     if isAnimate  {
                         self?.isAnimateCartView.toggle()
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -141,23 +136,23 @@ final class CartViewController: UIViewController {
 extension CartViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return addedInCartProducts.count
+        return cartProducts.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "CartCell", for: indexPath) as! CartCell
-        cell.configureCell(model: addedInCartProducts[indexPath.row])
+        cell.configureCell(model: cartProducts[indexPath.row])
         return cell
     }
     
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            let product = addedInCartProducts[indexPath.row]
-            isAnimateCartView = addedInCartProducts.count == 1 ? true : false
-            addedInCartProducts.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .fade)
+            let product = cartProducts[indexPath.row]
+            isAnimateCartView = cartProducts.count == 1 ? true : false
+            cartProducts.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
             managerFB.removeProduct(refProduct: product.refProduct)
         }
     }
@@ -165,7 +160,7 @@ extension CartViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 
         var placesArray: [PlacesTest] = []
-        let product = addedInCartProducts[indexPath.row]
+        let product = cartProducts[indexPath.row]
         let malls = product.malls
         
         arrayPlaces.forEach { (places) in
@@ -176,7 +171,7 @@ extension CartViewController: UITableViewDelegate, UITableViewDataSource {
         
         let productVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "NewProductViewController") as! NewProductViewController
         
-        addedInCartProducts.forEach { (addedProduct) in
+        cartProducts.forEach { (addedProduct) in
             if addedProduct.model == product.model {
                 productVC.isAddedToCard = true
             }
@@ -194,7 +189,7 @@ extension CartViewController: CartViewControllerDelegate {
     func didTaplogInButton() {
         
         let signInVC = NewSignInViewController()
-        signInVC.cardProducts = addedInCartProducts
+        signInVC.cartProducts = cartProducts
         signInVC.delegate = self
         signInVC.presentationController?.delegate = self
         present(signInVC, animated: true, completion: nil)
@@ -210,10 +205,6 @@ extension CartViewController: SignInViewControllerDelegate {
     func userIsPermanent() {
         managerFB.removeObserverForUserAccaunt()
         configureUI()
-        
-//        isAnimateCartView = false
-        print("userIsPermanent")
-//        configureUI()
     }
 }
 
