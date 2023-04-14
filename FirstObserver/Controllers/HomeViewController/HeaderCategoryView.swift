@@ -1,5 +1,5 @@
 //
-//  HeaderProductView.swift
+//  HeaderCategoryView.swift
 //  FirstObserver
 //
 //  Created by Evgenyi on 8.02.23.
@@ -7,16 +7,16 @@
 
 import UIKit
 
-class HeaderProductView: UICollectionReusableView {
+class HeaderCategoryView: UICollectionReusableView {
         
-    static let headerIdentifier = "HeaderProduct"
+    static let headerIdentifier = "HeaderCategory"
     let label:UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
         label.backgroundColor = .clear
-        label.tintColor = .black
+        label.tintColor = R.Colors.textColorBlack
         label.numberOfLines = 0
         return label
     }()
@@ -25,7 +25,7 @@ class HeaderProductView: UICollectionReusableView {
         super.init(frame: frame)
         addSubview(label)
         setupConstraints()
-        backgroundColor = .white
+        backgroundColor = .clear
     }
     
     private func setupConstraints() {
@@ -39,6 +39,4 @@ class HeaderProductView: UICollectionReusableView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    
 }

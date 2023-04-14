@@ -15,21 +15,22 @@ class NewHomeViewController: UIViewController {
 
 //    private var section: [MSectionImage]!
     // MARK: FB property
-    let managerFB = FBManager.shared
+    private let managerFB = FBManager.shared
 //    private var currentUser: User?
     
     private var segmentedControl: UISegmentedControl = {
-        let item = ["Woman","Man"]
+        let item = [R.Strings.TabBarController.Home.ViewsHome.segmentedControlWoman,R.Strings.TabBarController.Home.ViewsHome.segmentedControlMan]
         let segmentControl = UISegmentedControl(items: item)
         segmentControl.translatesAutoresizingMaskIntoConstraints = false
         segmentControl.selectedSegmentIndex = 0
         segmentControl.addTarget(self, action: #selector(didTapSegmentedControl(_:)), for: .valueChanged)
+        segmentControl.isHidden = true
         return segmentControl
     }()
     
     private var loader: UIActivityIndicatorView = {
         let loader = UIActivityIndicatorView()
-        loader.color = .black
+        loader.color = R.Colors.backgroundBlack
         loader.isHidden = true
         loader.hidesWhenStopped = true
         loader.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
@@ -39,13 +40,14 @@ class NewHomeViewController: UIViewController {
     private var activityContainerView: UIView? = {
         let view = UIView()
         view.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
-        view.backgroundColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1)
+//        view.backgroundColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1)
+        view.backgroundColor = R.Colors.backgroundLithGray
         view.layer.cornerRadius = 8
         return view
     }()
     
-    var isNotVisableViewController = false
-    var isFirstStart = true
+    private var isNotVisableViewController = false
+    private var isFirstStart = true
     var modelHomeViewController = [SectionHVC]() {
         didSet {
             if modelHomeViewController.count == 3 {
@@ -53,11 +55,12 @@ class NewHomeViewController: UIViewController {
                 loader.stopAnimating()
                 activityContainerView?.removeFromSuperview()
                 tabBarController?.view.isUserInteractionEnabled = true
+                segmentedControl.isHidden = false
             }
         }
     }
     
-    var modelHomeViewControllerDict = [String:SectionHVC]() {
+     var modelHomeViewControllerDict = [String:SectionHVC]() {
         didSet {
             if self.isOnScreen {
                 if modelHomeViewControllerDict.count == 3 {
@@ -72,12 +75,12 @@ class NewHomeViewController: UIViewController {
     }
     
     var placesMap:[PlacesTest] = []
-    var placesFB:[PlacesFB] = [] {
+    private var placesFB:[PlacesFB] = [] {
         didSet {
             getPlacesMap()
         }
     }
-    var cartProducts:[PopularProduct] = []
+    private var cartProducts:[PopularProduct] = []
     private var collectionViewLayout:UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<SectionHVC, ItemCell>?
 
@@ -118,7 +121,7 @@ class NewHomeViewController: UIViewController {
         }
         
         title = "HomeVC"
-        view.backgroundColor = .white
+        view.backgroundColor = R.Colors.backgroundWhiteLith
         tabBarController?.view.isUserInteractionEnabled = false
         configureActivityIndicatorView()
         view.addSubview(segmentedControl)
@@ -129,14 +132,12 @@ class NewHomeViewController: UIViewController {
     }
 
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        managerFB.removeObserverForUserAccaunt()
-    }
+    
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        hideNavigationBar()
         if !isFirstStart {
             managerFB.getCartProduct { cartProducts in
                 self.cartProducts = cartProducts
@@ -149,6 +150,17 @@ class NewHomeViewController: UIViewController {
             modelHomeViewController = valuesArraySorted
             isNotVisableViewController = false
         }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        print("override func viewDidAppear HVC")
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        showNavigationBar()
+        managerFB.removeObserverForCartProductsUser()
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
@@ -217,8 +229,9 @@ class NewHomeViewController: UIViewController {
     }
     
     private func setupConstraints() {
-        NSLayoutConstraint.activate([segmentedControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor), segmentedControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40), segmentedControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40), collectionViewLayout.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor), collectionViewLayout.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor), collectionViewLayout.trailingAnchor.constraint(equalTo: view.trailingAnchor), collectionViewLayout.leadingAnchor.constraint(equalTo: view.leadingAnchor)])
+        NSLayoutConstraint.activate([segmentedControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor), segmentedControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40), segmentedControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40), collectionViewLayout.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 10), collectionViewLayout.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor), collectionViewLayout.trailingAnchor.constraint(equalTo: view.trailingAnchor), collectionViewLayout.leadingAnchor.constraint(equalTo: view.leadingAnchor)])
     }
+//    collectionViewLayout.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor)
     
     private func createDataSource() {
 
@@ -237,6 +250,7 @@ class NewHomeViewController: UIViewController {
             case "PopularProducts":
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductCellNew.reuseID, for: indexPath) as? ProductCellNew
                 cell?.configureCell(model: cellData)
+//                cell?.setNeedsLayout()
                 return cell
             default:
                 print("default createDataSource")
@@ -250,15 +264,15 @@ class NewHomeViewController: UIViewController {
             
             if kind == "HeaderProduct" {
                 let cell = collectionView.dequeueReusableSupplementaryView(ofKind: HeaderProductView.headerIdentifier, withReuseIdentifier: HeaderProductView.headerIdentifier, for: IndexPath) as? HeaderProductView
-                cell?.configureCell(title: "Products")
+                cell?.configureCell(title: R.Strings.TabBarController.Home.ViewsHome.headerProductView)
                 return cell
             } else if kind == "HeaderCategory" {
                 let cell = collectionView.dequeueReusableSupplementaryView(ofKind: HeaderCategoryView.headerIdentifier, withReuseIdentifier: HeaderCategoryView.headerIdentifier, for: IndexPath) as? HeaderCategoryView
-                cell?.configureCell(title: "Brands")
+                cell?.configureCell(title: R.Strings.TabBarController.Home.ViewsHome.headerCategoryView)
                 return cell
             } else if kind == "HeaderMalls" {
                 let cell = collectionView.dequeueReusableSupplementaryView(ofKind: HeaderMallsView.headerIdentifier, withReuseIdentifier: HeaderMallsView.headerIdentifier, for: IndexPath) as? HeaderMallsView
-                cell?.configureCell(title: "Malls")
+                cell?.configureCell(title: R.Strings.TabBarController.Home.ViewsHome.headerMallsView)
                 return cell
             } else {
                 return nil

@@ -255,11 +255,8 @@ final class FBManager {
     
     
     // MARK: - CatalogViewController -
-
-    
     func getPreviewCatalog(completionHandler: @escaping ([PreviewCategory]) -> Void) {
-        let databaseRef = Database.database().reference()
-        databaseRef.child("catalog").observe(.value) { (snapshot) in
+        refHandle = Database.database().reference().child("catalog").observe(.value) { (snapshot) in
             var arrayCatalog = [PreviewCategory]()
             for item in snapshot.children {
                 let category = item as! DataSnapshot
@@ -267,10 +264,15 @@ final class FBManager {
                 arrayCatalog.append(model)
             }
             completionHandler(arrayCatalog)
-//            self?.arrayCatalog = arrayCatalog
-//            self?.collectionView.reloadData()
         }
     }
+    
+    func removeObserverCatalog() {
+        if let refHandle = refHandle {
+            Database.database().reference().child("catalog").removeObserver(withHandle: refHandle)
+        }
+    }
+
     
     // MARK: - HomeViewController -
     
@@ -292,9 +294,9 @@ final class FBManager {
         }
     }
     
-    func removeObserverForUserAccaunt() {
-        if let refHandle = refHandle {
-            Database.database().reference().child("usersAccaunt/\(currentUser?.uid ?? "")").removeObserver(withHandle: refHandle)
+    func removeObserverForCartProductsUser() {
+        if let refHandle = refHandle, let currentUser = currentUser {
+            Database.database().reference().child("usersAccaunt/\(currentUser.uid)").removeObserver(withHandle: refHandle)
         }
     }
 

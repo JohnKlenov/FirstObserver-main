@@ -34,7 +34,7 @@ class ProductCellForBrandsVC: UICollectionViewCell {
         
         collectionViewLayout = UICollectionView(frame: contentView.bounds, collectionViewLayout: createLayout())
         collectionViewLayout.translatesAutoresizingMaskIntoConstraints = false
-        collectionViewLayout.backgroundColor = .clear
+        collectionViewLayout.backgroundColor = R.Colors.backgroundWhiteLith
         contentView.addSubview(collectionViewLayout)
         setupConstraints()
         collectionViewLayout.register(ProductCellForProductCell.self, forCellWithReuseIdentifier: ProductCellForProductCell.reuseID)

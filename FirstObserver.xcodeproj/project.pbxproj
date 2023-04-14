@@ -223,7 +223,7 @@
 			path = MapViewController;
 			sourceTree = "<group>";
 		};
-		5E0BF4702993AE2200FB99BE /* NewHomeViewController */ = {
+		5E0BF4702993AE2200FB99BE /* HomeViewController */ = {
 			isa = PBXGroup;
 			children = (
 				5EF2FFBF298EA3C100D32FCB /* NewHomeViewController.swift */,
@@ -235,13 +235,12 @@
 				5E0BF47B2993B00D00FB99BE /* HeaderCategoryView.swift */,
 				5E0BF47D2993B04100FB99BE /* HeaderMallsView.swift */,
 			);
-			path = NewHomeViewController;
+			path = HomeViewController;
 			sourceTree = "<group>";
 		};
 		5E139C5628C1FA43004F963D /* viewsCatalogVC */ = {
 			isa = PBXGroup;
 			children = (
-				5E139C5728C1FAB7004F963D /* CatalogCollectionViewCell.swift */,
 			);
 			path = viewsCatalogVC;
 			sourceTree = "<group>";
@@ -250,8 +249,6 @@
 			isa = PBXGroup;
 			children = (
 				5E146AF7299EA77600959BC4 /* oldCartCell */,
-				5E61BCCC299E3A4F009C8366 /* CartCell.swift */,
-				5E146AFA299EABAE00959BC4 /* CartView.swift */,
 			);
 			path = xibCartVC;
 			sourceTree = "<group>";
@@ -298,6 +295,7 @@
 		5E731C9228E443B900AF3A21 /* Authentication */ = {
 			isa = PBXGroup;
 			children = (
+				5EA94470294B5773007C2AB5 /* AlertTopView.swift */,
 				5E731C9328E443F600AF3A21 /* SignInViewController.swift */,
 				5E731C9528E4441200AF3A21 /* SignUpViewController.swift */,
 			);
@@ -308,10 +306,6 @@
 			isa = PBXGroup;
 			children = (
 				5E3F0541299C1C6900678956 /* legacyProductCell */,
-				5E759F0228BDF0E600D17F13 /* GroupCell.swift */,
-				5E759F0328BDF0E600D17F13 /* GroupCell.xib */,
-				5E3F053D299C12B000678956 /* ProductCellForBrandsVC.swift */,
-				5E3F053F299C183C00678956 /* ProductCellForProductCell.swift */,
 			);
 			path = xibBrandsVC;
 			sourceTree = "<group>";
@@ -336,7 +330,6 @@
 		5E7C7E292919551B00AC57CB /* viewsMallsVC */ = {
 			isa = PBXGroup;
 			children = (
-				5E7C7E2A2919555200AC57CB /* MallCollectionViewCell.swift */,
 			);
 			path = viewsMallsVC;
 			sourceTree = "<group>";
@@ -377,6 +370,7 @@
 		5E7EF55D28A12DBB00814F4D /* FirstObserver */ = {
 			isa = PBXGroup;
 			children = (
+				5EA4A3D529E93C3600913E3F /* OldVC */,
 				5E9C8E02297A7EC9009855AE /* FBManager */,
 				5E7E2D9C29211EEC00A2F462 /* MapManager */,
 				5E759F0C28BE12D700D17F13 /* Helpers */,
@@ -398,27 +392,21 @@
 		5E7EF58428A53B0300814F4D /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				5EA4A3DA29E9502F00913E3F /* CartViewController */,
+				5EA4A3D929E94EF300913E3F /* CategoriesViewController */,
+				5EA4A3D829E94E8700913E3F /* BrandsViewController */,
+				5EA4A3D729E94DB300913E3F /* CatalogViewController */,
+				5EA4A3D629E94D2B00913E3F /* MallsViewController */,
 				5EBA6C4B29D2DFA9004ABD6E /* ContainerViewController */,
-				5E86E80D29C8919C00B26907 /* NewProfileViewController */,
-				5EA25D1029BB261600EF06F6 /* NewAuthentication */,
+				5E86E80D29C8919C00B26907 /* ProfileViewController */,
+				5EA25D1029BB261600EF06F6 /* AuthenticationVC */,
 				5E069F8629BA63BF003BF506 /* MapViewController */,
 				5E6DEDB029B34731004A87BC /* FullScreenViewController */,
-				5EAA598829A8CD2F00AEFE45 /* NewProductViewController */,
-				5EA65C7229A653C800EA6FA2 /* NewMallViewController */,
-				5E0BF4702993AE2200FB99BE /* NewHomeViewController */,
-				5E9101DD291CFE2500D37E92 /* childCVC */,
+				5EAA598829A8CD2F00AEFE45 /* ProductViewController */,
+				5EA65C7229A653C800EA6FA2 /* MallViewController */,
+				5E0BF4702993AE2200FB99BE /* HomeViewController */,
 				5E731C9228E443B900AF3A21 /* Authentication */,
 				5E7EF59228AE3A6400814F4D /* OnboardVC */,
-				5E7EF57828A13C2500814F4D /* ProfileViewController.swift */,
-				5E8DC52528D5BCB400275138 /* ContaktMallViewController.swift */,
-				5E7EF57628A13BF600814F4D /* MallsViewController.swift */,
-				5E7EF57428A13BB300814F4D /* CatalogViewController.swift */,
-				5E7EF57228A13B6300814F4D /* HomeViewController.swift */,
-				5E7EF56228A12DBB00814F4D /* CartViewController.swift */,
-				5E759EFF28BA613500D17F13 /* BrandsViewController.swift */,
-				5E139C5928C4BEF9004F963D /* AllProductViewController.swift */,
-				5E175A4228CB6ED000773C77 /* ProductViewController.swift */,
-				5E7C7E2E29196BF200AC57CB /* MallViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -487,13 +475,13 @@
 			path = OnboardVC;
 			sourceTree = "<group>";
 		};
-		5E86E80D29C8919C00B26907 /* NewProfileViewController */ = {
+		5E86E80D29C8919C00B26907 /* ProfileViewController */ = {
 			isa = PBXGroup;
 			children = (
 				5E86E80E29C891C900B26907 /* NewProfileViewController.swift */,
 				5E5625E229CA55E40089B5BF /* NavigationController.swift */,
 			);
-			path = NewProfileViewController;
+			path = ProfileViewController;
 			sourceTree = "<group>";
 		};
 		5E9101D8291B94EE00D37E92 /* viewsMallVC */ = {
@@ -520,7 +508,7 @@
 			path = FBManager;
 			sourceTree = "<group>";
 		};
-		5EA25D1029BB261600EF06F6 /* NewAuthentication */ = {
+		5EA25D1029BB261600EF06F6 /* AuthenticationVC */ = {
 			isa = PBXGroup;
 			children = (
 				5EA25D1129BB266B00EF06F6 /* NewSignInViewController.swift */,
@@ -528,10 +516,71 @@
 				5E7B462229BC566E005D2701 /* EyeButton.swift */,
 				5E7B462429BF2772005D2701 /* NewSignUpViewController.swift */,
 			);
-			path = NewAuthentication;
+			path = AuthenticationVC;
 			sourceTree = "<group>";
 		};
-		5EA65C7229A653C800EA6FA2 /* NewMallViewController */ = {
+		5EA4A3D529E93C3600913E3F /* OldVC */ = {
+			isa = PBXGroup;
+			children = (
+				5E9101DD291CFE2500D37E92 /* childCVC */,
+				5E8DC52528D5BCB400275138 /* ContaktMallViewController.swift */,
+				5E175A4228CB6ED000773C77 /* ProductViewController.swift */,
+				5E7C7E2E29196BF200AC57CB /* MallViewController.swift */,
+				5E7EF57228A13B6300814F4D /* HomeViewController.swift */,
+				5E7EF57828A13C2500814F4D /* ProfileViewController.swift */,
+			);
+			path = OldVC;
+			sourceTree = "<group>";
+		};
+		5EA4A3D629E94D2B00913E3F /* MallsViewController */ = {
+			isa = PBXGroup;
+			children = (
+				5E7EF57628A13BF600814F4D /* MallsViewController.swift */,
+				5E7C7E2A2919555200AC57CB /* MallCollectionViewCell.swift */,
+			);
+			path = MallsViewController;
+			sourceTree = "<group>";
+		};
+		5EA4A3D729E94DB300913E3F /* CatalogViewController */ = {
+			isa = PBXGroup;
+			children = (
+				5E139C5728C1FAB7004F963D /* CatalogCollectionViewCell.swift */,
+				5E7EF57428A13BB300814F4D /* CatalogViewController.swift */,
+			);
+			path = CatalogViewController;
+			sourceTree = "<group>";
+		};
+		5EA4A3D829E94E8700913E3F /* BrandsViewController */ = {
+			isa = PBXGroup;
+			children = (
+				5E759F0228BDF0E600D17F13 /* GroupCell.swift */,
+				5E3F053D299C12B000678956 /* ProductCellForBrandsVC.swift */,
+				5E3F053F299C183C00678956 /* ProductCellForProductCell.swift */,
+				5E759F0328BDF0E600D17F13 /* GroupCell.xib */,
+				5E759EFF28BA613500D17F13 /* BrandsViewController.swift */,
+			);
+			path = BrandsViewController;
+			sourceTree = "<group>";
+		};
+		5EA4A3D929E94EF300913E3F /* CategoriesViewController */ = {
+			isa = PBXGroup;
+			children = (
+				5E139C5928C4BEF9004F963D /* AllProductViewController.swift */,
+			);
+			path = CategoriesViewController;
+			sourceTree = "<group>";
+		};
+		5EA4A3DA29E9502F00913E3F /* CartViewController */ = {
+			isa = PBXGroup;
+			children = (
+				5E146AFA299EABAE00959BC4 /* CartView.swift */,
+				5E61BCCC299E3A4F009C8366 /* CartCell.swift */,
+				5E7EF56228A12DBB00814F4D /* CartViewController.swift */,
+			);
+			path = CartViewController;
+			sourceTree = "<group>";
+		};
+		5EA65C7229A653C800EA6FA2 /* MallViewController */ = {
 			isa = PBXGroup;
 			children = (
 				5EA65C7329A653EA00EA6FA2 /* NewMallViewController.swift */,
@@ -541,18 +590,17 @@
 				5EA65C7B29A6548B00EA6FA2 /* BrandCellMallVC.swift */,
 				5EA65C7D29A654D300EA6FA2 /* MallSection.swift */,
 			);
-			path = NewMallViewController;
+			path = MallViewController;
 			sourceTree = "<group>";
 		};
 		5EA9446F294B5706007C2AB5 /* viewsSignInVC */ = {
 			isa = PBXGroup;
 			children = (
-				5EA94470294B5773007C2AB5 /* AlertTopView.swift */,
 			);
 			path = viewsSignInVC;
 			sourceTree = "<group>";
 		};
-		5EAA598829A8CD2F00AEFE45 /* NewProductViewController */ = {
+		5EAA598829A8CD2F00AEFE45 /* ProductViewController */ = {
 			isa = PBXGroup;
 			children = (
 				5EAA598929A8CD7B00AEFE45 /* NewProductViewController.swift */,
@@ -561,7 +609,7 @@
 				5E92FDF929A9F16E002CDE51 /* TestModelProductVC.swift */,
 				5E6DEDB929B7889B004A87BC /* NumberPagesView.swift */,
 			);
-			path = NewProductViewController;
+			path = ProductViewController;
 			sourceTree = "<group>";
 		};
 		5EBA6C4B29D2DFA9004ABD6E /* ContainerViewController */ = {

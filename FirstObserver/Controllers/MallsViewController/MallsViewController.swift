@@ -21,20 +21,20 @@ class MallsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.title = "Malls"
+        title = R.Strings.TabBarController.Malls.title
+        view.backgroundColor = R.Colors.backgroundWhiteLith
         collectionView.delegate = self
         collectionView.dataSource = self
-        
+        collectionView.backgroundColor = .clear
         hightCellVC = (collectionView.frame.height/3)*0.86
-//        getFetchDataHVC()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        getFetchDataHVC()
+        getDataHVC()
     }
     
-    private func getFetchDataHVC() {
+    private func getDataHVC() {
         
         guard let tabBarVCs = tabBarController?.viewControllers else {return}
         
@@ -42,10 +42,12 @@ class MallsViewController: UIViewController {
             
             if let nc = vc as? UINavigationController {
                 if let homeVC = nc.topViewController as? NewHomeViewController {
+//                    homeVC.
+                    
                     self.arrayPins = homeVC.placesMap
-                    let mallsSection = homeVC.modelHomeViewController.filter({$0.section == "Malls"})
+                    let mallsSection = homeVC.modelHomeViewControllerDict.filter({$0.value.section == "Malls"})
                     var malls:[PreviewCategory] = []
-                    if let items = mallsSection.first?.items {
+                    if let items = mallsSection.first?.value.items {
                         items.forEach { item in
                             if let mall = item.malls {
                                 malls.append(mall)
@@ -54,9 +56,9 @@ class MallsViewController: UIViewController {
                         self.mallsModel = malls
                     }
                     
-                    let brandsSection = homeVC.modelHomeViewController.filter({$0.section == "Brands"})
+                    let brandsSection = homeVC.modelHomeViewControllerDict.filter({$0.value.section == "Brands"})
                     var brands:[PreviewCategory] = []
-                    if let items = brandsSection.first?.items {
+                    if let items = brandsSection.first?.value.items {
                         items.forEach { item in
                             if let brand = item.brands {
                                 brands.append(brand)

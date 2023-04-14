@@ -39,7 +39,7 @@ final class NewProfileViewController: UIViewController {
         textField.tintColor = R.Colors.textColorBlack
         textField.textContentType = .name
         textField.backgroundColor = .clear
-        textField.placeholder = R.Strings.TabBarController.Profile.Views.placeholderNameTextField
+        textField.placeholder = R.Strings.TabBarController.Profile.ViewsProfile.placeholderNameTextField
         return textField
     }()
     
@@ -72,7 +72,7 @@ final class NewProfileViewController: UIViewController {
         var container = AttributeContainer()
         container.font = UIFont.systemFont(ofSize: 17, weight: .medium)
         container.foregroundColor = R.Colors.textColorLithWhite
-        configuration.attributedTitle = AttributedString(R.Strings.TabBarController.Profile.Views.signInUpButton, attributes: container)
+        configuration.attributedTitle = AttributedString(R.Strings.TabBarController.Profile.ViewsProfile.signInUpButton, attributes: container)
 
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
@@ -89,7 +89,7 @@ final class NewProfileViewController: UIViewController {
         var container = AttributeContainer()
         container.font = UIFont.systemFont(ofSize: 17, weight: .medium)
         container.foregroundColor = R.Colors.textColorLithWhite
-        configuration.attributedTitle = AttributedString(R.Strings.TabBarController.Profile.Views.signOutButton, attributes: container)
+        configuration.attributedTitle = AttributedString(R.Strings.TabBarController.Profile.ViewsProfile.signOutButton, attributes: container)
        
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
@@ -106,7 +106,7 @@ final class NewProfileViewController: UIViewController {
         var container = AttributeContainer()
         container.font = UIFont.systemFont(ofSize: 17, weight: .medium)
         container.foregroundColor = R.Colors.textColorRed
-        configuration.attributedTitle = AttributedString(R.Strings.TabBarController.Profile.Views.deleteButton, attributes: container)
+        configuration.attributedTitle = AttributedString(R.Strings.TabBarController.Profile.ViewsProfile.deleteButton, attributes: container)
        
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
@@ -128,7 +128,7 @@ final class NewProfileViewController: UIViewController {
     
     let editButton: UIButton = {
         var configButton = UIButton.Configuration.plain()
-        configButton.title = R.Strings.TabBarController.Profile.Views.navBarButtonEdit
+        configButton.title = R.Strings.TabBarController.Profile.ViewsProfile.navBarButtonEdit
         configButton.baseForegroundColor = R.Colors.textColorActive
         configButton.titleAlignment = .trailing
         configButton.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incomig in
@@ -144,7 +144,7 @@ final class NewProfileViewController: UIViewController {
     
     let cancelButton: UIButton = {
         var configButton = UIButton.Configuration.plain()
-        configButton.title = R.Strings.TabBarController.Profile.Views.navBarButtonCancel
+        configButton.title = R.Strings.TabBarController.Profile.ViewsProfile.navBarButtonCancel
         configButton.baseForegroundColor = R.Colors.textColorActive
         configButton.titleAlignment = .trailing
         configButton.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incomig in
@@ -225,7 +225,7 @@ final class NewProfileViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        managerFB.removeObserverForUserAccaunt()
+        managerFB.removeObserverForCartProductsUser()
     }
     
     
@@ -290,7 +290,7 @@ final class NewProfileViewController: UIViewController {
     private func updateUIForAnonymousUser() {
         editButton.isHidden = true
         cancelButton.isHidden = true
-        userNameTextField.text = R.Strings.TabBarController.Profile.Views.anonymousNameTextField
+        userNameTextField.text = R.Strings.TabBarController.Profile.ViewsProfile.anonymousNameTextField
         userNameTextField.isUserInteractionEnabled = false
         imageUser.image = R.Images.Profile.defaultAvatarImage
         imageUser.isUserInteractionEnabled = false
@@ -343,13 +343,13 @@ final class NewProfileViewController: UIViewController {
     }
 
     private func enableSaveButton(isSwitch: Bool) {
-        editButton.configuration?.title = R.Strings.TabBarController.Profile.Views.navBarButtonSave
+        editButton.configuration?.title = R.Strings.TabBarController.Profile.ViewsProfile.navBarButtonSave
         editButton.configuration?.baseForegroundColor = isSwitch ? R.Colors.textColorActive : R.Colors.textColorLithGray
         editButton.isUserInteractionEnabled = isSwitch ? true : false
     }
 
     private func enableEditButton(isSwitch: Bool) {
-        editButton.configuration?.title = R.Strings.TabBarController.Profile.Views.navBarButtonEdit
+        editButton.configuration?.title = R.Strings.TabBarController.Profile.ViewsProfile.navBarButtonEdit
         editButton.configuration?.baseForegroundColor = isSwitch ? R.Colors.textColorActive : R.Colors.textColorLithGray
         editButton.isUserInteractionEnabled = isSwitch ? true : false
     }

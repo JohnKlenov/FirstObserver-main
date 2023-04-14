@@ -35,7 +35,7 @@ class BrandsViewController: UIViewController {
             if let group = popularGarderob?.groups.first, let groups = popularGarderob?.groups, groups.count > 0 {
                 selectedGroup = group
             } else {
-                self.title = "Brand"
+                self.title = R.Strings.OtherControllers.BrandProducts.title
             }
             groupsCollectionView.reloadData()
             collectionView.reloadData()
@@ -53,13 +53,14 @@ class BrandsViewController: UIViewController {
         groupsCollectionView.register(nibGroup, forCellWithReuseIdentifier: "GroupCell")
         groupsCollectionView.delegate = self
         groupsCollectionView.dataSource = self
+        groupsCollectionView.backgroundColor = R.Colors.backgroundWhiteLith
         
 //        let nibProduct = UINib(nibName: "ProductCell", bundle: nil)
 //        collectionView.register(nibProduct, forCellWithReuseIdentifier: "ProductCell")
         collectionView.register(ProductCellForBrandsVC.self, forCellWithReuseIdentifier: ProductCellForBrandsVC.reuseID)
         collectionView.delegate = self
         collectionView.dataSource = self
-        
+        collectionView.backgroundColor =  R.Colors.backgroundWhiteLith
         
         
 //        if let group = menu.groups.first?.groups, group.count > 0 {
@@ -88,7 +89,7 @@ class BrandsViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        managerFB.removeObserverForUserAccaunt()
+        managerFB.removeObserverForCartProductsUser()
     }
     
     override func viewWillLayoutSubviews() {

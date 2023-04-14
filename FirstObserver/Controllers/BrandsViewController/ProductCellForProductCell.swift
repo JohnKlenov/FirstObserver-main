@@ -86,6 +86,11 @@ class ProductCellForProductCell: UICollectionViewCell {
         storage = Storage.storage()
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        print("ProductCellForProductCell modelLabel.frame.height - \(modelLabel.frame.height)")
+    }
+    
     private func configureStackView() {
         let arrayViews = [brandLabel, modelLabel, mallLabel, priceLabel]
         arrayViews.forEach { view in

@@ -31,14 +31,15 @@ enum R {
         static let backgroundButtonBlack = UIColor(hexString: "#131313")
         static let backgroundLithGray = UIColor(hexString: "#B5B5B5")
         static let backgroundRed = UIColor(hexString: "#F8173E")
+        static let backgroundWhite = UIColor(hexString: "#FFFFFF")
         
-        static let baseBackgroundBlack2 = UIColor(hexString: "#202020")
-        static let baseBackgroundWhite2 = UIColor(hexString: "#F8F8FF")
-        static let baseBackgroundLithGray = UIColor(hexString: "#F0F0F0")
-        static let baseBackgroundLithGray2 = UIColor(hexString: "#E0E0E0")
-        static let baseBackgroundLithGray3 = UIColor(hexString: "#D0D0D0")
-        static let baseBackgroundDarkGray = UIColor(hexString: "#888888")
-        static let baseBackgroundActive = UIColor(hexString: "#BA55D3")
+//        static let baseBackgroundBlack2 = UIColor(hexString: "#202020")
+//        static let baseBackgroundWhite2 = UIColor(hexString: "#F8F8FF")
+//        static let baseBackgroundLithGray = UIColor(hexString: "#F0F0F0")
+//        static let baseBackgroundLithGray2 = UIColor(hexString: "#E0E0E0")
+//        static let baseBackgroundLithGray3 = UIColor(hexString: "#D0D0D0")
+//        static let baseBackgroundDarkGray = UIColor(hexString: "#888888")
+//        static let baseBackgroundActive = UIColor(hexString: "#BA55D3")
         
         
         static let textColorBlack = UIColor(hexString: "#000000")
@@ -79,9 +80,21 @@ enum R {
         }
         
         enum TabBarController {
-            enum Home {}
-            enum Catalog {}
-            enum Malls {}
+            enum Home {
+                enum ViewsHome {
+                    static let segmentedControlMan = "Man"
+                    static let segmentedControlWoman = "Woman"
+                    static let headerProductView = "Products"
+                    static let headerCategoryView = "Brands"
+                    static let headerMallsView = "Malls"
+                }
+            }
+            enum Catalog {
+                static let title = "Catalog"
+            }
+            enum Malls {
+                static let title = "Malls"
+            }
             enum Cart {
                 static let title = "Cart"
                 enum CartView {
@@ -96,7 +109,7 @@ enum R {
             }
             
             enum Profile {
-                enum Views {
+                enum ViewsProfile {
                     static let navBarButtonEdit = "Edit"
                     static let navBarButtonSave = "Save"
                     static let navBarButtonCancel = "Cancel"
@@ -152,7 +165,9 @@ enum R {
         
         enum OtherControllers {
             enum Product {}
-            enum BrandProducts {}
+            enum BrandProducts {
+                static let title = "Brand"
+            }
             enum CategoryProducts {}
             enum Mall {}
             enum Map {}

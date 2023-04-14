@@ -47,7 +47,7 @@ final class CartViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        managerFB.removeObserverForUserAccaunt()
+        managerFB.removeObserverForCartProductsUser()
     }
     
   
@@ -203,7 +203,7 @@ extension CartViewController: CartViewControllerDelegate {
 
 extension CartViewController: SignInViewControllerDelegate {
     func userIsPermanent() {
-        managerFB.removeObserverForUserAccaunt()
+        managerFB.removeObserverForCartProductsUser()
         configureUI()
     }
 }

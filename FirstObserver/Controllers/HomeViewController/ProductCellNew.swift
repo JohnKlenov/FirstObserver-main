@@ -29,7 +29,7 @@ class ProductCellNew: UICollectionViewCell {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 15, weight: .medium)
         label.backgroundColor = .clear
-        label.textColor = .black
+        label.textColor = R.Colors.textColorBlack
         label.numberOfLines = 2
         return label
     }()
@@ -40,8 +40,8 @@ class ProductCellNew: UICollectionViewCell {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 13)
         label.backgroundColor = .clear
-        label.textColor = .black.withAlphaComponent(0.8)
-        label.numberOfLines = 2
+        label.textColor = R.Colors.textColorDarkGray
+        label.numberOfLines = 1
         return label
     }()
     
@@ -51,7 +51,7 @@ class ProductCellNew: UICollectionViewCell {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 13)
         label.backgroundColor = .clear
-        label.textColor = .orange.withAlphaComponent(0.8)
+        label.textColor = R.Colors.textColorActive
         label.numberOfLines = 0
         return label
     }()
@@ -62,7 +62,7 @@ class ProductCellNew: UICollectionViewCell {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 15, weight: .medium)
         label.backgroundColor = .clear
-        label.textColor = .black
+        label.textColor = R.Colors.textColorBlack
         label.numberOfLines = 0
         return label
     }()
@@ -76,15 +76,32 @@ class ProductCellNew: UICollectionViewCell {
         return stack
     }()
     
+    var topPriceLabelkCnstr: NSLayoutConstraint!
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-//        contentView.backgroundColor = .lightGray
         configureStackView()
         contentView.addSubview(imageView)
         contentView.addSubview(stackView)
+        contentView.addSubview(priceLabel)
         setupConstraints()
         storage = Storage.storage()
+        contentView.backgroundColor = R.Colors.backgroundWhite
+        contentView.layer.cornerRadius = 8
     }
+    
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        print("func layoutSubviews()   - \(modelLabel.frame.height)")
+    }
+    
+    override func updateConstraints() {
+        super.updateConstraints()
+        print("func updateConstraints()  - \(modelLabel.frame.height)")
+    }
+    
     
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -93,13 +110,17 @@ class ProductCellNew: UICollectionViewCell {
     }
     
     private func configureStackView() {
-        let arrayViews = [brandLabel, modelLabel, mallLabel, priceLabel]
+//        let arrayViews = [brandLabel, modelLabel, mallLabel, priceLabel]
+        let arrayViews = [brandLabel, modelLabel, mallLabel]
         arrayViews.forEach { view in
             stackView.addArrangedSubview(view)
+            
         }
     }
     
     private func setupConstraints() {
+        
+        print("setupConstraints() ")
         
         let topImageViewCnstr = imageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0)
         topImageViewCnstr.priority = UILayoutPriority(999)
@@ -116,16 +137,26 @@ class ProductCellNew: UICollectionViewCell {
         
         let topStackCnstr = stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 0)
         topStackCnstr.isActive = true
-        
+
         let trailingStackCnstr = stackView.trailingAnchor.constraint(equalTo: imageView.trailingAnchor)
         trailingStackCnstr.isActive = true
-        
+
         let leadingStackCnstr = stackView.leadingAnchor.constraint(equalTo: imageView.leadingAnchor)
         leadingStackCnstr.isActive = true
         
-        let bottomStackCnstr = stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0)
-        bottomStackCnstr.priority = UILayoutPriority(999)
-        bottomStackCnstr.isActive = true
+        topPriceLabelkCnstr = priceLabel.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 10)
+        topPriceLabelkCnstr.isActive = true
+        
+        let trailingLabalCnstr = priceLabel.trailingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 0)
+        trailingLabalCnstr.isActive = true
+
+        let leadingLabelCnstr = priceLabel.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 0)
+        leadingLabelCnstr.isActive = true
+
+        let bottomLabelCnstr = priceLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0)
+        bottomLabelCnstr.priority = UILayoutPriority(999)
+        bottomLabelCnstr.isActive = true
+
     }
 
     
@@ -141,8 +172,50 @@ class ProductCellNew: UICollectionViewCell {
         modelLabel.text = model.popularProduct?.model
         mallLabel.text = model.popularProduct?.malls.first
         priceLabel.text = model.popularProduct?.price
+        print("modelLabel.text - \(String(describing: modelLabel.text))")
     }
     
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+
+
+//
+////        modelLabel.setNeedsLayout()
+//        if modelLabel.frame.height > mallLabel.frame.height {
+//            print("big modelLabel")
+////            bottomStackCnstr = stackView.bottomAnchor.constraint(equalTo: priceLabel.topAnchor, constant: 0)
+//            topPriceLabelkCnstr.constant = 0
+//
+////            bottomStackCnstr.isActive = true
+//        } else {
+//            print("litle modelLabel")
+////            bottomStackCnstr = stackView.bottomAnchor.constraint(equalTo: priceLabel.topAnchor, constant: mallLabel.frame.height)
+//            topPriceLabelkCnstr.constant = mallLabel.frame.height
+//
+////            bottomStackCnstr.isActive = true
+//        }
+        
+        
+//        if modelLabel.frame.height == mallLabel.frame.height, modelLabel.frame.height != 0, mallLabel.frame.height != 0 {
+//            if isEqual {
+//                print("isEqual")
+//                topPriceLabelkCnstr.constant = mallLabel.frame.height
+//                isEqual.toggle()
+//                setNeedsLayout()
+//            }
+//        } else if modelLabel.frame.height > mallLabel.frame.height {
+//            if isNotEqual {
+//                print("isNotEqual")
+//                topPriceLabelkCnstr.constant = 0
+//                isNotEqual.toggle()
+//                setNeedsLayout()
+//            }
+//        }
+
 //    func configureCellforProductCell(model: PopularProduct) {
 ////        imageView.image = UIImage(named: model.popularProduct?.refArray.first ?? "")
 ////        if let firstRef = model.popularProduct?.refArray.first {
@@ -159,7 +232,37 @@ class ProductCellNew: UICollectionViewCell {
 //        priceLabel.text = model.price
 //    }
 //
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
+
+//        if modelLabel.frame.height == mallLabel.frame.height, modelLabel.frame.height != 0, mallLabel.frame.height != 0 {
+//                   if isEqual {
+//                       print("isEqual")
+//                       topPriceLabelkCnstr.constant = mallLabel.frame.height
+//                       isEqual.toggle()
+//                       setNeedsUpdateConstraints()
+//                       setNeedsLayout()
+//                   }
+//               } else if modelLabel.frame.height > mallLabel.frame.height {
+//                   if isNotEqual {
+//                       print("isNotEqual")
+//                       topPriceLabelkCnstr.constant = 0
+//                       isNotEqual.toggle()
+//                       setNeedsUpdateConstraints()
+//                       setNeedsLayout()
+//                   }
+//               }
+
+//        let topStackCnstr = stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 0)
+//////        let topStackCnstr = stackView.topAnchor.constraint(greaterThanOrEqualTo: <#T##NSLayoutAnchor<NSLayoutYAxisAnchor>#>, constant: <#T##CGFloat#>)
+//        topStackCnstr.isActive = true
+////
+//        let trailingStackCnstr = stackView.trailingAnchor.constraint(equalTo: imageView.trailingAnchor)
+//        trailingStackCnstr.isActive = true
+//
+//        let leadingStackCnstr = stackView.leadingAnchor.constraint(equalTo: imageView.leadingAnchor)
+//        leadingStackCnstr.isActive = true
+//
+//        let bottomStackCnstr = stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0)
+//        bottomStackCnstr.priority = UILayoutPriority(999)
+//        bottomStackCnstr.isActive = true
+//    var isEqual = true
+//    var isNotEqual = true

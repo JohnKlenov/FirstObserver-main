@@ -16,7 +16,7 @@ class HeaderMallsView: UICollectionReusableView {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
         label.backgroundColor = .clear
-        label.tintColor = .black
+        label.tintColor = R.Colors.textColorBlack
         label.numberOfLines = 0
         return label
     }()

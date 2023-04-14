@@ -24,26 +24,30 @@ class CatalogViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.title = "Catalog"
+        title = R.Strings.TabBarController.Catalog.title
+        view.backgroundColor = R.Colors.backgroundWhiteLith
         collectionView.delegate = self
         collectionView.dataSource = self
-        
+        collectionView.backgroundColor = .clear
         heightCellCV = (collectionView.frame.height/3)*0.86
-//        getFetchDataHVC()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        getFetchDataHVC()
-        // нужен removeObserver for viewWillDisapear 
+        getPlacesMapHVC()
         managerFB.getPreviewCatalog { catalog in
             self.arrayCatalog = catalog
             self.collectionView.reloadData()
         }
     }
     
-    private func getFetchDataHVC() {
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(true)
+        managerFB.removeObserverCatalog()
+    }
+    
+    private func getPlacesMapHVC() {
         
         guard let tabBarVCs = tabBarController?.viewControllers else {return}
         
@@ -51,7 +55,7 @@ class CatalogViewController: UIViewController {
             if let nc = vc as? UINavigationController {
                 if let homeVC = nc.topViewController as? NewHomeViewController {
                     self.arrayPins = homeVC.placesMap
-
+                    
                 }
             }
         }
