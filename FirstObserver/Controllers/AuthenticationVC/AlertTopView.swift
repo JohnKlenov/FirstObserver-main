@@ -15,7 +15,7 @@ class AlertTopView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .medium)
         label.textAlignment = .center
-        label.textColor = .black
+        label.textColor = R.Colors.textColorBlack
         return label
     }()
     

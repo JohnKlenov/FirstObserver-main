@@ -16,7 +16,7 @@ class HeaderCategoryView: UICollectionReusableView {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
         label.backgroundColor = .clear
-        label.tintColor = R.Colors.textColorBlack
+        label.tintColor = R.Colors.label
         label.numberOfLines = 0
         return label
     }()

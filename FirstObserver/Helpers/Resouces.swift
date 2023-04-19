@@ -19,28 +19,20 @@ enum R {
     
     // MARK: - Colors -
     enum Colors {
-//        static let activeFirst = UIColor(hexString: "#FBD86D")
-//        static let activeSecond = UIColor(hexString: "#8D5FF7")
-//        static let activeThird = UIColor(hexString: "#59D7F9")
-//        static let inactive = UIColor(hexString: "#929DA5")
-//        static let red = UIColor(hexString: "#F8173E")
         
         static let backgroundBlack = UIColor(hexString: "#000000")
         static let backgroundBlackLith = UIColor(hexString: "#1C1C1C")
-        static let backgroundWhiteLith = UIColor(hexString: "#F8F4FF")
+        static let backgroundWhiteLith2 = UIColor(hexString: "#F8F4FF")
+        static let backgroundWhiteLith = UIColor(hexString: "#FFFFFFFF")
+        
         static let backgroundButtonBlack = UIColor(hexString: "#131313")
         static let backgroundLithGray = UIColor(hexString: "#B5B5B5")
         static let backgroundRed = UIColor(hexString: "#F8173E")
         static let backgroundWhite = UIColor(hexString: "#FFFFFF")
+        static let backgroundActive = UIColor(hexString: "#BA55D3")
         
-//        static let baseBackgroundBlack2 = UIColor(hexString: "#202020")
-//        static let baseBackgroundWhite2 = UIColor(hexString: "#F8F8FF")
-//        static let baseBackgroundLithGray = UIColor(hexString: "#F0F0F0")
-//        static let baseBackgroundLithGray2 = UIColor(hexString: "#E0E0E0")
-//        static let baseBackgroundLithGray3 = UIColor(hexString: "#D0D0D0")
-//        static let baseBackgroundDarkGray = UIColor(hexString: "#888888")
-//        static let baseBackgroundActive = UIColor(hexString: "#BA55D3")
         
+       
         
         static let textColorBlack = UIColor(hexString: "#000000")
         static let textColorActive = UIColor(hexString: "#BA55D3")
@@ -52,10 +44,50 @@ enum R {
         
         static let textColorLithGray2 = UIColor(hexString: "#838383")
         
-        
-        
         static let backgroundViewWhite = UIColor(hexString: "#FFFFFF")
         static let backgroundViewDarkGray = UIColor(hexString: "#2c2c2c")
+        
+        
+        // DarkMode
+        static let systemBackground = UIColor.systemBackground
+        static let secondarySystemBackground = UIColor.secondarySystemBackground
+        
+        static let label = UIColor.label
+        static let secondaryLabel = UIColor.secondaryLabel
+        static let tertiaryLabel = UIColor.tertiaryLabel
+        static let quaternaryLabel = UIColor.quaternaryLabel
+        static let labelWhite = UIColor(hexString: "#FFFFFF")
+        
+        static let placeholderText = UIColor.placeholderText
+        
+        static let separator = UIColor.separator
+        static let opaqueSeparator = UIColor.opaqueSeparator
+        
+        static let systemPurple = UIColor.systemPurple
+        static let systemFill = UIColor.systemFill
+        
+        static let systemGray3 = UIColor.systemGray3
+        static let systemGray6 = UIColor.systemGray6
+        static let systemGray5 = UIColor.systemGray5
+        static let systemGray = UIColor.systemGray
+        
+        static let customSystemBackground = UIColor {
+            traitCollection -> UIColor in
+            
+            switch traitCollection.userInterfaceStyle {
+            case .light,.unspecified:
+                print(" case .light,.unspecified:")
+                return R.Colors.backgroundWhiteLith2
+            case .dark:
+                print(".dark:")
+                return UIColor(hexString: "#000000FF")
+            @unknown default:
+                print("return UIColor()")
+                return UIColor()
+            }
+        }
+        
+        
         
         
         
@@ -164,14 +196,31 @@ enum R {
         }
         
         enum OtherControllers {
-            enum Product {}
+            enum Product {
+                static let websiteButton = "Original content"
+                static let descriptionTitleLabel = "Description"
+                static let titleTableViewLabel = "Contact Malls"
+                static let titleMapLabel = "Location Malls"
+                static let addToCardButton = "Add to card"
+                static let addedToCardButton = "Added to card"
+                
+                static let imageSystemNameCart = "cart"
+                static let imageSystemNameCartFill = "cart.fill"
+            }
             enum BrandProducts {
                 static let title = "Brand"
             }
             enum CategoryProducts {}
-            enum Mall {}
+            enum Mall {
+                static let floorPlanButton = "Flor plan"
+                static let websiteMallButton = "Website mall"
+                static let titleButtonsStackLabel = "Mall navigator"
+                static let titleMapViewLabel = "Location mall"
+            }
             enum Map {}
-            enum FullScreen {}
+            enum FullScreen {
+                static let deleteImageNameAssets = "Delete50"
+            }
             enum Onboard {}
         }
     }

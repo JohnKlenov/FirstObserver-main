@@ -15,14 +15,14 @@ class NumberPagesView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        label.textColor = .white
+        label.textColor = R.Colors.textColorWhite
         label.backgroundColor = .clear
         return label
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .darkGray.withAlphaComponent(0.5)
+        backgroundColor = R.Colors.backgroundLithGray
         addSubview(numberOfPagesLabel)
         setupConstraints()
         

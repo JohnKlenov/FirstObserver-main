@@ -18,7 +18,7 @@ class ProductCellNew: UICollectionViewCell {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
         image.contentMode = .scaleAspectFit
-        image.layer.cornerRadius = 10
+        image.layer.cornerRadius = 8
         image.clipsToBounds = true
         return image
     }()
@@ -27,9 +27,9 @@ class ProductCellNew: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
-        label.font = UIFont.systemFont(ofSize: 15, weight: .medium)
+        label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
         label.backgroundColor = .clear
-        label.textColor = R.Colors.textColorBlack
+        label.textColor = R.Colors.label
         label.numberOfLines = 2
         return label
     }()
@@ -38,9 +38,9 @@ class ProductCellNew: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
-        label.font = UIFont.systemFont(ofSize: 13)
+        label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
         label.backgroundColor = .clear
-        label.textColor = R.Colors.textColorDarkGray
+        label.textColor = R.Colors.label
         label.numberOfLines = 1
         return label
     }()
@@ -49,9 +49,9 @@ class ProductCellNew: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
-        label.font = UIFont.systemFont(ofSize: 13)
+        label.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         label.backgroundColor = .clear
-        label.textColor = R.Colors.textColorActive
+        label.textColor = R.Colors.systemPurple
         label.numberOfLines = 0
         return label
     }()
@@ -59,10 +59,10 @@ class ProductCellNew: UICollectionViewCell {
     let priceLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textAlignment = .left
-        label.font = UIFont.systemFont(ofSize: 15, weight: .medium)
+        label.textAlignment = .right
+        label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
         label.backgroundColor = .clear
-        label.textColor = R.Colors.textColorBlack
+        label.textColor = R.Colors.label
         label.numberOfLines = 0
         return label
     }()
@@ -86,20 +86,17 @@ class ProductCellNew: UICollectionViewCell {
         contentView.addSubview(priceLabel)
         setupConstraints()
         storage = Storage.storage()
-        contentView.backgroundColor = R.Colors.backgroundWhite
-        contentView.layer.cornerRadius = 8
+        contentView.backgroundColor = .clear
     }
     
     
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        print("func layoutSubviews()   - \(modelLabel.frame.height)")
     }
     
     override func updateConstraints() {
         super.updateConstraints()
-        print("func updateConstraints()  - \(modelLabel.frame.height)")
     }
     
     
@@ -135,7 +132,7 @@ class ProductCellNew: UICollectionViewCell {
         let heightImageViewCnstr = imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 1)
         heightImageViewCnstr.isActive = true
         
-        let topStackCnstr = stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 0)
+        let topStackCnstr = stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 10)
         topStackCnstr.isActive = true
 
         let trailingStackCnstr = stackView.trailingAnchor.constraint(equalTo: imageView.trailingAnchor)
@@ -144,7 +141,7 @@ class ProductCellNew: UICollectionViewCell {
         let leadingStackCnstr = stackView.leadingAnchor.constraint(equalTo: imageView.leadingAnchor)
         leadingStackCnstr.isActive = true
         
-        topPriceLabelkCnstr = priceLabel.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 10)
+        topPriceLabelkCnstr = priceLabel.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 5)
         topPriceLabelkCnstr.isActive = true
         
         let trailingLabalCnstr = priceLabel.trailingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 0)

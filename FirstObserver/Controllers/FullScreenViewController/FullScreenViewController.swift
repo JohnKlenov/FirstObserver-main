@@ -14,7 +14,7 @@ final class FullScreenViewController: UIViewController {
     private var imageProductCollectionView : UICollectionView!
     
     private let deleteImage: UIImageView = {
-        let view = UIImageView(image: UIImage(named: "Delete50")?.withTintColor(.lightGray, renderingMode: .alwaysOriginal))
+        let view = UIImageView(image: UIImage(named: R.Strings.OtherControllers.FullScreen.deleteImageNameAssets)?.withTintColor(R.Colors.backgroundLithGray, renderingMode: .alwaysOriginal))
         view.translatesAutoresizingMaskIntoConstraints = false
         view.isUserInteractionEnabled = true
         return view
@@ -31,7 +31,7 @@ final class FullScreenViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 20, weight: .medium)
-        label.textColor = .lightGray
+        label.textColor = R.Colors.backgroundLithGray
         label.backgroundColor = .clear
         return label
     }()
@@ -43,7 +43,7 @@ final class FullScreenViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .black
+        view.backgroundColor = R.Colors.backgroundBlack
         pagesLabel.text = "\(indexPath.row + 1)/\(productImages.count)"
 
         setupCollectionView()
@@ -57,15 +57,6 @@ final class FullScreenViewController: UIViewController {
             self.imageProductCollectionView.scrollToItem(at: self.indexPath, at: .centeredHorizontally, animated: false)
         }
         
-    }
-    
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewWillLayoutSubviews()
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {

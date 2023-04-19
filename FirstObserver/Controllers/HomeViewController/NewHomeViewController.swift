@@ -25,12 +25,13 @@ class NewHomeViewController: UIViewController {
         segmentControl.selectedSegmentIndex = 0
         segmentControl.addTarget(self, action: #selector(didTapSegmentedControl(_:)), for: .valueChanged)
         segmentControl.isHidden = true
+        segmentControl.backgroundColor = R.Colors.systemFill
         return segmentControl
     }()
     
     private var loader: UIActivityIndicatorView = {
         let loader = UIActivityIndicatorView()
-        loader.color = R.Colors.backgroundBlack
+        loader.color = R.Colors.systemPurple
         loader.isHidden = true
         loader.hidesWhenStopped = true
         loader.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
@@ -41,7 +42,7 @@ class NewHomeViewController: UIViewController {
         let view = UIView()
         view.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
 //        view.backgroundColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1)
-        view.backgroundColor = R.Colors.backgroundLithGray
+        view.backgroundColor = R.Colors.separator
         view.layer.cornerRadius = 8
         return view
     }()
@@ -120,8 +121,10 @@ class NewHomeViewController: UIViewController {
             self.placesFB = modelPlaces
         }
         
-        title = "HomeVC"
-        view.backgroundColor = R.Colors.backgroundWhiteLith
+        title = "Observer"
+//        self.setLeftAlignedNavigationItemTitle(text: "Observer", color: R.Colors.label, margin: 20)
+        view.backgroundColor = R.Colors.systemBackground
+//        view.backgroundColor = R.Colors.systemGray5
         tabBarController?.view.isUserInteractionEnabled = false
         configureActivityIndicatorView()
         view.addSubview(segmentedControl)
@@ -137,7 +140,7 @@ class NewHomeViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        hideNavigationBar()
+//        hideNavigationBar()
         if !isFirstStart {
             managerFB.getCartProduct { cartProducts in
                 self.cartProducts = cartProducts
@@ -154,12 +157,11 @@ class NewHomeViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        print("override func viewDidAppear HVC")
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        showNavigationBar()
+//        showNavigationBar()
         managerFB.removeObserverForCartProductsUser()
     }
     
@@ -364,14 +366,14 @@ class NewHomeViewController: UIViewController {
         
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(20))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: nil, top: NSCollectionLayoutSpacing.fixed(10), trailing: nil, bottom: nil)
+        item.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: nil, top: NSCollectionLayoutSpacing.fixed(20), trailing: nil, bottom: nil)
 
         let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(20))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 2)
         group.interItemSpacing = .fixed(10)
         
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 15, bottom: 10, trailing: 15)
         
         let background = NSCollectionLayoutDecorationItem.background(elementKind: "background")
         background.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 5, bottom: 0, trailing: 5)

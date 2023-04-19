@@ -28,7 +28,7 @@ class MallsViewCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.textAlignment = .left
-        label.textColor = R.Colors.textColorWhite
+        label.textColor = R.Colors.labelWhite
         label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
         return label
     }()

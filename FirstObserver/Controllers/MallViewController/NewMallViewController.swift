@@ -22,7 +22,7 @@ class NewMallViewController: UIViewController {
     private let containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = R.Colors.backgroundWhiteLith
         return view
     }()
     
@@ -40,18 +40,18 @@ class NewMallViewController: UIViewController {
     }()
     
  
-    let floorPlan: UIButton = {
+    let floorPlanButton: UIButton = {
         
         var configuration = UIButton.Configuration.gray()
        
         var container = AttributeContainer()
         container.font = UIFont.boldSystemFont(ofSize: 15)
-        container.foregroundColor = UIColor.white
+        container.foregroundColor = R.Colors.textColorWhite
         
-        configuration.attributedTitle = AttributedString("Flor plan", attributes: container)
+        configuration.attributedTitle = AttributedString(R.Strings.OtherControllers.Mall.floorPlanButton, attributes: container)
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
+        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
 
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
@@ -61,18 +61,18 @@ class NewMallViewController: UIViewController {
         return grayButton
     }()
     
-    let websiteMall: UIButton = {
+    let websiteMallButton: UIButton = {
         
         var configuration = UIButton.Configuration.gray()
        
         var container = AttributeContainer()
         container.font = UIFont.boldSystemFont(ofSize: 15)
-        container.foregroundColor = UIColor.white
+        container.foregroundColor = R.Colors.textColorWhite
         
-        configuration.attributedTitle = AttributedString("Website mall", attributes: container)
+        configuration.attributedTitle = AttributedString(R.Strings.OtherControllers.Mall.websiteMallButton, attributes: container)
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
+        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
 //        configuration.showsActivityIndicator
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
@@ -82,23 +82,23 @@ class NewMallViewController: UIViewController {
         return grayButton
     }()
     
-    let titleButtonsStack: UILabel = {
+    let titleButtonsStackLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Mall navigator"
+        label.text = R.Strings.OtherControllers.Mall.titleButtonsStackLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
-        label.textColor = .black
+        label.textColor = R.Colors.textColorBlack
         return label
     }()
     
-    let titleMapView: UILabel = {
+    let titleMapViewLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Location mall"
+        label.text =  R.Strings.OtherControllers.Mall.titleMapViewLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
-        label.textColor = .black
+        label.textColor = R.Colors.textColorBlack
         return label
     }()
     
@@ -145,7 +145,7 @@ class NewMallViewController: UIViewController {
             
                 self.configureViews(mallModel: mallModel)
         }
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = R.Colors.backgroundWhiteLith
         setupScrollView()
         setupCollectionView()
         addButtonsForStackViewButton()
@@ -224,13 +224,13 @@ class NewMallViewController: UIViewController {
         if let plan = mallModel.floorPlan {
             floorPlanMall = plan
         } else {
-            floorPlan.isHidden = true
+            floorPlanButton.isHidden = true
         }
 
         if let web = mallModel.webSite {
             webSite = web
         } else {
-            websiteMall.isHidden = true
+            websiteMallButton.isHidden = true
         }
         
         if brandSection.items.count == mallModel.brands.count && mallSection.items.count == mallModel.refImage.count {
@@ -259,9 +259,9 @@ class NewMallViewController: UIViewController {
     
     private func setupSubviews() {
         containerView.addSubview(collectionViewLayout)
-        containerView.addSubview(titleButtonsStack)
+        containerView.addSubview(titleButtonsStackLabel)
         containerView.addSubview(stackViewForButton)
-        containerView.addSubview(titleMapView)
+        containerView.addSubview(titleMapViewLabel)
         containerView.addSubview(mapView)
     }
     
@@ -269,16 +269,16 @@ class NewMallViewController: UIViewController {
         collectionViewLayout.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 0).isActive = true
         collectionViewLayout.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: 0).isActive = true
         collectionViewLayout.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 0).isActive = true
-        collectionViewLayout.bottomAnchor.constraint(equalTo: titleButtonsStack.topAnchor, constant: -20).isActive = true
-        titleButtonsStack.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10).isActive = true
-        titleButtonsStack.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10).isActive = true
-        titleButtonsStack.bottomAnchor.constraint(equalTo: stackViewForButton.topAnchor, constant: -20).isActive = true
+        collectionViewLayout.bottomAnchor.constraint(equalTo: titleButtonsStackLabel.topAnchor, constant: -20).isActive = true
+        titleButtonsStackLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10).isActive = true
+        titleButtonsStackLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10).isActive = true
+        titleButtonsStackLabel.bottomAnchor.constraint(equalTo: stackViewForButton.topAnchor, constant: -20).isActive = true
         stackViewForButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20).isActive = true
         stackViewForButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20).isActive = true
-        stackViewForButton.bottomAnchor.constraint(equalTo: titleMapView.topAnchor, constant: -20).isActive = true
-        titleMapView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10).isActive = true
-        titleMapView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10).isActive = true
-        titleMapView.bottomAnchor.constraint(equalTo: mapView.topAnchor, constant: -20).isActive = true
+        stackViewForButton.bottomAnchor.constraint(equalTo: titleMapViewLabel.topAnchor, constant: -20).isActive = true
+        titleMapViewLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10).isActive = true
+        titleMapViewLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10).isActive = true
+        titleMapViewLabel.bottomAnchor.constraint(equalTo: mapView.topAnchor, constant: -20).isActive = true
         mapView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10).isActive = true
         mapView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10).isActive = true
         mapView.heightAnchor.constraint(equalTo: mapView.widthAnchor, multiplier: 1).isActive = true
@@ -301,7 +301,7 @@ class NewMallViewController: UIViewController {
     
     private func addButtonsForStackViewButton() {
         
-        let arrayButton = [floorPlan, websiteMall]
+        let arrayButton = [floorPlanButton, websiteMallButton]
         arrayButton.forEach { view in
             stackViewForButton.addArrangedSubview(view)
         }

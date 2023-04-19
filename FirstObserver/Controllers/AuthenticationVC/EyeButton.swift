@@ -22,7 +22,7 @@ final class EyeButton: UIButton {
     
     private func setupEyeButton() {
         setImage(UIImage(systemName: "eye.slash"), for: .normal)
-        tintColor = .black
+        tintColor = R.Colors.textColorBlack
         widthAnchor.constraint(equalToConstant: 40).isActive = true
         isEnabled = false
     }

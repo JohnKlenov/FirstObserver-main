@@ -16,7 +16,7 @@ class HeaderProductView: UICollectionReusableView {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
         label.backgroundColor = .clear
-        label.tintColor = R.Colors.textColorBlack
+        label.tintColor = R.Colors.label
         label.numberOfLines = 0
         return label
     }()
@@ -25,7 +25,7 @@ class HeaderProductView: UICollectionReusableView {
         super.init(frame: frame)
         addSubview(label)
         setupConstraints()
-        backgroundColor = R.Colors.backgroundWhiteLith
+        backgroundColor = R.Colors.systemBackground
     }
     
     private func setupConstraints() {

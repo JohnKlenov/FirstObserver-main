@@ -292,14 +292,13 @@
 			path = FullScreenViewController;
 			sourceTree = "<group>";
 		};
-		5E731C9228E443B900AF3A21 /* Authentication */ = {
+		5E731C9228E443B900AF3A21 /* AuthenticationOld */ = {
 			isa = PBXGroup;
 			children = (
-				5EA94470294B5773007C2AB5 /* AlertTopView.swift */,
 				5E731C9328E443F600AF3A21 /* SignInViewController.swift */,
 				5E731C9528E4441200AF3A21 /* SignUpViewController.swift */,
 			);
-			path = Authentication;
+			path = AuthenticationOld;
 			sourceTree = "<group>";
 		};
 		5E759F0128BB6C0600D17F13 /* xibBrandsVC */ = {
@@ -405,7 +404,6 @@
 				5EAA598829A8CD2F00AEFE45 /* ProductViewController */,
 				5EA65C7229A653C800EA6FA2 /* MallViewController */,
 				5E0BF4702993AE2200FB99BE /* HomeViewController */,
-				5E731C9228E443B900AF3A21 /* Authentication */,
 				5E7EF59228AE3A6400814F4D /* OnboardVC */,
 			);
 			path = Controllers;
@@ -512,6 +510,7 @@
 			isa = PBXGroup;
 			children = (
 				5EA25D1129BB266B00EF06F6 /* NewSignInViewController.swift */,
+				5EA94470294B5773007C2AB5 /* AlertTopView.swift */,
 				5EA25D1329BB2ABF00EF06F6 /* AuthTextField.swift */,
 				5E7B462229BC566E005D2701 /* EyeButton.swift */,
 				5E7B462429BF2772005D2701 /* NewSignUpViewController.swift */,
@@ -522,6 +521,7 @@
 		5EA4A3D529E93C3600913E3F /* OldVC */ = {
 			isa = PBXGroup;
 			children = (
+				5E731C9228E443B900AF3A21 /* AuthenticationOld */,
 				5E9101DD291CFE2500D37E92 /* childCVC */,
 				5E8DC52528D5BCB400275138 /* ContaktMallViewController.swift */,
 				5E175A4228CB6ED000773C77 /* ProductViewController.swift */,

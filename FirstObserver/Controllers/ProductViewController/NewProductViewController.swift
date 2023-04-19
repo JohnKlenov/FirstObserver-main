@@ -11,8 +11,6 @@ import UIKit
 
 class NewProductViewController: UIViewController {
     
-    private let modelImage = ModelForProductVC.shared.imagesProduct()
-
     
     private let scrollView: UIScrollView = {
         let scroll = UIScrollView()
@@ -41,8 +39,8 @@ class NewProductViewController: UIViewController {
         control.currentPage = 0
         control.translatesAutoresizingMaskIntoConstraints = false
 //        control.isUserInteractionEnabled = false
-        control.currentPageIndicatorTintColor = .black
-        control.pageIndicatorTintColor = .systemGray5
+        control.currentPageIndicatorTintColor = R.Colors.backgroundBlack
+        control.pageIndicatorTintColor = R.Colors.backgroundLithGray
 //        control.backgroundColor = .orange
         control.addTarget(self, action: #selector(didTapPageControl(_:)), for: .valueChanged)
         return control
@@ -90,7 +88,7 @@ class NewProductViewController: UIViewController {
        
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
+        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
         configuration.imagePlacement = .trailing
         configuration.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(scale: .large)
         var grayButton = UIButton(configuration: configuration)
@@ -107,12 +105,12 @@ class NewProductViewController: UIViewController {
        
         var container = AttributeContainer()
         container.font = UIFont.boldSystemFont(ofSize: 15)
-        container.foregroundColor = UIColor.white
+        container.foregroundColor = R.Colors.textColorWhite
         
-        configuration.attributedTitle = AttributedString("Original content", attributes: container)
+        configuration.attributedTitle = AttributedString(R.Strings.OtherControllers.Product.websiteButton, attributes: container)
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = .black.withAlphaComponent(0.9)
+        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
 
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
@@ -128,7 +126,7 @@ class NewProductViewController: UIViewController {
         label.text = "Naike Air"
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
-        label.textColor = .black
+        label.textColor = R.Colors.textColorBlack
         return label
     }()
     
@@ -138,17 +136,17 @@ class NewProductViewController: UIViewController {
 //        label.text = "450 BYN"
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        label.textColor = .black
+        label.textColor = R.Colors.textColorBlack
         return label
     }()
     
     let descriptionTitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Description"
+        label.text = R.Strings.OtherControllers.Product.descriptionTitleLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
-        label.textColor = .black
+        label.textColor = R.Colors.textColorBlack
         return label
     }()
     
@@ -158,17 +156,17 @@ class NewProductViewController: UIViewController {
         label.numberOfLines = 0
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
-        label.textColor = .black
+        label.textColor = R.Colors.textColorBlack
         return label
     }()
     
     let titleTableViewLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Contact Malls"
+        label.text = R.Strings.OtherControllers.Product.titleTableViewLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
-        label.textColor = .black
+        label.textColor = R.Colors.textColorBlack
         return label
     }()
     
@@ -181,10 +179,10 @@ class NewProductViewController: UIViewController {
     let titleMapLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Location Malls"
+        label.text = R.Strings.OtherControllers.Product.titleMapLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
-        label.textColor = .black
+        label.textColor = R.Colors.textColorBlack
         return label
     }()
     
@@ -224,7 +222,7 @@ class NewProductViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .white
+        view.backgroundColor = R.Colors.backgroundWhiteLith
         tabBarController?.tabBar.isHidden = true
         
         configureToCardButton()
@@ -294,8 +292,8 @@ class NewProductViewController: UIViewController {
             container.font = UIFont.boldSystemFont(ofSize: 15)
             container.foregroundColor = UIColor.white
             
-            config?.attributedTitle = isAddedToCard ? AttributedString("Added to card", attributes: container) : AttributedString("Add to card", attributes: container)
-            config?.image = isAddedToCard ? UIImage(systemName: "cart.fill")?.withTintColor(.white, renderingMode: .alwaysOriginal) : UIImage(systemName: "cart")?.withTintColor(.white, renderingMode: .alwaysOriginal)
+            config?.attributedTitle = isAddedToCard ? AttributedString(R.Strings.OtherControllers.Product.addedToCardButton, attributes: container) : AttributedString(R.Strings.OtherControllers.Product.addToCardButton, attributes: container)
+            config?.image = isAddedToCard ? UIImage(systemName: R.Strings.OtherControllers.Product.imageSystemNameCartFill)?.withTintColor(.white, renderingMode: .alwaysOriginal) : UIImage(systemName: R.Strings.OtherControllers.Product.imageSystemNameCart)?.withTintColor(.white, renderingMode: .alwaysOriginal)
             
             button.isEnabled = !isAddedToCard
             button.configuration = config

@@ -30,10 +30,10 @@ final class AuthTextField: UITextField {
     }
     
     private func setupTextField(placeholder: String) {
-        
+//        UIColor.lightGray
         backgroundColor = .clear
-        textColor = .black
-        attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [NSAttributedString.Key.foregroundColor : UIColor.lightGray])
+        textColor = R.Colors.textColorBlack
+        attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [NSAttributedString.Key.foregroundColor : R.Colors.textColorDarkGray])
 //        font = .boldSystemFont(ofSize: 15)
         font = .systemFont(ofSize: 15, weight: .medium)
         borderStyle = .none

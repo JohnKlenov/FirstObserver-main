@@ -28,7 +28,7 @@ class ImageCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 15, weight: .medium)
-        label.textColor = R.Colors.textColorBlack
+        label.textColor = R.Colors.label
         label.backgroundColor = .clear
         return label
     }()

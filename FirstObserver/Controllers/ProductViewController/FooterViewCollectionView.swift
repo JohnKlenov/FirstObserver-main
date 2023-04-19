@@ -18,13 +18,13 @@ class FooterViewCollectionView: UICollectionReusableView {
         control.translatesAutoresizingMaskIntoConstraints = false
         control.isUserInteractionEnabled = false
         control.currentPageIndicatorTintColor = .systemOrange
-        control.pageIndicatorTintColor = .systemGray5
+        control.pageIndicatorTintColor = R.Colors.backgroundLithGray
         return control
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .purple
+        backgroundColor = R.Colors.backgroundActive
         setupView()
     }
     

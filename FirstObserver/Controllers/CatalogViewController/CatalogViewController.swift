@@ -25,7 +25,7 @@ class CatalogViewController: UIViewController {
         super.viewDidLoad()
         
         title = R.Strings.TabBarController.Catalog.title
-        view.backgroundColor = R.Colors.backgroundWhiteLith
+        view.backgroundColor = R.Colors.systemBackground
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = .clear
