@@ -24,12 +24,12 @@ final class CartViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = R.Colors.backgroundWhiteLith
+        view.backgroundColor = R.Colors.systemBackground
         title = R.Strings.TabBarController.Cart.title
         tableView.register(CartCell.self, forCellReuseIdentifier: CartCell.reuseID)
         tableView.estimatedRowHeight = 10
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.backgroundColor = R.Colors.backgroundWhiteLith
+        tableView.backgroundColor = R.Colors.systemBackground
         createHeaderTableView()
     
         tableView.delegate = self
@@ -40,6 +40,7 @@ final class CartViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        navigationController?.navigationBar.prefersLargeTitles = true
         getPlacesMap()
         configureUI()
     }
@@ -47,6 +48,7 @@ final class CartViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        navigationController?.navigationBar.prefersLargeTitles = false
         managerFB.removeObserverForCartProductsUser()
     }
     

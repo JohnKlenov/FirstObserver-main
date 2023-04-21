@@ -17,14 +17,14 @@ class FooterViewCollectionView: UICollectionReusableView {
         control.currentPage = 0
         control.translatesAutoresizingMaskIntoConstraints = false
         control.isUserInteractionEnabled = false
-        control.currentPageIndicatorTintColor = .systemOrange
-        control.pageIndicatorTintColor = R.Colors.backgroundLithGray
+        control.currentPageIndicatorTintColor = R.Colors.label
+        control.pageIndicatorTintColor = R.Colors.systemGray
         return control
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = R.Colors.backgroundActive
+        backgroundColor = R.Colors.systemBackground
         setupView()
     }
     

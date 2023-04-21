@@ -17,7 +17,9 @@ class CartView: UIView {
     private let imageView: UIImageView = {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
+//        ?.withRenderingMode(.alwaysTemplate)
         image.image = UIImage(named: R.Strings.TabBarController.Cart.CartView.imageSystemNameCart)
+        image.tintColor = R.Colors.label
         image.contentMode = .scaleAspectFit
         image.clipsToBounds = true
         return image
@@ -29,7 +31,7 @@ class CartView: UIView {
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
         label.backgroundColor = .clear
-        label.textColor = R.Colors.textColorBlack
+        label.textColor = R.Colors.label
         label.text = R.Strings.TabBarController.Cart.CartView.titleLabel
         label.numberOfLines = 0
         return label
@@ -41,7 +43,7 @@ class CartView: UIView {
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 13)
         label.backgroundColor = .clear
-        label.textColor = R.Colors.textColorBlack
+        label.textColor = R.Colors.label
         label.text = R.Strings.TabBarController.Cart.CartView.subtitleLabel
         label.numberOfLines = 0
         return label
@@ -62,12 +64,12 @@ class CartView: UIView {
        
         var container = AttributeContainer()
         container.font = UIFont.boldSystemFont(ofSize: 17)
-        container.foregroundColor = R.Colors.textColorActive
+        container.foregroundColor = R.Colors.systemBackground
         
         configuration.attributedTitle = AttributedString(R.Strings.TabBarController.Cart.CartView.catalogButton, attributes: container)
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = R.Colors.backgroundBlackLith
+        configuration.baseBackgroundColor = R.Colors.systemPurple
 
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
@@ -83,12 +85,12 @@ class CartView: UIView {
        
         var container = AttributeContainer()
         container.font = UIFont.boldSystemFont(ofSize: 17)
-        container.foregroundColor = R.Colors.textColorActive
+        container.foregroundColor = R.Colors.systemBackground
         
         configuration.attributedTitle = AttributedString(R.Strings.TabBarController.Cart.CartView.logInButton, attributes: container)
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = R.Colors.backgroundBlackLith
+        configuration.baseBackgroundColor = R.Colors.systemPurple
 
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false

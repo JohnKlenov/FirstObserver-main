@@ -17,7 +17,7 @@ class CartCell: UITableViewCell {
     let containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = R.Colors.backgroundWhite
+        view.backgroundColor = R.Colors.secondarySystemBackground
         view.layer.cornerRadius = 10
         return view
     }()
@@ -37,7 +37,7 @@ class CartCell: UITableViewCell {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 15, weight: .medium)
         label.backgroundColor = .clear
-        label.textColor = R.Colors.textColorBlack
+        label.textColor = R.Colors.label
         label.numberOfLines = 2
         return label
     }()
@@ -48,7 +48,7 @@ class CartCell: UITableViewCell {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 13)
         label.backgroundColor = .clear
-        label.textColor = R.Colors.textColorDarkGray
+        label.textColor = R.Colors.label
         label.numberOfLines = 2
         return label
     }()
@@ -59,7 +59,7 @@ class CartCell: UITableViewCell {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 15, weight: .medium)
         label.backgroundColor = .clear
-        label.textColor = R.Colors.textColorBlack
+        label.textColor = R.Colors.label
         label.numberOfLines = 0
         return label
     }()

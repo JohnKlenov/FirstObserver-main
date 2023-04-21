@@ -23,7 +23,7 @@ final class NewSignUpViewController: UIViewController {
         label.text = R.Strings.AuthControllers.SignUP.nameLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        label.textColor = R.Colors.textColorDarkGray
+        label.textColor = R.Colors.label
         return label
     }()
     
@@ -33,7 +33,7 @@ final class NewSignUpViewController: UIViewController {
         label.text = R.Strings.AuthControllers.SignUP.emailLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        label.textColor = R.Colors.textColorDarkGray
+        label.textColor = R.Colors.label
         return label
     }()
     
@@ -43,7 +43,7 @@ final class NewSignUpViewController: UIViewController {
         label.text = R.Strings.AuthControllers.SignUP.passwordLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        label.textColor = R.Colors.textColorDarkGray
+        label.textColor = R.Colors.label
         return label
     }()
     
@@ -53,7 +53,7 @@ final class NewSignUpViewController: UIViewController {
         label.text = R.Strings.AuthControllers.SignUP.reEnterPasswordLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        label.textColor = R.Colors.textColorDarkGray
+        label.textColor = R.Colors.label
         return label
     }()
     
@@ -91,7 +91,7 @@ final class NewSignUpViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = R.Colors.backgroundBlack
+        view.backgroundColor = R.Colors.separator
         return view
     }()
     
@@ -99,7 +99,7 @@ final class NewSignUpViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = R.Colors.backgroundBlack
+        view.backgroundColor = R.Colors.separator
         return view
     }()
     
@@ -107,7 +107,7 @@ final class NewSignUpViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = R.Colors.backgroundBlack
+        view.backgroundColor = R.Colors.separator
         return view
     }()
     
@@ -115,7 +115,7 @@ final class NewSignUpViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = R.Colors.backgroundBlack
+        view.backgroundColor = R.Colors.separator
         return view
     }()
     
@@ -170,7 +170,7 @@ final class NewSignUpViewController: UIViewController {
         label.text = R.Strings.AuthControllers.SignUP.signUpLabel
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 25, weight: .bold)
-        label.textColor = R.Colors.textColorBlack
+        label.textColor = R.Colors.label
         return label
     }()
     
@@ -178,7 +178,7 @@ final class NewSignUpViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 5).isActive = true
-        view.backgroundColor = R.Colors.backgroundLithGray
+        view.backgroundColor = R.Colors.opaqueSeparator
         view.layer.cornerRadius = 2
         return view
     }()
@@ -194,7 +194,7 @@ final class NewSignUpViewController: UIViewController {
         var configuration = UIButton.Configuration.gray()
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
+        configuration.baseBackgroundColor = R.Colors.systemPurple
         var grayButton = UIButton(configuration: configuration)
         return grayButton
     }()
@@ -219,7 +219,7 @@ final class NewSignUpViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = R.Colors.backgroundWhiteLith
+        view.backgroundColor = R.Colors.systemBackground
         nameTextField.delegate = self
         emailTextField.delegate = self
         passwordTextField.delegate = self
@@ -253,13 +253,13 @@ final class NewSignUpViewController: UIViewController {
        
         switch sender {
         case emailTextField:
-            separatorEmailView.backgroundColor = emailTextField.text?.isEmpty ?? true ? R.Colors.backgroundRed : R.Colors.backgroundBlack
+            separatorEmailView.backgroundColor = emailTextField.text?.isEmpty ?? true ? R.Colors.systemRed : R.Colors.separator
         case nameTextField:
-            separatorNameView.backgroundColor = nameTextField.text?.isEmpty ?? true ? R.Colors.backgroundRed : R.Colors.backgroundBlack
+            separatorNameView.backgroundColor = nameTextField.text?.isEmpty ?? true ? R.Colors.systemRed : R.Colors.separator
         case passwordTextField:
-            separatorPasswordView.backgroundColor = passwordTextField.text?.isEmpty ?? true ? R.Colors.backgroundRed : R.Colors.backgroundBlack
+            separatorPasswordView.backgroundColor = passwordTextField.text?.isEmpty ?? true ? R.Colors.systemRed : R.Colors.separator
         case reEnterTextField:
-            separatorReEnterPasswordView.backgroundColor = reEnterTextField.text?.isEmpty ?? true ? R.Colors.backgroundRed : R.Colors.backgroundBlack
+            separatorReEnterPasswordView.backgroundColor = reEnterTextField.text?.isEmpty ?? true ? R.Colors.systemRed : R.Colors.separator
         default:
             return
         }
@@ -316,16 +316,16 @@ final class NewSignUpViewController: UIViewController {
                     
                 case .invalidEmail:
                     self?.registerShowAlert(title: "Error", message: "Email address is not in the correct format!")
-                    self?.separatorEmailView.backgroundColor = R.Colors.backgroundRed
+                    self?.separatorEmailView.backgroundColor = R.Colors.systemRed
                 case .emailAlreadyInUse:
                     self?.registerShowAlert(title: "Error", message: "The email address used to attempt registration already exists!")
-                    self?.separatorEmailView.backgroundColor = R.Colors.backgroundRed
+                    self?.separatorEmailView.backgroundColor = R.Colors.systemRed
                 case .weakPassword:
                     self?.registerShowAlert(title: "Error", message: "The entered password is too weak!")
-                    self?.separatorPasswordView.backgroundColor = R.Colors.backgroundRed
+                    self?.separatorPasswordView.backgroundColor = R.Colors.systemRed
                 case .wrongPassword:
                     self?.registerShowAlert(title: "Error", message: "Wrong Password!")
-                    self?.separatorPasswordView.backgroundColor = R.Colors.backgroundRed
+                    self?.separatorPasswordView.backgroundColor = R.Colors.systemRed
                 case .somethingWentWrong:
                     self?.registerShowAlert(title: "Error", message: "Something went wrong try again!")
                 }
@@ -392,7 +392,7 @@ private extension NewSignUpViewController {
             var config = button.configuration
             config?.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
                 var outgoing = incoming
-                outgoing.foregroundColor = R.Colors.textColorLithWhite
+                outgoing.foregroundColor = R.Colors.label
                 outgoing.font = UIFont.boldSystemFont(ofSize: 17)
                 return outgoing
             }

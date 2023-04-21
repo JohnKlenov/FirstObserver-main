@@ -13,7 +13,8 @@ final class NewProfileViewController: UIViewController {
     private let topView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = R.Colors.backgroundBlackLith
+//        view.backgroundColor = R.Colors.backgroundBlackLith
+        view.backgroundColor = R.Colors.systemGray5
         return view
     }()
     
@@ -22,7 +23,7 @@ final class NewProfileViewController: UIViewController {
         image.translatesAutoresizingMaskIntoConstraints = false
         image.isUserInteractionEnabled = true
         image.layer.cornerRadius = 10
-        image.layer.borderColor = UIColor.black.cgColor
+        image.layer.borderColor = UIColor.label.cgColor
         image.layer.borderWidth = 2
         image.clipsToBounds = true
         image.contentMode = .scaleAspectFill
@@ -36,7 +37,7 @@ final class NewProfileViewController: UIViewController {
         textField.textAlignment = .center
         textField.font = .systemFont(ofSize: 20, weight: .medium)
 //        textField.font = R.Fonts.helveltica.regular.font(size: 20)
-        textField.tintColor = R.Colors.textColorBlack
+        textField.tintColor = R.Colors.placeholderText
         textField.textContentType = .name
         textField.backgroundColor = .clear
         textField.placeholder = R.Strings.TabBarController.Profile.ViewsProfile.placeholderNameTextField
@@ -49,7 +50,7 @@ final class NewProfileViewController: UIViewController {
         textField.borderStyle = .none
         textField.textAlignment = .center
         textField.font = .systemFont(ofSize: 15, weight: .regular)
-        textField.tintColor = R.Colors.textColorBlack
+        textField.tintColor = R.Colors.placeholderText
         textField.textContentType = .emailAddress
         textField.backgroundColor = .clear
         return textField
@@ -71,12 +72,12 @@ final class NewProfileViewController: UIViewController {
 
         var container = AttributeContainer()
         container.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        container.foregroundColor = R.Colors.textColorLithWhite
+        container.foregroundColor = R.Colors.label
         configuration.attributedTitle = AttributedString(R.Strings.TabBarController.Profile.ViewsProfile.signInUpButton, attributes: container)
 
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
+        configuration.baseBackgroundColor = R.Colors.systemPurple
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
         return grayButton
@@ -88,12 +89,12 @@ final class NewProfileViewController: UIViewController {
        
         var container = AttributeContainer()
         container.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        container.foregroundColor = R.Colors.textColorLithWhite
+        container.foregroundColor = R.Colors.label
         configuration.attributedTitle = AttributedString(R.Strings.TabBarController.Profile.ViewsProfile.signOutButton, attributes: container)
        
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
+        configuration.baseBackgroundColor = R.Colors.systemPurple
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
         return grayButton
@@ -105,12 +106,12 @@ final class NewProfileViewController: UIViewController {
        
         var container = AttributeContainer()
         container.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        container.foregroundColor = R.Colors.textColorRed
+        container.foregroundColor = R.Colors.systemRed
         configuration.attributedTitle = AttributedString(R.Strings.TabBarController.Profile.ViewsProfile.deleteButton, attributes: container)
        
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
+        configuration.baseBackgroundColor = R.Colors.systemPurple
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
         return grayButton
@@ -129,7 +130,7 @@ final class NewProfileViewController: UIViewController {
     let editButton: UIButton = {
         var configButton = UIButton.Configuration.plain()
         configButton.title = R.Strings.TabBarController.Profile.ViewsProfile.navBarButtonEdit
-        configButton.baseForegroundColor = R.Colors.textColorActive
+        configButton.baseForegroundColor = R.Colors.systemPurple
         configButton.titleAlignment = .trailing
         configButton.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incomig in
 
@@ -145,7 +146,7 @@ final class NewProfileViewController: UIViewController {
     let cancelButton: UIButton = {
         var configButton = UIButton.Configuration.plain()
         configButton.title = R.Strings.TabBarController.Profile.ViewsProfile.navBarButtonCancel
-        configButton.baseForegroundColor = R.Colors.textColorActive
+        configButton.baseForegroundColor = R.Colors.systemPurple
         configButton.titleAlignment = .trailing
         configButton.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incomig in
 
@@ -195,8 +196,8 @@ final class NewProfileViewController: UIViewController {
             }
         }
         
-        view.backgroundColor = R.Colors.backgroundWhiteLith
-        configureNavigationBar(largeTitleColor: R.Colors.textColorWhite, backgoundColor: R.Colors.backgroundBlackLith, tintColor: R.Colors.textColorWhite, title: R.Strings.NavBar.profile, preferredLargeTitle: false)
+        view.backgroundColor = R.Colors.systemBackground
+        configureNavigationBar(largeTitleColor: R.Colors.label, backgoundColor: R.Colors.systemGray5, tintColor: R.Colors.label, title: R.Strings.NavBar.profile, preferredLargeTitle: false)
         configureNavigationItem()
         setupStackView()
         imageUser.addGestureRecognizer(imageUserTapGestureRecognizer)
@@ -225,6 +226,7 @@ final class NewProfileViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        navigationController?.navigationBar.prefersLargeTitles = false
         managerFB.removeObserverForCartProductsUser()
     }
     
@@ -344,13 +346,13 @@ final class NewProfileViewController: UIViewController {
 
     private func enableSaveButton(isSwitch: Bool) {
         editButton.configuration?.title = R.Strings.TabBarController.Profile.ViewsProfile.navBarButtonSave
-        editButton.configuration?.baseForegroundColor = isSwitch ? R.Colors.textColorActive : R.Colors.textColorLithGray
+        editButton.configuration?.baseForegroundColor = isSwitch ? R.Colors.systemPurple : R.Colors.systemGray
         editButton.isUserInteractionEnabled = isSwitch ? true : false
     }
 
     private func enableEditButton(isSwitch: Bool) {
         editButton.configuration?.title = R.Strings.TabBarController.Profile.ViewsProfile.navBarButtonEdit
-        editButton.configuration?.baseForegroundColor = isSwitch ? R.Colors.textColorActive : R.Colors.textColorLithGray
+        editButton.configuration?.baseForegroundColor = isSwitch ? R.Colors.systemPurple : R.Colors.systemGray
         editButton.isUserInteractionEnabled = isSwitch ? true : false
     }
     

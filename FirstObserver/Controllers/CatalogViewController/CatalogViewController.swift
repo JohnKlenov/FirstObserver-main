@@ -34,7 +34,7 @@ class CatalogViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        navigationController?.navigationBar.prefersLargeTitles = true
         getPlacesMapHVC()
         managerFB.getPreviewCatalog { catalog in
             self.arrayCatalog = catalog
@@ -44,6 +44,7 @@ class CatalogViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
+        navigationController?.navigationBar.prefersLargeTitles = false
         managerFB.removeObserverCatalog()
     }
     

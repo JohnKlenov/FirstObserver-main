@@ -39,8 +39,8 @@ class NewProductViewController: UIViewController {
         control.currentPage = 0
         control.translatesAutoresizingMaskIntoConstraints = false
 //        control.isUserInteractionEnabled = false
-        control.currentPageIndicatorTintColor = R.Colors.backgroundBlack
-        control.pageIndicatorTintColor = R.Colors.backgroundLithGray
+        control.currentPageIndicatorTintColor = R.Colors.label
+        control.pageIndicatorTintColor = R.Colors.systemGray
 //        control.backgroundColor = .orange
         control.addTarget(self, action: #selector(didTapPageControl(_:)), for: .valueChanged)
         return control
@@ -88,7 +88,7 @@ class NewProductViewController: UIViewController {
        
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
+        configuration.baseBackgroundColor = R.Colors.systemPurple
         configuration.imagePlacement = .trailing
         configuration.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(scale: .large)
         var grayButton = UIButton(configuration: configuration)
@@ -105,12 +105,12 @@ class NewProductViewController: UIViewController {
        
         var container = AttributeContainer()
         container.font = UIFont.boldSystemFont(ofSize: 15)
-        container.foregroundColor = R.Colors.textColorWhite
+        container.foregroundColor = R.Colors.label
         
         configuration.attributedTitle = AttributedString(R.Strings.OtherControllers.Product.websiteButton, attributes: container)
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
+        configuration.baseBackgroundColor = R.Colors.systemPurple
 
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
@@ -126,7 +126,7 @@ class NewProductViewController: UIViewController {
         label.text = "Naike Air"
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
-        label.textColor = R.Colors.textColorBlack
+        label.textColor = R.Colors.label
         return label
     }()
     
@@ -136,7 +136,7 @@ class NewProductViewController: UIViewController {
 //        label.text = "450 BYN"
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        label.textColor = R.Colors.textColorBlack
+        label.textColor = R.Colors.label
         return label
     }()
     
@@ -146,7 +146,7 @@ class NewProductViewController: UIViewController {
         label.text = R.Strings.OtherControllers.Product.descriptionTitleLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
-        label.textColor = R.Colors.textColorBlack
+        label.textColor = R.Colors.label
         return label
     }()
     
@@ -156,7 +156,7 @@ class NewProductViewController: UIViewController {
         label.numberOfLines = 0
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
-        label.textColor = R.Colors.textColorBlack
+        label.textColor = R.Colors.label
         return label
     }()
     
@@ -166,7 +166,7 @@ class NewProductViewController: UIViewController {
         label.text = R.Strings.OtherControllers.Product.titleTableViewLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
-        label.textColor = R.Colors.textColorBlack
+        label.textColor = R.Colors.label
         return label
     }()
     
@@ -182,7 +182,7 @@ class NewProductViewController: UIViewController {
         label.text = R.Strings.OtherControllers.Product.titleMapLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
-        label.textColor = R.Colors.textColorBlack
+        label.textColor = R.Colors.label
         return label
     }()
     
@@ -290,7 +290,7 @@ class NewProductViewController: UIViewController {
             var config = button.configuration
             var container = AttributeContainer()
             container.font = UIFont.boldSystemFont(ofSize: 15)
-            container.foregroundColor = UIColor.white
+            container.foregroundColor = R.Colors.label
             
             config?.attributedTitle = isAddedToCard ? AttributedString(R.Strings.OtherControllers.Product.addedToCardButton, attributes: container) : AttributedString(R.Strings.OtherControllers.Product.addToCardButton, attributes: container)
             config?.image = isAddedToCard ? UIImage(systemName: R.Strings.OtherControllers.Product.imageSystemNameCartFill)?.withTintColor(.white, renderingMode: .alwaysOriginal) : UIImage(systemName: R.Strings.OtherControllers.Product.imageSystemNameCart)?.withTintColor(.white, renderingMode: .alwaysOriginal)

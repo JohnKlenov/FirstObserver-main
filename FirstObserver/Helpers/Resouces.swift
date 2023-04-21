@@ -20,7 +20,7 @@ enum R {
     // MARK: - Colors -
     enum Colors {
         
-        static let backgroundBlack = UIColor(hexString: "#000000")
+//        static let backgroundBlack = UIColor(hexString: "#000000")
         static let backgroundBlackLith = UIColor(hexString: "#1C1C1C")
         static let backgroundWhiteLith2 = UIColor(hexString: "#F8F4FF")
         static let backgroundWhiteLith = UIColor(hexString: "#FFFFFFFF")
@@ -49,6 +49,9 @@ enum R {
         
         
         // DarkMode
+        
+        static let backgroundBlack = UIColor(hexString: "#000000")
+        
         static let systemBackground = UIColor.systemBackground
         static let secondarySystemBackground = UIColor.secondarySystemBackground
         
@@ -63,7 +66,6 @@ enum R {
         static let separator = UIColor.separator
         static let opaqueSeparator = UIColor.opaqueSeparator
         
-        static let systemPurple = UIColor.systemPurple
         static let systemFill = UIColor.systemFill
         
         static let systemGray3 = UIColor.systemGray3
@@ -71,6 +73,10 @@ enum R {
         static let systemGray5 = UIColor.systemGray5
         static let systemGray = UIColor.systemGray
         
+        static let systemPurple = UIColor.systemPurple
+        static let systemRed = UIColor.systemRed
+        static let systemGreen = UIColor.systemGreen
+       
         static let customSystemBackground = UIColor {
             traitCollection -> UIColor in
             

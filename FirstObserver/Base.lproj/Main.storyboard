@@ -18,14 +18,15 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="vlS-Hw-LTN">
-                                <rect key="frame" x="0.0" y="88" width="428" height="32"/>
+                                <rect key="frame" x="40" y="88" width="348" height="32"/>
+                                <color key="backgroundColor" systemColor="systemFillColor"/>
                                 <segments>
                                     <segment title="Men"/>
                                     <segment title="Women"/>
                                 </segments>
                             </segmentedControl>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="jOD-lB-vWc">
-                                <rect key="frame" x="0.0" y="119" width="428" height="724"/>
+                                <rect key="frame" x="0.0" y="129" width="428" height="714"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="0.0" id="21G-ci-AeL">
                                     <size key="itemSize" width="306" height="202"/>
@@ -75,10 +76,10 @@
                         <constraints>
                             <constraint firstItem="vlS-Hw-LTN" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="6cc-bc-gLl"/>
                             <constraint firstItem="jOD-lB-vWc" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="8fO-Fn-gnl"/>
-                            <constraint firstItem="vlS-Hw-LTN" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="V8E-SI-TRk"/>
-                            <constraint firstItem="jOD-lB-vWc" firstAttribute="top" secondItem="vlS-Hw-LTN" secondAttribute="bottom" id="VU7-1l-1rG"/>
+                            <constraint firstItem="vlS-Hw-LTN" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-40" id="V8E-SI-TRk"/>
+                            <constraint firstItem="jOD-lB-vWc" firstAttribute="top" secondItem="vlS-Hw-LTN" secondAttribute="bottom" constant="10" id="VU7-1l-1rG"/>
                             <constraint firstItem="jOD-lB-vWc" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="fgn-ev-AlW"/>
-                            <constraint firstItem="vlS-Hw-LTN" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="kbS-x6-olW"/>
+                            <constraint firstItem="vlS-Hw-LTN" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="40" id="kbS-x6-olW"/>
                             <constraint firstItem="jOD-lB-vWc" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="pij-wX-YW6"/>
                         </constraints>
                     </view>

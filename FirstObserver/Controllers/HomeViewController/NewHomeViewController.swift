@@ -139,7 +139,7 @@ class NewHomeViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        navigationController?.navigationBar.prefersLargeTitles = true
 //        hideNavigationBar()
         if !isFirstStart {
             managerFB.getCartProduct { cartProducts in
@@ -161,6 +161,7 @@ class NewHomeViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        navigationController?.navigationBar.prefersLargeTitles = false
 //        showNavigationBar()
         managerFB.removeObserverForCartProductsUser()
     }

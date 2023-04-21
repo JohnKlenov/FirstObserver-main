@@ -14,7 +14,7 @@ final class FullScreenViewController: UIViewController {
     private var imageProductCollectionView : UICollectionView!
     
     private let deleteImage: UIImageView = {
-        let view = UIImageView(image: UIImage(named: R.Strings.OtherControllers.FullScreen.deleteImageNameAssets)?.withTintColor(R.Colors.backgroundLithGray, renderingMode: .alwaysOriginal))
+        let view = UIImageView(image: UIImage(named: R.Strings.OtherControllers.FullScreen.deleteImageNameAssets)?.withTintColor(R.Colors.systemGray, renderingMode: .alwaysTemplate))
         view.translatesAutoresizingMaskIntoConstraints = false
         view.isUserInteractionEnabled = true
         return view
@@ -31,7 +31,7 @@ final class FullScreenViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 20, weight: .medium)
-        label.textColor = R.Colors.backgroundLithGray
+        label.textColor = R.Colors.systemGray
         label.backgroundColor = .clear
         return label
     }()

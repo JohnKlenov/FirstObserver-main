@@ -35,7 +35,7 @@ final class NewSignInViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = R.Colors.backgroundBlack
+        view.backgroundColor = R.Colors.separator
         return view
     }()
     
@@ -43,7 +43,7 @@ final class NewSignInViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        view.backgroundColor = R.Colors.backgroundBlack
+        view.backgroundColor = R.Colors.separator
         return view
     }()
     
@@ -51,7 +51,7 @@ final class NewSignInViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 5).isActive = true
-        view.backgroundColor = R.Colors.backgroundLithGray
+        view.backgroundColor = R.Colors.opaqueSeparator
         view.layer.cornerRadius = 2
         return view
     }()
@@ -98,7 +98,7 @@ final class NewSignInViewController: UIViewController {
         label.text = R.Strings.AuthControllers.SignIn.emailLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        label.textColor = R.Colors.textColorDarkGray
+        label.textColor = R.Colors.label
         return label
     }()
     
@@ -108,7 +108,7 @@ final class NewSignInViewController: UIViewController {
         label.text = R.Strings.AuthControllers.SignIn.passwordLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        label.textColor = R.Colors.textColorDarkGray
+        label.textColor = R.Colors.label
         return label
     }()
     
@@ -118,7 +118,7 @@ final class NewSignInViewController: UIViewController {
         label.text = R.Strings.AuthControllers.SignIn.signInLabel
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 25, weight: .bold)
-        label.textColor = R.Colors.textColorBlack
+        label.textColor = R.Colors.label
         return label
     }()
     
@@ -133,7 +133,7 @@ final class NewSignInViewController: UIViewController {
         var configuration = UIButton.Configuration.gray()
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
+        configuration.baseBackgroundColor = R.Colors.systemPurple
         var grayButton = UIButton(configuration: configuration)
         return grayButton
     }()
@@ -144,12 +144,12 @@ final class NewSignInViewController: UIViewController {
        
         var container = AttributeContainer()
         container.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        container.foregroundColor = R.Colors.textColorLithWhite
+        container.foregroundColor = R.Colors.label
         configuration.attributedTitle = AttributedString(R.Strings.AuthControllers.SignIn.signUpButton, attributes: container)
        
         configuration.titleAlignment = .center
         configuration.buttonSize = .medium
-        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
+        configuration.baseBackgroundColor = R.Colors.systemPurple
         var grayButton = UIButton(configuration: configuration)
         return grayButton
     }()
@@ -160,7 +160,7 @@ final class NewSignInViewController: UIViewController {
        
         var container = AttributeContainer()
         container.font = UIFont.boldSystemFont(ofSize: 15)
-        container.foregroundColor = R.Colors.textColorBlack
+        container.foregroundColor = R.Colors.systemPurple
         configuration.attributedTitle = AttributedString(R.Strings.AuthControllers.SignIn.forgotPasswordButton, attributes: container)
        
         configuration.titleAlignment = .center
@@ -190,7 +190,7 @@ final class NewSignInViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = R.Colors.backgroundWhiteLith
+        view.backgroundColor = R.Colors.systemBackground
         passwordTextField.delegate = self
         emailTextField.delegate = self
         setupView()
@@ -249,13 +249,13 @@ final class NewSignInViewController: UIViewController {
             case .invalidEmail:
                 self?.signingIn = false
                 self?.signInAlert(title: "Error", message: "Invalid email", comletionHandler: {
-                    self?.separatorEmailView.backgroundColor = .red.withAlphaComponent(0.8)
+                    self?.separatorEmailView.backgroundColor = R.Colors.systemRed
                     self?.isInvalidSignIn = true
                 })
             case .invalidPassword:
                 self?.signingIn = false
                 self?.signInAlert(title: "Error", message: "Invalid password", comletionHandler: {
-                    self?.separatorPasswordView.backgroundColor = .red.withAlphaComponent(0.8)
+                    self?.separatorPasswordView.backgroundColor = R.Colors.systemRed
                     self?.isInvalidSignIn = true
                 })
             case .wentWrong:
@@ -283,7 +283,7 @@ final class NewSignInViewController: UIViewController {
             self?.managerFB.sendPasswordReset(email: enteredEmail) { [weak self] (state) in
                 switch state {
                 case .success:
-                    self?.createTopView(textWarning: "Password was reset. Please check you email.", color: .systemGreen) { (alertView) in
+                    self?.createTopView(textWarning: "Password was reset. Please check you email.", color: R.Colors.systemGreen) { (alertView) in
 
                         UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 0.2, initialSpringVelocity: 0.1, options: .curveEaseIn, animations: {alertView.frame.origin = CGPoint(x: 0, y: -20)}) { (isFinished) in
                             if isFinished {
@@ -292,7 +292,7 @@ final class NewSignInViewController: UIViewController {
                         }
                     }
                 case .failed:
-                    self?.createTopView(textWarning: "Incorrect email. Please try again.", color: .systemRed) { (alertView) in
+                    self?.createTopView(textWarning: "Incorrect email. Please try again.", color: R.Colors.systemRed) { (alertView) in
 
                         UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 0.2, initialSpringVelocity: 0.1, options: .curveEaseIn, animations: {alertView.frame.origin = CGPoint(x: 0, y: -20)}) { (isFinished) in
                             if isFinished {
@@ -309,9 +309,9 @@ final class NewSignInViewController: UIViewController {
     @IBAction func signInTextFieldChanged(_ sender: UITextField) {
         switch sender {
         case emailTextField:
-            separatorEmailView.backgroundColor = Validators.isValidEmailAddr(strToValidate: emailTextField.text ?? "") ? R.Colors.backgroundBlack : R.Colors.backgroundRed
+            separatorEmailView.backgroundColor = Validators.isValidEmailAddr(strToValidate: emailTextField.text ?? "") ? R.Colors.separator : R.Colors.systemRed
         case passwordTextField:
-            separatorPasswordView.backgroundColor = passwordTextField.text?.isEmpty ?? true ? R.Colors.backgroundRed : R.Colors.backgroundBlack
+            separatorPasswordView.backgroundColor = passwordTextField.text?.isEmpty ?? true ? R.Colors.systemRed : R.Colors.separator
 //            Validators.isValidEmailAddr(strToValidate: passwordTextField.text ?? "")
         default:
             break
@@ -401,7 +401,7 @@ private extension NewSignInViewController {
             var config = button.configuration
             config?.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
                 var outgoing = incoming
-                outgoing.foregroundColor = R.Colors.textColorLithWhite
+                outgoing.foregroundColor = R.Colors.label
                 outgoing.font = UIFont.systemFont(ofSize: 17, weight: .bold)
                 return outgoing
             }
