@@ -15,14 +15,18 @@ protocol CartViewControllerDelegate: AnyObject {
 class CartView: UIView {
 
     private let imageView: UIImageView = {
-        let image = UIImageView()
-        image.translatesAutoresizingMaskIntoConstraints = false
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
 //        ?.withRenderingMode(.alwaysTemplate)
-        image.image = UIImage(named: R.Strings.TabBarController.Cart.CartView.imageSystemNameCart)
-        image.tintColor = R.Colors.label
-        image.contentMode = .scaleAspectFit
-        image.clipsToBounds = true
-        return image
+        if let image = UIImage(named: R.Strings.TabBarController.Cart.CartView.imageSystemNameCart) {
+            let tintableImage = image.withRenderingMode(.alwaysTemplate)
+            imageView.image = tintableImage
+        }
+//        image.image = UIImage(named: R.Strings.TabBarController.Cart.CartView.imageSystemNameCart)
+        imageView.tintColor = R.Colors.label
+        imageView.contentMode = .scaleAspectFit
+        imageView.clipsToBounds = true
+        return imageView
     }()
     
     private let titleLabel: UILabel = {
@@ -64,7 +68,7 @@ class CartView: UIView {
        
         var container = AttributeContainer()
         container.font = UIFont.boldSystemFont(ofSize: 17)
-        container.foregroundColor = R.Colors.systemBackground
+        container.foregroundColor = R.Colors.label
         
         configuration.attributedTitle = AttributedString(R.Strings.TabBarController.Cart.CartView.catalogButton, attributes: container)
         configuration.titleAlignment = .center

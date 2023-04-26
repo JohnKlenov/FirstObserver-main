@@ -74,21 +74,23 @@ class BrandsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        managerFB.getCartProduct { cartProducts in
-            self.cartProducts = cartProducts
+        print("viewWillAppear BrandsVC")
+        managerFB.getCartProduct { [weak self] cartProducts in
+            self?.cartProducts = cartProducts
+            print("BrandsVC override func viewWillAppear managerFB.getCartProduct ")
         }
 //        getFetchDataHVC()
         
         if let searchBrand = pathRefBrandVC {
-            managerFB.getBrand(searchBrand: searchBrand) { garderob in
-                self.popularGarderob = garderob
+            managerFB.getBrand(searchBrand: searchBrand) { [weak self] garderob in
+                self?.popularGarderob = garderob
             }
         }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        print("BrandsVC override viewWillDisappear")
         managerFB.removeObserverForCartProductsUser()
     }
     
@@ -113,6 +115,10 @@ class BrandsViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
+    }
+    
+    deinit {
+        print("deinit deinit deinit BrandsViewController ")
     }
     
     // Если свайпом листаем collectionView - премещаем selectedGroup в groupsCollectionView и меняем titleVC

@@ -77,7 +77,7 @@ final class NewProfileViewController: UIViewController {
 
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = R.Colors.systemPurple
+        configuration.baseBackgroundColor = R.Colors.systemFill
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
         return grayButton
@@ -94,7 +94,7 @@ final class NewProfileViewController: UIViewController {
        
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = R.Colors.systemPurple
+        configuration.baseBackgroundColor = R.Colors.systemFill
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
         return grayButton
@@ -111,7 +111,7 @@ final class NewProfileViewController: UIViewController {
        
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = R.Colors.systemPurple
+        configuration.baseBackgroundColor = R.Colors.systemFill
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
         return grayButton
@@ -218,6 +218,7 @@ final class NewProfileViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        navigationController?.navigationBar.prefersLargeTitles = true
         managerFB.getCartProduct { cartProducts in
             self.cartProducts = cartProducts
         }
@@ -434,12 +435,13 @@ final class NewProfileViewController: UIViewController {
         topView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 0).isActive = true
         topView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
         topView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
-        topView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.2).isActive = true
+        topView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.15).isActive = true
         
         imageUser.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.2).isActive = true
         imageUser.widthAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.2).isActive = true
         imageUser.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: 0).isActive = true
-        let yConstraint = NSLayoutConstraint(item: imageUser, attribute: .centerY, relatedBy: .equal, toItem: self.view, attribute: .centerY, multiplier: 0.4, constant: 0)
+//        let yConstraint = NSLayoutConstraint(item: imageUser, attribute: .centerY, relatedBy: .equal, toItem: self.view, attribute: .centerY, multiplier: 0.4, constant: 0)
+        let yConstraint = NSLayoutConstraint(item: imageUser, attribute: .centerY, relatedBy: .equal, toItem: self.view, attribute: .centerY, multiplier: 0.3, constant: 0)
         yConstraint.isActive = true
         infoUserStackView.topAnchor.constraint(equalTo: imageUser.bottomAnchor, constant: 20).isActive = true
         infoUserStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30).isActive = true
@@ -864,6 +866,7 @@ extension UIViewController {
         navBarAppearance.largeTitleTextAttributes = [.foregroundColor: largeTitleColor]
         navBarAppearance.titleTextAttributes = [.foregroundColor: largeTitleColor]
         navBarAppearance.backgroundColor = backgoundColor
+        navBarAppearance.shadowColor = .clear
 
         navigationController?.navigationBar.standardAppearance = navBarAppearance
         navigationController?.navigationBar.compactAppearance = navBarAppearance
@@ -879,6 +882,7 @@ extension UIViewController {
         navigationController?.navigationBar.barTintColor = backgoundColor
         navigationController?.navigationBar.tintColor = tintColor
         navigationController?.navigationBar.isTranslucent = false
+//        navigationController?.navigationBar.layer.shadowColor = nil
         navigationItem.title = title
     }
 }}

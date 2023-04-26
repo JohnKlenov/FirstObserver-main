@@ -296,7 +296,9 @@ final class FBManager {
     
     func removeObserverForCartProductsUser() {
         if let refHandle = refHandle, let currentUser = currentUser {
+            print("func removeObserverForCartProductsUser()")
             Database.database().reference().child("usersAccaunt/\(currentUser.uid)").removeObserver(withHandle: refHandle)
+//            self.refHandle = nil
         }
     }
 

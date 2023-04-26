@@ -36,9 +36,9 @@ class CatalogViewController: UIViewController {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.prefersLargeTitles = true
         getPlacesMapHVC()
-        managerFB.getPreviewCatalog { catalog in
-            self.arrayCatalog = catalog
-            self.collectionView.reloadData()
+        managerFB.getPreviewCatalog { [weak self] catalog in
+            self?.arrayCatalog = catalog
+            self?.collectionView.reloadData()
         }
     }
     

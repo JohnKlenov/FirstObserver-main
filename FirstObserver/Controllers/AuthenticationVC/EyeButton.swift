@@ -12,6 +12,7 @@ final class EyeButton: UIButton {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
         setupEyeButton()
     }
     
@@ -20,8 +21,17 @@ final class EyeButton: UIButton {
         fatalError("init(coder:) has not been implemented")
     }
     
+//    override func tintColorDidChange() {
+//        super.tintColorDidChange()
+//        tintColor = R.Colors.label
+//    }
     private func setupEyeButton() {
+//        if let image = UIImage(named: R.Strings.AuthControllers.SignIn.imageSystemNameEyeSlash) {
+//            let tintableImage = image.withRenderingMode(.alwaysTemplate)
+//            setImage(tintableImage, for: .normal)
+//        }
         setImage(UIImage(systemName: "eye.slash"), for: .normal)
+            
         tintColor = R.Colors.label
         widthAnchor.constraint(equalToConstant: 40).isActive = true
         isEnabled = false

@@ -14,7 +14,13 @@ final class FullScreenViewController: UIViewController {
     private var imageProductCollectionView : UICollectionView!
     
     private let deleteImage: UIImageView = {
-        let view = UIImageView(image: UIImage(named: R.Strings.OtherControllers.FullScreen.deleteImageNameAssets)?.withTintColor(R.Colors.systemGray, renderingMode: .alwaysTemplate))
+        let view = UIImageView()
+        if let image = UIImage(named: R.Strings.OtherControllers.FullScreen.deleteImageNameAssets) {
+            let tintableImage = image.withRenderingMode(.alwaysTemplate)
+            view.image = tintableImage
+        }
+        view.tintColor = R.Colors.systemGray
+//        let view = UIImageView(image: UIImage(named: R.Strings.OtherControllers.FullScreen.deleteImageNameAssets)?.withTintColor(R.Colors.systemGray, renderingMode: .alwaysTemplate))
         view.translatesAutoresizingMaskIntoConstraints = false
         view.isUserInteractionEnabled = true
         return view

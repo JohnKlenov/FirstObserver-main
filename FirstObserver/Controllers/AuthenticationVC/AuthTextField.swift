@@ -32,8 +32,8 @@ final class AuthTextField: UITextField {
     private func setupTextField(placeholder: String) {
 //        UIColor.lightGray
         backgroundColor = .clear
-        textColor = R.Colors.placeholderText
-        attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [NSAttributedString.Key.foregroundColor : R.Colors.systemRed])
+        textColor = R.Colors.label
+        attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [NSAttributedString.Key.foregroundColor : R.Colors.placeholderText])
 //        font = .boldSystemFont(ofSize: 15)
         font = .systemFont(ofSize: 15, weight: .medium)
         borderStyle = .none

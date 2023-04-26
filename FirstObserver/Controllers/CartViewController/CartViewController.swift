@@ -23,14 +23,13 @@ final class CartViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         view.backgroundColor = R.Colors.systemBackground
         title = R.Strings.TabBarController.Cart.title
         tableView.register(CartCell.self, forCellReuseIdentifier: CartCell.reuseID)
         tableView.estimatedRowHeight = 10
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.backgroundColor = R.Colors.systemBackground
-        createHeaderTableView()
+        tableView.backgroundColor = .clear
+//        createHeaderTableView()
     
         tableView.delegate = self
         tableView.dataSource = self
@@ -40,18 +39,25 @@ final class CartViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        print("viewWillAppear")
         navigationController?.navigationBar.prefersLargeTitles = true
         getPlacesMap()
         configureUI()
+        
     }
     
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        navigationController?.navigationBar.prefersLargeTitles = false
+        print("viewWillDisappear")
         managerFB.removeObserverForCartProductsUser()
+//        navigationController?.navigationBar.prefersLargeTitles = false
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+//        navigationController?.navigationBar.prefersLargeTitles = true
+    }
   
     // MARK: - Another methods
    
@@ -66,7 +72,7 @@ final class CartViewController: UIViewController {
         }
         
         managerFB.getCartProduct { [weak self] cartProducts in
-            
+            print(" managerFB.getCartProduct { [weak self] cartProducts in")
             self?.cartProducts = cartProducts
             self?.tableView.reloadData()
             
@@ -74,7 +80,7 @@ final class CartViewController: UIViewController {
                 if self?.cartProducts.count == 0 {
                     if isAnimate  {
                         self?.isAnimateCartView.toggle()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
                             self?.tableView.isHidden = true
                             self?.animateCartView()
                         }
@@ -105,6 +111,8 @@ final class CartViewController: UIViewController {
     }
     
     private func animateCartView() {
+        // hz
+//        managerFB.removeObserverForCartProductsUser()
         cartViewIsEmpty.alpha = 0
         cartViewIsEmpty.isHidden = true
         UIView.animate(withDuration: 0.1, delay: 0.1, options: .curveLinear) { [weak self] in
@@ -198,8 +206,9 @@ extension CartViewController: CartViewControllerDelegate {
     }
     
     func didTapCatalogButton() {
-        let catalogVC = UIStoryboard.vcById("CatalogViewController") as! CatalogViewController
-        navigationController?.pushViewController(catalogVC, animated: true)
+//        let catalogVC = UIStoryboard.vcById("CatalogViewController") as! CatalogViewController
+//        navigationController?.pushViewController(catalogVC, animated: true)
+        tabBarController?.selectedIndex = 1
     }
 }
 

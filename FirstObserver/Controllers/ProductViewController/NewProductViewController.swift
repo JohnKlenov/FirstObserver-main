@@ -172,6 +172,7 @@ class NewProductViewController: UIViewController {
     
     let tableView: UITableView = {
         let tableView = UITableView()
+        tableView.backgroundColor = R.Colors.systemBackground
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
@@ -222,7 +223,7 @@ class NewProductViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = R.Colors.backgroundWhiteLith
+        view.backgroundColor = R.Colors.systemBackground
         tabBarController?.tabBar.isHidden = true
         
         configureToCardButton()
@@ -293,7 +294,7 @@ class NewProductViewController: UIViewController {
             container.foregroundColor = R.Colors.label
             
             config?.attributedTitle = isAddedToCard ? AttributedString(R.Strings.OtherControllers.Product.addedToCardButton, attributes: container) : AttributedString(R.Strings.OtherControllers.Product.addToCardButton, attributes: container)
-            config?.image = isAddedToCard ? UIImage(systemName: R.Strings.OtherControllers.Product.imageSystemNameCartFill)?.withTintColor(.white, renderingMode: .alwaysOriginal) : UIImage(systemName: R.Strings.OtherControllers.Product.imageSystemNameCart)?.withTintColor(.white, renderingMode: .alwaysOriginal)
+            config?.image = isAddedToCard ? UIImage(systemName: R.Strings.OtherControllers.Product.imageSystemNameCartFill)?.withTintColor(R.Colors.label, renderingMode: .alwaysOriginal) : UIImage(systemName: R.Strings.OtherControllers.Product.imageSystemNameCart)?.withTintColor(R.Colors.label, renderingMode: .alwaysOriginal)
             
             button.isEnabled = !isAddedToCard
             button.configuration = config
@@ -331,6 +332,7 @@ class NewProductViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "MyTableViewCell")
+        
         heightCnstrTableView = tableView.heightAnchor.constraint(equalToConstant: 50)
         heightCnstrTableView.isActive = true
     }

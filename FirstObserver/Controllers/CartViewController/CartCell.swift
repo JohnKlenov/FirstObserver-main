@@ -18,6 +18,7 @@ class CartCell: UITableViewCell {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = R.Colors.secondarySystemBackground
+//        view.backgroundColor = .clear
         view.layer.cornerRadius = 10
         return view
     }()

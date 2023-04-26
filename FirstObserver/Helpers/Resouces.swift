@@ -68,6 +68,7 @@ enum R {
         
         static let systemFill = UIColor.systemFill
         
+        static let systemGray2 = UIColor.systemGray2
         static let systemGray3 = UIColor.systemGray3
         static let systemGray6 = UIColor.systemGray6
         static let systemGray5 = UIColor.systemGray5

@@ -160,7 +160,7 @@ final class NewSignInViewController: UIViewController {
        
         var container = AttributeContainer()
         container.font = UIFont.boldSystemFont(ofSize: 15)
-        container.foregroundColor = R.Colors.systemPurple
+        container.foregroundColor = R.Colors.label
         configuration.attributedTitle = AttributedString(R.Strings.AuthControllers.SignIn.forgotPasswordButton, attributes: container)
        
         configuration.titleAlignment = .center
@@ -216,6 +216,11 @@ final class NewSignInViewController: UIViewController {
     @objc private func displayBookMarks() {
         let imageName = isPrivateEye ? R.Strings.AuthControllers.SignIn.imageSystemNameEye : R.Strings.AuthControllers.SignIn.imageSystemNameEyeSlash
         passwordTextField.isSecureTextEntry.toggle()
+//        if let image = UIImage(named: imageName) {
+//            let tintableImage = image.withRenderingMode(.alwaysTemplate)
+//            eyeButton.setImage(tintableImage, for: .normal)
+//        }
+//        eyeButton.tintColor = R.Colors.label
         eyeButton.setImage(UIImage(systemName: imageName), for: .normal)
         isPrivateEye.toggle()
     }

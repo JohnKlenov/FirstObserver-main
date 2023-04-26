@@ -40,7 +40,7 @@ class ImageCell: UICollectionViewCell {
         label.numberOfLines = 1
         label.textColor = R.Colors.label
         label.backgroundColor = R.Colors.secondarySystemBackground
-        label.layer.cornerRadius = label.frame.size.width/2
+        label.layer.cornerRadius = 10
         label.clipsToBounds = true
         return label
     }()
@@ -58,6 +58,11 @@ class ImageCell: UICollectionViewCell {
         super.prepareForReuse()
 //        imageView.sd_cancelCurrentImageLoad()
 //        imageView.image = nil
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+//        labelName.layer.cornerRadius = labelName.frame.size.width/2
     }
     
     func setupConstraints() {
@@ -83,6 +88,7 @@ class ImageCell: UICollectionViewCell {
 //            imageView.image = UIImage(named: "DefaultImage")
 //        }
         labelName.text = model.brands?.brand
+        
     }
     
     required init?(coder: NSCoder) {
