@@ -15,4 +15,19 @@ class NewProfileNavigationController: UINavigationController {
         return .lightContent
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        print("NewProfileNavigationController viewWillAppear")
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        print("NewProfileNavigationController viewWillDisappear")
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        print("NewProfileNavigationController viewDidDisappear")
+    }
+    
 }

@@ -69,7 +69,9 @@ final class FBManager {
     static let shared = FBManager()
     var currentUser: User?
     var avatarRef: StorageReference?
-    var refHandle: DatabaseHandle?
+    var refHandleCart: DatabaseHandle?
+    var refHandleCatalog: DatabaseHandle?
+    var refHandleAllProduct: DatabaseHandle?
 //    var databaseRef: DatabaseReference?
     //
 //    lazy var databaseRef = Database.database().reference().child("usersAccaunt/\(currentUser?.uid ?? "")")
@@ -143,9 +145,15 @@ final class FBManager {
     
     // MARK: - AllProductViewController -
     
+    func removeObserverAllProduct() {
+        if let refHandle = refHandleAllProduct {
+            Database.database().reference().child("catalog").removeObserver(withHandle: refHandle)
+        }
+    }
+    
     func getCategoryForBrands(searchCategory: String, completionHandler: @escaping (PopularGarderob) -> Void) {
         let databaseRef = Database.database().reference(withPath: "brands")
-        databaseRef.observe(.value) { (snapshot) in
+        refHandleAllProduct = databaseRef.observe(.value) { (snapshot) in
             
             let garderob = PopularGarderob()
             for brand in snapshot.children {
@@ -256,7 +264,7 @@ final class FBManager {
     
     // MARK: - CatalogViewController -
     func getPreviewCatalog(completionHandler: @escaping ([PreviewCategory]) -> Void) {
-        refHandle = Database.database().reference().child("catalog").observe(.value) { (snapshot) in
+        refHandleCatalog = Database.database().reference().child("catalog").observe(.value) { (snapshot) in
             var arrayCatalog = [PreviewCategory]()
             for item in snapshot.children {
                 let category = item as! DataSnapshot
@@ -268,7 +276,7 @@ final class FBManager {
     }
     
     func removeObserverCatalog() {
-        if let refHandle = refHandle {
+        if let refHandle = refHandleCatalog {
             Database.database().reference().child("catalog").removeObserver(withHandle: refHandle)
         }
     }
@@ -295,7 +303,7 @@ final class FBManager {
     }
     
     func removeObserverForCartProductsUser() {
-        if let refHandle = refHandle, let currentUser = currentUser {
+        if let refHandle = refHandleCart, let currentUser = currentUser {
             print("func removeObserverForCartProductsUser()")
             Database.database().reference().child("usersAccaunt/\(currentUser.uid)").removeObserver(withHandle: refHandle)
 //            self.refHandle = nil
@@ -308,8 +316,8 @@ final class FBManager {
             completionHandler([])
             return
         }
-
-        refHandle = Database.database().reference().child("usersAccaunt/\(currentUser.uid)").observe(.value) { (snapshot) in
+print("func getCartProduct(completionHandler: @escaping ([PopularProduct]) -> Void)")
+        refHandleCart = Database.database().reference().child("usersAccaunt/\(currentUser.uid)").observe(.value) { (snapshot) in
 //            print(".observe(.value) { (snapshot) - \(String(describing: self.currentUser?.uid))")
             var arrayProduct = [PopularProduct]()
             for item in snapshot.children {

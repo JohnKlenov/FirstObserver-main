@@ -39,7 +39,8 @@ final class CartViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("viewWillAppear")
+        print("CartVC viewWillAppear")
+        managerFB.removeObserverForCartProductsUser()
         navigationController?.navigationBar.prefersLargeTitles = true
         getPlacesMap()
         configureUI()
@@ -49,9 +50,14 @@ final class CartViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        print("viewWillDisappear")
-        managerFB.removeObserverForCartProductsUser()
+        print("CartVC viewWillDisappear")
+//        managerFB.removeObserverForCartProductsUser()
 //        navigationController?.navigationBar.prefersLargeTitles = false
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        print("CartVC viewDidDisappear")
     }
     
     override func viewDidLayoutSubviews() {
@@ -212,6 +218,7 @@ extension CartViewController: CartViewControllerDelegate {
     }
 }
 
+// think abaut whow implementation this methods
 extension CartViewController: SignInViewControllerDelegate {
     func userIsPermanent() {
         managerFB.removeObserverForCartProductsUser()

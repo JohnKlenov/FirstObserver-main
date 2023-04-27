@@ -139,8 +139,10 @@ class NewHomeViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        print("Home viewWillAppear ")
         navigationController?.navigationBar.prefersLargeTitles = true
 //        hideNavigationBar()
+        managerFB.removeObserverForCartProductsUser()
         if !isFirstStart {
             managerFB.getCartProduct { cartProducts in
                 self.cartProducts = cartProducts
@@ -161,9 +163,15 @@ class NewHomeViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        print("Home viewWillDisappear ")
         navigationController?.navigationBar.prefersLargeTitles = false
 //        showNavigationBar()
-        managerFB.removeObserverForCartProductsUser()
+//        managerFB.removeObserverForCartProductsUser()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        print("Home viewDidDisappear ")
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {

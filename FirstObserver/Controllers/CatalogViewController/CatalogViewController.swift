@@ -34,6 +34,8 @@ class CatalogViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        print("Catalog viewWillAppear")
+        managerFB.removeObserverForCartProductsUser()
         navigationController?.navigationBar.prefersLargeTitles = true
         getPlacesMapHVC()
         managerFB.getPreviewCatalog { [weak self] catalog in
@@ -44,8 +46,14 @@ class CatalogViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
+        print("Catalog viewWillDisappear")
         navigationController?.navigationBar.prefersLargeTitles = false
         managerFB.removeObserverCatalog()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        print("Catalog viewDidDisappear")
     }
     
     private func getPlacesMapHVC() {

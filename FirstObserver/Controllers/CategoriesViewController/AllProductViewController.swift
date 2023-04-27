@@ -29,6 +29,7 @@ class AllProductViewController: BrandsViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 //        managerFB.removeObserverForCartProductsUser()
+        managerFB.removeObserverAllProduct()
         print("AllProductViewController override func viewWillDisappear")
     }
     

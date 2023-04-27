@@ -77,6 +77,7 @@ class BrandsViewController: UIViewController {
         print("viewWillAppear BrandsVC")
         managerFB.getCartProduct { [weak self] cartProducts in
             self?.cartProducts = cartProducts
+//            print("viewWillAppear cartProducts - \(cartProducts.count)")
             print("BrandsVC override func viewWillAppear managerFB.getCartProduct ")
         }
 //        getFetchDataHVC()
@@ -243,10 +244,12 @@ extension BrandsViewController: ProductCellDelegtate {
                 placesArray.append(places)
             }
         }
-        
+//        print("cartProducts.forEach - \(cartProducts.count)")
         cartProducts.forEach { (addedProduct) in
            
             if addedProduct.model == model.model {
+//                print("addedProduct.model - \(addedProduct.model)")
+//                print("model.model - \(model.model)")
                 productVC.isAddedToCard = true
             }
         }

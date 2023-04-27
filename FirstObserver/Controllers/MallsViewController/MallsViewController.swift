@@ -18,6 +18,8 @@ class MallsViewController: UIViewController {
     var mallsModel: [PreviewCategory] = []
     var brandsModel: [PreviewCategory] = []
     
+    let managerFB = FBManager.shared
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -31,13 +33,21 @@ class MallsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
+        managerFB.removeObserverForCartProductsUser()
+        print("Malls viewWillAppear")
         navigationController?.navigationBar.prefersLargeTitles = true
         getDataHVC()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        print("Malls viewWillDisappear")
         navigationController?.navigationBar.prefersLargeTitles = false
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        print("Malls viewDidDisappear")
     }
     
     private func getDataHVC() {

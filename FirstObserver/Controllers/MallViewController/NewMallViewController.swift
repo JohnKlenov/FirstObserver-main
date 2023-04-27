@@ -138,6 +138,7 @@ class NewMallViewController: UIViewController {
     let managerFB = FBManager.shared
     private var isMapSelected = false
     
+    // fhink about move getMallModel in viewWillAppear and create handler
     override func viewDidLoad() {
         super.viewDidLoad()
         

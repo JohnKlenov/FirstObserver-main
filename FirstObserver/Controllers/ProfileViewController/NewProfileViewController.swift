@@ -218,7 +218,9 @@ final class NewProfileViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        print("NewProfileViewController viewWillAppear")
         navigationController?.navigationBar.prefersLargeTitles = true
+        managerFB.removeObserverForCartProductsUser()
         managerFB.getCartProduct { cartProducts in
             self.cartProducts = cartProducts
         }
@@ -227,8 +229,14 @@ final class NewProfileViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        print("NewProfileViewController viewWillDisappear")
         navigationController?.navigationBar.prefersLargeTitles = false
-        managerFB.removeObserverForCartProductsUser()
+//        managerFB.removeObserverForCartProductsUser()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        print("NewProfileViewController viewDidDisappear")
     }
     
     
