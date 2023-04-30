@@ -71,7 +71,8 @@ final class FBManager {
     var avatarRef: StorageReference?
     var refHandleCart: DatabaseHandle?
     var refHandleCatalog: DatabaseHandle?
-    var refHandleAllProduct: DatabaseHandle?
+    var refHandleCategoryProduct: DatabaseHandle?
+    var refHandleBrandProduct: DatabaseHandle?
 //    var databaseRef: DatabaseReference?
     //
 //    lazy var databaseRef = Database.database().reference().child("usersAccaunt/\(currentUser?.uid ?? "")")
@@ -145,15 +146,15 @@ final class FBManager {
     
     // MARK: - AllProductViewController -
     
-    func removeObserverAllProduct() {
-        if let refHandle = refHandleAllProduct {
-            Database.database().reference().child("catalog").removeObserver(withHandle: refHandle)
+    func removeObserverCategoryProduct() {
+        if let refHandle = refHandleCategoryProduct {
+            Database.database().reference(withPath: "brands").removeObserver(withHandle: refHandle)
         }
     }
     
     func getCategoryForBrands(searchCategory: String, completionHandler: @escaping (PopularGarderob) -> Void) {
         let databaseRef = Database.database().reference(withPath: "brands")
-        refHandleAllProduct = databaseRef.observe(.value) { (snapshot) in
+        refHandleCategoryProduct = databaseRef.observe(.value) { (snapshot) in
             
             let garderob = PopularGarderob()
             for brand in snapshot.children {
@@ -208,9 +209,15 @@ final class FBManager {
     
     // MARK: - BrandsViewController -
 
+    func removeObserverBrandProduct(searchBrand: String) {
+        if let refHandle = refHandleBrandProduct {
+            Database.database().reference(withPath: "brands/\(searchBrand)").removeObserver(withHandle: refHandle)
+        }
+    }
+    
     func getBrand(searchBrand: String, completionHandler: @escaping (PopularGarderob) -> Void) {
         let databaseRef = Database.database().reference(withPath: "brands/\(searchBrand)")
-        databaseRef.observe(.value){ (snapshot) in
+        refHandleBrandProduct = databaseRef.observe(.value){ (snapshot) in
             
             let garderob = PopularGarderob()
             for item in snapshot.children {
@@ -263,6 +270,13 @@ final class FBManager {
     
     
     // MARK: - CatalogViewController -
+    
+    func removeObserverCatalog() {
+        if let refHandle = refHandleCatalog {
+            Database.database().reference().child("catalog").removeObserver(withHandle: refHandle)
+        }
+    }
+    
     func getPreviewCatalog(completionHandler: @escaping ([PreviewCategory]) -> Void) {
         refHandleCatalog = Database.database().reference().child("catalog").observe(.value) { (snapshot) in
             var arrayCatalog = [PreviewCategory]()
@@ -274,13 +288,6 @@ final class FBManager {
             completionHandler(arrayCatalog)
         }
     }
-    
-    func removeObserverCatalog() {
-        if let refHandle = refHandleCatalog {
-            Database.database().reference().child("catalog").removeObserver(withHandle: refHandle)
-        }
-    }
-
     
     // MARK: - HomeViewController -
     

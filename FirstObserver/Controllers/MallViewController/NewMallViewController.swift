@@ -22,7 +22,7 @@ class NewMallViewController: UIViewController {
     private let containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = R.Colors.backgroundWhiteLith
+        view.backgroundColor = .clear
         return view
     }()
     
@@ -46,13 +46,12 @@ class NewMallViewController: UIViewController {
        
         var container = AttributeContainer()
         container.font = UIFont.boldSystemFont(ofSize: 15)
-        container.foregroundColor = R.Colors.textColorWhite
+        container.foregroundColor = R.Colors.label
         
         configuration.attributedTitle = AttributedString(R.Strings.OtherControllers.Mall.floorPlanButton, attributes: container)
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
-
+        configuration.baseBackgroundColor = R.Colors.systemPurple
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
         
@@ -67,13 +66,12 @@ class NewMallViewController: UIViewController {
        
         var container = AttributeContainer()
         container.font = UIFont.boldSystemFont(ofSize: 15)
-        container.foregroundColor = R.Colors.textColorWhite
+        container.foregroundColor = R.Colors.label
         
         configuration.attributedTitle = AttributedString(R.Strings.OtherControllers.Mall.websiteMallButton, attributes: container)
         configuration.titleAlignment = .center
         configuration.buttonSize = .large
-        configuration.baseBackgroundColor = R.Colors.backgroundButtonBlack
-//        configuration.showsActivityIndicator
+        configuration.baseBackgroundColor = R.Colors.systemPurple
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
         
@@ -88,7 +86,7 @@ class NewMallViewController: UIViewController {
         label.text = R.Strings.OtherControllers.Mall.titleButtonsStackLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
-        label.textColor = R.Colors.textColorBlack
+        label.textColor = R.Colors.label
         return label
     }()
     
@@ -98,7 +96,7 @@ class NewMallViewController: UIViewController {
         label.text =  R.Strings.OtherControllers.Mall.titleMapViewLabel
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
-        label.textColor = R.Colors.textColorBlack
+        label.textColor = R.Colors.label
         return label
     }()
     
@@ -141,12 +139,12 @@ class NewMallViewController: UIViewController {
     // fhink about move getMallModel in viewWillAppear and create handler
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        navigationItem.largeTitleDisplayMode = .never
         managerFB.getMallModel(refPath: refPath) { mallModel in
             
                 self.configureViews(mallModel: mallModel)
         }
-        view.backgroundColor = R.Colors.backgroundWhiteLith
+        view.backgroundColor = R.Colors.systemBackground
         setupScrollView()
         setupCollectionView()
         addButtonsForStackViewButton()
@@ -426,7 +424,7 @@ class NewMallViewController: UIViewController {
         item.edgeSpacing = NSCollectionLayoutEdgeSpacing(leading: nil, top: NSCollectionLayoutSpacing.fixed(10), trailing: nil, bottom: nil)
 
         let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(20))
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 2)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 3)
         group.interItemSpacing = .fixed(10)
         
         let section = NSCollectionLayoutSection(group: group)
@@ -458,6 +456,7 @@ extension NewMallViewController: UICollectionViewDelegate {
             let brandVC = UIStoryboard.vcById("BrandsViewController") as! BrandsViewController
             let refPath = section[indexPath.section].items[indexPath.row].brands?.brand
             brandVC.pathRefBrandVC = refPath
+            brandVC.title = refPath
             brandVC.arrayPin = arrayPin
             self.navigationController?.pushViewController(brandVC, animated: true)
             print("DidTap Brand Section")

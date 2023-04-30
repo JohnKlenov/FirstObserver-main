@@ -60,7 +60,7 @@ class NewProductViewController: UIViewController {
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
         stack.distribution = .fill
-        stack.spacing = 5
+        stack.spacing = 10
         return stack
     }()
     
@@ -69,7 +69,7 @@ class NewProductViewController: UIViewController {
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
         stack.distribution = .fill
-        stack.spacing = 5
+        stack.spacing = 10
         return stack
     }()
     
@@ -145,7 +145,7 @@ class NewProductViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = R.Strings.OtherControllers.Product.descriptionTitleLabel
         label.textAlignment = .left
-        label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
+        label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
         label.textColor = R.Colors.label
         return label
     }()
@@ -155,7 +155,7 @@ class NewProductViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.textAlignment = .left
-        label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+        label.font = UIFont.systemFont(ofSize: 15, weight: .medium)
         label.textColor = R.Colors.label
         return label
     }()
@@ -165,7 +165,7 @@ class NewProductViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = R.Strings.OtherControllers.Product.titleTableViewLabel
         label.textAlignment = .left
-        label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
+        label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
         label.textColor = R.Colors.label
         return label
     }()
@@ -182,7 +182,7 @@ class NewProductViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = R.Strings.OtherControllers.Product.titleMapLabel
         label.textAlignment = .left
-        label.font = UIFont.systemFont(ofSize: 15, weight: .bold)
+        label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
         label.textColor = R.Colors.label
         return label
     }()
@@ -225,6 +225,7 @@ class NewProductViewController: UIViewController {
         
         view.backgroundColor = R.Colors.systemBackground
         tabBarController?.tabBar.isHidden = true
+        navigationItem.largeTitleDisplayMode = .never
         
         configureToCardButton()
         setupScrollView()
@@ -339,7 +340,8 @@ class NewProductViewController: UIViewController {
     private func setupTableView() {
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "MyTableViewCell")
+//        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "MyTableViewCell")
+        tableView.register(MallTableViewCell.self, forCellReuseIdentifier: MallTableViewCell.reuseID)
         
         heightCnstrTableView = tableView.heightAnchor.constraint(equalToConstant: 50)
         heightCnstrTableView.isActive = true
@@ -537,11 +539,15 @@ extension NewProductViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "MyTableViewCell", for: indexPath)
-        var contentCell = cell.defaultContentConfiguration()
-        contentCell.text = arrayPin[indexPath.row].title
-        contentCell.image = arrayPin[indexPath.row].image
-        cell.contentConfiguration = contentCell
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "MyTableViewCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: MallTableViewCell.reuseID, for: indexPath) as! MallTableViewCell
+        cell.configureCell(imageMall: arrayPin[indexPath.row].image, nameMall: arrayPin[indexPath.row].title)
+//        var contentCell = cell.defaultContentConfiguration()
+//        contentCell.text = arrayPin[indexPath.row].title
+//        contentCell.textProperties.color = R.Colors.label
+//        contentCell.textProperties.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+//        contentCell.image = arrayPin[indexPath.row].image
+//        cell.contentConfiguration = contentCell
         return cell
     }
     
@@ -551,6 +557,12 @@ extension NewProductViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        let vc = DetailViewController()
+        vc.modalPresentationStyle = .pageSheet
+        vc.sheetPresentationController?.detents = [.medium()]
+        vc.sheetPresentationController?.prefersGrabberVisible = true
+        vc.nameMallLabel.text = arrayPin[indexPath.row].title
+        present(vc, animated: true, completion: nil)
     }
 }
 

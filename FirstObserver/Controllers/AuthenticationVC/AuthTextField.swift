@@ -33,8 +33,8 @@ final class AuthTextField: UITextField {
 //        UIColor.lightGray
         backgroundColor = .clear
         textColor = R.Colors.label
+        
         attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [NSAttributedString.Key.foregroundColor : R.Colors.placeholderText])
-//        font = .boldSystemFont(ofSize: 15)
         font = .systemFont(ofSize: 15, weight: .medium)
         borderStyle = .none
         heightAnchor.constraint(equalToConstant: 40).isActive = true

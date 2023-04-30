@@ -149,7 +149,7 @@ final class NewSignInViewController: UIViewController {
        
         configuration.titleAlignment = .center
         configuration.buttonSize = .medium
-        configuration.baseBackgroundColor = R.Colors.systemPurple
+        configuration.baseBackgroundColor = R.Colors.systemFill
         var grayButton = UIButton(configuration: configuration)
         return grayButton
     }()
@@ -441,6 +441,7 @@ private extension NewSignInViewController {
     func setupPasswordTF() {
         passwordTextField.rightView = eyeButton
         passwordTextField.rightViewMode = .always
+//        eyeButton.setImage(UIImage(systemName: "eye.slash"), for: .normal)
     }
     
     func isEnabledSignInButton(enabled: Bool) {

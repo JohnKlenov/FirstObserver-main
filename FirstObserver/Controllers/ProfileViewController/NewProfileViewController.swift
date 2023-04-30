@@ -197,7 +197,8 @@ final class NewProfileViewController: UIViewController {
         }
         
         view.backgroundColor = R.Colors.systemBackground
-        configureNavigationBar(largeTitleColor: R.Colors.label, backgoundColor: R.Colors.systemGray5, tintColor: R.Colors.label, title: R.Strings.NavBar.profile, preferredLargeTitle: false)
+//        navigationController?.navigationBar.prefersLargeTitles = true
+        configureNavigationBar(largeTitleColor: R.Colors.label, backgoundColor: R.Colors.systemGray5, tintColor: R.Colors.label, title: R.Strings.NavBar.profile, preferredLargeTitle: true)
         configureNavigationItem()
         setupStackView()
         imageUser.addGestureRecognizer(imageUserTapGestureRecognizer)
@@ -219,7 +220,6 @@ final class NewProfileViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print("NewProfileViewController viewWillAppear")
-        navigationController?.navigationBar.prefersLargeTitles = true
         managerFB.removeObserverForCartProductsUser()
         managerFB.getCartProduct { cartProducts in
             self.cartProducts = cartProducts
@@ -230,7 +230,6 @@ final class NewProfileViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         print("NewProfileViewController viewWillDisappear")
-        navigationController?.navigationBar.prefersLargeTitles = false
 //        managerFB.removeObserverForCartProductsUser()
     }
     

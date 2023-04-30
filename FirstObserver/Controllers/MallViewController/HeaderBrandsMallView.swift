@@ -16,7 +16,7 @@ class HeaderBrandsMallView: UICollectionReusableView {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
         label.backgroundColor = .clear
-        label.tintColor = .black
+        label.tintColor = R.Colors.label
         label.numberOfLines = 0
         return label
     }()
@@ -25,7 +25,7 @@ class HeaderBrandsMallView: UICollectionReusableView {
         super.init(frame: frame)
         addSubview(label)
         setupConstraints()
-        backgroundColor = .white
+        backgroundColor = .clear
     }
    
     private func setupConstraints() {

@@ -88,6 +88,12 @@ class NewHomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+//        navigationItem.backButtonTitle = ""
+        if let topItem = navigationController?.navigationBar.topItem {
+            topItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        }
+        navigationController?.navigationBar.prefersLargeTitles = true
+        
         managerFB.userListener { currentUser in
             if currentUser == nil {
                 self.cartProducts = []
@@ -140,7 +146,8 @@ class NewHomeViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print("Home viewWillAppear ")
-        navigationController?.navigationBar.prefersLargeTitles = true
+       
+//        navigationItem.largeTitleDisplayMode = .always
 //        hideNavigationBar()
         managerFB.removeObserverForCartProductsUser()
         if !isFirstStart {
@@ -164,7 +171,7 @@ class NewHomeViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         print("Home viewWillDisappear ")
-        navigationController?.navigationBar.prefersLargeTitles = false
+        
 //        showNavigationBar()
 //        managerFB.removeObserverForCartProductsUser()
     }
@@ -414,7 +421,9 @@ extension NewHomeViewController: UICollectionViewDelegate {
             let mallSection = modelHomeViewController.filter({$0.section == "Malls"})
             let brandsSection = modelHomeViewController.filter({$0.section == "Brands"})
             mallVC.arrayPin = placesMap
-            mallVC.refPath = mallSection.first?.items[indexPath.row].malls?.brand ?? ""
+            let refPath = mallSection.first?.items[indexPath.row].malls?.brand ?? ""
+            mallVC.refPath = refPath
+            mallVC.title = refPath
             if let arrayBrands = brandsSection.first?.items.map({$0.brands!}) {
                 mallVC.brandsMall = arrayBrands
             }
@@ -430,6 +439,7 @@ extension NewHomeViewController: UICollectionViewDelegate {
 //            let ref = Database.database().reference(withPath: "brands/\(refBrand)")
 //            brandVC.incomingRef = ref
             brandVC.pathRefBrandVC = refBrand
+            brandVC.title = refBrand
             brandVC.arrayPin = placesMap
             self.navigationController?.pushViewController(brandVC, animated: true)
 //            present(brandVC, animated: true, completion: nil)

@@ -14,6 +14,9 @@ class GroupCell: UICollectionViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        backgroundColor = .clear
+        contentView.backgroundColor = R.Colors.secondarySystemBackground
+        contentView.layer.cornerRadius = 10
         // Initialization code
     }
     
@@ -21,9 +24,9 @@ class GroupCell: UICollectionViewCell {
         groupNameLabel.text = groupName
         
         if isSelected {
-            groupNameLabel.textColor = .black
+            groupNameLabel.textColor = R.Colors.systemPurple
         } else {
-            groupNameLabel.textColor = .darkGray
+            groupNameLabel.textColor = R.Colors.label
         }
     }
 

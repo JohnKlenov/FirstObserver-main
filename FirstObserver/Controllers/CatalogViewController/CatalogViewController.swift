@@ -26,6 +26,10 @@ class CatalogViewController: UIViewController {
         
         title = R.Strings.TabBarController.Catalog.title
         view.backgroundColor = R.Colors.systemBackground
+        navigationController?.navigationBar.prefersLargeTitles = true
+        if let topItem = navigationController?.navigationBar.topItem {
+            topItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        }
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = .clear
@@ -36,7 +40,6 @@ class CatalogViewController: UIViewController {
         super.viewWillAppear(animated)
         print("Catalog viewWillAppear")
         managerFB.removeObserverForCartProductsUser()
-        navigationController?.navigationBar.prefersLargeTitles = true
         getPlacesMapHVC()
         managerFB.getPreviewCatalog { [weak self] catalog in
             self?.arrayCatalog = catalog
@@ -47,7 +50,6 @@ class CatalogViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
         print("Catalog viewWillDisappear")
-        navigationController?.navigationBar.prefersLargeTitles = false
         managerFB.removeObserverCatalog()
     }
     
@@ -96,6 +98,7 @@ extension CatalogViewController: UICollectionViewDelegate, UICollectionViewDataS
         let searchCategory = arrayCatalog[indexPath.item].brand
         let allProductCategoryVC = UIStoryboard.vcById("AllProductViewController") as! AllProductViewController
         allProductCategoryVC.pathRefAllPRoductVC = searchCategory
+        allProductCategoryVC.title = searchCategory
 //        let refCategory = Database.database().reference(withPath: "brands")
 //        allProductCategoryVC.categoryRef = refCategory
         allProductCategoryVC.arrayPin = arrayPins

@@ -30,7 +30,7 @@ class ProductCellNew: UICollectionViewCell {
         label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
         label.backgroundColor = .clear
         label.textColor = R.Colors.label
-        label.numberOfLines = 2
+        label.numberOfLines = 1
         return label
     }()
     
@@ -52,7 +52,7 @@ class ProductCellNew: UICollectionViewCell {
         label.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         label.backgroundColor = .clear
         label.textColor = R.Colors.systemPurple
-        label.numberOfLines = 0
+        label.numberOfLines = 1
         return label
     }()
     

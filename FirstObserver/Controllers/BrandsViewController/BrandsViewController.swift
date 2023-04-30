@@ -11,14 +11,15 @@ class BrandsViewController: UIViewController {
     
 
     var heightCollectionView:CGFloat!
-    var selectedGroup:PopularGroup? {
-        didSet {
-            if let selectedGroup = self.selectedGroup {
-                self.title = selectedGroup.name
-            }
-        }
-    }
-    
+    var selectedGroup:PopularGroup?
+    var indexGroupsCollectionView = 0
+//    {
+//        didSet {
+//            if let selectedGroup = self.selectedGroup {
+//                self.title = selectedGroup.name
+//            }
+//        }
+//    }
     
     @IBOutlet weak var groupsCollectionView: UICollectionView!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -30,13 +31,16 @@ class BrandsViewController: UIViewController {
     let managerFB = FBManager.shared
     var pathRefBrandVC: String?
     var pathRefAllPRoductVC: String?
-    var popularGarderob: PopularGarderob? {
+    var productsForCategory: PopularGarderob? {
         didSet {
-            if let group = popularGarderob?.groups.first, let groups = popularGarderob?.groups, groups.count > 0 {
-                selectedGroup = group
-            } else {
-                self.title = R.Strings.OtherControllers.BrandProducts.title
+            if let garderob = productsForCategory, !garderob.groups.isEmpty {
+                selectedGroup = garderob.groups[indexGroupsCollectionView]
             }
+//            if let group = productsForCategory?.groups[indexGroupsCollectionView], let groups = productsForCategory?.groups, groups.count > 0 {
+//                selectedGroup = group
+//            } else {
+////                self.title = R.Strings.OtherControllers.BrandProducts.title
+//            }
             groupsCollectionView.reloadData()
             collectionView.reloadData()
         }
@@ -47,20 +51,20 @@ class BrandsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        
+        navigationItem.largeTitleDisplayMode = .never
+        view.backgroundColor = R.Colors.systemBackground
         let nibGroup = UINib(nibName: "GroupCell", bundle: nil)
         groupsCollectionView.register(nibGroup, forCellWithReuseIdentifier: "GroupCell")
         groupsCollectionView.delegate = self
         groupsCollectionView.dataSource = self
-        groupsCollectionView.backgroundColor = R.Colors.backgroundWhiteLith
+        groupsCollectionView.backgroundColor = .clear
         
 //        let nibProduct = UINib(nibName: "ProductCell", bundle: nil)
 //        collectionView.register(nibProduct, forCellWithReuseIdentifier: "ProductCell")
         collectionView.register(ProductCellForBrandsVC.self, forCellWithReuseIdentifier: ProductCellForBrandsVC.reuseID)
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.backgroundColor =  R.Colors.backgroundWhiteLith
+        collectionView.backgroundColor =  .clear
         
         
 //        if let group = menu.groups.first?.groups, group.count > 0 {
@@ -77,14 +81,11 @@ class BrandsViewController: UIViewController {
         print("viewWillAppear BrandsVC")
         managerFB.getCartProduct { [weak self] cartProducts in
             self?.cartProducts = cartProducts
-//            print("viewWillAppear cartProducts - \(cartProducts.count)")
             print("BrandsVC override func viewWillAppear managerFB.getCartProduct ")
         }
-//        getFetchDataHVC()
-        
         if let searchBrand = pathRefBrandVC {
             managerFB.getBrand(searchBrand: searchBrand) { [weak self] garderob in
-                self?.popularGarderob = garderob
+                self?.productsForCategory = garderob
             }
         }
     }
@@ -93,29 +94,20 @@ class BrandsViewController: UIViewController {
         super.viewWillDisappear(animated)
         print("BrandsVC override viewWillDisappear")
         managerFB.removeObserverForCartProductsUser()
+        if let searchBrand = pathRefBrandVC {
+            managerFB.removeObserverBrandProduct(searchBrand: searchBrand)
+        }
     }
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
 
-        let guide = self.view.safeAreaLayoutGuide
+        let guide = view.safeAreaLayoutGuide
         let heightSafeArea = guide.layoutFrame.size.height
         let xProcent = heightSafeArea/100 * 10
         heightCollectionView = heightSafeArea - xProcent
-        self.heightGroupsCV.constant = xProcent
+        heightGroupsCV.constant = xProcent
 
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        
-    }
-    
-    
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
     }
     
     deinit {
@@ -130,27 +122,13 @@ class BrandsViewController: UIViewController {
             
             if let cell = cells.first, let indexPath = collectionView.indexPath(for: cell) {
 //                selectedGroup = menu.groups.first?.groups?[indexPath.item]
-                selectedGroup = popularGarderob?.groups[indexPath.item]
+                indexGroupsCollectionView = indexPath.item
+                selectedGroup = productsForCategory?.groups[indexPath.item]
                 groupsCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
                 groupsCollectionView.reloadData()
             }
         }
     }
-    
-    
-//    private func getFetchDataHVC() {
-//
-//        guard let tabBarVCs = tabBarController?.viewControllers else { return }
-//        for vc in tabBarVCs {
-//            if let nc = vc as? UINavigationController {
-//                if let homeVC = nc.viewControllers.first as? NewHomeViewController {
-//                    self.addedToCartProducts = homeVC.cartProducts
-//                }
-//            }
-//        }
-//    }
-    
-
 }
 
 
@@ -159,7 +137,7 @@ extension BrandsViewController : UICollectionViewDelegate, UICollectionViewDataS
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        return popularGarderob?.groups.count ?? 0
+        return productsForCategory?.groups.count ?? 0
 //        menu.groups.first?.groups?.count ?? 0
     }
     
@@ -169,7 +147,7 @@ extension BrandsViewController : UICollectionViewDelegate, UICollectionViewDataS
         if collectionView == groupsCollectionView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GroupCell", for: indexPath) as! GroupCell
 //            let groupName = menu.groups.first?.groups?[indexPath.item].name
-            let groupName = popularGarderob?.groups[indexPath.item].name
+            let groupName = productsForCategory?.groups[indexPath.item].name
             let boolName = groupName == selectedGroup?.name
             cell.setupCell(groupName: groupName!, isSelected: boolName)
             return cell
@@ -178,7 +156,7 @@ extension BrandsViewController : UICollectionViewDelegate, UICollectionViewDataS
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductCellForBrandsVC", for: indexPath) as! ProductCellForBrandsVC
             cell.delegate = self
 //            let product = menu.groups.first?.groups?[indexPath.item].product
-            let product = popularGarderob?.groups[indexPath.item].product
+            let product = productsForCategory?.groups[indexPath.item].product
             cell.setupCell(product: product!)
             return cell
         }
@@ -187,7 +165,7 @@ extension BrandsViewController : UICollectionViewDelegate, UICollectionViewDataS
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionView == groupsCollectionView {
             //            let groupName = menu.groups.first!.groups![indexPath.item].name
-            let groupName = popularGarderob?.groups[indexPath.item].name ?? ""
+            let groupName = productsForCategory?.groups[indexPath.item].name ?? ""
 //            UIFont.systemFont(ofSize: 20)
             let width = groupName.widthOfString(usingFont: UIFont.systemFont(ofSize: 20, weight: .bold))
             return CGSize(width: width + 20, height: collectionView.frame.height/2)
@@ -218,7 +196,8 @@ extension BrandsViewController : UICollectionViewDelegate, UICollectionViewDataS
         if collectionView == groupsCollectionView {
             
 //            selectedGroup = menu.groups.first?.groups?[indexPath.item]
-            selectedGroup = popularGarderob?.groups[indexPath.item]
+            selectedGroup = productsForCategory?.groups[indexPath.item]
+            indexGroupsCollectionView = indexPath.item
             groupsCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
             groupsCollectionView.reloadData()
             self.collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
@@ -231,13 +210,13 @@ extension BrandsViewController : UICollectionViewDelegate, UICollectionViewDataS
 
 extension BrandsViewController: ProductCellDelegtate {
     
-    func giveModel(model: PopularProduct) {
+    func didSelectProduct(product: PopularProduct) {
         
 //        let productVC = UIStoryboard.vcById("ProductViewController") as! ProductViewController
         let productVC = NewProductViewController()
         
         var placesArray: [PlacesTest] = []
-        let malls = model.malls
+        let malls = product.malls
         
         arrayPin.forEach { (places) in
             if malls.contains(places.title ?? "") {
@@ -247,7 +226,7 @@ extension BrandsViewController: ProductCellDelegtate {
 //        print("cartProducts.forEach - \(cartProducts.count)")
         cartProducts.forEach { (addedProduct) in
            
-            if addedProduct.model == model.model {
+            if addedProduct.model == product.model {
 //                print("addedProduct.model - \(addedProduct.model)")
 //                print("model.model - \(model.model)")
                 productVC.isAddedToCard = true
@@ -255,7 +234,7 @@ extension BrandsViewController: ProductCellDelegtate {
         }
         
         productVC.arrayPin = placesArray
-        productVC.productModel = model
+        productVC.productModel = product
         self.navigationController?.pushViewController(productVC, animated: true)
     }
     

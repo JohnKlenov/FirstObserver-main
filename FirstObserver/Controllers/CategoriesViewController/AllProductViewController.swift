@@ -20,7 +20,7 @@ class AllProductViewController: BrandsViewController {
         super.viewWillAppear(animated)
         if let searchCategory = pathRefAllPRoductVC {
             managerFB.getCategoryForBrands(searchCategory: searchCategory) { [weak self] garderob in
-                self?.popularGarderob = garderob
+                self?.productsForCategory = garderob
             }
         }
     }
@@ -29,7 +29,7 @@ class AllProductViewController: BrandsViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 //        managerFB.removeObserverForCartProductsUser()
-        managerFB.removeObserverAllProduct()
+        managerFB.removeObserverCategoryProduct()
         print("AllProductViewController override func viewWillDisappear")
     }
     

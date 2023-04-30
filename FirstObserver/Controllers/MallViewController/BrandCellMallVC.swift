@@ -19,63 +19,86 @@ class BrandCellMallVC: UICollectionViewCell {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
         image.contentMode = .scaleAspectFill
-        image.layer.cornerRadius = 4
+        image.layer.cornerRadius = 10
         image.clipsToBounds = true
         return image
     }()
     
-    let labelName: UILabel = {
+    let nameBrandLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 15, weight: .medium)
-        label.textColor = .black
-        label.backgroundColor = .orange
+        label.textAlignment = .left
+        label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
+        label.textColor = R.Colors.systemPurple
+        label.backgroundColor = .clear
         return label
     }()
     
+    let floorLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "3 floor"
+        label.textAlignment = .left
+        label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+        label.textColor = R.Colors.secondaryLabel
+        label.backgroundColor = .clear
+        return label
+    }()
+    
+    let stackViewForLabel: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.distribution = .fill
+        stack.spacing = 0
+        return stack
+    }()
+    
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        addSubview(labelName)
+        configureStackView()
         addSubview(imageView)
+        addSubview(stackViewForLabel)
         setupConstraints()
-        contentView.layer.borderWidth = 2
-        contentView.layer.borderColor = UIColor.black.cgColor
         storage = Storage.storage()
+        backgroundColor = .clear
     }
     
+    private func configureStackView() {
+
+        let arrayViews = [nameBrandLabel, floorLabel]
+        arrayViews.forEach { view in
+            stackViewForLabel.addArrangedSubview(view)
+            
+        }
+    }
     
     private func setupConstraints() {
         
-        let topImageViewCnstr = imageView.topAnchor.constraint(equalTo: topAnchor, constant: 0)
+        let topImageViewCnstr = imageView.topAnchor.constraint(equalTo: topAnchor, constant: 10)
         topImageViewCnstr.priority = UILayoutPriority(999)
         topImageViewCnstr.isActive = true
         
-        let trailingImageViewCnstr = imageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0)
-//        trailingImageViewCnstr.priority = UILayoutPriority(1000)
+        let trailingImageViewCnstr = imageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
         trailingImageViewCnstr.isActive = true
         
-        let leadingImageViewCnstr = imageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0)
-//        leadingImageViewCnstr.priority = UILayoutPriority(1000)
+        let leadingImageViewCnstr = imageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10)
         leadingImageViewCnstr.isActive = true
         
         let heightImageViewCnstr = imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 1)
-//        heightImageViewCnstr.priority = UILayoutPriority(1000)
         heightImageViewCnstr.isActive = true
         
-        let topStackCnstr = labelName.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 0)
-//        topStackCnstr.priority = UILayoutPriority(1000)
+        let topStackCnstr = stackViewForLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 5)
         topStackCnstr.isActive = true
         
-        let trailingStackCnstr = labelName.trailingAnchor.constraint(equalTo: trailingAnchor)
-//        trailingStackCnstr.priority = UILayoutPriority(1000)
+        let trailingStackCnstr = stackViewForLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
         trailingStackCnstr.isActive = true
         
-        let leadingStackCnstr = labelName.leadingAnchor.constraint(equalTo: leadingAnchor)
-//        leadingStackCnstr.priority = UILayoutPriority(1000)
+        let leadingStackCnstr = stackViewForLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10)
         leadingStackCnstr.isActive = true
         
-        let bottomStackCnstr = labelName.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 0)
+        let bottomStackCnstr = stackViewForLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 0)
         bottomStackCnstr.priority = UILayoutPriority(999)
         bottomStackCnstr.isActive = true
     }
@@ -89,7 +112,7 @@ class BrandCellMallVC: UICollectionViewCell {
         } else {
             imageView.image = UIImage(named: "DefaultImage")
         }
-        labelName.text = model.brands?.brand
+        nameBrandLabel.text = model.brands?.brand
     }
     
     required init?(coder: NSCoder) {

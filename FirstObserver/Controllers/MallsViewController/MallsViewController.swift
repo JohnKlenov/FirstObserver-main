@@ -25,6 +25,7 @@ class MallsViewController: UIViewController {
 
         title = R.Strings.TabBarController.Malls.title
         view.backgroundColor = R.Colors.systemBackground
+        navigationController?.navigationBar.prefersLargeTitles = true
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = .clear
@@ -35,14 +36,13 @@ class MallsViewController: UIViewController {
         super.viewWillAppear(true)
         managerFB.removeObserverForCartProductsUser()
         print("Malls viewWillAppear")
-        navigationController?.navigationBar.prefersLargeTitles = true
+
         getDataHVC()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         print("Malls viewWillDisappear")
-        navigationController?.navigationBar.prefersLargeTitles = false
     }
     
     override func viewDidDisappear(_ animated: Bool) {

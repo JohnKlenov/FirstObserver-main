@@ -8,7 +8,7 @@
 import UIKit
 
 protocol ProductCellDelegtate: AnyObject {
-    func giveModel(model: PopularProduct)
+    func didSelectProduct(product: PopularProduct)
 }
 
 class ProductCellForBrandsVC: UICollectionViewCell {
@@ -34,7 +34,7 @@ class ProductCellForBrandsVC: UICollectionViewCell {
         
         collectionViewLayout = UICollectionView(frame: contentView.bounds, collectionViewLayout: createLayout())
         collectionViewLayout.translatesAutoresizingMaskIntoConstraints = false
-        collectionViewLayout.backgroundColor = R.Colors.backgroundWhiteLith
+        collectionViewLayout.backgroundColor = .clear
         contentView.addSubview(collectionViewLayout)
         setupConstraints()
         collectionViewLayout.register(ProductCellForProductCell.self, forCellWithReuseIdentifier: ProductCellForProductCell.reuseID)
@@ -89,7 +89,7 @@ extension ProductCellForBrandsVC: UICollectionViewDelegate, UICollectionViewData
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
                 let product = product[indexPath.item]
-                delegate?.giveModel(model: product)
+                delegate?.didSelectProduct(product: product)
     }
     
 }
