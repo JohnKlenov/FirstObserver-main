@@ -7,9 +7,11 @@
 
 import UIKit
 
+//collectionViewLayout.register(HeaderProductView.self, forSupplementaryViewOfKind: "HeaderProduct", withReuseIdentifier: HeaderProductView.headerIdentifier)
+
 class MallsViewController: UIViewController {
     
-    @IBOutlet weak var segmentControll: UISegmentedControl!
+//    @IBOutlet weak var segmentControll: UISegmentedControl!
     @IBOutlet weak var collectionView: UICollectionView!
     
     var hightCellVC: CGFloat!
@@ -30,6 +32,7 @@ class MallsViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.backgroundColor = .clear
         hightCellVC = (collectionView.frame.height/3)*0.86
+        collectionView.register(HeaderMallsCollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderMallsCollectionReusableView.headerIdentifier)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -116,6 +119,11 @@ extension MallsViewController: UICollectionViewDataSource, UICollectionViewDeleg
             }
             self.navigationController?.pushViewController(mallVC, animated: true)
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: HeaderMallsCollectionReusableView.headerIdentifier, for: indexPath) as! HeaderMallsCollectionReusableView
+        return headerView
     }
    
 }

@@ -17,26 +17,18 @@
                         <rect key="frame" x="0.0" y="0.0" width="428" height="926"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="vlS-Hw-LTN">
-                                <rect key="frame" x="40" y="88" width="348" height="32"/>
-                                <color key="backgroundColor" systemColor="systemFillColor"/>
-                                <segments>
-                                    <segment title="Men"/>
-                                    <segment title="Women"/>
-                                </segments>
-                            </segmentedControl>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="jOD-lB-vWc">
-                                <rect key="frame" x="0.0" y="129" width="428" height="714"/>
+                                <rect key="frame" x="0.0" y="88" width="428" height="755"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="0.0" id="21G-ci-AeL">
                                     <size key="itemSize" width="306" height="202"/>
-                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="headerReferenceSize" width="50" height="50"/>
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                     <inset key="sectionInset" minX="10" minY="10" maxX="10" maxY="10"/>
                                 </collectionViewFlowLayout>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="MallCollectionViewCell" id="Cxw-HC-Jxc" customClass="MallCollectionViewCell" customModule="FirstObserver" customModuleProvider="target">
-                                        <rect key="frame" x="61" y="10" width="306" height="202"/>
+                                        <rect key="frame" x="61" y="60" width="306" height="202"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="aHA-p5-qox">
                                             <rect key="frame" x="0.0" y="0.0" width="306" height="202"/>
@@ -69,24 +61,24 @@
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
+                                <collectionReusableView key="sectionHeaderView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="6vd-OT-RkP">
+                                    <rect key="frame" x="0.0" y="0.0" width="428" height="50"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </collectionReusableView>
                             </collectionView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="vlS-Hw-LTN" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="6cc-bc-gLl"/>
                             <constraint firstItem="jOD-lB-vWc" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="8fO-Fn-gnl"/>
-                            <constraint firstItem="vlS-Hw-LTN" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-40" id="V8E-SI-TRk"/>
-                            <constraint firstItem="jOD-lB-vWc" firstAttribute="top" secondItem="vlS-Hw-LTN" secondAttribute="bottom" constant="10" id="VU7-1l-1rG"/>
                             <constraint firstItem="jOD-lB-vWc" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="fgn-ev-AlW"/>
-                            <constraint firstItem="vlS-Hw-LTN" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="40" id="kbS-x6-olW"/>
                             <constraint firstItem="jOD-lB-vWc" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="pij-wX-YW6"/>
+                            <constraint firstItem="jOD-lB-vWc" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="qrC-RK-pUz"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="HsM-yM-W91"/>
                     <connections>
                         <outlet property="collectionView" destination="jOD-lB-vWc" id="ZLG-dP-44q"/>
-                        <outlet property="segmentControll" destination="vlS-Hw-LTN" id="Xux-xv-PPs"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
