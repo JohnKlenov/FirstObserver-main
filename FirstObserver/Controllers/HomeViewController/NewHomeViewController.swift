@@ -18,17 +18,6 @@ class NewHomeViewController: UIViewController {
     private let managerFB = FBManager.shared
 //    private var currentUser: User?
     
-    private var segmentedControl: UISegmentedControl = {
-        let item = [R.Strings.TabBarController.Home.ViewsHome.segmentedControlWoman,R.Strings.TabBarController.Home.ViewsHome.segmentedControlMan]
-        let segmentControl = UISegmentedControl(items: item)
-        segmentControl.translatesAutoresizingMaskIntoConstraints = false
-        segmentControl.selectedSegmentIndex = 0
-        segmentControl.addTarget(self, action: #selector(didTapSegmentedControl(_:)), for: .valueChanged)
-        segmentControl.isHidden = true
-        segmentControl.backgroundColor = R.Colors.systemFill
-        return segmentControl
-    }()
-    
     private var loader: UIActivityIndicatorView = {
         let loader = UIActivityIndicatorView()
         loader.color = R.Colors.systemPurple
@@ -56,7 +45,7 @@ class NewHomeViewController: UIViewController {
                 loader.stopAnimating()
                 activityContainerView?.removeFromSuperview()
                 tabBarController?.view.isUserInteractionEnabled = true
-                segmentedControl.isHidden = false
+//                segmentedControl.isHidden = false
             }
         }
     }
@@ -88,12 +77,11 @@ class NewHomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        navigationItem.backButtonTitle = ""
         if let topItem = navigationController?.navigationBar.topItem {
             topItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         }
         navigationController?.navigationBar.prefersLargeTitles = true
-        
+
         managerFB.userListener { currentUser in
             if currentUser == nil {
                 self.cartProducts = []
@@ -133,7 +121,7 @@ class NewHomeViewController: UIViewController {
 //        view.backgroundColor = R.Colors.systemGray5
         tabBarController?.view.isUserInteractionEnabled = false
         configureActivityIndicatorView()
-        view.addSubview(segmentedControl)
+//        view.addSubview(segmentedControl)
         setupCollectionView()
         setupConstraints()
         createDataSource()
@@ -146,8 +134,6 @@ class NewHomeViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print("Home viewWillAppear ")
-       
-//        navigationItem.largeTitleDisplayMode = .always
 //        hideNavigationBar()
         managerFB.removeObserverForCartProductsUser()
         if !isFirstStart {
@@ -185,18 +171,38 @@ class NewHomeViewController: UIViewController {
         
     }
     
-    @objc func didTapSegmentedControl(_ segmentedControl: UISegmentedControl) {
-        switch segmentedControl.selectedSegmentIndex {
-        case 0:
-            print("Tap segment Woman")
-        case 1:
-            print("Tap segment Man")
-        default:
-            print("break")
-            break
-        }
-    }
+//    @objc func didTapSegmentedControl(_ segmentedControl: UISegmentedControl) {
+//        switch segmentedControl.selectedSegmentIndex {
+//        case 0:
+//            print("Tap segment Woman")
+//        case 1:
+//            print("Tap segment Man")
+//        default:
+//            print("break")
+//            break
+//        }
+//    }
+
     
+//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+//
+//        print("scroll Content : \(scrollView.contentOffset.y)")
+//
+//        if scrollView.contentOffset.y >= 100
+//        {
+//            UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
+////                self.navigationController?.setNavigationBarHidden(true, animated: true)
+//                //                        self.navigationController?.setToolbarHidden(true, animated: true)
+//            }, completion: nil)
+//        }
+//        else
+//        {
+//            UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
+////                self.navigationController?.setNavigationBarHidden(false, animated: true)
+//            }, completion: nil)
+//        }
+//    }
+
     private func configureActivityIndicatorView() {
         guard let activityContainerView = activityContainerView else {
             return
@@ -245,9 +251,9 @@ class NewHomeViewController: UIViewController {
         
         
     }
-    
+
     private func setupConstraints() {
-        NSLayoutConstraint.activate([segmentedControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor), segmentedControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40), segmentedControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40), collectionViewLayout.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 10), collectionViewLayout.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor), collectionViewLayout.trailingAnchor.constraint(equalTo: view.trailingAnchor), collectionViewLayout.leadingAnchor.constraint(equalTo: view.leadingAnchor)])
+        NSLayoutConstraint.activate([collectionViewLayout.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0), collectionViewLayout.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor), collectionViewLayout.trailingAnchor.constraint(equalTo: view.trailingAnchor), collectionViewLayout.leadingAnchor.constraint(equalTo: view.leadingAnchor)])
     }
 //    collectionViewLayout.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor)
     
@@ -473,3 +479,4 @@ extension NewHomeViewController: UICollectionViewDelegate {
         }
     }
 }
+
