@@ -76,10 +76,12 @@ class CartCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        contentView.addSubview(containerView)
-        configureStackView()
         containerView.addSubview(imageCell)
         containerView.addSubview(stackView)
+        contentView.addSubview(containerView)
+        configureStackView()
+//        containerView.addSubview(imageCell)
+//        containerView.addSubview(stackView)
         setupConstraints()
         storage = Storage.storage()
     }

@@ -99,6 +99,7 @@
 		5EA94471294B5773007C2AB5 /* AlertTopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA94470294B5773007C2AB5 /* AlertTopView.swift */; };
 		5EAA598A29A8CD7B00AEFE45 /* NewProductViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EAA598929A8CD7B00AEFE45 /* NewProductViewController.swift */; };
 		5EB696052A00513000CDA901 /* HeaderMallsCollectionReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB696042A00513000CDA901 /* HeaderMallsCollectionReusableView.swift */; };
+		5EB696072A00F93E00CDA901 /* HeaderCatalogCollectionReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB696062A00F93E00CDA901 /* HeaderCatalogCollectionReusableView.swift */; };
 		5EBA6C4D29D2DFF0004ABD6E /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBA6C4C29D2DFF0004ABD6E /* MainTabBarController.swift */; };
 		5EBD49A729449F6C00E27F2F /* AlertText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBD49A629449F6C00E27F2F /* AlertText.swift */; };
 		5EC4764F290D816C0077D940 /* DynamicHeightCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EC4764E290D816C0077D940 /* DynamicHeightCollectionView.swift */; };
@@ -202,6 +203,7 @@
 		5EA94470294B5773007C2AB5 /* AlertTopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertTopView.swift; sourceTree = "<group>"; };
 		5EAA598929A8CD7B00AEFE45 /* NewProductViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewProductViewController.swift; sourceTree = "<group>"; };
 		5EB696042A00513000CDA901 /* HeaderMallsCollectionReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderMallsCollectionReusableView.swift; sourceTree = "<group>"; };
+		5EB696062A00F93E00CDA901 /* HeaderCatalogCollectionReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderCatalogCollectionReusableView.swift; sourceTree = "<group>"; };
 		5EBA6C4C29D2DFF0004ABD6E /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
 		5EBD49A629449F6C00E27F2F /* AlertText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertText.swift; sourceTree = "<group>"; };
 		5EC4764E290D816C0077D940 /* DynamicHeightCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicHeightCollectionView.swift; sourceTree = "<group>"; };
@@ -553,6 +555,7 @@
 			children = (
 				5E139C5728C1FAB7004F963D /* CatalogCollectionViewCell.swift */,
 				5E7EF57428A13BB300814F4D /* CatalogViewController.swift */,
+				5EB696062A00F93E00CDA901 /* HeaderCatalogCollectionReusableView.swift */,
 			);
 			path = CatalogViewController;
 			sourceTree = "<group>";
@@ -793,6 +796,7 @@
 				5E7B462529BF2772005D2701 /* NewSignUpViewController.swift in Sources */,
 				5E2C0E6329FD15DF006DCF6F /* DetailViewController.swift in Sources */,
 				5E6DEDB629B476E0004A87BC /* ImageScrollView.swift in Sources */,
+				5EB696072A00F93E00CDA901 /* HeaderCatalogCollectionReusableView.swift in Sources */,
 				5E8DC52628D5BCB400275138 /* ContaktMallViewController.swift in Sources */,
 				5EA65C7C29A6548B00EA6FA2 /* BrandCellMallVC.swift in Sources */,
 				5E7EF57D28A14A0600814F4D /* ContentPageViewController.swift in Sources */,

@@ -12,7 +12,6 @@ class CatalogViewController: UIViewController {
     
 
     @IBOutlet weak var collectionView: UICollectionView!
-    @IBOutlet weak var segmentControl: UISegmentedControl!
     
     // MARK: FB property
     let managerFB = FBManager.shared
@@ -34,6 +33,7 @@ class CatalogViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.backgroundColor = .clear
         heightCellCV = (collectionView.frame.height/3)*0.86
+        collectionView.register(HeaderCatalogCollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderCatalogCollectionReusableView.headerIdentifier)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -103,6 +103,11 @@ extension CatalogViewController: UICollectionViewDelegate, UICollectionViewDataS
 //        allProductCategoryVC.categoryRef = refCategory
         allProductCategoryVC.arrayPin = arrayPins
         self.navigationController?.pushViewController(allProductCategoryVC, animated: true)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: HeaderCatalogCollectionReusableView.headerIdentifier, for: indexPath) as! HeaderCatalogCollectionReusableView
+        return headerView
     }
     
 }

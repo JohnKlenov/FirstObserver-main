@@ -93,26 +93,18 @@
                         <rect key="frame" x="0.0" y="0.0" width="428" height="926"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="lm1-em-isz">
-                                <rect key="frame" x="40" y="88" width="348" height="32"/>
-                                <color key="backgroundColor" systemColor="systemFillColor"/>
-                                <segments>
-                                    <segment title="Women"/>
-                                    <segment title="Man"/>
-                                </segments>
-                            </segmentedControl>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="1NM-Pb-ffF">
-                                <rect key="frame" x="0.0" y="129" width="428" height="714"/>
+                                <rect key="frame" x="0.0" y="88" width="428" height="755"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="0.0" id="jGq-Zw-al2">
                                     <size key="itemSize" width="272" height="210"/>
-                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="headerReferenceSize" width="50" height="50"/>
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                     <inset key="sectionInset" minX="10" minY="10" maxX="10" maxY="10"/>
                                 </collectionViewFlowLayout>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="CatalogCollectionViewCell" id="PnH-qk-hxe" customClass="CatalogCollectionViewCell" customModule="FirstObserver" customModuleProvider="target">
-                                        <rect key="frame" x="78" y="10" width="272" height="210"/>
+                                        <rect key="frame" x="78" y="60" width="272" height="210"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="nnr-JM-gQL">
                                             <rect key="frame" x="0.0" y="0.0" width="272" height="210"/>
@@ -146,24 +138,24 @@
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
+                                <collectionReusableView key="sectionHeaderView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="sg1-ON-nwA">
+                                    <rect key="frame" x="0.0" y="0.0" width="428" height="50"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </collectionReusableView>
                             </collectionView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="7wv-zC-w4r"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="7wv-zC-w4r" firstAttribute="trailing" secondItem="lm1-em-isz" secondAttribute="trailing" constant="40" id="1Yn-Fr-Zky"/>
-                            <constraint firstItem="lm1-em-isz" firstAttribute="top" secondItem="7wv-zC-w4r" secondAttribute="top" id="EYt-PS-SKd"/>
                             <constraint firstItem="7wv-zC-w4r" firstAttribute="bottom" secondItem="1NM-Pb-ffF" secondAttribute="bottom" id="IQX-AS-qNU"/>
-                            <constraint firstItem="1NM-Pb-ffF" firstAttribute="top" secondItem="lm1-em-isz" secondAttribute="bottom" constant="10" id="LjR-ZA-3M9"/>
                             <constraint firstItem="1NM-Pb-ffF" firstAttribute="leading" secondItem="7wv-zC-w4r" secondAttribute="leading" id="X3q-aT-Ut2"/>
                             <constraint firstItem="7wv-zC-w4r" firstAttribute="trailing" secondItem="1NM-Pb-ffF" secondAttribute="trailing" id="jFe-x9-GNn"/>
-                            <constraint firstItem="lm1-em-isz" firstAttribute="leading" secondItem="7wv-zC-w4r" secondAttribute="leading" constant="40" id="tfT-jK-RT1"/>
+                            <constraint firstItem="1NM-Pb-ffF" firstAttribute="top" secondItem="7wv-zC-w4r" secondAttribute="top" id="uWk-Un-jCa"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="6En-FA-awM"/>
                     <connections>
                         <outlet property="collectionView" destination="1NM-Pb-ffF" id="9Un-ht-LHw"/>
-                        <outlet property="segmentControl" destination="lm1-em-isz" id="ibR-HN-gYU"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="atm-0a-HvP" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1858,9 +1850,6 @@
         </systemColor>
         <systemColor name="systemBrownColor">
             <color red="0.63529411764705879" green="0.51764705882352946" blue="0.36862745098039218" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="systemFillColor">
-            <color red="0.47058823529411764" green="0.47058823529411764" blue="0.50196078431372548" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemGray2Color">
             <color red="0.68235294117647061" green="0.68235294117647061" blue="0.69803921568627447" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
