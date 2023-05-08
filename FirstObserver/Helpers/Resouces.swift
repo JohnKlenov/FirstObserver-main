@@ -228,7 +228,12 @@ enum R {
             enum FullScreen {
                 static let deleteImageNameAssets = "Delete50"
             }
-            enum Onboard {}
+            enum OnboardPage {
+                static let nextButton = "Next page"
+                static let getStartedButton = "Get started"
+                static let titleLabel = "Observer"
+                static let presentScreenContents = ["Как правило дорогой товар не нуждается в гарантиях качества, но как найти качественный товар по средней и низкой цене?", "Observer исследует бренды среднего ценового сегмента и рекомендует товары с потенциалом качества!", "Observer это навигатор по торговым центрам в твоем кармане!"]
+            }
         }
     }
 

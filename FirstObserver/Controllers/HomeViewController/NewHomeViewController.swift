@@ -13,10 +13,8 @@ import MapKit
 
 class NewHomeViewController: UIViewController {
 
-//    private var section: [MSectionImage]!
-    // MARK: FB property
     private let managerFB = FBManager.shared
-//    private var currentUser: User?
+    static let userDefaults = UserDefaults.standard
     
     private var loader: UIActivityIndicatorView = {
         let loader = UIActivityIndicatorView()
@@ -33,6 +31,12 @@ class NewHomeViewController: UIViewController {
 //        view.backgroundColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1)
         view.backgroundColor = R.Colors.separator
         view.layer.cornerRadius = 8
+        return view
+    }()
+    
+    private let overlayView: UIView = {
+        let view = UIView()
+        view.backgroundColor = R.Colors.systemBackground
         return view
     }()
     
@@ -74,6 +78,9 @@ class NewHomeViewController: UIViewController {
     private var collectionViewLayout:UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<SectionHVC, ItemCell>?
 
+    
+    // MARK: - lifeCycle methods
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -121,11 +128,11 @@ class NewHomeViewController: UIViewController {
 //        view.backgroundColor = R.Colors.systemGray5
         tabBarController?.view.isUserInteractionEnabled = false
         configureActivityIndicatorView()
-//        view.addSubview(segmentedControl)
         setupCollectionView()
         setupConstraints()
         createDataSource()
         collectionViewLayout.delegate = self
+        addTopView()
     }
 
     
@@ -135,6 +142,7 @@ class NewHomeViewController: UIViewController {
         super.viewWillAppear(animated)
         print("Home viewWillAppear ")
 //        hideNavigationBar()
+        removeTopView()
         managerFB.removeObserverForCartProductsUser()
         if !isFirstStart {
             managerFB.getCartProduct { cartProducts in
@@ -152,12 +160,12 @@ class NewHomeViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        startOnbordingPresentation()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         print("Home viewWillDisappear ")
-        
 //        showNavigationBar()
 //        managerFB.removeObserverForCartProductsUser()
     }
@@ -167,42 +175,47 @@ class NewHomeViewController: UIViewController {
         print("Home viewDidDisappear ")
     }
     
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        
+    
+    // MARK: - onboardin pesentation methods
+    
+    func startOnbordingPresentation() {
+        NewHomeViewController.userDefaults.set(false, forKey: "isFinishPresentation")
+        let appAlreadeSeen = NewHomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
+        if appAlreadeSeen == false {
+//            let pageViewController = NewOnboardPageViewController()
+            let pageViewController = PresentViewController()
+                pageViewController.modalPresentationStyle = .fullScreen
+                self.present(pageViewController, animated: true, completion: nil)
+        }
     }
     
-//    @objc func didTapSegmentedControl(_ segmentedControl: UISegmentedControl) {
-//        switch segmentedControl.selectedSegmentIndex {
-//        case 0:
-//            print("Tap segment Woman")
-//        case 1:
-//            print("Tap segment Man")
-//        default:
-//            print("break")
-//            break
-//        }
-//    }
-
+    private func addTopView() {
+        let appAlreadeSeen = HomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
+        if appAlreadeSeen == false {
+            configureView()
+        }
+    }
     
-//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//
-//        print("scroll Content : \(scrollView.contentOffset.y)")
-//
-//        if scrollView.contentOffset.y >= 100
-//        {
-//            UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
-////                self.navigationController?.setNavigationBarHidden(true, animated: true)
-//                //                        self.navigationController?.setToolbarHidden(true, animated: true)
-//            }, completion: nil)
-//        }
-//        else
-//        {
-//            UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
-////                self.navigationController?.setNavigationBarHidden(false, animated: true)
-//            }, completion: nil)
-//        }
-//    }
-
+    private func configureView() {
+        let fullScreenFrame = UIScreen.main.bounds
+        overlayView.frame = fullScreenFrame
+        view.addSubview(overlayView)
+    }
+    
+    private func removeTopView() {
+        let appAlreadeSeen = HomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
+        if appAlreadeSeen == true {
+            self.deleteView()
+        }
+    }
+    
+    private func deleteView() {
+        overlayView.removeFromSuperview()
+    }
+    
+    
+    // MARK: - another methods
+    
     private func configureActivityIndicatorView() {
         guard let activityContainerView = activityContainerView else {
             return
@@ -480,3 +493,38 @@ extension NewHomeViewController: UICollectionViewDelegate {
     }
 }
 
+
+
+
+
+//    @objc func didTapSegmentedControl(_ segmentedControl: UISegmentedControl) {
+//        switch segmentedControl.selectedSegmentIndex {
+//        case 0:
+//            print("Tap segment Woman")
+//        case 1:
+//            print("Tap segment Man")
+//        default:
+//            print("break")
+//            break
+//        }
+//    }
+
+    
+//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+//
+//        print("scroll Content : \(scrollView.contentOffset.y)")
+//
+//        if scrollView.contentOffset.y >= 100
+//        {
+//            UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
+////                self.navigationController?.setNavigationBarHidden(true, animated: true)
+//                //                        self.navigationController?.setToolbarHidden(true, animated: true)
+//            }, completion: nil)
+//        }
+//        else
+//        {
+//            UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
+////                self.navigationController?.setNavigationBarHidden(false, animated: true)
+//            }, completion: nil)
+//        }
+//    }
