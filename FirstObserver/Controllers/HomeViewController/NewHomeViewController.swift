@@ -36,7 +36,7 @@ class NewHomeViewController: UIViewController {
     
     private let overlayView: UIView = {
         let view = UIView()
-        view.backgroundColor = R.Colors.systemBackground
+        view.backgroundColor = .orange
         return view
     }()
     
@@ -182,7 +182,6 @@ class NewHomeViewController: UIViewController {
         NewHomeViewController.userDefaults.set(false, forKey: "isFinishPresentation")
         let appAlreadeSeen = NewHomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
         if appAlreadeSeen == false {
-//            let pageViewController = NewOnboardPageViewController()
             let pageViewController = PresentViewController()
                 pageViewController.modalPresentationStyle = .fullScreen
                 self.present(pageViewController, animated: true, completion: nil)

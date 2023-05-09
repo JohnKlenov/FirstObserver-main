@@ -7,9 +7,12 @@
 
 import UIKit
 
+
+// PresentViewController загружается лишь один раз в жизненом цикле приложения при первом старте
+// делать это следует поместив его в window в AppDelegate по флагу в UserDefaults а затем
 protocol PresentViewControllerDelegate: AnyObject {
-  func numberOfPage(numberOfPage: Int)
-  func pageChangedTo(index: Int)
+    func hiddenNextButton()
+    func pageChangedTo(index: Int)
 }
 
 class PresentViewController: UIViewController {
@@ -93,13 +96,13 @@ class PresentViewController: UIViewController {
     }
     
     @objc func nextPage(_ sender: UIButton) {
-//        currentPage += 1
-//        pageVC?.nextPage(currentPage)
+        childVC.nextPage(index: pageControl.currentPage + 1)
     }
     
     @objc func getStarted(_ sender: UIButton) {
-//        currentPage += 1
-//        pageVC?.nextPage(currentPage)
+        print("func getStarted")
+//        NewHomeViewController.userDefaults.set(true, forKey: "isFinishPresentation")
+        self.dismiss(animated: true, completion: nil)
     }
     
     private func setupViews() {
@@ -115,23 +118,19 @@ class PresentViewController: UIViewController {
         NSLayoutConstraint.activate([titleLabel.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 50), titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 50), childVC.view.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 0), childVC.view.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0), childVC.view.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0), childVC.view.bottomAnchor.constraint(equalTo: getStartedButton.topAnchor, constant: 0), getStartedButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30), getStartedButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30), getStartedButton.bottomAnchor.constraint(equalTo: pageControl.topAnchor, constant: -20), pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor), pageControl.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50), nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30), nextButton.bottomAnchor.constraint(equalTo: pageControl.topAnchor, constant: -20)])
     }
     
-    private func hiddenNextButton() {
-//        if currentPage == R.Strings.OtherControllers.OnboardPage.presentScreenContents.count-1 {
-//            nextButton.isHidden = true
-//            getStartedButton.isHidden = false
-//        }
+    deinit {
+        print("deinit PresentViewController")
     }
 }
 
 extension PresentViewController: PresentViewControllerDelegate {
     
-    func numberOfPage(numberOfPage: Int) {
-        print("numberOfPage")
+    func hiddenNextButton() {
+        nextButton.isHidden = true
+        getStartedButton.isHidden = false
     }
     
     func pageChangedTo(index: Int) {
         pageControl.currentPage = index
     }
-    
-    
 }

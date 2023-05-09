@@ -9,10 +9,10 @@ import UIKit
 
 class ChildPageViewController: UIPageViewController {
     
-    let presentScreenContents = R.Strings.OtherControllers.OnboardPage.presentScreenContents
-    var currentIndex: Int?
-    var pendingIndex: Int?
-    var arrayVC: [ChildContentViewController] = []
+    private let presentScreenContents = R.Strings.OtherControllers.OnboardPage.presentScreenContents
+    private var currentIndex: Int?
+    private var pendingIndex: Int?
+    private var arrayVC: [ChildContentViewController] = []
     weak var presentDelegate: PresentViewControllerDelegate?
     
     override init(transitionStyle style: UIPageViewController.TransitionStyle, navigationOrientation: UIPageViewController.NavigationOrientation, options: [UIPageViewController.OptionsKey : Any]? = nil) {
@@ -21,12 +21,10 @@ class ChildPageViewController: UIPageViewController {
     
     required init?(coder: NSCoder) {
         super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
-//        fatalError("init(coder:) has not been implemented")
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         
         setupArray()
         delegate = self
@@ -42,7 +40,15 @@ class ChildPageViewController: UIPageViewController {
         }
     }
     
+    func hiddenNextButtonForPresentVC(index: Int) {
+        if index == presentScreenContents.count - 1 {
+            presentDelegate?.hiddenNextButton()
+        }
+    }
     
+    deinit {
+        print("deinit ChildPageViewController")
+    }
 }
 
 extension ChildPageViewController: UIPageViewControllerDataSource {
@@ -82,9 +88,21 @@ extension ChildPageViewController: UIPageViewControllerDelegate {
                  currentIndex = pendingIndex
                  if let index = currentIndex {
                      presentDelegate?.pageChangedTo(index: index)
-//                     arrayVC[index].pageControl.currentPage = index
-//                     pageControl.currentPage = index
+                     hiddenNextButtonForPresentVC(index: index)
                  }
              }
+    }
+}
+
+extension ChildPageViewController {
+    
+    func nextPage(index: Int) {
+        if index <= arrayVC.count-1 {
+            setViewControllers([arrayVC[index]], direction: .forward, animated: true, completion: nil)
+            presentDelegate?.pageChangedTo(index: index)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.hiddenNextButtonForPresentVC(index: index)
+            }
+        }
     }
 }
