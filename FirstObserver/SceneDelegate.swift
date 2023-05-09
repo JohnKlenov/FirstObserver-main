@@ -20,13 +20,27 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     static var mapVC: MapViewController?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        print(" FirebaseApp.configure()  FirebaseApp.configure()  FirebaseApp.configure()")
+        
         FirebaseApp.configure()
         Database.database().isPersistenceEnabled = true
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let _ = (scene as? UIWindowScene) else { return }
+        
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+//        NewHomeViewController.userDefaults.set(false, forKey: "isFinishPresentation")
+        let appAlreadeSeen = NewHomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
+
+        if appAlreadeSeen {
+            window = UIWindow(frame: windowScene.coordinateSpace.bounds)
+            window?.windowScene = windowScene
+            let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "MainTabBarController") as! MainTabBarController
+            window?.rootViewController = vc
+            window?.makeKeyAndVisible()
+        } else {
+            window = UIWindow(frame: windowScene.coordinateSpace.bounds)
+            window?.windowScene = windowScene
+            let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "PresentViewController") as! PresentViewController
+            window?.rootViewController = vc
+            window?.makeKeyAndVisible()
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

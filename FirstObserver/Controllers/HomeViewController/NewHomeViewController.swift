@@ -34,22 +34,23 @@ class NewHomeViewController: UIViewController {
         return view
     }()
     
-    private let overlayView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .orange
-        return view
-    }()
+//    private let overlayView: UIView = {
+//        let view = UIView()
+//        view.backgroundColor = .orange
+//        return view
+//    }()
     
     private var isNotVisableViewController = false
     private var isFirstStart = true
     var modelHomeViewController = [SectionHVC]() {
         didSet {
             if modelHomeViewController.count == 3 {
-                reloadData()
+//                reloadData()
                 loader.stopAnimating()
                 activityContainerView?.removeFromSuperview()
                 tabBarController?.view.isUserInteractionEnabled = true
 //                segmentedControl.isHidden = false
+                reloadData()
             }
         }
     }
@@ -132,7 +133,7 @@ class NewHomeViewController: UIViewController {
         setupConstraints()
         createDataSource()
         collectionViewLayout.delegate = self
-        addTopView()
+//        addTopView()
     }
 
     
@@ -140,9 +141,10 @@ class NewHomeViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+//        navigationController?.navigationBar.prefersLargeTitles = true
         print("Home viewWillAppear ")
 //        hideNavigationBar()
-        removeTopView()
+//        removeTopView()
         managerFB.removeObserverForCartProductsUser()
         if !isFirstStart {
             managerFB.getCartProduct { cartProducts in
@@ -160,7 +162,7 @@ class NewHomeViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        startOnbordingPresentation()
+//        startOnbordingPresentation()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -178,39 +180,39 @@ class NewHomeViewController: UIViewController {
     
     // MARK: - onboardin pesentation methods
     
-    func startOnbordingPresentation() {
-        NewHomeViewController.userDefaults.set(false, forKey: "isFinishPresentation")
-        let appAlreadeSeen = NewHomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
-        if appAlreadeSeen == false {
-            let pageViewController = PresentViewController()
-                pageViewController.modalPresentationStyle = .fullScreen
-                self.present(pageViewController, animated: true, completion: nil)
-        }
-    }
-    
-    private func addTopView() {
-        let appAlreadeSeen = HomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
-        if appAlreadeSeen == false {
-            configureView()
-        }
-    }
-    
-    private func configureView() {
-        let fullScreenFrame = UIScreen.main.bounds
-        overlayView.frame = fullScreenFrame
-        view.addSubview(overlayView)
-    }
-    
-    private func removeTopView() {
-        let appAlreadeSeen = HomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
-        if appAlreadeSeen == true {
-            self.deleteView()
-        }
-    }
-    
-    private func deleteView() {
-        overlayView.removeFromSuperview()
-    }
+//    func startOnbordingPresentation() {
+////        NewHomeViewController.userDefaults.set(false, forKey: "isFinishPresentation")
+//        let appAlreadeSeen = NewHomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
+//        if appAlreadeSeen == false {
+//            let pageViewController = PresentViewController()
+//                pageViewController.modalPresentationStyle = .fullScreen
+//                self.present(pageViewController, animated: true, completion: nil)
+//        }
+//    }
+//
+//    private func addTopView() {
+//        let appAlreadeSeen = HomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
+//        if appAlreadeSeen == false {
+//            configureView()
+//        }
+//    }
+//
+//    private func configureView() {
+//        let fullScreenFrame = UIScreen.main.bounds
+//        overlayView.frame = fullScreenFrame
+//        view.addSubview(overlayView)
+//    }
+//
+//    private func removeTopView() {
+//        let appAlreadeSeen = HomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
+//        if appAlreadeSeen == true {
+//            self.deleteView()
+//        }
+//    }
+//
+//    private func deleteView() {
+//        overlayView.removeFromSuperview()
+//    }
     
     
     // MARK: - another methods

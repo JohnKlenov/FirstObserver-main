@@ -303,6 +303,16 @@
 			path = TestChildOnboard;
 			sourceTree = "<group>";
 		};
+		5E2EEF7C2A0A867000843CF0 /* anotherNewOnboards */ = {
+			isa = PBXGroup;
+			children = (
+				5E2EEF732A093BE700843CF0 /* NewOnboardPageViewController.swift */,
+				5EC212E42A07FD3F00FFB216 /* OnboardPageViewController.swift */,
+				5EC212E22A062A9D00FFB216 /* OnboardViewController.swift */,
+			);
+			path = anotherNewOnboards;
+			sourceTree = "<group>";
+		};
 		5E3F0541299C1C6900678956 /* legacyProductCell */ = {
 			isa = PBXGroup;
 			children = (
@@ -500,9 +510,6 @@
 			isa = PBXGroup;
 			children = (
 				5E2EEF752A09556400843CF0 /* TestChildOnboard */,
-				5EC212E22A062A9D00FFB216 /* OnboardViewController.swift */,
-				5EC212E42A07FD3F00FFB216 /* OnboardPageViewController.swift */,
-				5E2EEF732A093BE700843CF0 /* NewOnboardPageViewController.swift */,
 			);
 			path = OnboardVC;
 			sourceTree = "<group>";
@@ -555,6 +562,7 @@
 		5EA4A3D529E93C3600913E3F /* OldVC */ = {
 			isa = PBXGroup;
 			children = (
+				5E2EEF7C2A0A867000843CF0 /* anotherNewOnboards */,
 				5EC212E62A080EC600FFB216 /* oldOnboardVC */,
 				5E731C9228E443B900AF3A21 /* AuthenticationOld */,
 				5E9101DD291CFE2500D37E92 /* childCVC */,

@@ -101,8 +101,21 @@ class PresentViewController: UIViewController {
     
     @objc func getStarted(_ sender: UIButton) {
         print("func getStarted")
-//        NewHomeViewController.userDefaults.set(true, forKey: "isFinishPresentation")
-        self.dismiss(animated: true, completion: nil)
+        
+        NewHomeViewController.userDefaults.set(true, forKey: "isFinishPresentation")
+      
+//        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "MainTabBarController") as! MainTabBarController
+//            let sceneDelegate = UIApplication.shared.connectedScenes
+//                .first!.delegate as! SceneDelegate
+//            sceneDelegate.window!.rootViewController = vc
+
+//        self.dismiss(animated: true, completion: nil)
+        self.dismiss(animated: true) {
+            let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "MainTabBarController") as! MainTabBarController
+                let sceneDelegate = UIApplication.shared.connectedScenes
+                    .first!.delegate as! SceneDelegate
+                sceneDelegate.window!.rootViewController = vc
+        }
     }
     
     private func setupViews() {
