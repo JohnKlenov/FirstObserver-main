@@ -465,16 +465,10 @@ class NewProductViewController: UIViewController {
         
         saveProductFB()
         let alertView = SPAlertView(title: "Product added to cart", preset: .done)
-//        alertView.translatesAutoresizingMaskIntoConstraints = false
-//        alertView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/3).isActive = true
-//        alertView.widthAnchor.constraint(equalTo: alertView.heightAnchor).isActive = true
+//        alertView = SPAlertView(preset: .spinner)
         alertView.layout.margins.top = 30
-//        alertView.layout.margins.bottom = 10
-//        alertView.layout.margins.left = 10
-//        alertView.layout.margins.right = 10
         alertView.layout.iconSize = .init(width: view.frame.width/4, height: view.frame.width/4)
-//        alertView.layout = .init()
-        alertView.duration = 10
+        alertView.duration = 2
         alertView.present()
         isAddedToCard = !isAddedToCard
     }

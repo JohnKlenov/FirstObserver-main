@@ -85,11 +85,15 @@ class NewHomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        title = "Observer"
+        navigationController?.navigationBar.prefersLargeTitles = true
+        
+//        navigationController?.navigationBar.setNeedsLayout()
+
         if let topItem = navigationController?.navigationBar.topItem {
             topItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         }
-        navigationController?.navigationBar.prefersLargeTitles = true
-
+        
         managerFB.userListener { currentUser in
             if currentUser == nil {
                 self.cartProducts = []
@@ -123,7 +127,7 @@ class NewHomeViewController: UIViewController {
             self.placesFB = modelPlaces
         }
         
-        title = "Observer"
+        
 //        self.setLeftAlignedNavigationItemTitle(text: "Observer", color: R.Colors.label, margin: 20)
         view.backgroundColor = R.Colors.systemBackground
 //        view.backgroundColor = R.Colors.systemGray5
@@ -177,43 +181,7 @@ class NewHomeViewController: UIViewController {
         print("Home viewDidDisappear ")
     }
     
-    
-    // MARK: - onboardin pesentation methods
-    
-//    func startOnbordingPresentation() {
-////        NewHomeViewController.userDefaults.set(false, forKey: "isFinishPresentation")
-//        let appAlreadeSeen = NewHomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
-//        if appAlreadeSeen == false {
-//            let pageViewController = PresentViewController()
-//                pageViewController.modalPresentationStyle = .fullScreen
-//                self.present(pageViewController, animated: true, completion: nil)
-//        }
-//    }
-//
-//    private func addTopView() {
-//        let appAlreadeSeen = HomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
-//        if appAlreadeSeen == false {
-//            configureView()
-//        }
-//    }
-//
-//    private func configureView() {
-//        let fullScreenFrame = UIScreen.main.bounds
-//        overlayView.frame = fullScreenFrame
-//        view.addSubview(overlayView)
-//    }
-//
-//    private func removeTopView() {
-//        let appAlreadeSeen = HomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
-//        if appAlreadeSeen == true {
-//            self.deleteView()
-//        }
-//    }
-//
-//    private func deleteView() {
-//        overlayView.removeFromSuperview()
-//    }
-    
+
     
     // MARK: - another methods
     
@@ -327,6 +295,7 @@ class NewHomeViewController: UIViewController {
             snapshot.appendItems(section.items, toSection: section)
         }
         dataSource?.apply(snapshot)
+       
     }
     
     private func createLayout() -> UICollectionViewLayout {
@@ -456,6 +425,7 @@ extension NewHomeViewController: UICollectionViewDelegate {
             let brandVC = storyboard.instantiateViewController(withIdentifier: "BrandsViewController") as! BrandsViewController
             let brandsSection = modelHomeViewController.filter({$0.section == "Brands"})
             let refBrand = brandsSection.first?.items[indexPath.row].brands?.brand ?? ""
+            print("refBrand - \(refBrand)")
 //            let ref = Database.database().reference(withPath: "brands/\(refBrand)")
 //            brandVC.incomingRef = ref
             brandVC.pathRefBrandVC = refBrand
@@ -528,4 +498,41 @@ extension NewHomeViewController: UICollectionViewDelegate {
 ////                self.navigationController?.setNavigationBarHidden(false, animated: true)
 //            }, completion: nil)
 //        }
+//    }
+
+
+// MARK: - onboardin pesentation methods
+
+//    func startOnbordingPresentation() {
+////        NewHomeViewController.userDefaults.set(false, forKey: "isFinishPresentation")
+//        let appAlreadeSeen = NewHomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
+//        if appAlreadeSeen == false {
+//            let pageViewController = PresentViewController()
+//                pageViewController.modalPresentationStyle = .fullScreen
+//                self.present(pageViewController, animated: true, completion: nil)
+//        }
+//    }
+//
+//    private func addTopView() {
+//        let appAlreadeSeen = HomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
+//        if appAlreadeSeen == false {
+//            configureView()
+//        }
+//    }
+//
+//    private func configureView() {
+//        let fullScreenFrame = UIScreen.main.bounds
+//        overlayView.frame = fullScreenFrame
+//        view.addSubview(overlayView)
+//    }
+//
+//    private func removeTopView() {
+//        let appAlreadeSeen = HomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
+//        if appAlreadeSeen == true {
+//            self.deleteView()
+//        }
+//    }
+//
+//    private func deleteView() {
+//        overlayView.removeFromSuperview()
 //    }

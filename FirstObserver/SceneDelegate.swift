@@ -22,10 +22,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
         FirebaseApp.configure()
-        Database.database().isPersistenceEnabled = true
+        Database.database().isPersistenceEnabled = false
         
         guard let windowScene = (scene as? UIWindowScene) else { return }
-//        NewHomeViewController.userDefaults.set(false, forKey: "isFinishPresentation")
+        NewHomeViewController.userDefaults.set(false, forKey: "isFinishPresentation")
         let appAlreadeSeen = NewHomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
 
         if appAlreadeSeen {
