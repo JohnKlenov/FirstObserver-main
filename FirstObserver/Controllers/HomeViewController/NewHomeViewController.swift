@@ -8,13 +8,15 @@
 import UIKit
 import Firebase
 import MapKit
+import SwiftUI
 
 // не реализовано: func startPresentation(Start Onboarding) - PageViewController + topView(если Onboarding не был показан мы добавляем черное view во viewWillAppear что бы сделать переход между lounchScreenStoryboard и Onboarding)
 
 class NewHomeViewController: UIViewController {
 
     private let managerFB = FBManager.shared
-    static let userDefaults = UserDefaults.standard
+    let defaults = UserDefaults.standard
+//    static let userDefaults = UserDefaults.standard
     
     private var loader: UIActivityIndicatorView = {
         let loader = UIActivityIndicatorView()
@@ -40,34 +42,58 @@ class NewHomeViewController: UIViewController {
 //        return view
 //    }()
     
-    private var isNotVisableViewController = false
+//    private var isNotVisableViewController = false
     private var isFirstStart = true
+    private var currentGender = ""
+    
+//    var modelHomeViewController = [SectionHVC]() {
+//        didSet {
+//            if modelHomeViewController.count == 3 {
+////                reloadData()
+//                loader.stopAnimating()
+//                activityContainerView?.removeFromSuperview()
+//                tabBarController?.view.isUserInteractionEnabled = true
+////                segmentedControl.isHidden = false
+//                reloadData()
+//            }
+//        }
+//    }
+    
+//     var modelHomeViewControllerDict = [String:SectionHVC]() {
+//        didSet {
+//            if self.isOnScreen {
+//                if modelHomeViewControllerDict.count == 3 {
+//                    let sorted = modelHomeViewControllerDict.sorted { $0.key < $1.key }
+//                    let valuesArraySorted = Array(sorted.map({ $0.value }))
+//                    modelHomeViewController = valuesArraySorted
+//                }
+//            } else {
+//                isNotVisableViewController = true
+//            }
+//        }
+//    }
+    
     var modelHomeViewController = [SectionHVC]() {
         didSet {
             if modelHomeViewController.count == 3 {
-//                reloadData()
                 loader.stopAnimating()
                 activityContainerView?.removeFromSuperview()
                 tabBarController?.view.isUserInteractionEnabled = true
-//                segmentedControl.isHidden = false
                 reloadData()
             }
         }
     }
     
-     var modelHomeViewControllerDict = [String:SectionHVC]() {
+    var modelHomeViewControllerDict = [String:SectionHVC]() {
         didSet {
-            if self.isOnScreen {
-                if modelHomeViewControllerDict.count == 3 {
-                    let sorted = modelHomeViewControllerDict.sorted { $0.key < $1.key }
-                    let valuesArraySorted = Array(sorted.map({ $0.value }))
-                    modelHomeViewController = valuesArraySorted
-                }
-            } else {
-                isNotVisableViewController = true
+            if modelHomeViewControllerDict.count == 3 {
+                let sorted = modelHomeViewControllerDict.sorted { $0.key < $1.key }
+                let valuesArraySorted = Array(sorted.map({ $0.value }))
+                modelHomeViewController = valuesArraySorted
             }
         }
     }
+   
     
     var placesMap:[PlacesTest] = []
     private var placesFB:[PlacesFB] = [] {
@@ -108,25 +134,28 @@ class NewHomeViewController: UIViewController {
             }
         }
         
-        managerFB.getPreviewMallsNew { malls in
-            let section = SectionHVC(section: "Malls", items: malls)
-            self.modelHomeViewControllerDict["A"] = section
-        }
-        
-        managerFB.getPreviewBrandsNew { brands in
-            let section = SectionHVC(section: "Brands", items: brands)
-            self.modelHomeViewControllerDict["B"] = section
-        }
-        
-        managerFB.getPopularProductNew { products in
-            let section = SectionHVC(section: "PopularProducts", items: products)
-            self.modelHomeViewControllerDict["C"] = section
-        }
+//        managerFB.getPreviewMallsNew { malls in
+//            let section = SectionHVC(section: "Malls", items: malls)
+//            self.modelHomeViewControllerDict["A"] = section
+//        }
+//
+//        managerFB.getPreviewBrandsNew { brands in
+//            let section = SectionHVC(section: "Brands", items: brands)
+//            self.modelHomeViewControllerDict["B"] = section
+//        }
+//
+//        managerFB.getPopularProductNew { products in
+//            let section = SectionHVC(section: "PopularProducts", items: products)
+//            self.modelHomeViewControllerDict["C"] = section
+//        }
         
         managerFB.getPlaces { modelPlaces in
             self.placesFB = modelPlaces
         }
         
+        let gender = defaults.string(forKey: "gender") ?? "Woman"
+        currentGender = gender
+        getDataFB(path: gender)
         
 //        self.setLeftAlignedNavigationItemTitle(text: "Observer", color: R.Colors.label, margin: 20)
         view.backgroundColor = R.Colors.systemBackground
@@ -145,23 +174,24 @@ class NewHomeViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        navigationController?.navigationBar.prefersLargeTitles = true
-        print("Home viewWillAppear ")
-//        hideNavigationBar()
-//        removeTopView()
+        
+//        let path = defaults.string(forKey: "gender") ?? "Woman"
+//        getDataFB(path: path)
+        
         managerFB.removeObserverForCartProductsUser()
         if !isFirstStart {
             managerFB.getCartProduct { cartProducts in
                 self.cartProducts = cartProducts
             }
         }
+        switchGender()
         
-        if isNotVisableViewController {
-            let sorted = modelHomeViewControllerDict.sorted { $0.key < $1.key }
-            let valuesArraySorted = Array(sorted.map({ $0.value }))
-            modelHomeViewController = valuesArraySorted
-            isNotVisableViewController = false
-        }
+//        if isNotVisableViewController {
+//            let sorted = modelHomeViewControllerDict.sorted { $0.key < $1.key }
+//            let valuesArraySorted = Array(sorted.map({ $0.value }))
+//            modelHomeViewController = valuesArraySorted
+//            isNotVisableViewController = false
+//        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -171,19 +201,54 @@ class NewHomeViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        print("Home viewWillDisappear ")
+        
+//        let path = defaults.string(forKey: "gender") ?? "Woman"
+//        managerFB.removeObserverPreviewMallsGender(path: path)
+//        managerFB.removeObserverPopularProductGender(path: path)
+//        managerFB.removeObserverPreviewBrandsGender(path: path)
+//        modelHomeViewControllerDict = [:]
+//        print("modelHomeViewControllerDict - \(modelHomeViewControllerDict)")
 //        showNavigationBar()
 //        managerFB.removeObserverForCartProductsUser()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        print("Home viewDidDisappear ")
     }
     
 
     
     // MARK: - another methods
+    
+    private func getDataFB(path: String) {
+        
+        managerFB.getPreviewMallsGender(path: path) { malls in
+            let section = SectionHVC(section: "Malls", items: malls)
+            self.modelHomeViewControllerDict["A"] = section
+        }
+        
+        managerFB.getPreviewBrandsGender(path: path) { brands in
+            let section = SectionHVC(section: "Brands", items: brands)
+            self.modelHomeViewControllerDict["B"] = section
+        }
+        
+        managerFB.getPopularProductGender(path: path) { products in
+            let section = SectionHVC(section: "PopularProducts", items: products)
+            self.modelHomeViewControllerDict["C"] = section
+        }
+    }
+    
+    private func switchGender() {
+        let gender = defaults.string(forKey: "gender") ?? "Woman"
+        if currentGender != gender {
+            managerFB.removeObserverPreviewMallsGender(path: currentGender)
+            managerFB.removeObserverPopularProductGender(path: currentGender)
+            managerFB.removeObserverPreviewBrandsGender(path: currentGender)
+            modelHomeViewControllerDict = [:]
+            currentGender = gender
+            getDataFB(path: currentGender)
+        }
+    }
     
     private func configureActivityIndicatorView() {
         guard let activityContainerView = activityContainerView else {
@@ -406,6 +471,7 @@ extension NewHomeViewController: UICollectionViewDelegate {
         
         switch indexPath.section {
         case 0:
+            // нужно при переходе учитывать MallsWoman
             let mallVC = UIStoryboard.vcById("NewMallViewController") as! NewMallViewController
             let mallSection = modelHomeViewController.filter({$0.section == "Malls"})
             let brandsSection = modelHomeViewController.filter({$0.section == "Brands"})
@@ -421,6 +487,7 @@ extension NewHomeViewController: UICollectionViewDelegate {
 //            present(mallVC, animated: true, completion: nil)
             print("Malls section")
         case 1:
+            // нужно при переходе учитывать MallsWoman
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let brandVC = storyboard.instantiateViewController(withIdentifier: "BrandsViewController") as! BrandsViewController
             let brandsSection = modelHomeViewController.filter({$0.section == "Brands"})

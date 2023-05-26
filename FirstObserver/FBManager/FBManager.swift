@@ -73,6 +73,10 @@ final class FBManager {
     var refHandleCatalog: DatabaseHandle?
     var refHandleCategoryProduct: DatabaseHandle?
     var refHandleBrandProduct: DatabaseHandle?
+    
+    var refHandlePreviewMalls: DatabaseHandle?
+    var refHandlePreviewBrands: DatabaseHandle?
+    var refHandlePopularProduct: DatabaseHandle?
 //    var databaseRef: DatabaseReference?
     //
 //    lazy var databaseRef = Database.database().reference().child("usersAccaunt/\(currentUser?.uid ?? "")")
@@ -91,7 +95,7 @@ final class FBManager {
     // MARK: - NewMallViewController -
     
     func getMallModel(refPath: String, completionHandler: @escaping (MallModel) -> Void) {
-        
+        // нужно при переходе учитывать MallsWoman
         let databaseRef = Database.database().reference()
         databaseRef.child("MallsMan/\(refPath)").observe(.value) { (snapshot) in
             
@@ -279,6 +283,26 @@ final class FBManager {
     
     func getPreviewCatalog(completionHandler: @escaping ([PreviewCategory]) -> Void) {
         refHandleCatalog = Database.database().reference().child("PreviewCatalogMan").observe(.value) { (snapshot) in
+            var arrayCatalog = [PreviewCategory]()
+            for item in snapshot.children {
+                let category = item as! DataSnapshot
+                let model = PreviewCategory(snapshot: category)
+                arrayCatalog.append(model)
+            }
+            completionHandler(arrayCatalog)
+        }
+    }
+    
+    func removeObserverCatalogGender(path: String) {
+        if let refHandle = refHandleCatalog {
+            let pathRef = "PreviewCatalog" + path
+            Database.database().reference().child(pathRef).removeObserver(withHandle: refHandle)
+        }
+    }
+    
+    func getPreviewCatalogGender(path:String, completionHandler: @escaping ([PreviewCategory]) -> Void) {
+        let pathRef = "PreviewCatalog" + path
+        refHandleCatalog = Database.database().reference().child(pathRef).observe(.value) { (snapshot) in
             var arrayCatalog = [PreviewCategory]()
             for item in snapshot.children {
                 let category = item as! DataSnapshot
@@ -485,6 +509,104 @@ print("func getCartProduct(completionHandler: @escaping ([PopularProduct]) -> Vo
     func getPopularProductNew(completionHandler: @escaping ([ItemCell]) -> Void) {
         let databaseRef = Database.database().reference()
         databaseRef.child("PopularProductMan").observe(.value) { snapshot in
+            var arrayProduct = [ItemCell]()
+            
+            for item in snapshot.children {
+                let product = item as! DataSnapshot
+                
+                var arrayMalls = [String]()
+                var arrayRefe = [String]()
+                
+                
+                for mass in product.children {
+                    let item = mass as! DataSnapshot
+                    
+                    switch item.key {
+                    case "malls":
+                        for it in item.children {
+                            let item = it as! DataSnapshot
+                            if let refDictionary = item.value as? String {
+                                arrayMalls.append(refDictionary)
+                            }
+                        }
+                        
+                    case "refImage":
+                        for it in item.children {
+                            let item = it as! DataSnapshot
+                            if let refDictionary = item.value as? String {
+                                arrayRefe.append(refDictionary)
+                            }
+                        }
+                    default:
+                        break
+                    }
+                    
+                }
+                let modelFB = PopularProduct(snapshot: product, refArray: arrayRefe, malls: arrayMalls)
+                let modelDataSource = ItemCell(malls: nil, brands: nil, popularProduct: modelFB, mallImage: nil)
+                arrayProduct.append(modelDataSource)
+            }
+            completionHandler(arrayProduct)
+        }
+    }
+    
+//    newNewHVC
+    func removeObserverPreviewMallsGender(path: String) {
+        if let refHandle = refHandlePreviewMalls {
+            let pathRef = "PreviewMall" + path
+            Database.database().reference().child(pathRef).removeObserver(withHandle: refHandle)
+        }
+    }
+    
+    func getPreviewMallsGender(path:String, completionHandler: @escaping ([ItemCell]) -> Void) {
+        let pathRef = "PreviewMall" + path
+        let databaseRef = Database.database().reference()
+        refHandlePreviewMalls = databaseRef.child(pathRef).observe(.value) { snapshot in
+            var arrayMalls = [ItemCell]()
+            for item in snapshot.children {
+                let mall = item as! DataSnapshot
+                let modelFB = PreviewCategory(snapshot: mall)
+                let modelDataSource = ItemCell(malls: modelFB, brands: nil, popularProduct: nil, mallImage: nil)
+                arrayMalls.append(modelDataSource)
+            }
+            completionHandler(arrayMalls)
+        }
+    }
+    
+    func removeObserverPreviewBrandsGender(path: String) {
+        if let refHandle = refHandlePreviewBrands {
+            let pathRef = "PreviewBrand" + path
+            Database.database().reference().child(pathRef).removeObserver(withHandle: refHandle)
+        }
+    }
+    
+    func getPreviewBrandsGender(path:String, completionHandler: @escaping ([ItemCell]) -> Void) {
+        let pathRef = "PreviewBrand" + path
+        let databaseRef = Database.database().reference()
+        refHandlePreviewBrands = databaseRef.child(pathRef).observe(.value) { snapshot in
+            var arrayBrands = [ItemCell]()
+            for item in snapshot.children {
+                let brand = item as! DataSnapshot
+//                print("PreviewBrandMan - \(brand)")
+                let modelFB = PreviewCategory(snapshot: brand)
+                let modelDataSource = ItemCell(malls: nil, brands: modelFB, popularProduct: nil, mallImage: nil)
+                arrayBrands.append(modelDataSource)
+            }
+            completionHandler(arrayBrands)
+        }
+    }
+    
+    func removeObserverPopularProductGender(path: String) {
+        if let refHandle = refHandlePopularProduct {
+            let pathRef = "PopularProduct" + path
+            Database.database().reference().child(pathRef).removeObserver(withHandle: refHandle)
+        }
+    }
+    
+    func getPopularProductGender(path:String, completionHandler: @escaping ([ItemCell]) -> Void) {
+        let pathRef = "PopularProduct" + path
+        let databaseRef = Database.database().reference()
+        refHandlePopularProduct = databaseRef.child(pathRef).observe(.value) { snapshot in
             var arrayProduct = [ItemCell]()
             
             for item in snapshot.children {

@@ -117,7 +117,7 @@ class ProductCellNew: UICollectionViewCell {
     
     private func setupConstraints() {
         
-        print("setupConstraints() ")
+//        print("setupConstraints() ")
         
         let topImageViewCnstr = imageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0)
         topImageViewCnstr.priority = UILayoutPriority(999)
@@ -169,7 +169,7 @@ class ProductCellNew: UICollectionViewCell {
         modelLabel.text = model.popularProduct?.model
         mallLabel.text = model.popularProduct?.malls.first
         priceLabel.text = model.popularProduct?.price
-        print("modelLabel.text - \(String(describing: modelLabel.text))")
+//        print("modelLabel.text - \(String(describing: modelLabel.text))")
     }
     
 

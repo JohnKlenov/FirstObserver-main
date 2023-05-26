@@ -17,6 +17,7 @@ class OnboardPageViewController: UIPageViewController {
     let presentScreenContents = R.Strings.OtherControllers.OnboardPage.presentScreenContents
     var currentIndex: Int?
     var pendingIndex: Int?
+    let defaults = UserDefaults.standard
     
     override init(transitionStyle style: UIPageViewController.TransitionStyle, navigationOrientation: UIPageViewController.NavigationOrientation, options: [UIPageViewController.OptionsKey : Any]? = nil) {
             super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
@@ -50,8 +51,8 @@ class OnboardPageViewController: UIPageViewController {
             
             // save true for UserDefaults if index < presentScreenContents.count
             
-            NewHomeViewController.userDefaults.set(true, forKey: "isFinishPresentation")
-            
+//            NewHomeViewController.userDefaults.set(true, forKey: "isFinishPresentation")
+            defaults.set(true, forKey: "isFinishPresentation")
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.dismiss(animated: true, completion: nil)
             }

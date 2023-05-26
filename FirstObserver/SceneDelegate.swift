@@ -18,15 +18,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     static var flag = false
     // ARC static weak var?
     static var mapVC: MapViewController?
+    let defaults = UserDefaults.standard
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
+        defaults.set("Woman", forKey: "gender")
         FirebaseApp.configure()
         Database.database().isPersistenceEnabled = false
         
         guard let windowScene = (scene as? UIWindowScene) else { return }
-        NewHomeViewController.userDefaults.set(false, forKey: "isFinishPresentation")
-        let appAlreadeSeen = NewHomeViewController.userDefaults.bool(forKey: "isFinishPresentation")
+        
+//        NewHomeViewController.userDefaults.set(false, forKey: "isFinishPresentation")
+        defaults.set(false, forKey: "isFinishPresentation")
+        let appAlreadeSeen = defaults.bool(forKey: "isFinishPresentation")
 
         if appAlreadeSeen {
             window = UIWindow(frame: windowScene.coordinateSpace.bounds)

@@ -83,6 +83,7 @@ class PresentViewController: UIViewController {
     }()
     
     let childVC = ChildPageViewController()
+    let defaults = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -102,8 +103,9 @@ class PresentViewController: UIViewController {
     @objc func getStarted(_ sender: UIButton) {
         print("func getStarted")
         
-        NewHomeViewController.userDefaults.set(true, forKey: "isFinishPresentation")
-      
+//        NewHomeViewController.userDefaults.set(true, forKey: "isFinishPresentation")
+        
+        defaults.set(true, forKey: "isFinishPresentation")
 //        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "MainTabBarController") as! MainTabBarController
 //            let sceneDelegate = UIApplication.shared.connectedScenes
 //                .first!.delegate as! SceneDelegate
