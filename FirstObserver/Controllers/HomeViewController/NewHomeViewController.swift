@@ -172,6 +172,7 @@ class NewHomeViewController: UIViewController {
     
     
     
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -180,6 +181,7 @@ class NewHomeViewController: UIViewController {
         
         managerFB.removeObserverForCartProductsUser()
         if !isFirstStart {
+            print("ffff")
             managerFB.getCartProduct { cartProducts in
                 self.cartProducts = cartProducts
             }
