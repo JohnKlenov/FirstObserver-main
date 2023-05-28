@@ -73,10 +73,13 @@ final class FBManager {
     var refHandleCatalog: DatabaseHandle?
     var refHandleCategoryProduct: DatabaseHandle?
     var refHandleBrandProduct: DatabaseHandle?
+    var refHandleMallModel: DatabaseHandle?
     
     var refHandlePreviewMalls: DatabaseHandle?
     var refHandlePreviewBrands: DatabaseHandle?
     var refHandlePopularProduct: DatabaseHandle?
+    
+    let defaults = UserDefaults.standard
 //    var databaseRef: DatabaseReference?
     //
 //    lazy var databaseRef = Database.database().reference().child("usersAccaunt/\(currentUser?.uid ?? "")")
@@ -94,11 +97,20 @@ final class FBManager {
     
     // MARK: - NewMallViewController -
     
+    func removeObserverMallModel(refPath: String) {
+        if let refHandle = refHandleMallModel {
+//            "MallsMan/\(searchBrand)"
+            let gender = defaults.string(forKey: "gender") ?? "Woman"
+            let path = "Malls\(gender)"
+            Database.database().reference(withPath:"\(path)/\(refPath)").removeObserver(withHandle: refHandle)
+        }
+    }
+    
     func getMallModel(refPath: String, completionHandler: @escaping (MallModel) -> Void) {
-        // нужно при переходе учитывать MallsWoman
-        let databaseRef = Database.database().reference()
-        databaseRef.child("MallsMan/\(refPath)").observe(.value) { (snapshot) in
-            
+        let gender = defaults.string(forKey: "gender") ?? "Woman"
+        let path = "Malls\(gender)"
+        refHandleMallModel = Database.database().reference().child("\(path)/\(refPath)").observe(.value) { (snapshot) in
+            print("snapshot getMallModel - \(snapshot)")
             var arrayBrands:[String] = []
             var arrayRefImage:[String] = []
             
@@ -215,23 +227,22 @@ final class FBManager {
 
     func removeObserverBrandProduct(searchBrand: String) {
         if let refHandle = refHandleBrandProduct {
-            Database.database().reference(withPath: "brandsMan/\(searchBrand)").removeObserver(withHandle: refHandle)
+//            "BrandsMan/\(searchBrand)"
+            Database.database().reference(withPath:searchBrand).removeObserver(withHandle: refHandle)
         }
     }
-    
+
     func getBrand(searchBrand: String, completionHandler: @escaping (PopularGarderob) -> Void) {
-        let databaseRef = Database.database().reference(withPath: "BrandsMan/\(searchBrand)")
+        //    "BrandsMan/\(searchBrand)"
+        let databaseRef = Database.database().reference(withPath:searchBrand)
         refHandleBrandProduct = databaseRef.observe(.value){ (snapshot) in
             
             let garderob = PopularGarderob()
             for item in snapshot.children {
                 let itemCategory = item as! DataSnapshot
-//                print("BrandsViewController \(itemCategory.key)")
                 let group = PopularGroup(name: itemCategory.key, group: nil, product: [])
                 for item in itemCategory.children {
                     let product = item as! DataSnapshot
-//                    print(product.key)
-                    
                     var arrayMalls = [String]()
                     var arrayRefe = [String]()
                     
@@ -266,7 +277,6 @@ final class FBManager {
                     
                 }
                 garderob.groups.append(group)
-//                print("appenf new group BrandsViewController\(group.name)")
             }
             completionHandler(garderob)
         }

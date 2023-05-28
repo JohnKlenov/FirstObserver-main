@@ -12,35 +12,18 @@ import SwiftUI
 
 // не реализовано: func startPresentation(Start Onboarding) - PageViewController + topView(если Onboarding не был показан мы добавляем черное view во viewWillAppear что бы сделать переход между lounchScreenStoryboard и Onboarding)
 
+
 class NewHomeViewController: UIViewController {
 
     private let managerFB = FBManager.shared
     let defaults = UserDefaults.standard
-//    static let userDefaults = UserDefaults.standard
-    
-    private var loader: UIActivityIndicatorView = {
-        let loader = UIActivityIndicatorView()
-        loader.color = R.Colors.systemPurple
-        loader.isHidden = true
-        loader.hidesWhenStopped = true
-        loader.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
-        return loader
-    }()
-    
-    private var activityContainerView: UIView? = {
-        let view = UIView()
-        view.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
-//        view.backgroundColor = UIColor(red: 170/255, green: 170/255, blue: 170/255, alpha: 1)
-        view.backgroundColor = R.Colors.separator
+
+    private lazy var activityView: ActivityContainerView = {
+        let view = ActivityContainerView()
         view.layer.cornerRadius = 8
+        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
-//    private let overlayView: UIView = {
-//        let view = UIView()
-//        view.backgroundColor = .orange
-//        return view
-//    }()
     
 //    private var isNotVisableViewController = false
     private var isFirstStart = true
@@ -76,8 +59,8 @@ class NewHomeViewController: UIViewController {
     var modelHomeViewController = [SectionHVC]() {
         didSet {
             if modelHomeViewController.count == 3 {
-                loader.stopAnimating()
-                activityContainerView?.removeFromSuperview()
+                activityView.stopAnimating()
+                activityView.removeFromSuperview()
                 tabBarController?.view.isUserInteractionEnabled = true
                 reloadData()
             }
@@ -161,12 +144,11 @@ class NewHomeViewController: UIViewController {
         view.backgroundColor = R.Colors.systemBackground
 //        view.backgroundColor = R.Colors.systemGray5
         tabBarController?.view.isUserInteractionEnabled = false
-        configureActivityIndicatorView()
+        configureActivityView()
         setupCollectionView()
         setupConstraints()
         createDataSource()
         collectionViewLayout.delegate = self
-//        addTopView()
     }
 
     
@@ -203,7 +185,7 @@ class NewHomeViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
+    
 //        let path = defaults.string(forKey: "gender") ?? "Woman"
 //        managerFB.removeObserverPreviewMallsGender(path: path)
 //        managerFB.removeObserverPopularProductGender(path: path)
@@ -240,9 +222,10 @@ class NewHomeViewController: UIViewController {
         }
     }
     
-    private func switchGender() {
+    internal func switchGender() {
         let gender = defaults.string(forKey: "gender") ?? "Woman"
         if currentGender != gender {
+            configureActivityView()
             managerFB.removeObserverPreviewMallsGender(path: currentGender)
             managerFB.removeObserverPopularProductGender(path: currentGender)
             managerFB.removeObserverPreviewBrandsGender(path: currentGender)
@@ -252,16 +235,13 @@ class NewHomeViewController: UIViewController {
         }
     }
     
-    private func configureActivityIndicatorView() {
-        guard let activityContainerView = activityContainerView else {
-            return
-        }
-        activityContainerView.addSubview(loader)
-        loader.center = activityContainerView.center
-        view.addSubview(activityContainerView)
-        loader.isHidden = false
-        activityContainerView.center = view.center
-        loader.startAnimating()
+    private func configureActivityView() {
+        view.addSubview(activityView)
+        activityView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        activityView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        activityView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
+        activityView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
+        activityView.startAnimating()
     }
     
     func getPlacesMap() {
@@ -344,7 +324,9 @@ class NewHomeViewController: UIViewController {
                 cell?.configureCell(title: R.Strings.TabBarController.Home.ViewsHome.headerCategoryView)
                 return cell
             } else if kind == "HeaderMalls" {
+                print("else if kind == HeaderMalls")
                 let cell = collectionView.dequeueReusableSupplementaryView(ofKind: HeaderMallsView.headerIdentifier, withReuseIdentifier: HeaderMallsView.headerIdentifier, for: IndexPath) as? HeaderMallsView
+                cell?.delegate = self
                 cell?.configureCell(title: R.Strings.TabBarController.Home.ViewsHome.headerMallsView)
                 return cell
             } else {
@@ -473,36 +455,27 @@ extension NewHomeViewController: UICollectionViewDelegate {
         
         switch indexPath.section {
         case 0:
-            // нужно при переходе учитывать MallsWoman
             let mallVC = UIStoryboard.vcById("NewMallViewController") as! NewMallViewController
             let mallSection = modelHomeViewController.filter({$0.section == "Malls"})
             let brandsSection = modelHomeViewController.filter({$0.section == "Brands"})
-            mallVC.arrayPin = placesMap
             let refPath = mallSection.first?.items[indexPath.row].malls?.brand ?? ""
             mallVC.refPath = refPath
             mallVC.title = refPath
+            mallVC.arrayPin = placesMap
             if let arrayBrands = brandsSection.first?.items.map({$0.brands!}) {
                 mallVC.brandsMall = arrayBrands
             }
-//                        }
             self.navigationController?.pushViewController(mallVC, animated: true)
-//            present(mallVC, animated: true, completion: nil)
-            print("Malls section")
         case 1:
-            // нужно при переходе учитывать MallsWoman
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let brandVC = storyboard.instantiateViewController(withIdentifier: "BrandsViewController") as! BrandsViewController
             let brandsSection = modelHomeViewController.filter({$0.section == "Brands"})
             let refBrand = brandsSection.first?.items[indexPath.row].brands?.brand ?? ""
-            print("refBrand - \(refBrand)")
-//            let ref = Database.database().reference(withPath: "brands/\(refBrand)")
-//            brandVC.incomingRef = ref
-            brandVC.pathRefBrandVC = refBrand
+            let fullPath = "Brands" + currentGender + "/" + refBrand
+            brandVC.pathRefBrandVC = fullPath
             brandVC.title = refBrand
             brandVC.arrayPin = placesMap
             self.navigationController?.pushViewController(brandVC, animated: true)
-//            present(brandVC, animated: true, completion: nil)
-            print("Brands section")
         case 2:
 //            let storyboard = UIStoryboard(name: "Main", bundle: nil)
 //            let productVC = storyboard.instantiateViewController(withIdentifier: "ProductViewController") as! ProductViewController
@@ -531,6 +504,14 @@ extension NewHomeViewController: UICollectionViewDelegate {
             print("default \(indexPath.section)")
         }
     }
+}
+
+extension NewHomeViewController: HeaderMallsViewDelegate {
+    func didSelectSegmentControl() {
+        switchGender()
+    }
+    
+    
 }
 
 

@@ -29,7 +29,14 @@ class BrandsViewController: UIViewController {
     // MARK: - FirebaseProperty -
     
     let managerFB = FBManager.shared
-    var pathRefBrandVC: String?
+    var pathRefBrandVC = ""
+    var computerPathBrandVC: String {
+        let gender = defaults.string(forKey: "gender") ?? "Woman"
+        let path = "Brands\(gender)"
+        let fullPath = "\(path)/\(pathRefBrandVC)"
+        return fullPath
+    }
+    
     var pathRefAllPRoductVC: String?
     var productsForCategory: PopularGarderob? {
         didSet {
@@ -47,7 +54,7 @@ class BrandsViewController: UIViewController {
     }
     var arrayPin: [PlacesTest] = []
     var cartProducts: [PopularProduct] = []
-    
+    let defaults = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -78,25 +85,31 @@ class BrandsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("viewWillAppear BrandsVC")
         managerFB.getCartProduct { [weak self] cartProducts in
             self?.cartProducts = cartProducts
-            print("BrandsVC override func viewWillAppear managerFB.getCartProduct ")
         }
-        if let searchBrand = pathRefBrandVC {
-            managerFB.getBrand(searchBrand: searchBrand) { [weak self] garderob in
-                self?.productsForCategory = garderob
-            }
+        
+        managerFB.getBrand(searchBrand: computerPathBrandVC) { [weak self] garderob in
+            self?.productsForCategory = garderob
         }
+        
+//        if let searchBrand = pathRefBrandVC {
+//            let gender = defaults.string(forKey: "gender") ?? "Woman"
+//            let path = "Brands\(gender)"
+//           let fullPath = "\(path)/\(searchBrand)"
+//            managerFB.getBrand(searchBrand: fullPath) { [weak self] garderob in
+//                self?.productsForCategory = garderob
+//            }
+//        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        print("BrandsVC override viewWillDisappear")
         managerFB.removeObserverForCartProductsUser()
-        if let searchBrand = pathRefBrandVC {
-            managerFB.removeObserverBrandProduct(searchBrand: searchBrand)
-        }
+        managerFB.removeObserverBrandProduct(searchBrand: computerPathBrandVC)
+//        if let searchBrand = pathRefBrandVC {
+//            managerFB.removeObserverBrandProduct(searchBrand: searchBrand)
+//        }
     }
     
     override func viewWillLayoutSubviews() {
@@ -129,6 +142,13 @@ class BrandsViewController: UIViewController {
             }
         }
     }
+    
+//    private func bildingPathRef(path: String) -> String {
+//        let gender = defaults.string(forKey: "gender") ?? "Woman"
+//        let path = "Brands\(gender)"
+//        let fullPath = "\(path)/\(pathRefBrandVC)"
+//        return fullPath
+//    }
 }
 
 

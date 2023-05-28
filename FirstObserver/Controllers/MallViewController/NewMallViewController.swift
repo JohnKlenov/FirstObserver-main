@@ -141,7 +141,6 @@ class NewMallViewController: UIViewController {
         super.viewDidLoad()
         navigationItem.largeTitleDisplayMode = .never
         managerFB.getMallModel(refPath: refPath) { mallModel in
-            
                 self.configureViews(mallModel: mallModel)
         }
         view.backgroundColor = R.Colors.systemBackground
@@ -163,7 +162,11 @@ class NewMallViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        managerFB.removeObserverMallModel(refPath: refPath)
     }
     
     override func viewDidLayoutSubviews() {
@@ -454,7 +457,7 @@ extension NewMallViewController: UICollectionViewDelegate {
             print("DidTap Mall Section")
         case 1:
             let brandVC = UIStoryboard.vcById("BrandsViewController") as! BrandsViewController
-            let refPath = section[indexPath.section].items[indexPath.row].brands?.brand
+            let refPath = section[indexPath.section].items[indexPath.row].brands?.brand ?? ""
             brandVC.pathRefBrandVC = refPath
             brandVC.title = refPath
             brandVC.arrayPin = arrayPin

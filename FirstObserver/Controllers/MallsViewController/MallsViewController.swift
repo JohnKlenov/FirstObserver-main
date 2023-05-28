@@ -17,7 +17,11 @@ class MallsViewController: UIViewController {
     var hightCellVC: CGFloat!
 
     var arrayPins: [PlacesTest] = []
-    var mallsModel: [PreviewCategory] = []
+    var mallsModel: [PreviewCategory] = [] {
+        didSet {
+            collectionView.reloadData()
+        }
+    }
     var brandsModel: [PreviewCategory] = []
     
     let managerFB = FBManager.shared

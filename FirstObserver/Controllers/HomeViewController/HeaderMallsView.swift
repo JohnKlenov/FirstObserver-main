@@ -7,16 +7,21 @@
 
 import UIKit
 
+protocol HeaderMallsViewDelegate: AnyObject {
+    func didSelectSegmentControl()
+}
+
 class HeaderMallsView: UICollectionReusableView {
         
     static let headerIdentifier = "HeaderMalls"
-    
+    let defaults = UserDefaults.standard
+    weak var delegate: HeaderMallsViewDelegate?
+   
     let segmentedControl: UISegmentedControl = {
         let item = [R.Strings.TabBarController.Home.ViewsHome.segmentedControlWoman,R.Strings.TabBarController.Home.ViewsHome.segmentedControlMan]
         let segmentControl = UISegmentedControl(items: item)
         segmentControl.translatesAutoresizingMaskIntoConstraints = false
-        segmentControl.selectedSegmentIndex = 0
-//        segmentControl.addTarget(nil, action: #selector(didTapSegmentedControl(_:)), for: .valueChanged)
+        segmentControl.addTarget(nil, action: #selector(didTapSegmentedControl(_:)), for: .valueChanged)
         segmentControl.backgroundColor = R.Colors.systemFill
         return segmentControl
     }()
@@ -45,10 +50,28 @@ class HeaderMallsView: UICollectionReusableView {
     }
     
     func configureCell(title: String) {
+        let gender = defaults.string(forKey: "gender") ?? "Woman"
+        segmentedControl.selectedSegmentIndex = gender == "Woman" ? 0 : 1
         label.text = title
+    }
+    
+    @objc func didTapSegmentedControl(_ segmentControl: UISegmentedControl) {
+        switch segmentControl.selectedSegmentIndex {
+        case 0:
+            defaults.set("Woman", forKey: "gender")
+            delegate?.didSelectSegmentControl()
+            break
+        case 1:
+            defaults.set("Man", forKey: "gender")
+            delegate?.didSelectSegmentControl()
+            break
+        default:
+            break
+        }
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
+
