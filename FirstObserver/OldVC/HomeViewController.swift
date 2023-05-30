@@ -138,22 +138,22 @@ class HomeViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
     
-        managerFB.getPreviewMalls { modelMalls in
-            self.arrayInArray["malls"] = modelMalls
-        }
-    
-        managerFB.getPreviewBrands { modelBrand in
-            self.arrayInArray["brands"] = modelBrand
-        }
-        
-        managerFB.getPopularProduct { modelProduct in
-            self.arrayInArray["popularProduct"] = modelProduct
-        }
-        
-        managerFB.getPlaces { modelPlaces in
-            self.placesFB = modelPlaces
-        }
-        removeTopView()
+//        managerFB.getPreviewMalls { modelMalls in
+//            self.arrayInArray["malls"] = modelMalls
+//        }
+//    
+//        managerFB.getPreviewBrands { modelBrand in
+//            self.arrayInArray["brands"] = modelBrand
+//        }
+//        
+//        managerFB.getPopularProduct { modelProduct in
+//            self.arrayInArray["popularProduct"] = modelProduct
+//        }
+//        
+//        managerFB.getPlaces { modelPlaces in
+//            self.placesFB = modelPlaces
+//        }
+//        removeTopView()
     }
     
     

@@ -206,12 +206,12 @@ class NewHomeViewController: UIViewController {
     
     private func getDataFB(path: String) {
         
-        managerFB.getPreviewMallsGender(path: path) { malls in
+        managerFB.getPreviewMallsGenderHVC(path: path) { malls in
             let section = SectionHVC(section: "Malls", items: malls)
             self.modelHomeViewControllerDict["A"] = section
         }
         
-        managerFB.getPreviewBrandsGender(path: path) { brands in
+        managerFB.getPreviewBrandsGenderHVC(path: path) { brands in
             let section = SectionHVC(section: "Brands", items: brands)
             self.modelHomeViewControllerDict["B"] = section
         }
@@ -222,13 +222,13 @@ class NewHomeViewController: UIViewController {
         }
     }
     
-    internal func switchGender() {
+    func switchGender() {
         let gender = defaults.string(forKey: "gender") ?? "Woman"
         if currentGender != gender {
             configureActivityView()
-            managerFB.removeObserverPreviewMallsGender(path: currentGender)
+            managerFB.removeObserverPreviewMallsGenderHVC(path: currentGender)
             managerFB.removeObserverPopularProductGender(path: currentGender)
-            managerFB.removeObserverPreviewBrandsGender(path: currentGender)
+            managerFB.removeObserverPreviewBrandsGenderHVC(path: currentGender)
             modelHomeViewControllerDict = [:]
             currentGender = gender
             getDataFB(path: currentGender)
@@ -324,7 +324,6 @@ class NewHomeViewController: UIViewController {
                 cell?.configureCell(title: R.Strings.TabBarController.Home.ViewsHome.headerCategoryView)
                 return cell
             } else if kind == "HeaderMalls" {
-                print("else if kind == HeaderMalls")
                 let cell = collectionView.dequeueReusableSupplementaryView(ofKind: HeaderMallsView.headerIdentifier, withReuseIdentifier: HeaderMallsView.headerIdentifier, for: IndexPath) as? HeaderMallsView
                 cell?.delegate = self
                 cell?.configureCell(title: R.Strings.TabBarController.Home.ViewsHome.headerMallsView)
