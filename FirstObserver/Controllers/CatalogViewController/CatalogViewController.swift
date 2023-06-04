@@ -15,10 +15,25 @@ class CatalogViewController: UIViewController {
     
     // MARK: FB property
     let managerFB = FBManager.shared
+    let defaults = UserDefaults.standard
+    private var currentGender = ""
     
     var heightCellCV:CGFloat!
-    var arrayCatalog: [PreviewCategory] = []
+    var arrayCatalog: [PreviewCategory] = [] {
+        didSet {
+            activityView.stopAnimating()
+            activityView.removeFromSuperview()
+            collectionView.reloadData()
+        }
+    }
     var arrayPins: [PlacesTest] = []
+    
+    private lazy var activityView: ActivityContainerView = {
+        let view = ActivityContainerView()
+        view.layer.cornerRadius = 8
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,23 +49,23 @@ class CatalogViewController: UIViewController {
         collectionView.backgroundColor = .clear
         heightCellCV = (collectionView.frame.height/3)*0.86
         collectionView.register(HeaderCatalogCollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderCatalogCollectionReusableView.headerIdentifier)
+        let gender = defaults.string(forKey: "gender") ?? "Woman"
+        currentGender = gender
+        getDataFB(path: gender)
+        configureActivityView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("Catalog viewWillAppear")
         managerFB.removeObserverForCartProductsUser()
-        getPlacesMapHVC()
-        managerFB.getPreviewCatalog { [weak self] catalog in
-            self?.arrayCatalog = catalog
-            self?.collectionView.reloadData()
-        }
+        getPlacesHVC()
+        switchGender()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
         print("Catalog viewWillDisappear")
-        managerFB.removeObserverCatalog()
+//        managerFB.removeObserverCatalog()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -58,18 +73,42 @@ class CatalogViewController: UIViewController {
         print("Catalog viewDidDisappear")
     }
     
-    private func getPlacesMapHVC() {
-        
+    // MARK: - another methods
+    
+    private func getPlacesHVC() {
         guard let tabBarVCs = tabBarController?.viewControllers else {return}
-        
         for vc in tabBarVCs {
             if let nc = vc as? UINavigationController {
                 if let homeVC = nc.topViewController as? NewHomeViewController {
                     self.arrayPins = homeVC.placesMap
-                    
                 }
             }
         }
+    }
+    
+    private func getDataFB(path: String) {
+        managerFB.getPreviewCatalogGender(path: path) { catalog in
+            self.arrayCatalog = catalog
+        }
+    }
+    
+    private func switchGender() {
+        let gender = defaults.string(forKey: "gender") ?? "Woman"
+        if currentGender != gender {
+            configureActivityView()
+            managerFB.removeObserverCatalogGender(path: currentGender)
+            currentGender = gender
+            getDataFB(path: currentGender)
+        }
+    }
+    
+    private func configureActivityView() {
+        view.addSubview(activityView)
+        activityView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        activityView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        activityView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
+        activityView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
+        activityView.startAnimating()
     }
 }
 
@@ -107,20 +146,15 @@ extension CatalogViewController: UICollectionViewDelegate, UICollectionViewDataS
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: HeaderCatalogCollectionReusableView.headerIdentifier, for: indexPath) as! HeaderCatalogCollectionReusableView
+        headerView.delegate = self
+        headerView.configureCell()
         return headerView
     }
     
 }
 
-
-
-//        ref.child("catalog").observe(.value) { [weak self] (snapshot) in
-//            var arrayCatalog = [PreviewCategory]()
-//            for item in snapshot.children {
-//                let category = item as! DataSnapshot
-//                let model = PreviewCategory(snapshot: category)
-//                arrayCatalog.append(model)
-//            }
-//            self?.arrayCatalog = arrayCatalog
-//            self?.collectionView.reloadData()
-//        }
+extension CatalogViewController: HeaderCatalogCollectionViewDelegate {
+    func didSelectSegmentControl() {
+        switchGender()
+    }
+}

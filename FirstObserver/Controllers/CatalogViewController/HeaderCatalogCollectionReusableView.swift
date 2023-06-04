@@ -7,16 +7,21 @@
 
 import UIKit
 
+protocol HeaderCatalogCollectionViewDelegate: AnyObject {
+    func didSelectSegmentControl()
+}
+
 class HeaderCatalogCollectionReusableView: UICollectionReusableView {
     
     static let headerIdentifier = "HeaderCatalogVC"
+    let defaults = UserDefaults.standard
+    weak var delegate: HeaderCatalogCollectionViewDelegate?
     
     let segmentedControl: UISegmentedControl = {
         let item = [R.Strings.TabBarController.Home.ViewsHome.segmentedControlWoman,R.Strings.TabBarController.Home.ViewsHome.segmentedControlMan]
         let segmentControl = UISegmentedControl(items: item)
         segmentControl.translatesAutoresizingMaskIntoConstraints = false
-        segmentControl.selectedSegmentIndex = 0
-//        segmentControl.addTarget(nil, action: #selector(didTapSegmentedControl(_:)), for: .valueChanged)
+        segmentControl.addTarget(nil, action: #selector(didTapSegmentedControl(_:)), for: .valueChanged)
         segmentControl.backgroundColor = R.Colors.systemFill
         return segmentControl
     }()
@@ -28,6 +33,26 @@ class HeaderCatalogCollectionReusableView: UICollectionReusableView {
         setupConstraints()
         backgroundColor = .clear
         
+    }
+    
+    @objc func didTapSegmentedControl(_ segmentControl: UISegmentedControl) {
+        switch segmentControl.selectedSegmentIndex {
+        case 0:
+            defaults.set("Woman", forKey: "gender")
+            delegate?.didSelectSegmentControl()
+            break
+        case 1:
+            defaults.set("Man", forKey: "gender")
+            delegate?.didSelectSegmentControl()
+            break
+        default:
+            break
+        }
+    }
+    
+    func configureCell() {
+        let gender = defaults.string(forKey: "gender") ?? "Woman"
+        segmentedControl.selectedSegmentIndex = gender == "Woman" ? 0 : 1
     }
     
     required init?(coder: NSCoder) {

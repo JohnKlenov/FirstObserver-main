@@ -29,33 +29,6 @@ class NewHomeViewController: UIViewController {
     private var isFirstStart = true
     private var currentGender = ""
     
-//    var modelHomeViewController = [SectionHVC]() {
-//        didSet {
-//            if modelHomeViewController.count == 3 {
-////                reloadData()
-//                loader.stopAnimating()
-//                activityContainerView?.removeFromSuperview()
-//                tabBarController?.view.isUserInteractionEnabled = true
-////                segmentedControl.isHidden = false
-//                reloadData()
-//            }
-//        }
-//    }
-    
-//     var modelHomeViewControllerDict = [String:SectionHVC]() {
-//        didSet {
-//            if self.isOnScreen {
-//                if modelHomeViewControllerDict.count == 3 {
-//                    let sorted = modelHomeViewControllerDict.sorted { $0.key < $1.key }
-//                    let valuesArraySorted = Array(sorted.map({ $0.value }))
-//                    modelHomeViewController = valuesArraySorted
-//                }
-//            } else {
-//                isNotVisableViewController = true
-//            }
-//        }
-//    }
-    
     var modelHomeViewController = [SectionHVC]() {
         didSet {
             if modelHomeViewController.count == 3 {
@@ -77,7 +50,6 @@ class NewHomeViewController: UIViewController {
         }
     }
    
-    
     var placesMap:[PlacesTest] = []
     private var placesFB:[PlacesFB] = [] {
         didSet {
@@ -96,8 +68,18 @@ class NewHomeViewController: UIViewController {
         
         title = "Observer"
         navigationController?.navigationBar.prefersLargeTitles = true
+        NetworkMonitor.shared.startMonitoring()
+        NotificationCenter.default.addObserver(self, selector: #selector(showOfflineDeviceUI(notification:)), name: NSNotification.Name.connectivityStatus, object: nil)
         
-//        navigationController?.navigationBar.setNeedsLayout()
+        managerFB.isNetworkConnectivity { isConnect in
+            
+            isConnect ? print("FB Connected") : print("FB Not connected")
+//            if isConnect {
+//                print("FB Connected")
+//            } else {
+//                print("Not connected")
+//            }
+        }
 
         if let topItem = navigationController?.navigationBar.topItem {
             topItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
@@ -116,21 +98,6 @@ class NewHomeViewController: UIViewController {
                 }
             }
         }
-        
-//        managerFB.getPreviewMallsNew { malls in
-//            let section = SectionHVC(section: "Malls", items: malls)
-//            self.modelHomeViewControllerDict["A"] = section
-//        }
-//
-//        managerFB.getPreviewBrandsNew { brands in
-//            let section = SectionHVC(section: "Brands", items: brands)
-//            self.modelHomeViewControllerDict["B"] = section
-//        }
-//
-//        managerFB.getPopularProductNew { products in
-//            let section = SectionHVC(section: "PopularProducts", items: products)
-//            self.modelHomeViewControllerDict["C"] = section
-//        }
         
         managerFB.getPlaces { modelPlaces in
             self.placesFB = modelPlaces
@@ -203,6 +170,15 @@ class NewHomeViewController: UIViewController {
 
     
     // MARK: - another methods
+    
+    @objc func showOfflineDeviceUI(notification: Notification) {
+        print("showOfflineDeviceUI")
+         if NetworkMonitor.shared.isConnected {
+             print("Application Connected")
+         } else {
+             print("Application Not connected")
+         }
+     }
     
     private func getDataFB(path: String) {
         
@@ -470,8 +446,8 @@ extension NewHomeViewController: UICollectionViewDelegate {
             let brandVC = storyboard.instantiateViewController(withIdentifier: "BrandsViewController") as! BrandsViewController
             let brandsSection = modelHomeViewController.filter({$0.section == "Brands"})
             let refBrand = brandsSection.first?.items[indexPath.row].brands?.brand ?? ""
-            let fullPath = "Brands" + currentGender + "/" + refBrand
-            brandVC.pathRefBrandVC = fullPath
+//            let fullPath = "Brands" + currentGender + "/" + refBrand
+            brandVC.pathRefBrandVC = refBrand
             brandVC.title = refBrand
             brandVC.arrayPin = placesMap
             self.navigationController?.pushViewController(brandVC, animated: true)
@@ -517,6 +493,35 @@ extension NewHomeViewController: HeaderMallsViewDelegate {
 
 
 
+
+
+//    var modelHomeViewController = [SectionHVC]() {
+//        didSet {
+//            if modelHomeViewController.count == 3 {
+////                reloadData()
+//                loader.stopAnimating()
+//                activityContainerView?.removeFromSuperview()
+//                tabBarController?.view.isUserInteractionEnabled = true
+////                segmentedControl.isHidden = false
+//                reloadData()
+//            }
+//        }
+//    }
+    
+//     var modelHomeViewControllerDict = [String:SectionHVC]() {
+//        didSet {
+//            if self.isOnScreen {
+//                if modelHomeViewControllerDict.count == 3 {
+//                    let sorted = modelHomeViewControllerDict.sorted { $0.key < $1.key }
+//                    let valuesArraySorted = Array(sorted.map({ $0.value }))
+//                    modelHomeViewController = valuesArraySorted
+//                }
+//            } else {
+//                isNotVisableViewController = true
+//            }
+//        }
+//    }
+
 //    @objc func didTapSegmentedControl(_ segmentedControl: UISegmentedControl) {
 //        switch segmentedControl.selectedSegmentIndex {
 //        case 0:
@@ -528,6 +533,24 @@ extension NewHomeViewController: HeaderMallsViewDelegate {
 //            break
 //        }
 //    }
+
+
+
+//        managerFB.getPreviewMallsNew { malls in
+//            let section = SectionHVC(section: "Malls", items: malls)
+//            self.modelHomeViewControllerDict["A"] = section
+//        }
+//
+//        managerFB.getPreviewBrandsNew { brands in
+//            let section = SectionHVC(section: "Brands", items: brands)
+//            self.modelHomeViewControllerDict["B"] = section
+//        }
+//
+//        managerFB.getPopularProductNew { products in
+//            let section = SectionHVC(section: "PopularProducts", items: products)
+//            self.modelHomeViewControllerDict["C"] = section
+//        }
+        
 
     
 //    func scrollViewDidScroll(_ scrollView: UIScrollView) {

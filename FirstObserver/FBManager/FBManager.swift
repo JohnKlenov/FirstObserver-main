@@ -92,6 +92,20 @@ final class FBManager {
 //    var storage = Storage.storage()
 
     
+    // MARK: -NetworkConnectivityManager -
+    
+    func isNetworkConnectivity(completionHandler: @escaping (Bool) -> Void) {
+        let connectedRef = Database.database().reference(withPath: ".info/connected")
+        connectedRef.observe(.value, with: { snapshot in
+            if snapshot.value as? Bool ?? false {
+                print("Connected")
+                completionHandler(true)
+            } else {
+                print("Not connected")
+                completionHandler(false)
+            }
+        })
+    }
     
     // MARK: - NewProductViewController -
     
@@ -167,16 +181,15 @@ final class FBManager {
     
     // MARK: - AllProductViewController -
     
-    func removeObserverCategoryProduct() {
+    func removeObserverCategoryProduct(path: String) {
         if let refHandle = refHandleCategoryProduct {
-            Database.database().reference(withPath: "BrandsMan").removeObserver(withHandle: refHandle)
+            Database.database().reference(withPath: path).removeObserver(withHandle: refHandle)
         }
     }
     
-    func getCategoryForBrands(searchCategory: String, completionHandler: @escaping (PopularGarderob) -> Void) {
-        let databaseRef = Database.database().reference(withPath: "BrandsMan")
+    func getCategoryForBrands(path: String, searchCategory: String, completionHandler: @escaping (PopularGarderob) -> Void) {
+        let databaseRef = Database.database().reference(withPath: path)
         refHandleCategoryProduct = databaseRef.observe(.value) { (snapshot) in
-            
             let garderob = PopularGarderob()
             for brand in snapshot.children {
                 let brand = brand as! DataSnapshot
@@ -214,7 +227,6 @@ final class FBManager {
                                 default:
                                     break
                                 }
-                                
                             }
                             let productModel = PopularProduct(snapshot: productCategory, refArray: arrayRefe, malls: arrayMalls)
                             group.product?.append(productModel)
@@ -290,23 +302,23 @@ final class FBManager {
     
     // MARK: - CatalogViewController -
     
-    func removeObserverCatalog() {
-        if let refHandle = refHandleCatalog {
-            Database.database().reference().child("PreviewCatalogMan").removeObserver(withHandle: refHandle)
-        }
-    }
-    
-    func getPreviewCatalog(completionHandler: @escaping ([PreviewCategory]) -> Void) {
-        refHandleCatalog = Database.database().reference().child("PreviewCatalogMan").observe(.value) { (snapshot) in
-            var arrayCatalog = [PreviewCategory]()
-            for item in snapshot.children {
-                let category = item as! DataSnapshot
-                let model = PreviewCategory(snapshot: category)
-                arrayCatalog.append(model)
-            }
-            completionHandler(arrayCatalog)
-        }
-    }
+//    func removeObserverCatalog() {
+//        if let refHandle = refHandleCatalog {
+//            Database.database().reference().child("PreviewCatalogMan").removeObserver(withHandle: refHandle)
+//        }
+//    }
+//    
+//    func getPreviewCatalog(completionHandler: @escaping ([PreviewCategory]) -> Void) {
+//        refHandleCatalog = Database.database().reference().child("PreviewCatalogMan").observe(.value) { (snapshot) in
+//            var arrayCatalog = [PreviewCategory]()
+//            for item in snapshot.children {
+//                let category = item as! DataSnapshot
+//                let model = PreviewCategory(snapshot: category)
+//                arrayCatalog.append(model)
+//            }
+//            completionHandler(arrayCatalog)
+//        }
+//    }
     
     func removeObserverCatalogGender(path: String) {
         if let refHandle = refHandleCatalog {

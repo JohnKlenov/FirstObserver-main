@@ -29,11 +29,17 @@ class BrandsViewController: UIViewController {
     // MARK: - FirebaseProperty -
     
     let managerFB = FBManager.shared
-    var pathRefBrandVC = ""
+//    var pathRefBrandVC = "nul"
+    var pathRefBrandVC: String?
     var computerPathBrandVC: String {
         let gender = defaults.string(forKey: "gender") ?? "Woman"
         let path = "Brands\(gender)"
-        let fullPath = "\(path)/\(pathRefBrandVC)"
+        var fullPath = ""
+        if let pathRefBrandVC = pathRefBrandVC {
+            fullPath = "\(path)/\(pathRefBrandVC)"
+        } else {
+            fullPath = path
+        }
         return fullPath
     }
     
@@ -88,25 +94,20 @@ class BrandsViewController: UIViewController {
         managerFB.getCartProduct { [weak self] cartProducts in
             self?.cartProducts = cartProducts
         }
-        
-        managerFB.getBrand(searchBrand: computerPathBrandVC) { [weak self] garderob in
-            self?.productsForCategory = garderob
+        if let _ = pathRefBrandVC {
+            managerFB.getBrand(searchBrand: computerPathBrandVC) { [weak self] garderob in
+                self?.productsForCategory = garderob
+            }
         }
-        
-//        if let searchBrand = pathRefBrandVC {
-//            let gender = defaults.string(forKey: "gender") ?? "Woman"
-//            let path = "Brands\(gender)"
-//           let fullPath = "\(path)/\(searchBrand)"
-//            managerFB.getBrand(searchBrand: fullPath) { [weak self] garderob in
-//                self?.productsForCategory = garderob
-//            }
-//        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         managerFB.removeObserverForCartProductsUser()
-        managerFB.removeObserverBrandProduct(searchBrand: computerPathBrandVC)
+        if let _ = pathRefBrandVC {
+            managerFB.removeObserverBrandProduct(searchBrand: computerPathBrandVC)
+        }
+        
 //        if let searchBrand = pathRefBrandVC {
 //            managerFB.removeObserverBrandProduct(searchBrand: searchBrand)
 //        }
