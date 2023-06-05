@@ -30,8 +30,12 @@ class NetworkViewController: UIViewController {
     
     @objc func showOfflineDeviceUI(notification: Notification) {
 //         networkConnected()
+        print("new commit for networkManager")
      }
+    func printing() {
+        print("new commit for networkManager")    }
 }
+
 
 
 
