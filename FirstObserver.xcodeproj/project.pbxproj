@@ -105,6 +105,7 @@
 		5EA94471294B5773007C2AB5 /* AlertTopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA94470294B5773007C2AB5 /* AlertTopView.swift */; };
 		5EAA598A29A8CD7B00AEFE45 /* NewProductViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EAA598929A8CD7B00AEFE45 /* NewProductViewController.swift */; };
 		5EAA6E552A236B0400F38BCE /* ActivityContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EAA6E542A236B0400F38BCE /* ActivityContainerView.swift */; };
+		5EB02F8C2A2CCE2B00B08FDF /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB02F8B2A2CCE2B00B08FDF /* NetworkManager.swift */; };
 		5EB696052A00513000CDA901 /* HeaderMallsCollectionReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB696042A00513000CDA901 /* HeaderMallsCollectionReusableView.swift */; };
 		5EB696072A00F93E00CDA901 /* HeaderCatalogCollectionReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB696062A00F93E00CDA901 /* HeaderCatalogCollectionReusableView.swift */; };
 		5EBA6C4D29D2DFF0004ABD6E /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBA6C4C29D2DFF0004ABD6E /* MainTabBarController.swift */; };
@@ -217,6 +218,7 @@
 		5EA94470294B5773007C2AB5 /* AlertTopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertTopView.swift; sourceTree = "<group>"; };
 		5EAA598929A8CD7B00AEFE45 /* NewProductViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewProductViewController.swift; sourceTree = "<group>"; };
 		5EAA6E542A236B0400F38BCE /* ActivityContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityContainerView.swift; sourceTree = "<group>"; };
+		5EB02F8B2A2CCE2B00B08FDF /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		5EB696042A00513000CDA901 /* HeaderMallsCollectionReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderMallsCollectionReusableView.swift; sourceTree = "<group>"; };
 		5EB696062A00F93E00CDA901 /* HeaderCatalogCollectionReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderCatalogCollectionReusableView.swift; sourceTree = "<group>"; };
 		5EBA6C4C29D2DFF0004ABD6E /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
@@ -333,6 +335,7 @@
 			isa = PBXGroup;
 			children = (
 				5E5AF8182A276B53005EA28F /* NetworkConnectivityManager.swift */,
+				5EB02F8B2A2CCE2B00B08FDF /* NetworkManager.swift */,
 			);
 			path = NetworkConnectivity;
 			sourceTree = "<group>";
@@ -916,6 +919,7 @@
 				5E7EF58128A51B2A00814F4D /* BrandCell.swift in Sources */,
 				5E0BF47E2993B04100FB99BE /* HeaderMallsView.swift in Sources */,
 				5E890BBC290AB57E00147C5F /* ModelFB.swift in Sources */,
+				5EB02F8C2A2CCE2B00B08FDF /* NetworkManager.swift in Sources */,
 				5EC212E52A07FD3F00FFB216 /* OnboardPageViewController.swift in Sources */,
 				5E7EF59628AE5B2200814F4D /* ProductCollectionViewCell.swift in Sources */,
 				5E2EEF772A0955CF00843CF0 /* PresentViewController.swift in Sources */,

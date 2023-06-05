@@ -30,7 +30,7 @@ class ChildContentViewController: UIViewController {
     }
     
     deinit {
-        print("deinit ChildContentViewController")
+//        print("deinit ChildContentViewController")
     }
 }
  

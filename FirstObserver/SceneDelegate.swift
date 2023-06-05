@@ -21,8 +21,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     let defaults = UserDefaults.standard
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        
-        print("func scene(_ scene: UIScene, willConnectTo ")
         defaults.set("Woman", forKey: "gender")
         FirebaseApp.configure()
         Database.database().isPersistenceEnabled = false

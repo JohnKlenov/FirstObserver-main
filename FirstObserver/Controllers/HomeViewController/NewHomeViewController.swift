@@ -68,17 +68,12 @@ class NewHomeViewController: UIViewController {
         
         title = "Observer"
         navigationController?.navigationBar.prefersLargeTitles = true
-        NetworkMonitor.shared.startMonitoring()
+        
+//        NetworkMonitor.shared.startMonitoring()
         NotificationCenter.default.addObserver(self, selector: #selector(showOfflineDeviceUI(notification:)), name: NSNotification.Name.connectivityStatus, object: nil)
         
         managerFB.isNetworkConnectivity { isConnect in
-            
             isConnect ? print("FB Connected") : print("FB Not connected")
-//            if isConnect {
-//                print("FB Connected")
-//            } else {
-//                print("Not connected")
-//            }
         }
 
         if let topItem = navigationController?.navigationBar.topItem {
@@ -130,7 +125,6 @@ class NewHomeViewController: UIViewController {
         
         managerFB.removeObserverForCartProductsUser()
         if !isFirstStart {
-            print("ffff")
             managerFB.getCartProduct { cartProducts in
                 self.cartProducts = cartProducts
             }
@@ -153,6 +147,7 @@ class NewHomeViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
     
+        NotificationCenter.default.removeObserver(self)
 //        let path = defaults.string(forKey: "gender") ?? "Woman"
 //        managerFB.removeObserverPreviewMallsGender(path: path)
 //        managerFB.removeObserverPopularProductGender(path: path)
@@ -172,13 +167,17 @@ class NewHomeViewController: UIViewController {
     // MARK: - another methods
     
     @objc func showOfflineDeviceUI(notification: Notification) {
-        print("showOfflineDeviceUI")
-         if NetworkMonitor.shared.isConnected {
-             print("Application Connected")
-         } else {
-             print("Application Not connected")
-         }
+        print("@objc func showOfflineDeviceUI(notification: Notification HomeVC")
+         networkConnected()
      }
+    
+    private func networkConnected() {
+        if NetworkMonitor.shared.isConnected {
+            print("NetworkManager Connected")
+        } else {
+            print("NetworkManager Not connected")
+        }
+    }
     
     private func getDataFB(path: String) {
         

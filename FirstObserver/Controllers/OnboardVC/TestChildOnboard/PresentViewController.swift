@@ -101,7 +101,6 @@ class PresentViewController: UIViewController {
     }
     
     @objc func getStarted(_ sender: UIButton) {
-        print("func getStarted")
         
 //        NewHomeViewController.userDefaults.set(true, forKey: "isFinishPresentation")
         
@@ -134,7 +133,7 @@ class PresentViewController: UIViewController {
     }
     
     deinit {
-        print("deinit PresentViewController")
+//        print("deinit PresentViewController")
     }
 }
 

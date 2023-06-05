@@ -47,7 +47,7 @@ class ChildPageViewController: UIPageViewController {
     }
     
     deinit {
-        print("deinit ChildPageViewController")
+//        print("deinit ChildPageViewController")
     }
 }
 

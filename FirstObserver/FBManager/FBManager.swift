@@ -98,10 +98,8 @@ final class FBManager {
         let connectedRef = Database.database().reference(withPath: ".info/connected")
         connectedRef.observe(.value, with: { snapshot in
             if snapshot.value as? Bool ?? false {
-                print("Connected")
                 completionHandler(true)
             } else {
-                print("Not connected")
                 completionHandler(false)
             }
         })
@@ -129,7 +127,7 @@ final class FBManager {
         let gender = defaults.string(forKey: "gender") ?? "Woman"
         let path = "Malls\(gender)"
         refHandleMallModel = Database.database().reference().child("\(path)/\(refPath)").observe(.value) { (snapshot) in
-            print("snapshot getMallModel - \(snapshot)")
+//            print("snapshot getMallModel - \(snapshot)")
             var arrayBrands:[String] = []
             var arrayRefImage:[String] = []
             
@@ -362,7 +360,7 @@ final class FBManager {
     
     func removeObserverForCartProductsUser() {
         if let refHandle = refHandleCart, let currentUser = currentUser {
-            print("func removeObserverForCartProductsUser()")
+//            print("func removeObserverForCartProductsUser()")
             Database.database().reference().child("usersAccaunt/\(currentUser.uid)").removeObserver(withHandle: refHandle)
 //            self.refHandle = nil
         }
@@ -374,7 +372,6 @@ final class FBManager {
             completionHandler([])
             return
         }
-print("func getCartProduct(completionHandler: @escaping ([PopularProduct]) -> Void)")
         refHandleCart = Database.database().reference().child("usersAccaunt/\(currentUser.uid)").observe(.value) { (snapshot) in
 //            print(".observe(.value) { (snapshot) - \(String(describing: self.currentUser?.uid))")
             var arrayProduct = [PopularProduct]()
