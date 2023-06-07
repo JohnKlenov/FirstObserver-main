@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CatalogViewController: UIViewController {
+class CatalogViewController: ParentNetworkViewController {
     
     
 
@@ -27,13 +27,6 @@ class CatalogViewController: UIViewController {
         }
     }
     var arrayPins: [PlacesTest] = []
-    
-    private lazy var activityView: ActivityContainerView = {
-        let view = ActivityContainerView()
-        view.layer.cornerRadius = 8
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -101,15 +94,6 @@ class CatalogViewController: UIViewController {
             getDataFB(path: currentGender)
         }
     }
-    
-    private func configureActivityView() {
-        view.addSubview(activityView)
-        activityView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        activityView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        activityView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
-        activityView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
-        activityView.startAnimating()
-    }
 }
 
 
@@ -158,3 +142,27 @@ extension CatalogViewController: HeaderCatalogCollectionViewDelegate {
         switchGender()
     }
 }
+
+
+
+
+
+
+
+
+
+
+//    private lazy var activityView: ActivityContainerView = {
+//        let view = ActivityContainerView()
+//        view.layer.cornerRadius = 8
+//        view.translatesAutoresizingMaskIntoConstraints = false
+//        return view
+//    }()
+//    private func configureActivityView() {
+//        view.addSubview(activityView)
+//        activityView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+//        activityView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+//        activityView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
+//        activityView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
+//        activityView.startAnimating()
+//    }

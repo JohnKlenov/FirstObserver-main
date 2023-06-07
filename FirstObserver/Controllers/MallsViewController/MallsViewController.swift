@@ -9,18 +9,10 @@ import UIKit
 
 //collectionViewLayout.register(HeaderProductView.self, forSupplementaryViewOfKind: "HeaderProduct", withReuseIdentifier: HeaderProductView.headerIdentifier)
 
-class MallsViewController: UIViewController {
+class MallsViewController: ParentNetworkViewController {
     
-//    @IBOutlet weak var segmentControll: UISegmentedControl!
     @IBOutlet weak var collectionView: UICollectionView!
    
-    private lazy var activityView: ActivityContainerView = {
-        let view = ActivityContainerView()
-        view.layer.cornerRadius = 8
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
     var hightCellVC: CGFloat!
 
     var arrayPins: [PlacesTest] = []
@@ -98,8 +90,6 @@ class MallsViewController: UIViewController {
         }
     }
     
-   
-    
     private func getDataFB(path: String) {
         
         managerFB.getPreviewMallsGenderMVC(path: path) { malls in
@@ -135,15 +125,6 @@ class MallsViewController: UIViewController {
             currentGender = gender
             getDataFB(path: currentGender)
         }
-    }
-    
-    private func configureActivityView() {
-        view.addSubview(activityView)
-        activityView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        activityView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        activityView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
-        activityView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
-        activityView.startAnimating()
     }
 }
 
@@ -193,6 +174,22 @@ extension MallsViewController: HeaderMallsCollectionViewDelegate {
     
 }
 
+
+//    private lazy var activityView: ActivityContainerView = {
+//        let view = ActivityContainerView()
+//        view.layer.cornerRadius = 8
+//        view.translatesAutoresizingMaskIntoConstraints = false
+//        return view
+//    }()
+    
+//    private func configureActivityView() {
+//        view.addSubview(activityView)
+//        activityView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+//        activityView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+//        activityView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
+//        activityView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
+//        activityView.startAnimating()
+//    }
 
 //private func getDataHVC() {
 //

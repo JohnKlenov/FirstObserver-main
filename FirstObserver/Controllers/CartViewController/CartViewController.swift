@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class CartViewController: UIViewController {
+final class CartViewController: ParentNetworkViewController {
     
     private var managerFB = FBManager.shared
     @IBOutlet weak var tableView: UITableView!
@@ -24,6 +24,7 @@ final class CartViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        configureActivityView()
         navigationController?.navigationBar.prefersLargeTitles = true
         
         view.backgroundColor = R.Colors.systemBackground
@@ -40,12 +41,22 @@ final class CartViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("CartVC viewWillAppear")
+//        configureActivityView()
         managerFB.removeObserverForCartProductsUser()
         getPlacesMap()
         managerFB.getCartProduct { [weak self] cartProducts in
             self?.cartProducts = cartProducts
+            self?.activityView.stopAnimating()
+            self?.activityView.removeFromSuperview()
             self?.tableView.reloadData()
+            if cartProducts.count == 0 {
+                self?.createCartViewIsEmpty()
+                self?.tableView.setEmptyView(emptyView: self?.cartViewIsEmpty ?? UIView())
+            } else {
+                self?.tableView.backgroundView = nil
+                self?.cartViewIsEmpty = nil
+            }
+//                        self?.tableView.reloadData()
         }
         managerFB.userIsAnonymously { [weak self] (isAnonymously) in
             self?.isAnonymouslyUser = isAnonymously
@@ -75,14 +86,15 @@ extension CartViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        if cartProducts.count == 0 {
-            createCartViewIsEmpty()
-            tableView.setEmptyView(emptyView: cartViewIsEmpty ?? UIView())
-
-        } else {
-            tableView.backgroundView = nil
-            cartViewIsEmpty = nil
-        }
+//        if cartProducts.count == 0 {
+//            print("tableView numberOfRowsInSection")
+//            createCartViewIsEmpty()
+//            tableView.setEmptyView(emptyView: cartViewIsEmpty ?? UIView())
+//
+//        } else {
+//            tableView.backgroundView = nil
+//            cartViewIsEmpty = nil
+//        }
         return cartProducts.count
     }
     

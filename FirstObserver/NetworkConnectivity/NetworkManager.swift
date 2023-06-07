@@ -5,65 +5,6 @@
 //  Created by Evgenyi on 4.06.23.
 //
 
-import UIKit
-
-class AppDelegater: UIView {
-    
-    func application() {
-        NetworkMonitor.shared.startMonitoring()
-    }
-    
-}
-
-class NetworkViewController: UIViewController {
-    
-   
-    override func viewWillAppear(_ animated: Bool) {
-//        networkConnected()
-        NotificationCenter.default.addObserver(self, selector: #selector(showOfflineDeviceUI(notification:)), name: NSNotification.Name.connectivityStatus, object: nil)
-    }
-    
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
-    @objc func showOfflineDeviceUI(notification: Notification) {
-//         networkConnected()
-        print("new commit for networkManager")
-     }
-    func printing() {
-        print("new commit for networkManager")    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //import Foundation
 //import SystemConfiguration
 //

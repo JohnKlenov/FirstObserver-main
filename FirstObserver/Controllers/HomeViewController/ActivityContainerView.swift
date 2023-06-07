@@ -30,11 +30,15 @@ class ActivityContainerView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupConstraints() {
+    private func setupConstraints() {
         NSLayoutConstraint.activate([loader.heightAnchor.constraint(equalToConstant: 50), loader.widthAnchor.constraint(equalToConstant: 50), loader.centerXAnchor.constraint(equalTo: centerXAnchor), loader.centerYAnchor.constraint(equalTo: centerYAnchor)])
     }
     func startAnimating() {
         loader.startAnimating()
+    }
+    
+    func isAnimating(completionHandler: @escaping (Bool) -> Void) {
+        completionHandler(loader.isAnimating)
     }
     
     func stopAnimating() {

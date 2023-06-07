@@ -10,24 +10,15 @@ import Firebase
 import MapKit
 import SwiftUI
 
-// не реализовано: func startPresentation(Start Onboarding) - PageViewController + topView(если Onboarding не был показан мы добавляем черное view во viewWillAppear что бы сделать переход между lounchScreenStoryboard и Onboarding)
-
-
-class NewHomeViewController: UIViewController {
+class NewHomeViewController: ParentNetworkViewController {
 
     private let managerFB = FBManager.shared
     let defaults = UserDefaults.standard
-
-    private lazy var activityView: ActivityContainerView = {
-        let view = ActivityContainerView()
-        view.layer.cornerRadius = 8
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
     
 //    private var isNotVisableViewController = false
     private var isFirstStart = true
     private var currentGender = ""
+    private var isConnectedFB:Bool = false
     
     var modelHomeViewController = [SectionHVC]() {
         didSet {
@@ -68,9 +59,7 @@ class NewHomeViewController: UIViewController {
         
         title = "Observer"
         navigationController?.navigationBar.prefersLargeTitles = true
-        
-//        NetworkMonitor.shared.startMonitoring()
-        NotificationCenter.default.addObserver(self, selector: #selector(showOfflineDeviceUI(notification:)), name: NSNotification.Name.connectivityStatus, object: nil)
+       
         
         managerFB.isNetworkConnectivity { isConnect in
             isConnect ? print("FB Connected") : print("FB Not connected")
@@ -93,7 +82,7 @@ class NewHomeViewController: UIViewController {
                 }
             }
         }
-        
+        // релоад дата после получения modelPlaces
         managerFB.getPlaces { modelPlaces in
             self.placesFB = modelPlaces
         }
@@ -104,7 +93,6 @@ class NewHomeViewController: UIViewController {
         
 //        self.setLeftAlignedNavigationItemTitle(text: "Observer", color: R.Colors.label, margin: 20)
         view.backgroundColor = R.Colors.systemBackground
-//        view.backgroundColor = R.Colors.systemGray5
         tabBarController?.view.isUserInteractionEnabled = false
         configureActivityView()
         setupCollectionView()
@@ -120,9 +108,6 @@ class NewHomeViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-//        let path = defaults.string(forKey: "gender") ?? "Woman"
-//        getDataFB(path: path)
-        
         managerFB.removeObserverForCartProductsUser()
         if !isFirstStart {
             managerFB.getCartProduct { cartProducts in
@@ -130,13 +115,6 @@ class NewHomeViewController: UIViewController {
             }
         }
         switchGender()
-        
-//        if isNotVisableViewController {
-//            let sorted = modelHomeViewControllerDict.sorted { $0.key < $1.key }
-//            let valuesArraySorted = Array(sorted.map({ $0.value }))
-//            modelHomeViewController = valuesArraySorted
-//            isNotVisableViewController = false
-//        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -146,16 +124,6 @@ class NewHomeViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-    
-        NotificationCenter.default.removeObserver(self)
-//        let path = defaults.string(forKey: "gender") ?? "Woman"
-//        managerFB.removeObserverPreviewMallsGender(path: path)
-//        managerFB.removeObserverPopularProductGender(path: path)
-//        managerFB.removeObserverPreviewBrandsGender(path: path)
-//        modelHomeViewControllerDict = [:]
-//        print("modelHomeViewControllerDict - \(modelHomeViewControllerDict)")
-//        showNavigationBar()
-//        managerFB.removeObserverForCartProductsUser()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -165,19 +133,6 @@ class NewHomeViewController: UIViewController {
 
     
     // MARK: - another methods
-    
-    @objc func showOfflineDeviceUI(notification: Notification) {
-        print("@objc func showOfflineDeviceUI(notification: Notification HomeVC")
-         networkConnected()
-     }
-    
-    private func networkConnected() {
-        if NetworkMonitor.shared.isConnected {
-            print("NetworkManager Connected")
-        } else {
-            print("NetworkManager Not connected")
-        }
-    }
     
     private func getDataFB(path: String) {
         
@@ -208,15 +163,6 @@ class NewHomeViewController: UIViewController {
             currentGender = gender
             getDataFB(path: currentGender)
         }
-    }
-    
-    private func configureActivityView() {
-        view.addSubview(activityView)
-        activityView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        activityView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        activityView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
-        activityView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
-        activityView.startAnimating()
     }
     
     func getPlacesMap() {
@@ -493,6 +439,80 @@ extension NewHomeViewController: HeaderMallsViewDelegate {
 
 
 
+
+
+
+
+
+//    private var activityView: ActivityContainerView = {
+//        let view = ActivityContainerView()
+//        view.layer.cornerRadius = 8
+//        view.translatesAutoresizingMaskIntoConstraints = false
+//        return view
+//    }()
+//        NotificationCenter.default.addObserver(self, selector: #selector(showOfflineDeviceUI(notification:)), name: NSNotification.Name.connectivityStatus, object: nil)
+//        networkConnected()
+
+//    @objc func showOfflineDeviceUI(notification: Notification) {
+//        print("@objc func showOfflineDeviceUI(notification: Notification HomeVC")
+//         networkConnected()
+//     }
+    
+//    private func networkConnected() {
+//        if NetworkMonitor.shared.isConnected {
+//            print("NetworkManager Connected")
+//        } else {
+//            DispatchQueue.main.async {
+//                self.activityView.isAnimating { [weak self] isAnimatig in
+//                    if isAnimatig {
+//                        self?.activityView.stopAnimating()
+//                        self?.activityView.removeFromSuperview()                }
+//                }
+//                self.setupAlertNotConnected()
+//                print("NetworkManager Not connected")
+//            }
+//        }
+//    }
+
+//    private func configureActivityView() {
+//        view.addSubview(activityView)
+//        activityView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+//        activityView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+//        activityView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
+//        activityView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
+//        activityView.startAnimating()
+//    }
+
+
+//    private func setupAlertNotConnected() {
+//
+//        let alert = UIAlertController(title: "You're offline!", message: "No internet connection", preferredStyle: .alert)
+//        let action = UIAlertAction(title: "Try again", style: .default) { action in
+//            // проверить умирает ли кложур при нажатии на трай(создадим объект с деинитом в кложуре)
+//            self.networkConnected()
+//
+//        }
+//        alert.addAction(action)
+//        present(alert, animated: true, completion: nil)
+//    }
+
+//        let path = defaults.string(forKey: "gender") ?? "Woman"
+//        getDataFB(path: path)
+//        let path = defaults.string(forKey: "gender") ?? "Woman"
+//        managerFB.removeObserverPreviewMallsGender(path: path)
+//        managerFB.removeObserverPopularProductGender(path: path)
+//        managerFB.removeObserverPreviewBrandsGender(path: path)
+//        modelHomeViewControllerDict = [:]
+//        print("modelHomeViewControllerDict - \(modelHomeViewControllerDict)")
+//        showNavigationBar()
+//        managerFB.removeObserverForCartProductsUser()
+
+//        if isNotVisableViewController {
+//            let sorted = modelHomeViewControllerDict.sorted { $0.key < $1.key }
+//            let valuesArraySorted = Array(sorted.map({ $0.value }))
+//            modelHomeViewController = valuesArraySorted
+//            isNotVisableViewController = false
+//        }
 
 //    var modelHomeViewController = [SectionHVC]() {
 //        didSet {

@@ -43,7 +43,7 @@ class NewProductViewController: UIViewController {
         control.currentPageIndicatorTintColor = R.Colors.label
         control.pageIndicatorTintColor = R.Colors.systemGray
 //        control.backgroundColor = .orange
-        control.addTarget(self, action: #selector(didTapPageControl(_:)), for: .valueChanged)
+        control.addTarget(NewProductViewController.self, action: #selector(didTapPageControl(_:)), for: .valueChanged)
         return control
     }()
     
@@ -95,7 +95,7 @@ class NewProductViewController: UIViewController {
         var grayButton = UIButton(configuration: configuration)
         
         grayButton.translatesAutoresizingMaskIntoConstraints = false
-        grayButton.addTarget(self, action: #selector(addToCardPressed(_:)), for: .touchUpInside)
+        grayButton.addTarget(NewProductViewController.self, action: #selector(addToCardPressed(_:)), for: .touchUpInside)
         
         return grayButton
     }()
@@ -116,7 +116,7 @@ class NewProductViewController: UIViewController {
         var grayButton = UIButton(configuration: configuration)
         grayButton.translatesAutoresizingMaskIntoConstraints = false
         
-        grayButton.addTarget(self, action: #selector(websiteButtonPressed(_:)), for: .touchUpInside)
+        grayButton.addTarget(NewProductViewController.self, action: #selector(websiteButtonPressed(_:)), for: .touchUpInside)
         
         return grayButton
     }()
