@@ -50,7 +50,8 @@ class CatalogViewController: ParentNetworkViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        managerFB.removeObserverForCartProductsUser()
+        // refactor getCartObservser
+//        managerFB.removeObserverForCartProductsUser()
         getPlacesHVC()
         switchGender()
     }

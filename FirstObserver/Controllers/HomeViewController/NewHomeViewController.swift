@@ -47,7 +47,7 @@ class NewHomeViewController: ParentNetworkViewController {
             getPlacesMap()
         }
     }
-    private var cartProducts:[PopularProduct] = []
+    private(set) var cartProducts:[PopularProduct] = []
     private var collectionViewLayout:UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<SectionHVC, ItemCell>?
 
@@ -69,19 +69,40 @@ class NewHomeViewController: ParentNetworkViewController {
             topItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         }
         
+        // refactor getCartObservser
+        //        managerFB.userListener { currentUser in
+        //            if currentUser == nil {
+        //                self.cartProducts = []
+        //                self.managerFB.signInAnonymously()
+        //            }
+        //
+        //            if self.isFirstStart {
+        //                self.isFirstStart = false
+        //                // альтернатива getCartProduct во всех классах
+        //                // у нас только сдесь getCartProduct и мы от сюда гет дата
+        //                // managerFB.removeObserverForCartProductsUser()
+        //                self.managerFB.getCartProduct { cartProducts in
+        //                    self.cartProducts = cartProducts
+        //                }
+        //            }
+        //        }
+        
         managerFB.userListener { currentUser in
+            print("NewHomeViewController  managerFB.userListener")
             if currentUser == nil {
+                print("NewHomeViewController  if currentUser == nil {")
                 self.cartProducts = []
                 self.managerFB.signInAnonymously()
             }
-            
-            if self.isFirstStart {
-                self.isFirstStart = false
-                self.managerFB.getCartProduct { cartProducts in
-                    self.cartProducts = cartProducts
-                }
+            // 2023-06-08 11:39:45.974493+0300 FirstObserver[5103:120152] 10.4.0 - [FirebaseDatabase][I-RDB038012] Listener at /usersAccaunt/VuZCZm61erWuQfp2EeC6imrCJPI2 failed: permission_denied
+            // мы хотим удалить прослушиватель но у нас нет прав на это так как в данный момент мы в другом аакаунт и он остается в памяти
+            self.managerFB.removeObserverForCartProductsUser()
+            self.managerFB.getCartProduct { cartProducts in
+                print("NewHomeViewController  getCartProduct")
+                self.cartProducts = cartProducts
             }
         }
+        
         // релоад дата после получения modelPlaces
         managerFB.getPlaces { modelPlaces in
             self.placesFB = modelPlaces
@@ -107,13 +128,13 @@ class NewHomeViewController: ParentNetworkViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        managerFB.removeObserverForCartProductsUser()
-        if !isFirstStart {
-            managerFB.getCartProduct { cartProducts in
-                self.cartProducts = cartProducts
-            }
-        }
+        // refactor getCartObservser
+        //        managerFB.removeObserverForCartProductsUser()
+        //        if !isFirstStart {
+        //            managerFB.getCartProduct { cartProducts in
+        //                self.cartProducts = cartProducts
+        //            }
+        //        }
         switchGender()
     }
     

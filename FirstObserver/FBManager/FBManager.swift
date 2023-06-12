@@ -84,6 +84,8 @@ final class FBManager {
     var refHandlePreviewMallsMVC: DatabaseHandle?
     var refHandlePreviewBrandsMVC: DatabaseHandle?
     
+    var removeObserverForUserID: String?
+    
     let defaults = UserDefaults.standard
 //    var databaseRef: DatabaseReference?
     //
@@ -352,27 +354,49 @@ final class FBManager {
     func signInAnonymously() {
         let databaseRef = Database.database().reference()
         Auth.auth().signInAnonymously { (authResult, error) in
+            print("func signInAnonymously()")
             guard let user = authResult?.user else {return}
             let uid = user.uid
             databaseRef.child("usersAccaunt/\(uid)").setValue(["uidAnonymous":user.uid])
         }
     }
     
+//    func removeObserverForCartProductsUser() {
+//        print("func removeObserverForCartProductsUser()")
+//        if let refHandle = refHandleCart, let currentUser = currentUser {
+////            print("func removeObserverForCartProductsUser()")
+//            print("func removeObserverForCartProductsUser()  if let refHandle = refHandleCart, let currentUser = currentUser ")
+//            Database.database().reference().child("usersAccaunt/\(currentUser.uid)").removeObserver(withHandle: refHandle)
+////            self.refHandle = nil
+//        }
+//    }
+    
     func removeObserverForCartProductsUser() {
-        if let refHandle = refHandleCart, let currentUser = currentUser {
-//            print("func removeObserverForCartProductsUser()")
-            Database.database().reference().child("usersAccaunt/\(currentUser.uid)").removeObserver(withHandle: refHandle)
+        print("func removeObserverForCartProductsUser()")
+        if let refHandle = refHandleCart {
+            print("func removeObserverForCartProductsUser()  if let refHandle = refHandleCart, let currentUser = currentUser ")
+            print("currentUser?.uid - \(String(describing: currentUser?.uid))")
+//            removeObserverForUserID = currentUser?.uid
+            if let removeObserverForUserID = removeObserverForUserID {
+                print("if let removeObserverForUserID = removeObserverForUserID {")
+                Database.database().reference().child("usersAccaunt/\(removeObserverForUserID)").removeObserver(withHandle: refHandle)
+                self.removeObserverForUserID = nil
+            }
+//            Database.database().reference().child("usersAccaunt/\(String(describing: currentUser?.uid))").removeObserver(withHandle: refHandle)
 //            self.refHandle = nil
         }
     }
 
     func getCartProduct(completionHandler: @escaping ([PopularProduct]) -> Void) {
-
+        print(" func getCartProduct FB")
         guard let currentUser = currentUser else {
+            print(" func getCartProduct FB guard let currentUser = currentUser else" )
             completionHandler([])
             return
         }
+        removeObserverForUserID = currentUser.uid
         refHandleCart = Database.database().reference().child("usersAccaunt/\(currentUser.uid)").observe(.value) { (snapshot) in
+            print(" func getCartProduct FB refHandleCart = Database.database().reference().child")
 //            print(".observe(.value) { (snapshot) - \(String(describing: self.currentUser?.uid))")
             var arrayProduct = [PopularProduct]()
             for item in snapshot.children {
@@ -842,6 +866,7 @@ final class FBManager {
         
         if currentUser.isAnonymous {
             let uidUser = currentUser.uid
+            print("currentUser.isAnonymous - Database.database().reference().child().child(uidUser).removeValue()")
             Database.database().reference().child("usersAccaunt").child(uidUser).removeValue()
         }
         
@@ -862,7 +887,7 @@ final class FBManager {
                 if currentUser.isAnonymous {
                     print("func signIn - currentUser.isAnonymous")
                     currentUser.delete { (error) in
-                        print("Error currentUser.delete")
+                        print("Error - \(String(describing: error))")
                     }
                 }
                 callBack(.success)

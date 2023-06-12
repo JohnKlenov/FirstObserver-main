@@ -65,7 +65,8 @@ class MallsViewController: ParentNetworkViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        managerFB.removeObserverForCartProductsUser()
+        // refactor getCartObservser
+//        managerFB.removeObserverForCartProductsUser()
         switchGender()
         getPlacesHVC()
     }

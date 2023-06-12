@@ -220,11 +220,15 @@ final class NewProfileViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print("NewProfileViewController viewWillAppear")
-        managerFB.removeObserverForCartProductsUser()
-        managerFB.getCartProduct { cartProducts in
+        // refactor getCartObservser
+//        managerFB.removeObserverForCartProductsUser()
+//        managerFB.getCartProduct { cartProducts in
+//            self.cartProducts = cartProducts
+//        }
+        
+        getCartProducts { cartProducts in
             self.cartProducts = cartProducts
         }
-        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -265,6 +269,18 @@ final class NewProfileViewController: UIViewController {
 
     private func failedUpdateName() {
         self.userNameTextField.text = self.currentUser?.displayName
+    }
+    
+    private func getCartProducts(completionHandler: @escaping ([PopularProduct]) -> Void) {
+        guard let tabBarVCs = tabBarController?.viewControllers else { return }
+        tabBarVCs.forEach { vc in
+            if let nc = vc as? UINavigationController {
+                if let homeVC = nc.topViewController as? NewHomeViewController {
+//                    self?.arrayPlaces = homeVC.placesMap
+                    completionHandler(homeVC.cartProducts)
+                }
+            }
+        }
     }
 
     

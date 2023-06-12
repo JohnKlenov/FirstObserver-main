@@ -23,8 +23,8 @@ final class CartViewController: ParentNetworkViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        configureActivityView()
+        // refactor getCartObservser
+        //        configureActivityView()
         navigationController?.navigationBar.prefersLargeTitles = true
         
         view.backgroundColor = R.Colors.systemBackground
@@ -34,33 +34,14 @@ final class CartViewController: ParentNetworkViewController {
         tableView.estimatedRowHeight = 10
         tableView.rowHeight = UITableView.automaticDimension
         tableView.backgroundColor = .clear
-    
+        
         tableView.delegate = self
         tableView.dataSource = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        configureActivityView()
-        managerFB.removeObserverForCartProductsUser()
-        getPlacesMap()
-        managerFB.getCartProduct { [weak self] cartProducts in
-            self?.cartProducts = cartProducts
-            self?.activityView.stopAnimating()
-            self?.activityView.removeFromSuperview()
-            self?.tableView.reloadData()
-            if cartProducts.count == 0 {
-                self?.createCartViewIsEmpty()
-                self?.tableView.setEmptyView(emptyView: self?.cartViewIsEmpty ?? UIView())
-            } else {
-                self?.tableView.backgroundView = nil
-                self?.cartViewIsEmpty = nil
-            }
-//                        self?.tableView.reloadData()
-        }
-        managerFB.userIsAnonymously { [weak self] (isAnonymously) in
-            self?.isAnonymouslyUser = isAnonymously
-        }
+        updateData()
     }
     
     private func createCartViewIsEmpty() {
@@ -69,15 +50,35 @@ final class CartViewController: ParentNetworkViewController {
         cartViewIsEmpty?.signInSignUpButton.isHidden = isAnonymouslyUser ? false : true
     }
     
-    private func getPlacesMap() {
+    private func updateData() {
+        managerFB.userIsAnonymously { [weak self] (isAnonymously) in
+            print("CartViewController  managerFB.userIsAnonymously - \(isAnonymously) ")
+            self?.isAnonymouslyUser = isAnonymously
+            self?.getDataFromHVC { products in
+                print("CartViewController  getCartProducts ")
+                self?.cartProducts = products
+                self?.tableView.reloadData()
+            }
+        }
+    }
+    
+    private func getDataFromHVC(completionHandler: @escaping ([PopularProduct]) -> Void) {
         guard let tabBarVCs = tabBarController?.viewControllers else { return }
         tabBarVCs.forEach { [weak self] (vc) in
             if let nc = vc as? UINavigationController {
                 if let homeVC = nc.topViewController as? NewHomeViewController {
                     self?.arrayPlaces = homeVC.placesMap
+                    completionHandler(homeVC.cartProducts)
                 }
             }
         }
+    }
+    
+    private func configureUI() {
+        // использовать одноразовый запрос на ФБ
+        // пересмотреть получение данных для карт продукт используя натификайшон 
+        print("CartViewController private func configureUI()")
+        updateData()
     }
 }
 
@@ -86,15 +87,16 @@ extension CartViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-//        if cartProducts.count == 0 {
+        if cartProducts.count == 0 {
 //            print("tableView numberOfRowsInSection")
-//            createCartViewIsEmpty()
-//            tableView.setEmptyView(emptyView: cartViewIsEmpty ?? UIView())
-//
-//        } else {
-//            tableView.backgroundView = nil
-//            cartViewIsEmpty = nil
-//        }
+            print("CartViewController if cartProducts.count == 0 ")
+            createCartViewIsEmpty()
+            tableView.setEmptyView(emptyView: cartViewIsEmpty ?? UIView())
+
+        } else {
+            tableView.backgroundView = nil
+            cartViewIsEmpty = nil
+        }
         return cartProducts.count
     }
     
@@ -160,10 +162,12 @@ extension CartViewController: CartViewControllerDelegate {
 }
 
 // think abaut whow implementation this methods
+// J,yjdbnm
 extension CartViewController: SignInViewControllerDelegate {
     func userIsPermanent() {
-        managerFB.removeObserverForCartProductsUser()
-//        configureUI()
+        // refactor getCartObservser
+//        managerFB.removeObserverForCartProductsUser()
+        configureUI()
     }
 }
 
@@ -188,6 +192,53 @@ extension UITableView {
 
 
 
+
+
+
+//        getPlacesMap()
+//        getCartProducts { products in
+//            print("CartViewController  getCartProducts ")
+//            self.cartProducts = products
+//            self.tableView.reloadData()
+//        }
+        
+        // refactor getCartObservser
+        //        managerFB.removeObserverForCartProductsUser()
+        //        managerFB.getCartProduct { [weak self] cartProducts in
+        //            self?.cartProducts = cartProducts
+        //            self?.activityView.stopAnimating()
+        //            self?.activityView.removeFromSuperview()
+        //            self?.tableView.reloadData()
+        //            if cartProducts.count == 0 {
+        //                self?.createCartViewIsEmpty()
+        //                self?.tableView.setEmptyView(emptyView: self?.cartViewIsEmpty ?? UIView())
+        //            } else {
+        //                self?.tableView.backgroundView = nil
+        //                self?.cartViewIsEmpty = nil
+        //            }
+        ////                        self?.tableView.reloadData()
+        //        }
+        
+//        managerFB.userIsAnonymously { [weak self] (isAnonymously) in
+//            print("CartViewController  managerFB.userIsAnonymously ")
+//            self?.isAnonymouslyUser = isAnonymously
+//            self?.getDataFromHVC { products in
+//                print("CartViewController  getCartProducts ")
+//                self?.cartProducts = products
+//                self?.tableView.reloadData()
+//            }
+//        }
+
+//    private func getPlacesMap() {
+//        guard let tabBarVCs = tabBarController?.viewControllers else { return }
+//        tabBarVCs.forEach { [weak self] (vc) in
+//            if let nc = vc as? UINavigationController {
+//                if let homeVC = nc.topViewController as? NewHomeViewController {
+//                    self?.arrayPlaces = homeVC.placesMap
+//                }
+//            }
+//        }
+//    }
 
 // MARK: - old implemenation -
 

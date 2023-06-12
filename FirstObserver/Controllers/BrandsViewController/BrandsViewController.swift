@@ -91,9 +91,14 @@ class BrandsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        managerFB.getCartProduct { [weak self] cartProducts in
-            self?.cartProducts = cartProducts
+        // refactor getCartObservser
+//        managerFB.getCartProduct { [weak self] cartProducts in
+//            self?.cartProducts = cartProducts
+//        }
+        getCartProducts { cartProducts in
+            self.cartProducts = cartProducts
         }
+        
         if let _ = pathRefBrandVC {
             managerFB.getBrand(searchBrand: computerPathBrandVC) { [weak self] garderob in
                 self?.productsForCategory = garderob
@@ -103,7 +108,8 @@ class BrandsViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        managerFB.removeObserverForCartProductsUser()
+        // refactor getCartObservser
+//        managerFB.removeObserverForCartProductsUser()
         if let _ = pathRefBrandVC {
             managerFB.removeObserverBrandProduct(searchBrand: computerPathBrandVC)
         }
@@ -140,6 +146,18 @@ class BrandsViewController: UIViewController {
                 selectedGroup = productsForCategory?.groups[indexPath.item]
                 groupsCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
                 groupsCollectionView.reloadData()
+            }
+        }
+    }
+    
+    private func getCartProducts(completionHandler: @escaping ([PopularProduct]) -> Void) {
+        guard let tabBarVCs = tabBarController?.viewControllers else { return }
+        tabBarVCs.forEach { [weak self] (vc) in
+            if let nc = vc as? UINavigationController {
+                if let homeVC = nc.topViewController as? NewHomeViewController {
+//                    self?.arrayPlaces = homeVC.placesMap
+                    completionHandler(homeVC.cartProducts)
+                }
             }
         }
     }
