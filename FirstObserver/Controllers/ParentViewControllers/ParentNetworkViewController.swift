@@ -8,6 +8,27 @@
 import Foundation
 import UIKit
 
+// Created
+
+// NewHomeViewController
+// CatalogViewController
+// MallsViewController
+// CartViewController
+
+// Not Created
+
+// NewProfileViewController
+// BrandsViewController
+// AllProductViewController
+// NewMallViewController
+// NewProductViewController
+// MapViewController
+// NewSignInViewController
+// NewSignUpViewController
+// FullScreenViewController
+
+
+
 class ParentNetworkViewController: UIViewController {
     
     var activityView: ActivityContainerView = {
