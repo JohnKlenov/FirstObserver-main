@@ -52,10 +52,8 @@ final class CartViewController: ParentNetworkViewController {
     
     private func updateData() {
         managerFB.userIsAnonymously { [weak self] (isAnonymously) in
-            print("CartViewController  managerFB.userIsAnonymously - \(isAnonymously) ")
             self?.isAnonymouslyUser = isAnonymously
             self?.getDataFromHVC { products in
-                print("CartViewController  getCartProducts ")
                 self?.cartProducts = products
                 self?.tableView.reloadData()
             }
@@ -73,13 +71,6 @@ final class CartViewController: ParentNetworkViewController {
             }
         }
     }
-    
-    private func configureUI() {
-        // использовать одноразовый запрос на ФБ
-        // пересмотреть получение данных для карт продукт используя натификайшон 
-        print("CartViewController private func configureUI()")
-        updateData()
-    }
 }
 
 // MARK: - UITableViewDelegate, UITableViewDataSource
@@ -88,8 +79,6 @@ extension CartViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if cartProducts.count == 0 {
-//            print("tableView numberOfRowsInSection")
-            print("CartViewController if cartProducts.count == 0 ")
             createCartViewIsEmpty()
             tableView.setEmptyView(emptyView: cartViewIsEmpty ?? UIView())
 
@@ -161,13 +150,20 @@ extension CartViewController: CartViewControllerDelegate {
     }
 }
 
-// think abaut whow implementation this methods
-// J,yjdbnm
 extension CartViewController: SignInViewControllerDelegate {
     func userIsPermanent() {
         // refactor getCartObservser
 //        managerFB.removeObserverForCartProductsUser()
-        configureUI()
+        configureActivityView()
+        managerFB.getCartProductOnce { cartProducts in
+            self.managerFB.userIsAnonymously { [weak self] (isAnonymously) in
+                self?.isAnonymouslyUser = isAnonymously
+                self?.cartProducts = cartProducts
+                self?.activityView.stopAnimating()
+                self?.activityView.removeFromSuperview()
+                self?.tableView.reloadData()
+            }
+        }
     }
 }
 

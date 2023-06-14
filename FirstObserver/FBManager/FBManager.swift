@@ -450,6 +450,76 @@ final class FBManager {
             }
         }
     }
+    
+    func getCartProductOnce(completionHandler: @escaping ([PopularProduct]) -> Void) {
+        guard let currentUser = currentUser else {
+            completionHandler([])
+            return
+        }
+        Database.database().reference().child("usersAccaunt/\(currentUser.uid)").getData(completion:  { error, snapshot in
+          guard error == nil else {
+            print(error!.localizedDescription)
+            return;
+          }
+            print("func getCartProductOnce")
+            var arrayProduct = [PopularProduct]()
+            if let snapshot = snapshot {
+                print("func getCartProductOnce  if let snapshot = snapshot {")
+                for item in snapshot.children {
+                    let item = item as! DataSnapshot
+                    switch item.key {
+                        
+                    case "AddedProducts":
+                        
+                        for item in item.children {
+                            let product = item as! DataSnapshot
+
+                            var arrayMalls = [String]()
+                            var arrayRefe = [String]()
+
+
+                            for mass in product.children {
+                                let item = mass as! DataSnapshot
+
+                                switch item.key {
+                                case "malls":
+                                    for it in item.children {
+                                        let item = it as! DataSnapshot
+                                        if let refDictionary = item.value as? String {
+                                            arrayMalls.append(refDictionary)
+                                        }
+                                    }
+
+                                case "refImage":
+                                    for it in item.children {
+                                        let item = it as! DataSnapshot
+                                        if let refDictionary = item.value as? String {
+                                            arrayRefe.append(refDictionary)
+                                        }
+                                    }
+                                default:
+                                    break
+                                }
+
+                            }
+                            let productModel = PopularProduct(snapshot: product, refArray: arrayRefe, malls: arrayMalls)
+                            arrayProduct.append(productModel)
+                        }
+                        completionHandler(arrayProduct)
+                    default:
+                        break
+                    
+                    }
+                }
+                if arrayProduct == [] {
+                    completionHandler(arrayProduct)
+                }
+            } else {
+                completionHandler(arrayProduct)
+                print("Not snapshot getCartProductOnce")
+            }
+        })
+    }
 
     
 //    genderHVC

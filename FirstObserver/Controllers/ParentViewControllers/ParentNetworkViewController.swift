@@ -18,6 +18,7 @@ class ParentNetworkViewController: UIViewController {
     }()
     
     override func viewWillAppear(_ animated: Bool) {
+        print("ParentNetworkViewController  override func viewWillAppear")
         NotificationCenter.default.addObserver(self, selector: #selector(showOfflineDeviceUI(notification:)), name: NSNotification.Name.connectivityStatus, object: nil)
         networkConnected()
     }
@@ -25,6 +26,7 @@ class ParentNetworkViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         NotificationCenter.default.removeObserver(self)
+        print("ParentNetworkViewController override func viewWillDisappear")
     }
     
     @objc func showOfflineDeviceUI(notification: Notification) {
