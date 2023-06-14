@@ -354,7 +354,6 @@ final class FBManager {
     func signInAnonymously() {
         let databaseRef = Database.database().reference()
         Auth.auth().signInAnonymously { (authResult, error) in
-            print("func signInAnonymously()")
             guard let user = authResult?.user else {return}
             let uid = user.uid
             databaseRef.child("usersAccaunt/\(uid)").setValue(["uidAnonymous":user.uid])
@@ -461,10 +460,8 @@ final class FBManager {
             print(error!.localizedDescription)
             return;
           }
-            print("func getCartProductOnce")
             var arrayProduct = [PopularProduct]()
             if let snapshot = snapshot {
-                print("func getCartProductOnce  if let snapshot = snapshot {")
                 for item in snapshot.children {
                     let item = item as! DataSnapshot
                     switch item.key {
@@ -516,7 +513,6 @@ final class FBManager {
                 }
             } else {
                 completionHandler(arrayProduct)
-                print("Not snapshot getCartProductOnce")
             }
         })
     }

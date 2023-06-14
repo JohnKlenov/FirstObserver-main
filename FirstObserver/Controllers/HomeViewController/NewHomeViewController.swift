@@ -94,8 +94,6 @@ class NewHomeViewController: ParentNetworkViewController {
                 self.cartProducts = []
                 self.managerFB.signInAnonymously()
             }
-            // 2023-06-08 11:39:45.974493+0300 FirstObserver[5103:120152] 10.4.0 - [FirebaseDatabase][I-RDB038012] Listener at /usersAccaunt/VuZCZm61erWuQfp2EeC6imrCJPI2 failed: permission_denied
-            // мы хотим удалить прослушиватель но у нас нет прав на это так как в данный момент мы в другом аакаунт и он остается в памяти
             self.managerFB.removeObserverForCartProductsUser()
             self.managerFB.getCartProduct { cartProducts in
                 print("NewHomeViewController  getCartProduct")
@@ -415,7 +413,7 @@ extension NewHomeViewController: UICollectionViewDelegate {
 //            let fullPath = "Brands" + currentGender + "/" + refBrand
             brandVC.pathRefBrandVC = refBrand
             brandVC.title = refBrand
-            brandVC.arrayPin = placesMap
+//            brandVC.arrayPin = placesMap
             self.navigationController?.pushViewController(brandVC, animated: true)
         case 2:
 //            let storyboard = UIStoryboard(name: "Main", bundle: nil)

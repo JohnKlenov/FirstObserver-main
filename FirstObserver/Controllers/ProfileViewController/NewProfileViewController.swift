@@ -275,7 +275,7 @@ final class NewProfileViewController: UIViewController {
         guard let tabBarVCs = tabBarController?.viewControllers else { return }
         tabBarVCs.forEach { vc in
             if let nc = vc as? UINavigationController {
-                if let homeVC = nc.topViewController as? NewHomeViewController {
+                if let homeVC = nc.viewControllers.first as? NewHomeViewController {
 //                    self?.arrayPlaces = homeVC.placesMap
                     completionHandler(homeVC.cartProducts)
                 }

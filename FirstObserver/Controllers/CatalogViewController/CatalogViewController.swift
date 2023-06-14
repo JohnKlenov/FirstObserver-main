@@ -73,7 +73,7 @@ class CatalogViewController: ParentNetworkViewController {
         guard let tabBarVCs = tabBarController?.viewControllers else {return}
         for vc in tabBarVCs {
             if let nc = vc as? UINavigationController {
-                if let homeVC = nc.topViewController as? NewHomeViewController {
+                if let homeVC = nc.viewControllers.first as? NewHomeViewController {
                     self.arrayPins = homeVC.placesMap
                 }
             }

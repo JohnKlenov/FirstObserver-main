@@ -241,7 +241,6 @@ class NewProductViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("viewWillAppear ProductVC")
         // refactor getCartObservser
 //        managerFB.removeObserverForCartProductsUser()
         tabBarController?.tabBar.isHidden = true
@@ -249,13 +248,11 @@ class NewProductViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        print("viewWillDisappear ProductVC")
         tabBarController?.tabBar.isHidden = false
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        print("viewDidDisappear ProductVC")
     }
     
     override func viewDidLayoutSubviews() {
@@ -283,8 +280,6 @@ class NewProductViewController: UIViewController {
             }
         }
         if countFalse == mapView.annotations.count, isMapSelected == false {
-            print("Переходим на VC")
-            
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let fullScreenMap = storyboard.instantiateViewController(withIdentifier: "MapViewController") as! MapViewController
             fullScreenMap.modalPresentationStyle = .fullScreen
