@@ -7,7 +7,7 @@
 
 import UIKit
 
-class BrandsViewController: UIViewController {
+class BrandsViewController: ParentNetworkViewController {
     
 
     var heightCollectionView:CGFloat!
@@ -54,6 +54,8 @@ class BrandsViewController: UIViewController {
 //            } else {
 ////                self.title = R.Strings.OtherControllers.BrandProducts.title
 //            }
+            activityView.stopAnimating()
+            activityView.removeFromSuperview()
             groupsCollectionView.reloadData()
             collectionView.reloadData()
         }
@@ -64,8 +66,11 @@ class BrandsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         navigationItem.largeTitleDisplayMode = .never
         view.backgroundColor = R.Colors.systemBackground
+        configureActivityView()
+        
         let nibGroup = UINib(nibName: "GroupCell", bundle: nil)
         groupsCollectionView.register(nibGroup, forCellWithReuseIdentifier: "GroupCell")
         groupsCollectionView.delegate = self

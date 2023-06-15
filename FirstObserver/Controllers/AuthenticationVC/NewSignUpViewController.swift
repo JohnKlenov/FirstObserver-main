@@ -15,7 +15,7 @@ import UIKit
 }
 
 
-final class NewSignUpViewController: UIViewController {
+final class NewSignUpViewController: ParentNetworkViewController {
     
     let nameLabel: UILabel = {
         let label = UILabel()

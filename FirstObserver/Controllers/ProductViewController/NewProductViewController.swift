@@ -10,7 +10,7 @@ import MapKit
 import UIKit
 import SPAlert
 
-class NewProductViewController: UIViewController {
+class NewProductViewController: ParentNetworkViewController {
     
     
     private let scrollView: UIScrollView = {

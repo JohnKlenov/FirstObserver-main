@@ -8,7 +8,7 @@
 import UIKit
 import MapKit
 
-class MapViewController: UIViewController {
+class MapViewController: ParentNetworkViewController {
 
     @IBOutlet weak var mapView: MKMapView!
     

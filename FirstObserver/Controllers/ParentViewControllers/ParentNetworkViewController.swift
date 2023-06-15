@@ -14,17 +14,17 @@ import UIKit
 // CatalogViewController
 // MallsViewController
 // CartViewController
+// NewProfileViewController
+// NewMallViewController
+// BrandsViewController
+// AllProductViewController
+// NewProductViewController
+// NewSignInViewController
+// NewSignUpViewController
+// MapViewController
 
 // Not Created
 
-// NewProfileViewController
-// BrandsViewController
-// AllProductViewController
-// NewMallViewController
-// NewProductViewController
-// MapViewController
-// NewSignInViewController
-// NewSignUpViewController
 // FullScreenViewController
 
 
@@ -37,6 +37,7 @@ class ParentNetworkViewController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
+    var alert: UIAlertController?
     
     override func viewWillAppear(_ animated: Bool) {
         NotificationCenter.default.addObserver(self, selector: #selector(showOfflineDeviceUI(notification:)), name: NSNotification.Name.connectivityStatus, object: nil)
@@ -54,7 +55,10 @@ class ParentNetworkViewController: UIViewController {
     
     func networkConnected() {
         if NetworkMonitor.shared.isConnected {
-            print("NetworkManager Connected")
+            DispatchQueue.main.async {
+                self.alert?.dismiss(animated: true)
+                self.alert = nil
+            }
         } else {
             DispatchQueue.main.async {
                 self.activityView.isAnimating { [weak self] isAnimatig in
@@ -63,7 +67,6 @@ class ParentNetworkViewController: UIViewController {
                         self?.activityView.removeFromSuperview()                }
                 }
                 self.setupAlertNotConnected()
-                print("NetworkManager Not connected")
             }
         }
     }
@@ -79,11 +82,17 @@ class ParentNetworkViewController: UIViewController {
     
     func setupAlertNotConnected() {
         
-        let alert = UIAlertController(title: "You're offline!", message: "No internet connection", preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "Try again", style: .default) { action in
-            self.networkConnected()
+        alert = UIAlertController(title: "You're offline!", message: "No internet connection", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Try again", style: .default) { [weak self] action in
+            self?.networkConnected()
         }
-        alert.addAction(okAction)
-        present(alert, animated: true, completion: nil)
+        alert?.addAction(okAction)
+        if let alert = alert {
+            present(alert, animated: true, completion: nil)
+        }
+    }
+    
+    deinit {
+        print("deinit ParentNetworkViewController")
     }
 }

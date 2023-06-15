@@ -9,7 +9,7 @@ import UIKit
 import MapKit
 import SafariServices
 
-class NewMallViewController: UIViewController {
+class NewMallViewController: ParentNetworkViewController {
 
     var heightCnstrCollectionView: NSLayoutConstraint!
     
@@ -129,7 +129,8 @@ class NewMallViewController: UIViewController {
 //            setupConstraints()
 //            createDataSource()
 //            collectionViewLayout.delegate = self
-            
+            activityView.stopAnimating()
+            activityView.removeFromSuperview()
             reloadData()
         }
     }
@@ -140,6 +141,7 @@ class NewMallViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.largeTitleDisplayMode = .never
+        configureActivityView()
         managerFB.getMallModel(refPath: refPath) { mallModel in
                 self.configureViews(mallModel: mallModel)
         }
@@ -195,7 +197,6 @@ class NewMallViewController: UIViewController {
             }
         }
         if countFalse == mapView.annotations.count, isMapSelected == false {
-            print("Переходим на VC")
         
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let fullScreenMap = storyboard.instantiateViewController(withIdentifier: "MapViewController") as! MapViewController
@@ -237,7 +238,6 @@ class NewMallViewController: UIViewController {
         
         if brandSection.items.count == mallModel.brands.count && mallSection.items.count == mallModel.refImage.count {
             section = [mallSection, brandSection]
-            print("if brandSection.items.count == mallModel.brands.count && mallSection.items.count == mallModel.refImage.count")
         }
     }
     
@@ -414,7 +414,6 @@ class NewMallViewController: UIViewController {
         section.visibleItemsInvalidationHandler = { [weak self] (visibleItems, offset, env) -> Void in
             guard let self = self else {return}
             let currentPage = visibleItems.last?.indexPath.row ?? 0
-            print("currentPage - \(currentPage)")
             self.delegate?.currentPage(index: currentPage)
         }
         
@@ -462,7 +461,6 @@ extension NewMallViewController: UICollectionViewDelegate {
             brandVC.title = refPath
             brandVC.arrayPin = arrayPin
             self.navigationController?.pushViewController(brandVC, animated: true)
-            print("DidTap Brand Section")
         default:
             print("DidTap Default Section")
         }

@@ -8,7 +8,7 @@
 import UIKit
 import Firebase
 
-final class NewProfileViewController: UIViewController {
+final class NewProfileViewController: ParentNetworkViewController {
     
     private let topView: UIView = {
         let view = UIView()
@@ -219,7 +219,6 @@ final class NewProfileViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("NewProfileViewController viewWillAppear")
         // refactor getCartObservser
 //        managerFB.removeObserverForCartProductsUser()
 //        managerFB.getCartProduct { cartProducts in
@@ -233,13 +232,11 @@ final class NewProfileViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        print("NewProfileViewController viewWillDisappear")
 //        managerFB.removeObserverForCartProductsUser()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        print("NewProfileViewController viewDidDisappear")
     }
     
     
@@ -387,18 +384,6 @@ final class NewProfileViewController: UIViewController {
         comletion(isValid)
     }
     
-    
-//    private func getFetchDataHVC() {
-//
-//        guard let tabBarVCs = tabBarController?.viewControllers else { return }
-//        tabBarVCs.forEach { (vc) in
-//            if let nc = vc as? UINavigationController {
-//                if let homeVC = nc.topViewController as? NewHomeViewController {
-//                    self.cardProducts = homeVC.cartProducts
-//                }
-//            }
-//        }
-//    }
     
     // MARK: - FB methods
 

@@ -14,7 +14,7 @@ protocol SignInViewControllerDelegate : AnyObject {
 }
 
 // class final - это ускоряет диспетчеризация от него никто не будет в дальнейшем наследоваться.
-final class NewSignInViewController: UIViewController {
+final class NewSignInViewController: ParentNetworkViewController {
     
     let emailTextField: AuthTextField = {
         let textField = AuthTextField(placeholder: R.Strings.AuthControllers.SignIn.placeholderEmailTextField)

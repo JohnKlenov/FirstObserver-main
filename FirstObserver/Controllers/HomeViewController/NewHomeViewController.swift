@@ -385,8 +385,6 @@ extension NewHomeViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         
         if  indexPath.section == 0 {
-            print("scroll malls sections \(indexPath.row)")
-            
         }
     }
     
