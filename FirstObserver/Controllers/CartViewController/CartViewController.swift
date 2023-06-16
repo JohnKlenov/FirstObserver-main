@@ -31,7 +31,8 @@ final class CartViewController: ParentNetworkViewController {
         title = R.Strings.TabBarController.Cart.title
         
         tableView.register(CartCell.self, forCellReuseIdentifier: CartCell.reuseID)
-        tableView.estimatedRowHeight = 10
+//        tableView.estimatedRowHeight = 10
+        tableView.estimatedRowHeight = UITableView.automaticDimension
         tableView.rowHeight = UITableView.automaticDimension
         tableView.backgroundColor = .clear
         
@@ -42,6 +43,13 @@ final class CartViewController: ParentNetworkViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateData()
+        resetBadgeValue()
+    }
+    
+    private func resetBadgeValue() {
+        if let items = self.tabBarController?.tabBar.items {
+            items[3].badgeValue = nil
+        }
     }
     
     private func createCartViewIsEmpty() {
@@ -184,6 +192,42 @@ extension UITableView {
         separatorStyle = .none
     }
 }
+
+//extension UIView {
+//
+//    override func layoutSubviews() {
+//        super.layoutSubviews()
+//
+//        for subview in self.subviews {
+//            subview.layoutSubviews()
+//        }
+//
+//        // Add breakpoint here ↓
+//        if hasAmbiguousLayout {
+//            UIView.alertForUnsatisfiableConstraints(in: self.superview)
+//        }
+//    }
+//}
+//
+//extension UIView {
+//    static func alertForUnsatisfiableConstraints(in view: UIView?) {
+//        DispatchQueue.main.async {
+//            guard let view = view else {
+//                return
+//            }
+//            view.backgroundColor = .red
+//
+//            let alertController = UIAlertController(title: "Unsatisfiable Constraints!", message: "Warning! \(view) has unsatisfiable constraints", preferredStyle: .alert)
+//            alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+//
+//            if let rootViewController = view.window?.rootViewController {
+//                rootViewController.present(alertController, animated: true, completion: nil)
+//            }
+//        }
+//    }
+//}
+
+
 
 
 

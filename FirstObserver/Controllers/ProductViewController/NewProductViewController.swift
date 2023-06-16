@@ -236,7 +236,6 @@ class NewProductViewController: ParentNetworkViewController {
         setupSubviews()
         setupConstraints()
         configureViews()
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -328,6 +327,7 @@ class NewProductViewController: ParentNetworkViewController {
             let data = try encoder.encode(productEncode)
             let json = try JSONSerialization.jsonObject(with: data)
             managerFB.addProductInBaseData(nameProduct: product.model, json: json)
+            configureBadgeValue()
         } catch {
             print("an error occured", error)
         }
@@ -454,6 +454,18 @@ class NewProductViewController: ParentNetworkViewController {
         } else {
             print("scrolling another view")
 
+        }
+    }
+    
+    private func configureBadgeValue() {
+        
+        if let items = self.tabBarController?.tabBar.items {
+            if let badgeValue = items[3].badgeValue {
+                let currentCount = (Int(badgeValue) ?? 0) + 1
+                items[3].badgeValue = "\(currentCount)"
+            } else {
+                items[3].badgeValue = "1"
+            }
         }
     }
     

@@ -31,7 +31,7 @@ import UIKit
 
 class ParentNetworkViewController: UIViewController {
     
-    var activityView: ActivityContainerView = {
+    lazy var activityView: ActivityContainerView = {
         let view = ActivityContainerView()
         view.layer.cornerRadius = 8
         view.translatesAutoresizingMaskIntoConstraints = false

@@ -61,6 +61,7 @@ class MallsViewController: ParentNetworkViewController {
         currentGender = gender
         getDataFB(path: gender)
         configureActivityView()
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -78,6 +79,7 @@ class MallsViewController: ParentNetworkViewController {
     
     
     // MARK: - another methods
+    
     
     private func getPlacesHVC() {
         
