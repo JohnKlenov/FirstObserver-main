@@ -18,7 +18,7 @@ class BrandCellMallVC: UICollectionViewCell {
     let imageView: UIImageView = {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
-        image.contentMode = .scaleAspectFill
+        image.contentMode = .scaleAspectFit
         image.layer.cornerRadius = 10
         image.clipsToBounds = true
         return image
