@@ -8,9 +8,6 @@
 import UIKit
 import FirebaseStorage
 import FirebaseStorageUI
-import SDWebImage
-
-
 
 class ImageCell: UICollectionViewCell {
     
@@ -21,9 +18,7 @@ class ImageCell: UICollectionViewCell {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
         image.contentMode = .scaleAspectFit
-        image.layer.cornerRadius = 4
-        image.clipsToBounds = true
-        image.image?.withRenderingMode(.alwaysTemplate)
+        image.tintColor = R.Colors.label
         return image
     }()
     
@@ -31,44 +26,36 @@ class ImageCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .clear
-        //        addSubview(labelName)
+        backgroundColor = R.Colors.secondarySystemBackground
         addSubview(imageView)
         setupConstraints()
         storage = Storage.storage()
+        layer.cornerRadius = 10
+        clipsToBounds = true
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        //        imageView.sd_cancelCurrentImageLoad()
+        imageView.sd_cancelCurrentImageLoad()
         //        imageView.image = nil
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        //        labelName.layer.cornerRadius = labelName.frame.size.width/2
+        
     }
     
     func setupConstraints() {
         // only image
-        NSLayoutConstraint.activate([imageView.topAnchor.constraint(equalTo: topAnchor), imageView.trailingAnchor.constraint(equalTo: trailingAnchor), imageView.leadingAnchor.constraint(equalTo: leadingAnchor), imageView.bottomAnchor.constraint(equalTo: bottomAnchor)])
+        NSLayoutConstraint.activate([imageView.topAnchor.constraint(equalTo: topAnchor, constant: 4), imageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4), imageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4), imageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4)])
     }
     
     func configureCell(model: ItemCell) {
         
-        //                if let firstRef = model.brands?.refImage {
-        //                    let urlRef = storage.reference(forURL: firstRef)
-        //
-        //                    self.imageView.sd_setImage(with: urlRef, placeholderImage: UIImage(named: "DefaultImage"))
-        //                } else {
-        //                    imageView.image = UIImage(named: "DefaultImage")
-        //                }
-        //        labelName.text = model.brands?.brand
-        
         if let urlString = model.brands?.refImage {
             let urlRef = storage.reference(forURL: urlString)
             let placeholderImage = UIImage(named: "DefaultImage")
-//            imageView.sd_imageTransition = .fade
+            
             imageView.sd_setImage(with: urlRef, placeholderImage: placeholderImage) { (image, error, cacheType, url) in
                 guard let image = image else {
                     // Обработка ошибок
@@ -77,11 +64,8 @@ class ImageCell: UICollectionViewCell {
                 
                 // Настройка цвета изображения в зависимости от текущей темы
                 if #available(iOS 13.0, *) {
-//                    let tintColor = UIColor { (traitCollection: UITraitCollection) -> UIColor in
-//                        return traitCollection.userInterfaceStyle == .dark ? R.Colors.label : R.Colors.label
-//                    }
-                    image.withRenderingMode(.alwaysTemplate)
-                    self.imageView.image = image.sd_tintedImage(with: R.Colors.systemBackground)
+                    let tintableImage = image.withRenderingMode(.alwaysTemplate)
+                    self.imageView.image = tintableImage
                 } else {
                     self.imageView.image = image
                 }
@@ -93,13 +77,47 @@ class ImageCell: UICollectionViewCell {
         }
     }
     
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-
 }
+
+
+
+
+
+//let options = SDWebImageOptions()
+//options.placeholderImage = placeholderImage
+//options.completedBlock = { (image, error, cacheType, url) in
+//    guard let image = image else {
+//        // Обработка ошибок
+//        return
+//    }
+//
+//    // Настройка цвета изображения в зависимости от текущей темы
+//    if #available(iOS 13, *) {
+//        // Создание изображения с цветом UIColor.label
+//        let labelColorImage = image.withTintColor(.label)
+//        self.imageView.image = labelColorImage
+//    } else {
+//        // В iOS до версии 13 просто отображаем исходное изображение
+//        self.imageView.image = image
+//    }
+//}
+//
+//imageView.sd_setImage(with: urlRef, placeholderImage: placeholderImage, options: options)
+
+
+
+// png in original no active color
+//                if let firstRef = model.brands?.refImage {
+//                    let urlRef = storage.reference(forURL: firstRef)
+//
+//                    self.imageView.sd_setImage(with: urlRef, placeholderImage: UIImage(named: "DefaultImage"))
+//                } else {
+//                    imageView.image = UIImage(named: "DefaultImage")
+//                }
+//        labelName.text = model.brands?.brand
 
 //class MyViewController: UIViewController {
 //
