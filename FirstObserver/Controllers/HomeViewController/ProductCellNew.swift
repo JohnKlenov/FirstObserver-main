@@ -67,10 +67,19 @@ class ProductCellNew: UICollectionViewCell {
         return label
     }()
     
-    let stackView: UIStackView = {
+    let stackViewVertical: UIStackView = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
+        stack.distribution = .fill
+        stack.spacing = 0
+        return stack
+    }()
+    
+    let stackViewHorizont: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
         stack.distribution = .fill
         stack.spacing = 0
         return stack
@@ -82,11 +91,14 @@ class ProductCellNew: UICollectionViewCell {
         super.init(frame: frame)
         configureStackView()
         contentView.addSubview(imageView)
-        contentView.addSubview(stackView)
-        contentView.addSubview(priceLabel)
+        contentView.addSubview(stackViewVertical)
+//        contentView.addSubview(priceLabel)
         setupConstraints()
         storage = Storage.storage()
-        contentView.backgroundColor = .clear
+//        contentView.backgroundColor = .clear
+        contentView.backgroundColor = R.Colors.secondarySystemBackground
+        contentView.layer.cornerRadius = 5
+        contentView.clipsToBounds = true
     }
     
     
@@ -107,10 +119,14 @@ class ProductCellNew: UICollectionViewCell {
     }
     
     private func configureStackView() {
-//        let arrayViews = [brandLabel, modelLabel, mallLabel, priceLabel]
-        let arrayViews = [brandLabel, modelLabel, mallLabel]
-        arrayViews.forEach { view in
-            stackView.addArrangedSubview(view)
+//        let arrayViews = [brandLabel, modelLabel, mallLabel]
+        let arrayViewsHorizontal = [mallLabel, priceLabel]
+        arrayViewsHorizontal.forEach { view in
+            stackViewHorizont.addArrangedSubview(view)
+        }
+        let arrayViewsVertical = [brandLabel, modelLabel, stackViewHorizont]
+        arrayViewsVertical.forEach { view in
+            stackViewVertical.addArrangedSubview(view)
             
         }
     }
@@ -119,40 +135,44 @@ class ProductCellNew: UICollectionViewCell {
         
 //        print("setupConstraints() ")
         
-        let topImageViewCnstr = imageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0)
+        let topImageViewCnstr = imageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8)
         topImageViewCnstr.priority = UILayoutPriority(999)
         topImageViewCnstr.isActive = true
         
-        let trailingImageViewCnstr = imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 0)
+        let trailingImageViewCnstr = imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8)
         trailingImageViewCnstr.isActive = true
         
-        let leadingImageViewCnstr = imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0)
+        let leadingImageViewCnstr = imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8)
         leadingImageViewCnstr.isActive = true
         
         let heightImageViewCnstr = imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor, multiplier: 1)
         heightImageViewCnstr.isActive = true
         
-        let topStackCnstr = stackView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 10)
+        let topStackCnstr = stackViewVertical.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 10)
         topStackCnstr.isActive = true
 
-        let trailingStackCnstr = stackView.trailingAnchor.constraint(equalTo: imageView.trailingAnchor)
+        let trailingStackCnstr = stackViewVertical.trailingAnchor.constraint(equalTo: imageView.trailingAnchor)
         trailingStackCnstr.isActive = true
 
-        let leadingStackCnstr = stackView.leadingAnchor.constraint(equalTo: imageView.leadingAnchor)
+        let leadingStackCnstr = stackViewVertical.leadingAnchor.constraint(equalTo: imageView.leadingAnchor)
         leadingStackCnstr.isActive = true
         
-        topPriceLabelkCnstr = priceLabel.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 5)
-        topPriceLabelkCnstr.isActive = true
-        
-        let trailingLabalCnstr = priceLabel.trailingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 0)
-        trailingLabalCnstr.isActive = true
-
-        let leadingLabelCnstr = priceLabel.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 0)
-        leadingLabelCnstr.isActive = true
-
-        let bottomLabelCnstr = priceLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0)
+        let bottomLabelCnstr = stackViewVertical.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
         bottomLabelCnstr.priority = UILayoutPriority(999)
         bottomLabelCnstr.isActive = true
+        
+//        topPriceLabelkCnstr = priceLabel.topAnchor.constraint(equalTo: stackViewVertical.bottomAnchor, constant: 5)
+//        topPriceLabelkCnstr.isActive = true
+//
+//        let trailingLabalCnstr = priceLabel.trailingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 0)
+//        trailingLabalCnstr.isActive = true
+//
+//        let leadingLabelCnstr = priceLabel.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 0)
+//        leadingLabelCnstr.isActive = true
+//
+//        let bottomLabelCnstr = priceLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0)
+//        bottomLabelCnstr.priority = UILayoutPriority(999)
+//        bottomLabelCnstr.isActive = true
 
     }
 
