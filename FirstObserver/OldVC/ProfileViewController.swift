@@ -138,7 +138,7 @@ import Firebase
                 // if currentUser = nil ???
                 let name = userNameTextField.text != currentUser?.displayName ? userNameTextField.text : nil
 
-                managerFB.updateProfileInfo(withImage: image, name: name) { (state) in
+                managerFB.updateProfileInfo(withImage: image, name: name) { (state, error) in
 
                     switch state {
 
@@ -271,6 +271,10 @@ import Firebase
                         case .failedRequiresRecentLogin:
                             self.deleteAccountButton.configuration?.showsActivityIndicator = false
                             self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+                        case .userNotFound:
+                            print("")
+                        case .networkError:
+                            print("")
                         }
                     }
 
@@ -624,6 +628,10 @@ private extension ProfileViewController {
                         case .failedRequiresRecentLogin:
                             self.deleteAccountButton.configuration?.showsActivityIndicator = false
                             self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+                        case .userNotFound:
+                            print("")
+                        case .networkError:
+                            print("")
                         }
                     }
                 case .failed:

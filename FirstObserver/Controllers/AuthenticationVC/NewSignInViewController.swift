@@ -242,6 +242,7 @@ final class NewSignInViewController: ParentNetworkViewController {
 //        }
         guard let email = emailTextField.text, let password = passwordTextField.text else { return }
         
+        //  signingIn - flag changed configuration button
         signingIn = true
         managerFB.signIn(email: email, password: password) { [weak self] (response) in
             
@@ -348,7 +349,7 @@ final class NewSignInViewController: ParentNetworkViewController {
     }
     
     deinit {
-        print("Deinit")
+        print("Deinit NewSignInViewController")
         if isInvalidSignIn {
             saveCartProductFBNew()
         }
@@ -512,6 +513,7 @@ extension NewSignInViewController: NewSignUpViewControllerDelegate {
     }
     
     func userDidRegisteredNew() {
+        // это свойство не nil только из ProfileVC
         delegate?.userIsPermanent()
     }
 }

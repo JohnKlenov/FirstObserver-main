@@ -21,7 +21,7 @@ class AlertTopView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
+        print("init AlertTopView")
         self.addSubview(labelWarning)
         setConstraintLabel()
     }
@@ -43,5 +43,8 @@ class AlertTopView: UIView {
         labelWarning.text = labelText
     }
     
+    deinit {
+        print("deinit AlertTopView")
+    }
     
 }

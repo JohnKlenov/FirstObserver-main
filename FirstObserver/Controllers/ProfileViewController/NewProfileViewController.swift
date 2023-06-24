@@ -7,6 +7,8 @@
 
 import UIKit
 import Firebase
+//import FirebaseAuth
+import FirebaseStorage
 
 final class NewProfileViewController: ParentNetworkViewController {
     
@@ -393,7 +395,6 @@ final class NewProfileViewController: ParentNetworkViewController {
         // i think here error - !currentUser.isAnonymous and setValue(["permanentUser":uid])
         if let currentUser = currentUser, !currentUser.isAnonymous {
 //                let uid = currentUser.uid
-
 //                let refFBR = Database.database().reference()
 //                refFBR.child("usersAccaunt/\(uid)").setValue(["uidAnonymous":uid])
             managerFB.addUidFromCurrentUserAccount()
@@ -538,15 +539,20 @@ private extension NewProfileViewController {
                         self.managerFB.removeAvatarFromDeletedUser()
                         self.setupAlert(title: "Success", message: "Current accaunt delete!")
                     case .failed:
-                        // сохранить данные обратно в корзину?
-                        self.saveRemuveCartProductFB()
-
+                        // сохранить данные обратно в корзину зачем тут если мы все равно это делаем в setupFailedAlertDeleteAccount?
+//                        self.saveRemuveCartProductFB()
                         self.deleteAccountButton.configuration?.showsActivityIndicator = false
                         self.isAnimatedRemovalOfButtonsForAnonUser = false
                         self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again!")
                     case .failedRequiresRecentLogin:
                         self.deleteAccountButton.configuration?.showsActivityIndicator = false
                         self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+                    case .networkError:
+                        self.deleteAccountButton.configuration?.showsActivityIndicator = false
+                        self.setupFailedAlertDeleteAccount(title: "Failed", message: "Server connection problems. Try again!")
+                    case .userNotFound:
+                        self.deleteAccountButton.configuration?.showsActivityIndicator = false
+                        self.setupFailedAlertDeleteAccount(title: "Failed", message: "You need to re-login to your account!")
                     }
                 }
 
@@ -561,6 +567,7 @@ private extension NewProfileViewController {
         if isStateEditingModeProfile {
             enableEditingModeForProfile(isSwitch: isStateEditingModeProfile)
         } else {
+            print("isStateEditingModeProfile = false")
             //            navBarRightButton.configuration?.title = ""
             editButton.configuration?.showsActivityIndicator = true
             editButton.isUserInteractionEnabled = false
@@ -569,50 +576,86 @@ private extension NewProfileViewController {
             // if currentUser = nil ???
             let name = userNameTextField.text != currentUser?.displayName ? userNameTextField.text : nil
             
-            managerFB.updateProfileInfo(withImage: image, name: name) { (state) in
+            managerFB.updateProfileInfo(withImage: image, name: name) { (state, error) in
                 
-                switch state {
-                    
-                case .success:
-                    self.editButton.configuration?.showsActivityIndicator = false
-                    self.enableEditingModeForProfile(isSwitch: self.isStateEditingModeProfile)
-                    self.setupAlert(title: "Success", message: "Data changed!")
-                    self.successUpdateImage()
-                    
-                case .failed(image: let image, name: let name):
-                    if let image = image, let name = name {
-                        if image && name {
-                            self.enableSaveButton(isSwitch: false)
-                            self.failedUpdateImage()
-                            self.failedUpdateName()
-                            self.setupAlert(title: "Error", message: "Something went wrong! Try again!")
-                        } else if image {
-                            self.enableSaveButton(isSwitch: false)
-                            self.failedUpdateImage()
-                            self.setupAlert(title: "Error", message: "Avatar not saved! Try again!")
-                            
-                        } else if name {
-                            
-                            self.editButton.configuration?.showsActivityIndicator = false
-                            self.enableSaveButton(isSwitch: false)
-                            self.failedUpdateName()
-                            self.successUpdateImage()
-                            self.setupAlert(title: "Error", message: "Name not saved! Try again!")
-                        }
-                    } else if let name = name, name {
-                        self.editButton.configuration?.showsActivityIndicator = false
-                        self.enableSaveButton(isSwitch: false)
-                        self.failedUpdateName()
-                        self.setupAlert(title: "Error", message: "Name not saved! Try again!")
-                    }
-                case .nul:
-                    self.editButton.configuration?.showsActivityIndicator = false
-                    self.enableSaveButton(isSwitch: false)
-                    self.setupAlert(title: "Error", message: "Something went wrong! Try again!")
+                self.handleFirebaseAuthError(error) { isNeedAuthorization in
+                    var needAuthorization = isNeedAuthorization ? "Log in and " : ""
+                    self.stateHandlingForUpdateProfileInfo(state: state, additionalMessage: needAuthorization)
                 }
             }
         }
     }
+    
+    func stateHandlingForUpdateProfileInfo(state: StateProfileInfo, additionalMessage: String) {
+        
+        switch state {
+            
+        case .success:
+            self.editButton.configuration?.showsActivityIndicator = false
+            self.enableEditingModeForProfile(isSwitch: self.isStateEditingModeProfile)
+            self.setupAlert(title: "Success", message: "Data changed!")
+            self.successUpdateImage()
+            
+        case .failed(image: let image, name: let name):
+            if let image = image, let name = name {
+                if image && name {
+                    self.enableSaveButton(isSwitch: false)
+                    self.failedUpdateImage()
+                    self.failedUpdateName()
+                    self.setupAlert(title: "Error", message: "Something went wrong! \(additionalMessage)Try again!")
+                } else if image {
+                    self.enableSaveButton(isSwitch: false)
+                    self.failedUpdateImage()
+                    self.setupAlert(title: "Error", message: "Avatar not saved! \(additionalMessage)Try again!")
+                    
+                } else if name {
+                    
+                    self.editButton.configuration?.showsActivityIndicator = false
+                    self.enableSaveButton(isSwitch: false)
+                    self.failedUpdateName()
+                    self.successUpdateImage()
+                    self.setupAlert(title: "Error", message: "Name not saved! \(additionalMessage)Try again!")
+                }
+            } else if let name = name, name {
+                self.editButton.configuration?.showsActivityIndicator = false
+                self.enableSaveButton(isSwitch: false)
+                self.failedUpdateName()
+                self.setupAlert(title: "Error", message: "Name not saved! \(additionalMessage)Try again!")
+            }
+        case .nul:
+            self.editButton.configuration?.showsActivityIndicator = false
+            self.enableSaveButton(isSwitch: false)
+            self.setupAlert(title: "Error", message: "Something went wrong! \(additionalMessage)Try again!")
+        }
+    }
+    
+    func handleFirebaseAuthError(_ error: Error?, callBack: (Bool) -> Void) {
+        guard let error = error else {
+            callBack(false)
+            return
+        }
+        
+        if let error = error as? AuthErrorCode {
+            switch error.code {
+            case .requiresRecentLogin:
+                print("Пользователь давно не входил в свой аккаунт Firebase, нужно авторизоваться")
+                callBack(true)
+            default:
+                print("Another StorageErrorCode")
+                callBack(false)
+            }
+        } else if let error = error as? StorageErrorCode {
+            switch error {
+            case .unauthenticated:
+                print("Пользователь не аутентифицирован и не имеет доступа к хранилищу Firebase")
+                callBack(true)
+            default:
+                print("Another StorageErrorCode")
+                callBack(false)
+            }
+        }
+    }
+
     
     @objc func cancelButtonHandler() {
         
@@ -706,6 +749,7 @@ private extension NewProfileViewController {
 
         let actionCancel = UIAlertAction(title: "Cancel", style: .cancel) { action in
             // isDelete = false
+            // если у нас не получается удалить аккаунт то нужно оставить его корзину
             self.saveRemuveCartProductFB()
         }
 
@@ -743,6 +787,12 @@ private extension NewProfileViewController {
                         case .failedRequiresRecentLogin:
                             self.deleteAccountButton.configuration?.showsActivityIndicator = false
                             self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+                        case .networkError:
+                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+                            self.setupFailedAlertDeleteAccount(title: "Failed", message: "Server connection problems. Try again!")
+                        case .userNotFound:
+                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+                            self.setupFailedAlertDeleteAccount(title: "Failed", message: "You need to re-login to your account!")
                         }
                     }
                 case .failed:
@@ -895,3 +945,44 @@ extension UIViewController {
     }
 }}
 
+
+
+//                switch state {
+//
+//                case .success:
+//                    self.editButton.configuration?.showsActivityIndicator = false
+//                    self.enableEditingModeForProfile(isSwitch: self.isStateEditingModeProfile)
+//                    self.setupAlert(title: "Success", message: "Data changed!")
+//                    self.successUpdateImage()
+//
+//                case .failed(image: let image, name: let name):
+//                    if let image = image, let name = name {
+//                        if image && name {
+//                            self.enableSaveButton(isSwitch: false)
+//                            self.failedUpdateImage()
+//                            self.failedUpdateName()
+//                            self.setupAlert(title: "Error", message: "Something went wrong! Try again!")
+//                        } else if image {
+//                            self.enableSaveButton(isSwitch: false)
+//                            self.failedUpdateImage()
+//                            self.setupAlert(title: "Error", message: "Avatar not saved! Try again!")
+//
+//                        } else if name {
+//
+//                            self.editButton.configuration?.showsActivityIndicator = false
+//                            self.enableSaveButton(isSwitch: false)
+//                            self.failedUpdateName()
+//                            self.successUpdateImage()
+//                            self.setupAlert(title: "Error", message: "Name not saved! Try again!")
+//                        }
+//                    } else if let name = name, name {
+//                        self.editButton.configuration?.showsActivityIndicator = false
+//                        self.enableSaveButton(isSwitch: false)
+//                        self.failedUpdateName()
+//                        self.setupAlert(title: "Error", message: "Name not saved! Try again!")
+//                    }
+//                case .nul:
+//                    self.editButton.configuration?.showsActivityIndicator = false
+//                    self.enableSaveButton(isSwitch: false)
+//                    self.setupAlert(title: "Error", message: "Something went wrong! Try again!")
+//                }

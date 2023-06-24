@@ -348,7 +348,7 @@ final class NewSignUpViewController: ParentNetworkViewController {
     }
 
     deinit {
-        
+        print("deinit NewSignUpViewController")
     }
 }
 

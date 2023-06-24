@@ -76,7 +76,6 @@ class NewMallViewController: ParentNetworkViewController {
         grayButton.translatesAutoresizingMaskIntoConstraints = false
         
         grayButton.addTarget(self, action: #selector(websiteMallButtonPressed(_:)), for: .touchUpInside)
-        
         return grayButton
     }()
     

@@ -42,8 +42,10 @@ enum StateCallback {
 
 enum StateDeleteAccaunt {
     case success
+    case userNotFound
     case failed
     case failedRequiresRecentLogin
+    case networkError
 }
 enum StateReauthenticateUser {
     case wrongPassword
@@ -699,20 +701,20 @@ final class FBManager {
 
     // MARK: - NewProfileViewController -
     
-    func updateProfileInfo(withImage image: Data? = nil, name: String? = nil, _ callback: ((StateProfileInfo) -> ())? = nil) {
+    func updateProfileInfo(withImage image: Data? = nil, name: String? = nil, _ callback: ((StateProfileInfo, Error?) -> ())? = nil) {
         guard let user = currentUser else {
             return
         }
-
+        
         if let image = image{
             imageChangeRequest(user: user, image: image) { (error) in
                 let imageIsFailed = error != nil ? true: false
                 self.createProfileChangeRequest(name: name) { (error) in
                     let nameIsFailed = error != nil ? true: false
                     if !imageIsFailed, !nameIsFailed {
-                        callback?(.success)
+                        callback?(.success, error)
                     } else {
-                        callback?(.failed(image: imageIsFailed, name: nameIsFailed))
+                        callback?(.failed(image: imageIsFailed, name: nameIsFailed), error)
                     }
                 }
             }
@@ -720,39 +722,56 @@ final class FBManager {
             self.createProfileChangeRequest(name: name) { error in
                 let nameIsFailed = error != nil ? true: false
                 if !nameIsFailed {
-                    callback?(.success)
+                    callback?(.success, error)
                 } else {
-                    callback?(.failed(name: nameIsFailed))
+                    callback?(.failed(name: nameIsFailed), error)
                 }
             }
         } else {
-            callback?(.nul)
+            callback?(.nul, nil)
         }
     }
-
+    
     func imageChangeRequest(user:User, image:Data,  _ callback: ((Error?) -> ())? = nil) {
-        // если пытаемся добавить image когда нет wifi
-        // при Database.database().isPersistenceEnabled = true error в profileImgReference.putData не возвращается ждет сети
-            let profileImgReference = Storage.storage().reference().child("profile_pictures").child("\(user.uid).jpeg")
-            _ = profileImgReference.putData(image, metadata: nil) { (metadata, error) in
-                if let error = error {
-                    print("не удалось запулить data на сервак")
-                    callback?(error)
-                } else {
-                    profileImgReference.downloadURL(completion: { (url, error) in
-                        if let url = url{
-                            self.avatarRef = profileImgReference
-                            self.createProfileChangeRequest(photoURL: url) { (error) in
-                                // если сдесь произошла ошибка что делать с image в storage и urlRefDelete?
+        
+        let profileImgReference = Storage.storage().reference().child("profile_pictures").child("\(user.uid).jpeg")
+        _ = profileImgReference.putData(image, metadata: nil) { (metadata, error) in
+            if let error = error {
+                print("не удалось запулить data на сервак")
+                callback?(error)
+            } else {
+                profileImgReference.downloadURL(completion: { (url, error) in
+                    if let error = error {
+                        self.deleteStorageData(refStorage: profileImgReference)
+                        callback?(error)
+                    } else if let url = url {
+                        self.avatarRef = profileImgReference
+                        self.createProfileChangeRequest(photoURL: url) { (error) in
+                            // если сдесь произошла ошибка что делать с image в storage и urlRefDelete?
+                            if let error = error {
+                                self.deleteStorageData(refStorage: profileImgReference)
+                                self.avatarRef = nil
+                                callback?(error)
+                            } else {
                                 callback?(error)
                             }
-                        }else{
-                            callback?(error)
                         }
-                    })
-                }
+                    } else {
+                        self.deleteStorageData(refStorage: profileImgReference)
+                        let userInfo = [NSLocalizedDescriptionKey: "Failed to get avatar link"]
+                        let customError = NSError(domain: "Firebase", code: 1001, userInfo: userInfo)
+                        callback?(customError)
+                    }
+                })
             }
         }
+    }
+    
+    func deleteStorageData(refStorage: StorageReference) {
+        refStorage.delete { error in
+            print("profileImgReference.delete - \(String(describing: error))")
+        }
+    }
 
 
     func createProfileChangeRequest(name: String? = nil, photoURL: URL? = nil,_ callBack: ((Error?) -> Void)? = nil) {
@@ -876,7 +895,14 @@ final class FBManager {
                 switch error.code {
                 case .requiresRecentLogin:
                     callback(.failedRequiresRecentLogin)
+                case .userTokenExpired:
+                    callback(.failedRequiresRecentLogin)
+                case .networkError:
+                    callback(.networkError)
+                case .userNotFound:
+                    callback(.userNotFound)
                 default:
+                    print("callback(.failed) error - \(error)")
                     callback(.failed)
                 }
             } else {
@@ -1000,6 +1026,12 @@ final class FBManager {
             if error != nil {
                 callBack(.failed)
             } else {
+                Auth.auth().currentUser?.reload(completion: { error in
+                    if error != nil {
+                        print("Error currentUser?.reload(completion func sendPasswordReset( - \(String(describing: error))")
+                    }
+                    self.currentUser = Auth.auth().currentUser
+                })
                 callBack(.success)
             }
         }
@@ -1028,6 +1060,8 @@ final class FBManager {
                     completion(.failure(.somethingWentWrong))
                     return
                 }
+                
+//                self?.currentUser = user
                 
 //                self?.createProfileChangeRequestSignUp(name:name)
                 self?.createProfileChangeRequestSignUp(name: name, { [weak self] (state) in
@@ -1189,6 +1223,17 @@ extension UIImageView {
 
 
 
+
+
+//                        if let url = url{
+//                            self.avatarRef = profileImgReference
+//                            self.createProfileChangeRequest(photoURL: url) { (error) in
+//                                // если сдесь произошла ошибка что делать с image в storage и urlRefDelete?
+//                                callback?(error)
+//                            }
+//                        }else{
+//                            callback?(error)
+//                        }
 
 
 /*
