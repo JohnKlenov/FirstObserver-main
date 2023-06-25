@@ -300,17 +300,12 @@ final class NewProfileViewController: ParentNetworkViewController {
 
         if let photoURL = user.photoURL?.absoluteString {
             imageUser.fetchingImageWithPlaceholder(url: photoURL, defaultImage: R.Images.Profile.defaultAvatarImage)
-//                let urlRef = storage.reference(forURL: photoURL)
-//                imageUser.sd_setImage(with: urlRef, maxImageSize: 1024*1024, placeholderImage: UIImage(named: "DefaultImage"), options: .refreshCached) { (image, error, cashType, storageRef) in
-//                    self.urlRefDelete = storageRef
-//                    if error != nil {
-//                        self.imageUser.image = UIImage(named: "DefaultImage")
-//                    }
-//                }
+
         } else {
             self.imageUser.image = R.Images.Profile.defaultAvatarImage
         }
     }
+   
 
     private func updateUIForAnonymousUser() {
         editButton.isHidden = true
@@ -508,6 +503,7 @@ private extension NewProfileViewController {
                     switch stateCallback {
                     case .success:
                         self?.setupAlert(title: "Success", message: "You are logged out!")
+                        self?.managerFB.avatarRef = nil
                     case .failed:
                         self?.signOutButton.configuration?.showsActivityIndicator = false
                         self?.isAnimatedRemovalOfButtonsForAnonUser = false
@@ -579,7 +575,7 @@ private extension NewProfileViewController {
             managerFB.updateProfileInfo(withImage: image, name: name) { (state, error) in
                 
                 self.handleFirebaseAuthError(error) { isNeedAuthorization in
-                    var needAuthorization = isNeedAuthorization ? "Log in and " : ""
+                    let needAuthorization = isNeedAuthorization ? "Log in and " : ""
                     self.stateHandlingForUpdateProfileInfo(state: state, additionalMessage: needAuthorization)
                 }
             }
@@ -653,6 +649,8 @@ private extension NewProfileViewController {
                 print("Another StorageErrorCode")
                 callBack(false)
             }
+        } else {
+            callBack(false)
         }
     }
 
@@ -946,6 +944,16 @@ extension UIViewController {
 }}
 
 
+
+
+
+//                let urlRef = storage.reference(forURL: photoURL)
+//                imageUser.sd_setImage(with: urlRef, maxImageSize: 1024*1024, placeholderImage: UIImage(named: "DefaultImage"), options: .refreshCached) { (image, error, cashType, storageRef) in
+//                    self.urlRefDelete = storageRef
+//                    if error != nil {
+//                        self.imageUser.image = UIImage(named: "DefaultImage")
+//                    }
+//                }
 
 //                switch state {
 //

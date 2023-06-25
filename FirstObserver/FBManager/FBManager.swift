@@ -747,7 +747,6 @@ final class FBManager {
                     } else if let url = url {
                         self.avatarRef = profileImgReference
                         self.createProfileChangeRequest(photoURL: url) { (error) in
-                            // если сдесь произошла ошибка что делать с image в storage и urlRefDelete?
                             if let error = error {
                                 self.deleteStorageData(refStorage: profileImgReference)
                                 self.avatarRef = nil
@@ -757,6 +756,7 @@ final class FBManager {
                             }
                         }
                     } else {
+                        // нужно отловить эту ошибку выше
                         self.deleteStorageData(refStorage: profileImgReference)
                         let userInfo = [NSLocalizedDescriptionKey: "Failed to get avatar link"]
                         let customError = NSError(domain: "Firebase", code: 1001, userInfo: userInfo)
@@ -793,6 +793,7 @@ final class FBManager {
         }
     }
 
+    // ошибка на давнее не log in ??????
     func resetProfileChangeRequest(reset: ResetProfile,_ callBack: ((Error?) -> Void)? = nil) {
 
         if let request = Auth.auth().currentUser?.createProfileChangeRequest() {
@@ -809,12 +810,18 @@ final class FBManager {
             }
         }
     }
+    
     func removeAvatarFromDeletedUser() {
-
+        print("removeAvatarFromDeletedUser")
         avatarRef?.delete(completion: { error in
-                self.avatarRef = nil
+            print("avatarRef?.delete(completion: { error in")
+            self.avatarRef = nil
+            if error != nil {
+                print("Returne message for Analitic FB")
+            }
         })
     }
+    
     func removeAvatarFromCurrentUser(_ callback: @escaping (StateCallback) -> Void) {
         avatarRef?.delete(completion: { error in
             if error == nil {
@@ -1061,9 +1068,8 @@ final class FBManager {
                     return
                 }
                 
-//                self?.currentUser = user
+                self?.currentUser = user
                 
-//                self?.createProfileChangeRequestSignUp(name:name)
                 self?.createProfileChangeRequestSignUp(name: name, { [weak self] (state) in
                     let uid = user.uid
                     let refFBR = Database.database().reference()

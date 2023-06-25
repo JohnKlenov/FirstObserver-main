@@ -70,6 +70,8 @@ class MallsViewController: ParentNetworkViewController {
 //        managerFB.removeObserverForCartProductsUser()
         switchGender()
         getPlacesHVC()
+        
+        print("managerFB.avatarRef - \(String(describing: managerFB.avatarRef))")
     }
     
     override func viewWillDisappear(_ animated: Bool) {
