@@ -344,10 +344,10 @@ final class NewProfileViewController: ParentNetworkViewController {
         self.isChangedCurrentImageUser = false
     }
 
-    private func failedRemoveAvatarUpdateUI() {
+    private func failedRemoveAvatarUpdateUI(additionalMessage: String) {
         self.editButton.configuration?.showsActivityIndicator = false
         self.enableSaveButton(isSwitch: false)
-        self.setupAlert(title: "Error", message: "Failed to delete profile avatar")
+        self.setupAlert(title: "Error", message: "Failed to delete profile avatar!\(additionalMessage)")
     }
     
     
@@ -705,7 +705,7 @@ private extension NewProfileViewController {
 
         let deleteAvatar = UIAlertAction(title: "Delete Avatar", style: .destructive) { action in
             self.startRemoveAvatarUpdateUI()
-            self.managerFB.removeAvatarFromCurrentUser { state in
+            self.managerFB.removeAvatarFromCurrentUser { state, isNeedAuthorization in
                 switch state {
 
                 case .success:
@@ -714,7 +714,8 @@ private extension NewProfileViewController {
                     self.endRemoveAvatarUpdateUI()
                     self.imageUser.image = UIImage(named: "DefaultImage")
                 case .failed:
-                    self.failedRemoveAvatarUpdateUI()
+                    let needAuthorization = isNeedAuthorization ? " Please Log in!" : ""
+                    self.failedRemoveAvatarUpdateUI(additionalMessage: needAuthorization)
                 }
             }
         }

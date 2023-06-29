@@ -356,6 +356,9 @@ final class FBManager {
     func signInAnonymously() {
         let databaseRef = Database.database().reference()
         Auth.auth().signInAnonymously { (authResult, error) in
+            if error != nil {
+                print("Returne message for analitic FB Crashlystics")
+            }
             guard let user = authResult?.user else {return}
             let uid = user.uid
             databaseRef.child("usersAccaunt/\(uid)").setValue(["uidAnonymous":user.uid])
@@ -458,10 +461,11 @@ final class FBManager {
             return
         }
         Database.database().reference().child("usersAccaunt/\(currentUser.uid)").getData(completion:  { error, snapshot in
-          guard error == nil else {
-            print(error!.localizedDescription)
-            return;
-          }
+            
+            if error != nil {
+                print("Returne message for analitic FB Crashlystics")
+            }
+            
             var arrayProduct = [PopularProduct]()
             if let snapshot = snapshot {
                 for item in snapshot.children {
@@ -812,30 +816,33 @@ final class FBManager {
     }
     
     func removeAvatarFromDeletedUser() {
-        print("removeAvatarFromDeletedUser")
         avatarRef?.delete(completion: { error in
-            print("avatarRef?.delete(completion: { error in")
             self.avatarRef = nil
             if error != nil {
-                print("Returne message for Analitic FB")
+                print("Returne message for analitic FB Crashlystics")
             }
         })
     }
     
-    func removeAvatarFromCurrentUser(_ callback: @escaping (StateCallback) -> Void) {
+    func removeAvatarFromCurrentUser(_ callback: @escaping (StateCallback, Bool) -> Void) {
         avatarRef?.delete(completion: { error in
             if error == nil {
                 self.avatarRef = nil
                 self.resetProfileChangeRequest(reset: .photoURL) { error in
-                    if error != nil {
-                        print("Не удалось удалить старую photoURL в currentUser")
-//                        callback(.failed)
-//                        return
-                    }
+                    print("error - \(String(describing: error))")
                 }
-                callback(.success)
+                callback(.success, false)
             } else {
-                callback(.failed)
+                if let error = error as? StorageErrorCode {
+                    switch error {
+                    case .unauthenticated:
+                        callback(.failed, true)
+                    default:
+                        callback(.failed, false)
+                    }
+                } else {
+                    callback(.failed, false)
+                }
             }
         })
     }

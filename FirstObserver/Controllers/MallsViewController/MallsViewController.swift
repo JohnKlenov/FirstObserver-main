@@ -15,7 +15,7 @@ class MallsViewController: ParentNetworkViewController {
    
     var hightCellVC: CGFloat!
 
-    var arrayPins: [PlacesTest] = []
+    var arrayPins: [Places] = []
     var mallsModel: [PreviewCategory] = [] {
         didSet {
             collectionView.reloadData()

@@ -72,7 +72,7 @@ class MallViewController: UIViewController {
         ref = Database.database().reference()
         
         let currentPin = arrayPin.filter({$0.title == refPath})
-        mapView.arrayPin = currentPin
+//        mapView.arrayPin = currentPin
         mapView.delegateMap = self
         
         mallCollectionView.delegate = self
@@ -199,7 +199,7 @@ class MallViewController: UIViewController {
             print("Переходим на VC")
             
             let fullScreenMap = MapViewController()
-            fullScreenMap.arrayPin = arrayPin
+//            fullScreenMap.arrayPin = arrayPin
             present(fullScreenMap, animated: true, completion: nil)
         }
     }
@@ -331,7 +331,7 @@ extension MallViewController: ChildVCDelegate {
         let brandVC = UIStoryboard.vcById("BrandsViewController") as! BrandsViewController
 //        brandVC.incomingRef = ref
         brandVC.pathRefBrandVC = pathRef
-        brandVC.arrayPin = arrayPin
+//        brandVC.arrayPin = arrayPin
         self.navigationController?.pushViewController(brandVC, animated: true)
         
     }

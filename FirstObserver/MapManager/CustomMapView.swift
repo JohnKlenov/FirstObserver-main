@@ -7,6 +7,9 @@
 
 import UIKit
 import MapKit
+import FirebaseStorage
+import FirebaseStorageUI
+
 
 protocol MapViewManagerDelegate: AnyObject {
     func selectAnnotationView(isSelect: Bool)
@@ -16,7 +19,8 @@ class CustomMapView: MKMapView {
 
     
     var regionMap: CLLocationDistance = 18000
-    var arrayPin:[PlacesTest] = [] {
+    
+    var arrayPin:[Places] = [] {
         didSet {
             addAnnotations(arrayPin)
         }
@@ -77,10 +81,9 @@ class CustomMapView: MKMapView {
 
 extension CustomMapView: MKMapViewDelegate {
     
-    
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
-        guard let annotation = annotation as? PlacesTest else { return nil }
+        guard let annotation = annotation as? Places else { return nil }
         let identifier = "places"
         let view: MKMarkerAnnotationView
         
@@ -93,17 +96,27 @@ extension CustomMapView: MKMapViewDelegate {
             view.glyphTintColor = .black
             view.markerTintColor = .red
             
-            if let image = annotation.image {
-//                let fullSizeImage = UIImage(named: imageName)!
-                let fullSizeImage = image
-                let imageViewMall = UIImageView(image: fullSizeImage.thumbnailOfSize(CGSize(width: 60, height: 40)))
-                view.leftCalloutAccessoryView = imageViewMall
-                view.leftCalloutAccessoryView?.contentMode = .scaleAspectFit
+            if let refImage = annotation.imageName {
+                let refStorage = Storage.storage().reference(forURL: refImage)
+                let imageView = UIImageView()
+                imageView.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
+                imageView.contentMode = .scaleAspectFit
+                imageView.sd_setImage(with: refStorage, placeholderImage: UIImage(named: "DefaultImage")) { image, error, cacheType, storageRef in
+                    if let error = error {
+                        print("error - \(error)")
+                    } else {
+                        if let image = image {
+                            print("image for leftCalloutAccessoryView - \(image)")
+                            DispatchQueue.main.async {
+                                view.leftCalloutAccessoryView = imageView
+                            }
+                        }
+                    }
+                }
             } else {
                 view.leftCalloutAccessoryView = UIView()
             }
         }
-        
         return view
     }
     

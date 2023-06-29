@@ -375,7 +375,7 @@ extension HomeViewController: ViewsHomeVCNavigationDelegate {
 //            let ref = Database.database().reference(withPath: "brands/\(refPath)")
 //            brandVC.incomingRef = ref
             brandVC.pathRefBrandVC = refPath
-            brandVC.arrayPin = placesMap
+//            brandVC.arrayPin = placesMap
             self.navigationController?.pushViewController(brandVC, animated: true)
             
         case .shopingMall:

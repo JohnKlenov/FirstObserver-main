@@ -60,7 +60,7 @@ class BrandsViewController: ParentNetworkViewController {
             collectionView.reloadData()
         }
     }
-    var arrayPin: [PlacesTest] = []
+    var arrayPin: [Places] = []
     var cartProducts: [PopularProduct] = []
     let defaults = UserDefaults.standard
     
@@ -260,7 +260,7 @@ extension BrandsViewController: ProductCellDelegtate {
 //        let productVC = UIStoryboard.vcById("ProductViewController") as! ProductViewController
         let productVC = NewProductViewController()
         
-        var placesArray: [PlacesTest] = []
+        var placesArray: [Places] = []
         let malls = product.malls
         
         arrayPin.forEach { (places) in

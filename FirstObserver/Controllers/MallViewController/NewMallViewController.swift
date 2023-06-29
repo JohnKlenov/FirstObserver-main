@@ -116,8 +116,8 @@ class NewMallViewController: ParentNetworkViewController {
     var floorPlanMall: String = ""
     var webSite: String = ""
     var brandsMall: [PreviewCategory] = []
-    var arrayPin:[PlacesTest] = []
-    var currentPin:[PlacesTest] = []
+    var arrayPin:[Places] = []
+    var currentPin:[Places] = []
     
     var section: [SectionHVC] = [] {
         didSet {

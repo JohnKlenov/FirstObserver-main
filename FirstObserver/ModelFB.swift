@@ -40,6 +40,7 @@ class Places: NSObject, MKAnnotation {
     
 }
 
+// old modal for configure pin mapView
 class PlacesTest: NSObject, MKAnnotation {
     
     let title: String?

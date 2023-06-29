@@ -7,6 +7,8 @@
 
 import UIKit
 import MapKit
+import FirebaseStorage
+import FirebaseStorageUI
 
 class MapViewController: ParentNetworkViewController {
 
@@ -14,7 +16,7 @@ class MapViewController: ParentNetworkViewController {
     
     // Объект, который вы используете для мониторинга местоположения, в вашем приложении.
     let locationManager = CLLocationManager()
-    var arrayPin: [PlacesTest] = []
+    var arrayPin: [Places] = []
     
     private let deleteImage: DeleteView = {
         let view = DeleteView()
@@ -170,8 +172,9 @@ class MapViewController: ParentNetworkViewController {
 extension MapViewController: CLLocationManagerDelegate, MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        guard let annotation = annotation as? Places else {return nil}
-        let identifier = "placesMVC"
+        
+        guard let annotation = annotation as? Places else { return nil }
+        let identifier = "places"
         let view: MKMarkerAnnotationView
         
         if let dequeueView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView {
@@ -183,18 +186,29 @@ extension MapViewController: CLLocationManagerDelegate, MKMapViewDelegate {
             view.glyphTintColor = .black
             view.markerTintColor = .red
             
-            if let imageName = annotation.imageName {
-                let fullSizeImage = UIImage(named: imageName)!
-                let imageViewMall = UIImageView(image: fullSizeImage.thumbnailOfSize(CGSize(width: 60, height: 40)))
-                view.leftCalloutAccessoryView = imageViewMall
-                view.leftCalloutAccessoryView?.contentMode = .scaleAspectFit
+            if let refImage = annotation.imageName {
+                let refStorage = Storage.storage().reference(forURL: refImage)
+                let imageView = UIImageView()
+                imageView.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
+                imageView.contentMode = .scaleAspectFit
+                imageView.sd_setImage(with: refStorage, placeholderImage: UIImage(named: "DefaultImage")) { image, error, cacheType, storageRef in
+                    if let error = error {
+                        print("error - \(error)")
+                    } else {
+                        if let image = image {
+                            print("image for leftCalloutAccessoryView - \(image)")
+                            DispatchQueue.main.async {
+                                view.leftCalloutAccessoryView = imageView
+                            }
+                        }
+                    }
+                }
             } else {
                 view.leftCalloutAccessoryView = UIView()
             }
         }
         return view
     }
-    
     
     
     // если user поменял авторизацию у нас опять все сломается и нам нужно вызвать checkAuthorization()
@@ -231,4 +245,30 @@ extension MKMapView {
 //            let region = MKCoordinateRegion(center: location, latitudinalMeters: 1000, longitudinalMeters: 1000)
 //            mapView.setRegion(region, animated: true)
 //        }
+//    }
+
+//    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+//        guard let annotation = annotation as? Places else {return nil}
+//        let identifier = "placesMVC"
+//        let view: MKMarkerAnnotationView
+//
+//        if let dequeueView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView {
+//            dequeueView.annotation = annotation
+//            view = dequeueView
+//        } else {
+//            view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+//            view.canShowCallout = true
+//            view.glyphTintColor = .black
+//            view.markerTintColor = .red
+//
+//            if let imageName = annotation.imageName {
+//                let fullSizeImage = UIImage(named: imageName)!
+//                let imageViewMall = UIImageView(image: fullSizeImage.thumbnailOfSize(CGSize(width: 60, height: 40)))
+//                view.leftCalloutAccessoryView = imageViewMall
+//                view.leftCalloutAccessoryView?.contentMode = .scaleAspectFit
+//            } else {
+//                view.leftCalloutAccessoryView = UIView()
+//            }
+//        }
+//        return view
 //    }

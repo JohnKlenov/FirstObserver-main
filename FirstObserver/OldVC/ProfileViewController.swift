@@ -547,7 +547,7 @@ private extension ProfileViewController {
 
         let deleteAvatar = UIAlertAction(title: "Delete Avatar", style: .destructive) { action in
             self.startRemoveAvatarUpdateUI()
-            self.managerFB.removeAvatarFromCurrentUser { state in
+            self.managerFB.removeAvatarFromCurrentUser { state, isTreu in
                 switch state {
 
                 case .success:

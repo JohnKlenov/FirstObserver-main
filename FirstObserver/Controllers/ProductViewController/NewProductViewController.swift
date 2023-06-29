@@ -209,7 +209,7 @@ class NewProductViewController: ParentNetworkViewController {
     
     // MARK: - model property -
     var productModel:PopularProduct?
-    var arrayPin:[PlacesTest] = []
+    var arrayPin:[Places] = []
     var isAddedToCard = false {
         didSet {
             addToCardButton.setNeedsUpdateConfiguration()
@@ -556,7 +556,7 @@ extension NewProductViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 //        let cell = tableView.dequeueReusableCell(withIdentifier: "MyTableViewCell", for: indexPath)
         let cell = tableView.dequeueReusableCell(withIdentifier: MallTableViewCell.reuseID, for: indexPath) as! MallTableViewCell
-        cell.configureCell(imageMall: arrayPin[indexPath.row].image, nameMall: arrayPin[indexPath.row].title)
+        cell.configureCell(refImage: arrayPin[indexPath.row].imageName ?? "not ref", nameMall: arrayPin[indexPath.row].title)
 //        var contentCell = cell.defaultContentConfiguration()
 //        contentCell.text = arrayPin[indexPath.row].title
 //        contentCell.textProperties.color = R.Colors.label

@@ -13,7 +13,7 @@ final class CartViewController: ParentNetworkViewController {
     @IBOutlet weak var tableView: UITableView!
     
     private var model: [Product]!
-    private var arrayPlaces: [PlacesTest] = []
+    private var arrayPlaces: [Places] = []
     private var isAnonymouslyUser = false
     private var cartProducts: [PopularProduct] = []
     private var cartViewIsEmpty: CartView?
@@ -118,7 +118,7 @@ extension CartViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 
-        var placesArray: [PlacesTest] = []
+        var placesArray: [Places] = []
         let product = cartProducts[indexPath.row]
         let malls = product.malls
         

@@ -26,7 +26,7 @@ class CatalogViewController: ParentNetworkViewController {
             collectionView.reloadData()
         }
     }
-    var arrayPins: [PlacesTest] = []
+    var arrayPins: [Places] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()

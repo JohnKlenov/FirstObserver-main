@@ -41,7 +41,8 @@ class NewHomeViewController: ParentNetworkViewController {
         }
     }
    
-    var placesMap:[PlacesTest] = []
+
+    var placesMap:[Places] = []
     private var placesFB:[PlacesFB] = [] {
         didSet {
             getPlacesMap()
@@ -194,14 +195,10 @@ class NewHomeViewController: ParentNetworkViewController {
         if oldPins != newPins {
             
             placesFB.forEach { place in
-                managerFB.getImagefromStorage(refImage: place.refImage) { image in
-                    let pin = PlacesTest(title: place.name, locationName: place.address, discipline: "Торговый центр", coordinate: CLLocationCoordinate2D(latitude: place.latitude, longitude: place.longitude), image: image)
+                let pin = Places(title: place.name, locationName: place.address, discipline:"Торговый центр", coordinate: CLLocationCoordinate2D(latitude: place.latitude, longitude: place.longitude), imageName: place.refImage)
                     self.placesMap.append(pin)
-                }
-
             }
         }
-        
     }
     
     private func setupCollectionView() {
@@ -412,15 +409,13 @@ extension NewHomeViewController: UICollectionViewDelegate {
 //            let fullPath = "Brands" + currentGender + "/" + refBrand
             brandVC.pathRefBrandVC = refBrand
             brandVC.title = refBrand
-//            brandVC.arrayPin = placesMap
+            brandVC.arrayPin = placesMap
             self.navigationController?.pushViewController(brandVC, animated: true)
         case 2:
-//            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-//            let productVC = storyboard.instantiateViewController(withIdentifier: "ProductViewController") as! ProductViewController
             let productVC = NewProductViewController()
             let productSection = modelHomeViewController.filter({$0.section == "PopularProducts"})
             let malls = productSection.first?.items[indexPath.row].popularProduct?.malls ?? [""]
-            var placesArray:[PlacesTest] = []
+            var placesArray:[Places] = []
             placesMap.forEach { (places) in
                 if malls.contains(places.title ?? "") {
                     placesArray.append(places)
@@ -432,9 +427,8 @@ extension NewHomeViewController: UICollectionViewDelegate {
                 }
             }
 //            productVC.fireBaseModel = productSection.first?.items[indexPath.row].popularProduct
-//            productVC.arrayPin = placesArray
-            productVC.productModel = productSection.first?.items[indexPath.row].popularProduct
             productVC.arrayPin = placesArray
+            productVC.productModel = productSection.first?.items[indexPath.row].popularProduct
             self.navigationController?.pushViewController(productVC, animated: true)
 //            present(productVC, animated: true, completion: nil)
             print("Products section")
@@ -456,11 +450,49 @@ extension NewHomeViewController: HeaderMallsViewDelegate {
 
 
 
+//    var placesMap:[PlacesTest] = []
 
+// нужно создать метод который будет сробатывать при каж
+//    func getPlacesMapTest() {
+//
+//        let tcNew = placesFB.map { $0.name }
+//        let tcOld = placesMap.map { $0.title ?? " " }
+//        let oldPins = Set(tcOld)
+//        let newPins = Set(tcNew)
+//
+//        if oldPins != newPins {
+////            var unprocessedPlaces = [PlacesFB]()
+//            for place in placesFB {
+//                if NetworkMonitor.shared.isConnected {
+//                    managerFB.getImagefromStorage(refImage: place.refImage) { image in
+//                        let pin = PlacesTest(title: place.name, locationName: place.address, discipline: "Торговый центр", coordinate: CLLocationCoordinate2D(latitude: place.latitude, longitude: place.longitude), image: image)
+//                        self.placesMap.append(pin)
+//                    }
+//                } else {
+//                    unprocessedPlaces.append(place)
+//                }
+//            }
+//        }
+//    }
 
-
-
-
+//    func getPlacesMap() {
+//
+//        let tcNew = placesFB.map { $0.name }
+//        let tcOld = placesMap.map { $0.title ?? " " }
+//        let oldPins = Set(tcOld)
+//        let newPins = Set(tcNew)
+//
+//        if oldPins != newPins {
+//
+//            placesFB.forEach { place in
+//                managerFB.getImagefromStorage(refImage: place.refImage) { image in
+//                    let pin = PlacesTest(title: place.name, locationName: place.address, discipline: "Торговый центр", coordinate: CLLocationCoordinate2D(latitude: place.latitude, longitude: place.longitude), image: image)
+//                    self.placesMap.append(pin)
+//                }
+//
+//            }
+//        }
+//    }
 
 //    private var activityView: ActivityContainerView = {
 //        let view = ActivityContainerView()

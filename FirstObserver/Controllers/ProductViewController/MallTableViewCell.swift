@@ -7,6 +7,8 @@
 
 import Foundation
 import UIKit
+import FirebaseStorage
+import FirebaseStorageUI
 
 class MallTableViewCell: UITableViewCell {
     
@@ -37,16 +39,16 @@ class MallTableViewCell: UITableViewCell {
         addSubview(imageViewMall)
         addSubview(nameMallLabel)
         setupConstraints()
-        
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configureCell(imageMall:UIImage?, nameMall:String?) {
-        imageViewMall.image = imageMall
+    func configureCell(refImage:String, nameMall:String?) {
         nameMallLabel.text = nameMall
+        let refStorage = Storage.storage().reference(forURL: refImage)
+        imageViewMall.sd_setImage(with: refStorage, placeholderImage: UIImage(named: "DefaultImage"))
     }
     
     private func setupConstraints() {

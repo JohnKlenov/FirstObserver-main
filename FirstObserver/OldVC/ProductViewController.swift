@@ -377,7 +377,7 @@ class ProductViewController: UIViewController {
         
         if segue.identifier == "goToMapVC", let arrayPin = sender as? [PlacesTest] {
             let destination = segue.destination as! MapViewController
-            destination.arrayPin = arrayPin
+//            destination.arrayPin = arrayPin
         }
         
         if segue.identifier == "signInVC" {
