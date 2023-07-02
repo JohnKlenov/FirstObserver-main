@@ -559,21 +559,21 @@ private extension ProfileViewController {
         let cancel = UIAlertAction(title: "Cancel", style: .cancel) { action in
         }
 
-        let deleteAvatar = UIAlertAction(title: "Delete Avatar", style: .destructive) { action in
-            self.startRemoveAvatarUpdateUI()
-            self.managerFB.removeAvatarFromCurrentUser { state, isTreu in
-                switch state {
-
-                case .success:
-//                    self.cacheImageRemoveMemoryAndDisk()
-                    self.managerFB.cacheImageRemoveMemoryAndDisk(imageView: self.imageUser)
-                    self.endRemoveAvatarUpdateUI()
-                    self.imageUser.image = UIImage(named: "DefaultImage")
-                case .failed:
-                    self.failedRemoveAvatarUpdateUI()
-                }
-            }
-        }
+//        let deleteAvatar = UIAlertAction(title: "Delete Avatar", style: .destructive) { action in
+//            self.startRemoveAvatarUpdateUI()
+//            self.managerFB.removeAvatarFromCurrentUser { state, isTreu in
+//                switch state {
+//
+//                case .success:
+////                    self.cacheImageRemoveMemoryAndDisk()
+//                    self.managerFB.cacheImageRemoveMemoryAndDisk(imageView: self.imageUser)
+//                    self.endRemoveAvatarUpdateUI()
+//                    self.imageUser.image = UIImage(named: "DefaultImage")
+//                case .failed:
+//                    self.failedRemoveAvatarUpdateUI()
+//                }
+//            }
+//        }
 
         let titleAlertController = NSAttributedString(string: "Add image to avatar", attributes: [NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: 17)])
         alert.setValue(titleAlertController, forKey: "attributedTitle")
@@ -584,7 +584,7 @@ private extension ProfileViewController {
         alert.addAction(cancel)
 
         if let _ = managerFB.avatarRef, imageIsChanged == false {
-            alert.addAction(deleteAvatar)
+//            alert.addAction(deleteAvatar)
         }
         present(alert, animated: true, completion: nil)
 

@@ -17,12 +17,7 @@ import FirebaseStorageUI
 
 // experement callBack type
 
-enum StateProfileInfo {
 
-    case success
-    case failed(image:Bool? = nil, name:Bool? = nil)
-    case nul
-}
 
 enum AuthResulSignUp {
     case success
@@ -70,6 +65,17 @@ enum SignInCallback {
 // finished callBackTypes
 
 // deleteAccount, signOutAccount, reauthenticateUser
+
+enum StorageErrorCodeState {
+    
+    case success
+    case failed
+    case unauthenticated
+    case unauthorized
+    case retryLimitExceeded
+    case downloadSizeExceeded
+}
+
 enum AuthErrorCodeState {
     case success
     case failed
@@ -82,6 +88,13 @@ enum AuthErrorCodeState {
     case tooManyRequests
     case expiredActionCode
     case invalidCredential
+}
+
+enum StateProfileInfo {
+
+    case success
+    case failed(image:Bool? = nil, name:Bool? = nil)
+    case nul
 }
 
 // в productCell поиграть с приоритетами и >= для constraint
@@ -757,6 +770,7 @@ final class FBManager {
         } else {
             callback?(.nul, nil)
         }
+        print(" TEST - func updateProfileInfo(withImage image: Data?")
     }
     
     // если callback: ((StateProfileInfo, Error?) -> ())? = nil) closure не пометить как @escaping (зачем он нам не обязательный?)
@@ -840,36 +854,51 @@ final class FBManager {
         }
     }
     
+    // сдесь обработка ошибки не актуальна так как вызов метода происходит автоматически после удаления account
     func removeAvatarFromDeletedUser() {
-        avatarRef?.delete(completion: { error in
-            self.avatarRef = nil
-            if error != nil {
-                print("Returne message for analitic FB Crashlystics")
-            }
-        })
+        if let avatarRef = avatarRef {
+            avatarRef.delete(completion: { error in
+                self.avatarRef = nil
+                if error != nil {
+                    print("Returne message for analitic FB Crashlystics")
+                }
+            })
+        } else {
+            print("Returne message for analitic FB Crashlystics")
+        }
     }
     
-    func removeAvatarFromCurrentUser(_ callback: @escaping (StateCallback, Bool) -> Void) {
-        avatarRef?.delete(completion: { error in
-            if error == nil {
-                self.avatarRef = nil
-                self.resetProfileChangeRequest(reset: .photoURL) { error in
-                    print("error - \(String(describing: error))")
-                }
-                callback(.success, false)
-            } else {
+    func removeAvatarFromCurrentUser(_ callback: @escaping (StorageErrorCodeState) -> Void) {
+        // Если по какой то причине avatarRef = nil вызов метода avatarRef?.delete будет проигнорирован
+        if let avatarRef = avatarRef {
+            avatarRef.delete(completion: { error in
+                
                 if let error = error as? StorageErrorCode {
                     switch error {
+                        
                     case .unauthenticated:
-                        callback(.failed, true)
+                        callback(.unauthenticated)
+                    case .unauthorized:
+                        callback(.unauthorized)
+                    case .retryLimitExceeded:
+                        callback(.retryLimitExceeded)
+                    case .downloadSizeExceeded:
+                        callback(.downloadSizeExceeded)
                     default:
-                        callback(.failed, false)
+                        callback(.failed)
                     }
                 } else {
-                    callback(.failed, false)
+                    self.avatarRef = nil
+                    self.resetProfileChangeRequest(reset: .photoURL) { error in
+                        
+                    }
+                    callback(.success)
                 }
-            }
-        })
+            })
+        } else {
+            callback(.failed)
+            print("Returne message for analitic FB Crashlystics")
+        }
     }
 
     func addUidFromCurrentUserAccount() {
@@ -1093,7 +1122,7 @@ final class FBManager {
                     ref.updateChildValues([addedProduct.key:json])
 
                 } catch {
-                    print("an error occured", error)
+                    print("an error occured JSONSerialization", error)
                 }
             }
             
@@ -1299,7 +1328,27 @@ extension UIImageView {
 
 
 
-
+//    func removeAvatarFromCurrentUser(_ callback: @escaping (StateCallback, Bool) -> Void) {
+//        avatarRef?.delete(completion: { error in
+//            if error == nil {
+//                self.avatarRef = nil
+//                self.resetProfileChangeRequest(reset: .photoURL) { error in
+//                }
+//                callback(.success, false)
+//            } else {
+//                if let error = error as? StorageErrorCode {
+//                    switch error {
+//                    case .unauthenticated:
+//                        callback(.failed, true)
+//                    default:
+//                        callback(.failed, false)
+//                    }
+//                } else {
+//                    callback(.failed, false)
+//                }
+//            }
+//        })
+//    }
 
 
 

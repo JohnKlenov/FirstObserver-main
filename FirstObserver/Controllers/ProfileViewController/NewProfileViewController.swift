@@ -344,10 +344,16 @@ final class NewProfileViewController: ParentNetworkViewController {
         self.isChangedCurrentImageUser = false
     }
 
+//    private func failedRemoveAvatarUpdateUI(additionalMessage: String) {
+//        self.editButton.configuration?.showsActivityIndicator = false
+//        self.enableSaveButton(isSwitch: false)
+//        self.setupAlert(title: "Error", message: "Failed to delete profile avatar!\(additionalMessage)")
+//    }
+    
     private func failedRemoveAvatarUpdateUI(additionalMessage: String) {
         self.editButton.configuration?.showsActivityIndicator = false
         self.enableSaveButton(isSwitch: false)
-        self.setupAlert(title: "Error", message: "Failed to delete profile avatar!\(additionalMessage)")
+        self.setupAlert(title: "Error", message: additionalMessage)
     }
     
     
@@ -549,7 +555,7 @@ private extension NewProfileViewController {
             let name = userNameTextField.text != currentUser?.displayName ? userNameTextField.text : nil
             
             managerFB.updateProfileInfo(withImage: image, name: name) { (state, error) in
-                
+                print(" TEST - managerFB.updateProfileInfo(withImage: image, name: name) { (state, error) in")
                 self.handleFirebaseAuthError(error) { isNeedAuthorization in
                     let needAuthorization = isNeedAuthorization ? "Log in and " : ""
                     self.stateHandlingForUpdateProfileInfo(state: state, additionalMessage: needAuthorization)
@@ -679,19 +685,41 @@ private extension NewProfileViewController {
         let cancel = UIAlertAction(title: "Cancel", style: .cancel) { action in
         }
 
+//        let deleteAvatar = UIAlertAction(title: "Delete Avatar", style: .destructive) { action in
+//            self.startRemoveAvatarUpdateUI()
+//            self.managerFB.removeAvatarFromCurrentUser { state, isNeedAuthorization in
+//                switch state {
+//
+//                case .success:
+////                    self.cacheImageRemoveMemoryAndDisk()
+//                    self.managerFB.cacheImageRemoveMemoryAndDisk(imageView: self.imageUser)
+//                    self.endRemoveAvatarUpdateUI()
+//                    self.imageUser.image = UIImage(named: "DefaultImage")
+//                case .failed:
+//                    let needAuthorization = isNeedAuthorization ? " Please Log in!" : ""
+//                    self.failedRemoveAvatarUpdateUI(additionalMessage: needAuthorization)
+//                }
+//            }
+//        }
+        
         let deleteAvatar = UIAlertAction(title: "Delete Avatar", style: .destructive) { action in
             self.startRemoveAvatarUpdateUI()
-            self.managerFB.removeAvatarFromCurrentUser { state, isNeedAuthorization in
-                switch state {
-
+            self.managerFB.removeAvatarFromCurrentUser { stateStorageError in
+                switch stateStorageError {
                 case .success:
-//                    self.cacheImageRemoveMemoryAndDisk()
                     self.managerFB.cacheImageRemoveMemoryAndDisk(imageView: self.imageUser)
                     self.endRemoveAvatarUpdateUI()
                     self.imageUser.image = UIImage(named: "DefaultImage")
                 case .failed:
-                    let needAuthorization = isNeedAuthorization ? " Please Log in!" : ""
-                    self.failedRemoveAvatarUpdateUI(additionalMessage: needAuthorization)
+                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Try again!")
+                case .unauthenticated:
+                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Please Log in!")
+                case .unauthorized:
+                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Please Log in!")
+                case .retryLimitExceeded:
+                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! The maximum time limit on an operation has been exceeded. Try again!")
+                case .downloadSizeExceeded:
+                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Size of the downloaded file exceeds the amount of memory allocated for the download. Try again!")
                 }
             }
         }
