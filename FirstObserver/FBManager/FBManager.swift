@@ -15,6 +15,8 @@ import FirebaseStorageUI
 
 //(success: Bool)
 
+// experement callBack type
+
 enum StateProfileInfo {
 
     case success
@@ -63,6 +65,23 @@ enum SignInCallback {
     case invalidEmail
     case invalidPassword
     case wentWrong
+}
+
+// finished callBackTypes
+
+// deleteAccount, signOutAccount, reauthenticateUser
+enum AuthErrorCodeState {
+    case success
+    case failed
+    case userTokenExpired
+    case requiresRecentLogin
+    case keychainError
+    case networkError
+    case userNotFound
+    case wrongPassword
+    case tooManyRequests
+    case expiredActionCode
+    case invalidCredential
 }
 
 // в productCell поиграть с приоритетами и >= для constraint
@@ -455,6 +474,9 @@ final class FBManager {
         }
     }
     
+    
+    // ref.observe(.value) При вызове `getData` без активного подключения к сети, этот метод не будет ожидать восстановления подключения. Вместо этого он сразу вернет ошибку в блоке обработки завершения `completion`.
+  // Тут нужно либо подумать о том как это исправить(проблема была в том что при переходе на cartVC из signIn/signUpVC мы неуспевали получить cartProducts в HomeVC и поэтому были вынуждены сделать такой костыль)
     func getCartProductOnce(completionHandler: @escaping ([PopularProduct]) -> Void) {
         guard let currentUser = currentUser else {
             completionHandler([])
@@ -686,25 +708,26 @@ final class FBManager {
     
     
     
-
-    func getImagefromStorage(refImage:String, completionHandler: @escaping (UIImage) -> Void) {
-        let ref = Storage.storage().reference(forURL: refImage)
-        let megaBite = Int64(1*1024*1024)
-        ref.getData(maxSize: megaBite) { (data, error) in
-            guard let imageData = data else {
-                let defaultImage = UIImage(named: "DefaultImage")!
-                completionHandler(defaultImage)
-                return
-            }
-            if let image = UIImage(data: imageData) {
-                completionHandler(image)
-            }
-        }
-    }
+// method not needed 
+//    func getImagefromStorage(refImage:String, completionHandler: @escaping (UIImage) -> Void) {
+//        let ref = Storage.storage().reference(forURL: refImage)
+//        let megaBite = Int64(1*1024*1024)
+//        ref.getData(maxSize: megaBite) { (data, error) in
+//            guard let imageData = data else {
+//                let defaultImage = UIImage(named: "DefaultImage")!
+//                completionHandler(defaultImage)
+//                return
+//            }
+//            if let image = UIImage(data: imageData) {
+//                completionHandler(image)
+//            }
+//        }
+//    }
 
 
     // MARK: - NewProfileViewController -
     
+    //  если callback: ((StateProfileInfo, Error?) -> ())? = nil) closure не пометить как @escaping (зачем он нам не обязательный?)
     func updateProfileInfo(withImage image: Data? = nil, name: String? = nil, _ callback: ((StateProfileInfo, Error?) -> ())? = nil) {
         guard let user = currentUser else {
             return
@@ -736,6 +759,7 @@ final class FBManager {
         }
     }
     
+    // если callback: ((StateProfileInfo, Error?) -> ())? = nil) closure не пометить как @escaping (зачем он нам не обязательный?)
     func imageChangeRequest(user:User, image:Data,  _ callback: ((Error?) -> ())? = nil) {
         
         let profileImgReference = Storage.storage().reference().child("profile_pictures").child("\(user.uid).jpeg")
@@ -777,7 +801,8 @@ final class FBManager {
         }
     }
 
-
+    
+    // если callback: ((StateProfileInfo, Error?) -> ())? = nil) closure не пометить как @escaping (зачем он нам не обязательный?)
     func createProfileChangeRequest(name: String? = nil, photoURL: URL? = nil,_ callBack: ((Error?) -> Void)? = nil) {
 
         print("createProfileChangeRequest")
@@ -889,18 +914,48 @@ final class FBManager {
             callBack(error)
         })
     }
-
-    func signOut(_ callback: (StateCallback) -> Void) {
+    
+    // AuthErrorCodeKeychainError` — Указывает, что произошла ошибка при доступе к цепочке ключей. Поле NSLocalizedFailureReasonErrorKey в словаре userInfo будет содержать дополнительную информацию
+//    func signOut(_ callback: (StateCallback, Error?) -> Void) {
+//        do {
+//            try Auth.auth().signOut()
+//            callback(.success, nil)
+//        } catch  let error as NSError  {
+//
+//            print("Auth.auth().signOut() - \(error)")
+//            callback(.failed, error)
+//        }
+//    }
+    
+//    if let errorAuth = error as? AuthErrorCode
+    func signOut(_ callback: @escaping (AuthErrorCodeState) -> Void) {
         do {
             try Auth.auth().signOut()
             callback(.success)
-        } catch {
-            // AuthErrorCodeKeychainError` — Указывает, что произошла ошибка при доступе к цепочке ключей. Поле NSLocalizedFailureReasonErrorKey в словаре userInfo будет содержать дополнительную информацию
-            callback(.failed)
+        } catch let error as NSError {
+            if let errorAuth = error as? AuthErrorCode {
+                switch errorAuth.code {
+                case .requiresRecentLogin:
+                    callback(.requiresRecentLogin)
+                case .userTokenExpired:
+                    callback(.requiresRecentLogin)
+                case .networkError:
+                    callback(.networkError)
+                case .userNotFound:
+                    callback(.userNotFound)
+                case .keychainError:
+                    callback(.userNotFound)
+                default:
+                    callback(.failed)
+                }
+            } else {
+                callback(.failed)
+            }
+            print("Auth.auth().signOut() - \(error)")
         }
     }
 
-    func deleteAccaunt(_ callback: @escaping (StateDeleteAccaunt) -> Void) {
+    func deleteAccaunt(_ callback: @escaping (AuthErrorCodeState) -> Void) {
 
         guard let user = currentUser else {return}
 
@@ -908,15 +963,17 @@ final class FBManager {
             if let error = error as? AuthErrorCode {
                 switch error.code {
                 case .requiresRecentLogin:
-                    callback(.failedRequiresRecentLogin)
+                    callback(.requiresRecentLogin)
                 case .userTokenExpired:
-                    callback(.failedRequiresRecentLogin)
+                    callback(.requiresRecentLogin)
                 case .networkError:
                     callback(.networkError)
                 case .userNotFound:
                     callback(.userNotFound)
+                case .keychainError:
+                    callback(.userNotFound)
                 default:
-                    print("callback(.failed) error - \(error)")
+                    print("user.delete error - \(error)")
                     callback(.failed)
                 }
             } else {
@@ -932,16 +989,23 @@ final class FBManager {
         }
     }
 
-    func reauthenticateUser(password: String, callback: @escaping (StateReauthenticateUser) -> Void) {
+    func reauthenticateUser(password: String, callback: @escaping (AuthErrorCodeState) -> Void) {
         guard let user = currentUser, let email = user.email else {return}
-
+        
         let credential = EmailAuthProvider.credential(withEmail: email, password: password)
-
+        
         user.reauthenticate(with: credential) { (result, error) in
+            
             if let error = error as? AuthErrorCode {
                 switch error.code {
                 case .wrongPassword:
                     callback(.wrongPassword)
+                case .userNotFound:
+                    callback(.userNotFound)
+                case .invalidCredential:
+                    callback(.invalidCredential)
+                case .tooManyRequests:
+                    callback(.tooManyRequests)
                 default:
                     callback(.failed)
                 }
@@ -951,7 +1015,8 @@ final class FBManager {
         }
     }
 
-    
+                  
+        
     // MARK: - NewSignInViewController -
 
 //    func deleteAnonymusUSer(anonymusUser:User) {

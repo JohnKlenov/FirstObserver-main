@@ -164,6 +164,8 @@ extension CartViewController: SignInViewControllerDelegate {
         // refactor getCartObservser
 //        managerFB.removeObserverForCartProductsUser()
         configureActivityView()
+//        getData` без активного подключения к сети вернет error
+        // ref.observe(.value) or think about it
         managerFB.getCartProductOnce { cartProducts in
             self.managerFB.userIsAnonymously { [weak self] (isAnonymously) in
                 self?.isAnonymouslyUser = isAnonymously

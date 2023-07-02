@@ -166,13 +166,13 @@ class HomeViewController: UIViewController {
     
         if oldPins != newPins {
             
-            placesFB.forEach { place in
-                managerFB.getImagefromStorage(refImage: place.refImage) { image in
-                    let pin = PlacesTest(title: place.name, locationName: place.address, discipline: "Торговый центр", coordinate: CLLocationCoordinate2D(latitude: place.latitude, longitude: place.longitude), image: image)
-                    self.placesMap.append(pin)
-                }
-
-            }
+//            placesFB.forEach { place in
+//                managerFB.getImagefromStorage(refImage: place.refImage) { image in
+//                    let pin = PlacesTest(title: place.name, locationName: place.address, discipline: "Торговый центр", coordinate: CLLocationCoordinate2D(latitude: place.latitude, longitude: place.longitude), image: image)
+//                    self.placesMap.append(pin)
+//                }
+//
+//            }
         }
         
     }

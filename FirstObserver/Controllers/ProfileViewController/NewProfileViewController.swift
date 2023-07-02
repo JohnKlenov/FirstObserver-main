@@ -385,6 +385,7 @@ final class NewProfileViewController: ParentNetworkViewController {
     // MARK: - FB methods
 
 
+    // нужно продумать что делать если у нас не получается вернуть корзину обратно на сервер(допустим сохранить ее на устройстве)
     private func saveRemuveCartProductFB() {
 
         // i think here error - !currentUser.isAnonymous and setValue(["permanentUser":uid])
@@ -490,28 +491,28 @@ private extension NewProfileViewController {
 //        }
     }
     
+//    self?.managerFB.signOut { (stateCallback, error) in
+//
+//        switch stateCallback {
+//        case .success:
+//            self?.setupAlert(title: "Success", message: "You are logged out!")
+//            self?.managerFB.avatarRef = nil
+//        case .failed:
+//            self?.signOutButton.configuration?.showsActivityIndicator = false
+//            self?.isAnimatedRemovalOfButtonsForAnonUser = false
+//            self?.setupAlert(title: "Failed SignOut", message: "Something went wrong! Try again!")
+//        }
+//    }
     @objc func didTapSignOut(_ sender: UIButton) {
         
-        setupSignOutAlert(title: "Warning", message: "You want to log out?") { [weak self] isSignOut in
+        setupSignOutAlert(title: "Warning", message: "You want to log out?") { isSignOut in
         
             if isSignOut {
-                self?.isAnimatedRemovalOfButtonsForAnonUser = true
-                self?.signOutButton.configuration?.showsActivityIndicator = true
-                
-                self?.managerFB.signOut { (stateCallback) in
-                    
-                    switch stateCallback {
-                    case .success:
-                        self?.setupAlert(title: "Success", message: "You are logged out!")
-                        self?.managerFB.avatarRef = nil
-                    case .failed:
-                        self?.signOutButton.configuration?.showsActivityIndicator = false
-                        self?.isAnimatedRemovalOfButtonsForAnonUser = false
-                        self?.setupAlert(title: "Failed SignOut", message: "Something went wrong! Try again!")
-                    }
-                }
+                self.isAnimatedRemovalOfButtonsForAnonUser = true
+                self.signOutButton.configuration?.showsActivityIndicator = true
+                self.signOutAccountUser()
             } else {
-                self?.isAnimatedRemovalOfButtonsForAnonUser = false
+                self.isAnimatedRemovalOfButtonsForAnonUser = false
             }
         }
     }
@@ -526,32 +527,7 @@ private extension NewProfileViewController {
 //                     удаляем корзину user и в случае не успеха deleteAccaunt должны ее вернуть
                 self.managerFB.deleteCurrentUserProducts()
                 self.deleteAccountButton.configuration?.showsActivityIndicator = true
-
-                self.managerFB.deleteAccaunt { (stateCallback) in
-                    switch stateCallback {
-
-                    case .success:
-                        self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                        self.managerFB.removeAvatarFromDeletedUser()
-                        self.setupAlert(title: "Success", message: "Current accaunt delete!")
-                    case .failed:
-                        // сохранить данные обратно в корзину зачем тут если мы все равно это делаем в setupFailedAlertDeleteAccount?
-//                        self.saveRemuveCartProductFB()
-                        self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                        self.isAnimatedRemovalOfButtonsForAnonUser = false
-                        self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again!")
-                    case .failedRequiresRecentLogin:
-                        self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                        self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
-                    case .networkError:
-                        self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                        self.setupFailedAlertDeleteAccount(title: "Failed", message: "Server connection problems. Try again!")
-                    case .userNotFound:
-                        self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                        self.setupFailedAlertDeleteAccount(title: "Failed", message: "You need to re-login to your account!")
-                    }
-                }
-
+                self.deleteAccountUser()
             } else {
                 self.isAnimatedRemovalOfButtonsForAnonUser = false
             }
@@ -683,7 +659,7 @@ private extension NewProfileViewController {
     }
 }
 
-// MARK: - extension Alerts
+// MARK: - extension Alerts -
 
 private extension NewProfileViewController {
 
@@ -735,9 +711,9 @@ private extension NewProfileViewController {
 
     }
 
-
-    // Log in again before retrying this request
-    func setupAlertRecentLogin(title:String, message:String, placeholder: String, completionHandler: @escaping (String) -> Void ) {
+    // alert for signOut account
+    
+    func alertAuthorizationForSignOutAccount(title:String, message:String, placeholder: String, completionHandler: @escaping (String) -> Void ) {
 
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let actionOK = UIAlertAction(title: "OK", style: .default) { action in
@@ -747,7 +723,99 @@ private extension NewProfileViewController {
         }
 
         let actionCancel = UIAlertAction(title: "Cancel", style: .cancel) { action in
-            // isDelete = false
+            
+        }
+
+        alertController.addAction(actionOK)
+        alertController.addAction(actionCancel)
+        alertController.addTextField { textField in
+            textField.placeholder = placeholder
+        }
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    func wrapperOverSignOutAlert(title:String, message: String) {
+        self.alertAuthorizationForSignOutAccount(title: title, message: message, placeholder: "enter password") { password in
+
+            self.signOutButton.configuration?.showsActivityIndicator = true
+            self.isAnimatedRemovalOfButtonsForAnonUser = true
+
+            self.managerFB.reauthenticateUser(password: password) { stateAuthError in
+
+                switch stateAuthError {
+
+                case .success:
+                    self.signOutAccountUser()
+                case .failed:
+                    self.failedSignOut()
+                    self.setupAlert(title: "Error", message: "Something went wrong! Try again!")
+                case .wrongPassword:
+                    self.failedSignOut()
+                    self.wrapperOverSignOutAlert(title: "Invalid password", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+                case .networkError:
+                    self.failedSignOut()
+                    self.setupAlert(title: "Error", message: "Server connection problems. Try again!")
+                case .tooManyRequests:
+                    self.failedSignOut()
+                    self.setupAlert(title: "Error", message: "The number of requests has exceeded the maximum allowable value. Try again later!")
+                case .invalidCredential:
+                    self.failedSignOut()
+                    self.setupAlert(title: "Error", message: "You need to re-login to your account!")
+                default:
+                    self.failedSignOut()
+                    self.setupAlert(title: "Failed SignOut", message: "Something went wrong! Try again!")
+                }
+            }
+        }
+    }
+
+    private func signOutAccountUser() {
+        managerFB.signOut { stateAuthError in
+            
+            switch stateAuthError {
+            case .success:
+                self.signOutButton.configuration?.showsActivityIndicator = false
+                self.setupAlert(title: "Success", message: "You are logged out!")
+                self.managerFB.avatarRef = nil
+            case .failed:
+                self.failedSignOut()
+                self.setupAlert(title: "Error", message: "Something went wrong! Try again!")
+            case .requiresRecentLogin:
+                self.failedSignOut()
+                self.wrapperOverSignOutAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+            case .networkError:
+                self.failedSignOut()
+                self.setupAlert(title: "Error", message: "Server connection problems. Try again!")
+            case .userNotFound:
+                self.failedSignOut()
+                self.setupAlert(title: "Error", message: "You need to re-login to your account!")
+            case .keychainError:
+                self.failedSignOut()
+                self.setupAlert(title: "Error", message: "You need to re-login to your account!")
+            default:
+                self.failedSignOut()
+                self.setupAlert(title: "Error", message: "Something went wrong! Try again!")
+            }
+        }
+    }
+    
+    private func failedSignOut() {
+        signOutButton.configuration?.showsActivityIndicator = false
+        isAnimatedRemovalOfButtonsForAnonUser = false
+    }
+    // alert for delete account
+    
+    // Log in again before retrying this request
+    func alertAuthorizationForDeleteAccount(title:String, message:String, placeholder: String, completionHandler: @escaping (String) -> Void ) {
+
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let actionOK = UIAlertAction(title: "OK", style: .default) { action in
+            let textField = alertController.textFields?.first
+            guard let text = textField?.text else {return}
+            completionHandler(text)
+        }
+
+        let actionCancel = UIAlertAction(title: "Cancel", style: .cancel) { action in
             // если у нас не получается удалить аккаунт то нужно оставить его корзину
             self.saveRemuveCartProductFB()
         }
@@ -762,54 +830,71 @@ private extension NewProfileViewController {
 
 
     func wrapperOverDeleteAlert(title:String, message: String) {
-        self.setupAlertRecentLogin(title: title, message: message, placeholder: "enter password") { password in
+        self.alertAuthorizationForDeleteAccount(title: title, message: message, placeholder: "enter password") { password in
 
             self.deleteAccountButton.configuration?.showsActivityIndicator = true
+            self.isAnimatedRemovalOfButtonsForAnonUser = true
 
-            self.managerFB.reauthenticateUser(password: password) { (stateCallback) in
+            self.managerFB.reauthenticateUser(password: password) { (stateAuthError) in
 
-                switch stateCallback {
+                switch stateAuthError {
 
                 case .success:
-
-                    self.managerFB.deleteAccaunt { (state) in
-                        switch state {
-
-                        case .success:
-                            self.managerFB.removeAvatarFromDeletedUser()
-                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                            self.setupAlert(title: "Success", message: "Current accaunt delete!")
-                        case .failed:
-                            self.isAnimatedRemovalOfButtonsForAnonUser = false
-                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                            self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again!")
-                        case .failedRequiresRecentLogin:
-                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                            self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
-                        case .networkError:
-                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                            self.setupFailedAlertDeleteAccount(title: "Failed", message: "Server connection problems. Try again!")
-                        case .userNotFound:
-                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                            self.setupFailedAlertDeleteAccount(title: "Failed", message: "You need to re-login to your account!")
-                        }
-                    }
+                    self.deleteAccountUser()
                 case .failed:
-                    self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                    // тут вызвать вместо setupFailedAlertDeleteAccount -> user.reauthenticate(with: credential)
-                    // потому что иначе мы заново будем создавать удаление -> deleteAccaunt { error in } а оно уже вызвано и привело сюда.
-                    // или написать [weak self] в setupAlertRecentLogin
-
-                    self.isAnimatedRemovalOfButtonsForAnonUser = false
-                    self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again later!")
+                    self.failedDeleteAccount()
+                    self.setupFailedAlertDeleteAccount(title: "Error", message: "Something went wrong. Try again later!")
                 case .wrongPassword:
-                    self.deleteAccountButton.configuration?.showsActivityIndicator = false
+                    self.failedDeleteAccount()
                     self.wrapperOverDeleteAlert(title: "Invalid password", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+                case .networkError:
+                    self.failedDeleteAccount()
+                    self.setupFailedAlertDeleteAccount(title: "Error", message: "Server connection problems. Try again!")
+                case .tooManyRequests:
+                    self.failedDeleteAccount()
+                    self.setupFailedAlertDeleteAccount(title: "Error", message: "The number of requests has exceeded the maximum allowable value. Try again later!")
+                case .invalidCredential:
+                    self.failedDeleteAccount()
+                    self.setupFailedAlertDeleteAccount(title: "Error", message: "You need to re-login to your account!")
+                default:
+                    self.failedDeleteAccount()
+                    self.setupFailedAlertDeleteAccount(title: "Error", message: "Something went wrong. Try again later!")
                 }
             }
         }
     }
 
+    private func deleteAccountUser() {
+        self.managerFB.deleteAccaunt { (stateAuthError) in
+            switch stateAuthError {
+
+            case .success:
+                self.managerFB.removeAvatarFromDeletedUser()
+                self.deleteAccountButton.configuration?.showsActivityIndicator = false
+                self.setupAlert(title: "Success", message: "Current accaunt delete!")
+            case .failed:
+                self.failedDeleteAccount()
+                self.setupFailedAlertDeleteAccount(title: "Error", message: "Something went wrong. Try again!")
+            case .requiresRecentLogin:
+                self.failedDeleteAccount()
+                self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+            case .networkError:
+                self.failedDeleteAccount()
+                self.setupFailedAlertDeleteAccount(title: "Error", message: "Server connection problems. Try again!")
+            case .userNotFound:
+                self.failedDeleteAccount()
+                self.setupFailedAlertDeleteAccount(title: "Error", message: "You need to re-login to your account!")
+            default:
+                self.failedDeleteAccount()
+                self.setupFailedAlertDeleteAccount(title: "Error", message: "Something went wrong. Try again!")
+            }
+        }
+    }
+    
+    private func failedDeleteAccount() {
+        self.isAnimatedRemovalOfButtonsForAnonUser = false
+        self.deleteAccountButton.configuration?.showsActivityIndicator = false
+    }
 
     func setupAlert(title: String, message: String) {
 
@@ -946,6 +1031,88 @@ extension UIViewController {
 
 
 
+
+
+
+
+
+
+//                self?.managerFB.signOut { (stateCallback, error) in
+//
+//                    switch stateCallback {
+//                    case .success:
+//                        self?.setupAlert(title: "Success", message: "You are logged out!")
+//                        self?.managerFB.avatarRef = nil
+//                    case .failed:
+//                        if let error = error as? AuthErrorCode {
+//                            switch error.code {
+//                            case .userTokenExpired:
+//                                print("Токен пользователя истек и необходимо повторно выполнить вход в систему")
+//                            case .requiresRecentLogin:
+//                                print("необходимо повторно выполнить вход в систему")
+//                            case .keychainError:
+//                                print("необходимо повторно выполнить вход в систему")
+//                            case .networkError:
+//                                print("Server connection problems. Try again!")
+//                            case .userNotFound:
+//                                print("You need to re-login to your account!")
+//                            default:
+//                                print("default Something went wrong! Try again!")
+//                            }
+//                        } else {
+//                            self?.signOutButton.configuration?.showsActivityIndicator = false
+//                            self?.isAnimatedRemovalOfButtonsForAnonUser = false
+//                            self?.setupAlert(title: "Failed SignOut", message: "Something went wrong! Try again!")
+//                        }
+
+
+//                    self.managerFB.deleteAccaunt { (state) in
+//                        switch state {
+//
+//                        case .success:
+//                            self.managerFB.removeAvatarFromDeletedUser()
+//                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+//                            self.setupAlert(title: "Success", message: "Current accaunt delete!")
+//                        case .failed:
+//                            self.isAnimatedRemovalOfButtonsForAnonUser = false
+//                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+//                            self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again!")
+//                        case .failedRequiresRecentLogin:
+//                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+//                            self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+//                        case .networkError:
+//                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+//                            self.setupFailedAlertDeleteAccount(title: "Failed", message: "Server connection problems. Try again!")
+//                        case .userNotFound:
+//                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+//                            self.setupFailedAlertDeleteAccount(title: "Failed", message: "You need to re-login to your account!")
+//                        }
+//                    }
+                    
+                    //                self.managerFB.deleteAccaunt { (stateCallback) in
+                    //                    switch stateCallback {
+                    //
+                    //                    case .success:
+                    //                        self.deleteAccountButton.configuration?.showsActivityIndicator = false
+                    //                        self.managerFB.removeAvatarFromDeletedUser()
+                    //                        self.setupAlert(title: "Success", message: "Current accaunt delete!")
+                    //                    case .failed:
+                    //                        // сохранить данные обратно в корзину зачем тут если мы все равно это делаем в setupFailedAlertDeleteAccount?
+                    ////                        self.saveRemuveCartProductFB()
+                    //                        self.deleteAccountButton.configuration?.showsActivityIndicator = false
+                    //                        self.isAnimatedRemovalOfButtonsForAnonUser = false
+                    //                        self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again!")
+                    //                    case .failedRequiresRecentLogin:
+                    //                        self.deleteAccountButton.configuration?.showsActivityIndicator = false
+                    //                        self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+                    //                    case .networkError:
+                    //                        self.deleteAccountButton.configuration?.showsActivityIndicator = false
+                    //                        self.setupFailedAlertDeleteAccount(title: "Failed", message: "Server connection problems. Try again!")
+                    //                    case .userNotFound:
+                    //                        self.deleteAccountButton.configuration?.showsActivityIndicator = false
+                    //                        self.setupFailedAlertDeleteAccount(title: "Failed", message: "You need to re-login to your account!")
+                    //                    }
+                    //                }
 
 
 //                let urlRef = storage.reference(forURL: photoURL)

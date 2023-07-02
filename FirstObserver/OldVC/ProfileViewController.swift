@@ -203,17 +203,17 @@ import Firebase
             isAnimateDeleteButtonAnonUser = true
             signOutButton.configuration?.showsActivityIndicator = true
 
-            managerFB.signOut { (stateCallback) in
-
-                switch stateCallback {
-                case .success:
-                    setupAlert(title: "Success", message: "You are logged out!")
-                case .failed:
-                    signOutButton.configuration?.showsActivityIndicator = false
-                    isAnimateDeleteButtonAnonUser = false
-                    setupAlert(title: "Failed SignOut", message: "Something went wrong! Try again!")
-                }
-            }
+//            managerFB.signOut { (stateCallback) in
+//
+//                switch stateCallback {
+//                case .success:
+//                    setupAlert(title: "Success", message: "You are logged out!")
+//                case .failed:
+//                    signOutButton.configuration?.showsActivityIndicator = false
+//                    isAnimateDeleteButtonAnonUser = false
+//                    setupAlert(title: "Failed SignOut", message: "Something went wrong! Try again!")
+//                }
+//            }
         }
 
         @IBAction func didTapSignInSignUp(_ sender: UIButton) {
@@ -268,12 +268,26 @@ import Firebase
                             self.deleteAccountButton.configuration?.showsActivityIndicator = false
                             self.isAnimateDeleteButtonAnonUser = false
                             self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again!")
-                        case .failedRequiresRecentLogin:
-                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                            self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+//                        case .failedRequiresRecentLogin:
+//                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+//                            self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
                         case .userNotFound:
                             print("")
                         case .networkError:
+                            print("")
+                        case .userTokenExpired:
+                            print("")
+                        case .requiresRecentLogin:
+                            print("")
+                        case .keychainError:
+                            print("")
+                        case .wrongPassword:
+                            print("")
+                        case .tooManyRequests:
+                            print("")
+                        case .expiredActionCode:
+                            print("")
+                        case .invalidCredential:
                             print("")
                         }
                     }
@@ -625,12 +639,26 @@ private extension ProfileViewController {
                             self.isAnimateDeleteButtonAnonUser = false
                             self.deleteAccountButton.configuration?.showsActivityIndicator = false
                             self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again!")
-                        case .failedRequiresRecentLogin:
-                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                            self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+//                        case .failedRequiresRecentLogin:
+//                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+//                            self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
                         case .userNotFound:
                             print("")
                         case .networkError:
+                            print("")
+                        case .userTokenExpired:
+                            print("")
+                        case .requiresRecentLogin:
+                            print("")
+                        case .keychainError:
+                            print("")
+                        case .wrongPassword:
+                            print("")
+                        case .tooManyRequests:
+                            print("")
+                        case .expiredActionCode:
+                            print("")
+                        case .invalidCredential:
                             print("")
                         }
                     }
@@ -645,6 +673,22 @@ private extension ProfileViewController {
                 case .wrongPassword:
                     self.deleteAccountButton.configuration?.showsActivityIndicator = false
                     self.wrapperOverDeleteAlert(title: "Invalid password", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+                case .userTokenExpired:
+                    print("")
+                case .requiresRecentLogin:
+                    print("")
+                case .keychainError:
+                    print("")
+                case .networkError:
+                    print("")
+                case .userNotFound:
+                    print("")
+                case .tooManyRequests:
+                    print("")
+                case .expiredActionCode:
+                    print("")
+                case .invalidCredential:
+                    print("")
                 }
             }
         }
