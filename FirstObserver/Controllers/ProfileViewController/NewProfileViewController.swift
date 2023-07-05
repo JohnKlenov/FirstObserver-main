@@ -181,6 +181,7 @@ final class NewProfileViewController: ParentNetworkViewController {
     // MARK: FB property
     let managerFB = FBManager.shared
     private var currentUser: User?
+    let collectorFailedMethods = CollectorFailedMethods.shared
     
     
     override func viewDidLoad() {
@@ -297,8 +298,11 @@ final class NewProfileViewController: ParentNetworkViewController {
 
         signOutButton.isHidden = false
         deleteAccountButton.isHidden = false
-
-        if let photoURL = user.photoURL?.absoluteString {
+        
+    
+        print("collectorFailedMethods.isFailedChangePhotoURLUser - \(collectorFailedMethods.isFailedChangePhotoURLUser)")
+        if let photoURL = user.photoURL?.absoluteString, !collectorFailedMethods.isFailedChangePhotoURLUser {
+            print("photoURL - \(photoURL)")
             imageUser.fetchingImageWithPlaceholder(url: photoURL, defaultImage: R.Images.Profile.defaultAvatarImage)
 
         } else {

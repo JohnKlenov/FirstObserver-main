@@ -76,6 +76,7 @@
 		5E7EF58D28A81EF100814F4D /* SegmentedControlMW.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7EF58C28A81EF100814F4D /* SegmentedControlMW.swift */; };
 		5E7EF59428AE3F2900814F4D /* BrandsCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7EF59328AE3F2900814F4D /* BrandsCollectionViewCell.swift */; };
 		5E7EF59628AE5B2200814F4D /* ProductCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7EF59528AE5B2200814F4D /* ProductCollectionViewCell.swift */; };
+		5E837CC12A54313900AFB2AF /* WrapperForUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E837CC02A54313900AFB2AF /* WrapperForUserDefaults.swift */; };
 		5E86E80F29C891C900B26907 /* NewProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E86E80E29C891C900B26907 /* NewProfileViewController.swift */; };
 		5E87237F29DC0CAC00AF46F1 /* UIViewController + extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E87237E29DC0CAC00AF46F1 /* UIViewController + extension.swift */; };
 		5E890BBA290AA16D00147C5F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5E890BB9290AA16D00147C5F /* GoogleService-Info.plist */; };
@@ -190,6 +191,7 @@
 		5E7EF58C28A81EF100814F4D /* SegmentedControlMW.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedControlMW.swift; sourceTree = "<group>"; };
 		5E7EF59328AE3F2900814F4D /* BrandsCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandsCollectionViewCell.swift; sourceTree = "<group>"; };
 		5E7EF59528AE5B2200814F4D /* ProductCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCollectionViewCell.swift; sourceTree = "<group>"; };
+		5E837CC02A54313900AFB2AF /* WrapperForUserDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrapperForUserDefaults.swift; sourceTree = "<group>"; };
 		5E86E80E29C891C900B26907 /* NewProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewProfileViewController.swift; sourceTree = "<group>"; };
 		5E87237E29DC0CAC00AF46F1 /* UIViewController + extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController + extension.swift"; sourceTree = "<group>"; };
 		5E890BB9290AA16D00147C5F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -571,6 +573,7 @@
 			isa = PBXGroup;
 			children = (
 				5E9C8E03297A7EF1009855AE /* FBManager.swift */,
+				5E837CC02A54313900AFB2AF /* WrapperForUserDefaults.swift */,
 			);
 			path = FBManager;
 			sourceTree = "<group>";
@@ -883,6 +886,7 @@
 				5E7EF57728A13BF600814F4D /* MallsViewController.swift in Sources */,
 				5E731C9628E4441200AF3A21 /* SignUpViewController.swift in Sources */,
 				5EC4764F290D816C0077D940 /* DynamicHeightCollectionView.swift in Sources */,
+				5E837CC12A54313900AFB2AF /* WrapperForUserDefaults.swift in Sources */,
 				5EB696052A00513000CDA901 /* HeaderMallsCollectionReusableView.swift in Sources */,
 				5EC212E32A062A9D00FFB216 /* OnboardViewController.swift in Sources */,
 				5E759F1528BE2A0000D17F13 /* CollectionViewCellProduct.swift in Sources */,

@@ -88,6 +88,9 @@ enum AuthErrorCodeState {
     case tooManyRequests
     case expiredActionCode
     case invalidCredential
+    case invalidRecipientEmail
+    case missingEmail
+    case invalidEmail
 }
 
 enum StateProfileInfo {
@@ -121,6 +124,7 @@ final class FBManager {
     var removeObserverForUserID: String?
     
     let defaults = UserDefaults.standard
+    let collectorFailedMethods = CollectorFailedMethods.shared
 //    var databaseRef: DatabaseReference?
     //
 //    lazy var databaseRef = Database.database().reference().child("usersAccaunt/\(currentUser?.uid ?? "")")
@@ -811,6 +815,7 @@ final class FBManager {
     
     func deleteStorageData(refStorage: StorageReference) {
         refStorage.delete { error in
+            // if delete failed not problem we rewrite avatar in server when calling imageChangeRequest again
             print("profileImgReference.delete - \(String(describing: error))")
         }
     }
@@ -830,14 +835,18 @@ final class FBManager {
             }
 
             request.commitChanges { error in
-                print("request.commitChanges ")
+                print("func createProfileChangeRequest(name: String? - \(String(describing: error))")
+                if error == nil, let _ = photoURL {
+                    self.collectorFailedMethods.isFailedChangePhotoURLUser = false
+                }
                     callBack?(error)
             }
         }
     }
 
     // ошибка на давнее не log in ??????
-    func resetProfileChangeRequest(reset: ResetProfile,_ callBack: ((Error?) -> Void)? = nil) {
+//    ((Error?) -> Void)? = nil
+    func resetProfileChangeRequest(reset: ResetProfile,_ callBack: @escaping (Error?) -> Void) {
 
         if let request = Auth.auth().currentUser?.createProfileChangeRequest() {
 
@@ -849,7 +858,8 @@ final class FBManager {
                 request.photoURL = nil
             }
             request.commitChanges { error in
-                callBack?(error)
+                print("func resetProfileChangeRequest(reset: ResetProfile - \(String(describing: error))")
+                callBack(error)
             }
         }
     }
@@ -860,11 +870,11 @@ final class FBManager {
             avatarRef.delete(completion: { error in
                 self.avatarRef = nil
                 if error != nil {
-                    print("Returne message for analitic FB Crashlystics")
+                    print("func removeAvatarFromDeletedUser() - Returne message for analitic FB Crashlystics error != nil")
                 }
             })
         } else {
-            print("Returne message for analitic FB Crashlystics")
+            print("Returne message for analitic FB Crashlystics avatarRef = nil")
         }
     }
     
@@ -890,14 +900,17 @@ final class FBManager {
                 } else {
                     self.avatarRef = nil
                     self.resetProfileChangeRequest(reset: .photoURL) { error in
-                        
+                        if error != nil {
+                            self.collectorFailedMethods.isFailedChangePhotoURLUser = true
+                            print("self.collectorFailedMethods.isFailedChangePhotoURLUser = true -  \(String(describing: error))")
+                        }
                     }
                     callback(.success)
                 }
             })
         } else {
             callback(.failed)
-            print("Returne message for analitic FB Crashlystics")
+            print("func removeAvatarFromCurrentUser - Returne message for analitic FB Crashlystics")
         }
     }
 
@@ -1129,22 +1142,58 @@ final class FBManager {
         }
     }
     
-    func sendPasswordReset(email: String, _ callBack: @escaping (StateCallback) -> Void) {
+//    func sendPasswordReset(email: String, _ callBack: @escaping (StateCallback) -> Void) {
+//        Auth.auth().sendPasswordReset(withEmail: email) { (error) in
+//            if error != nil {
+//                callBack(.failed)
+//            } else {
+//                Auth.auth().currentUser?.reload(completion: { error in
+//                    if error != nil {
+//                        print("Error currentUser?.reload(completion func sendPasswordReset( - \(String(describing: error))")
+//                    }
+//                    self.currentUser = Auth.auth().currentUser
+//                })
+//                callBack(.success)
+//            }
+//        }
+//    }
+    
+    func sendPasswordReset(email: String, _ callBack: @escaping (AuthErrorCodeState) -> Void) {
+        
         Auth.auth().sendPasswordReset(withEmail: email) { (error) in
-            if error != nil {
-                callBack(.failed)
+           
+            if let error = error as? AuthErrorCode {
+                switch error.code {
+                case .userTokenExpired:
+                    callBack(.userTokenExpired)
+                case .requiresRecentLogin:
+                    callBack(.requiresRecentLogin)
+                case .tooManyRequests:
+                    callBack(.tooManyRequests)
+                case .invalidRecipientEmail:
+                    callBack(.invalidRecipientEmail)
+                case .missingEmail:
+                    callBack(.missingEmail)
+                case .invalidEmail:
+                    callBack(.invalidEmail)
+                default:
+                    callBack(.failed)
+                }
             } else {
-                Auth.auth().currentUser?.reload(completion: { error in
-                    if error != nil {
-                        print("Error currentUser?.reload(completion func sendPasswordReset( - \(String(describing: error))")
-                    }
-                    self.currentUser = Auth.auth().currentUser
-                })
                 callBack(.success)
             }
         }
     }
     
+//    Auth.auth().currentUser?.reload(completion: { error in
+    //                    if error != nil {
+    //                        print("Error currentUser?.reload(completion func sendPasswordReset( - \(String(describing: error))")
+    //                    } else {
+    //                        print("Auth.auth().currentUser?.reload - Auth.auth().currentUser - \(String(describing: Auth.auth().currentUser))")
+    //                        self.currentUser = Auth.auth().currentUser
+    //                    }
+    //
+    //                })
     
     // MARK: - NewSignUpViewController
     
@@ -1315,6 +1364,7 @@ extension UIImageView {
         let storage = Storage.storage()
         let urlRef = storage.reference(forURL: url)
         self.sd_setImage(with: urlRef, maxImageSize: 1024*1024, placeholderImage: defaultImage, options: .refreshCached) { (image, error, cashType, storageRef) in
+            print(" func fetchingImageWithPlaceholder - storageRef - \(storageRef)")
             FBManager.shared.avatarRef = storageRef
             if error != nil {
                 self.image = defaultImage

@@ -284,33 +284,45 @@ final class NewSignInViewController: ParentNetworkViewController {
     }
     
     @objc func didTapForgotPasswordButton(_ sender: UIButton) {
-        
+
         sendPasswordResetAlert(title: "We will send you a link to reset your password", placeholder: "Enter your email") { [weak self] (enteredEmail) in
-            self?.managerFB.sendPasswordReset(email: enteredEmail) { [weak self] (state) in
-                switch state {
+            self?.managerFB.sendPasswordReset(email: enteredEmail) { [weak self] stateAuthError in
+                switch stateAuthError {
                 case .success:
-                    self?.createTopView(textWarning: "Password was reset. Please check you email.", color: R.Colors.systemGreen) { (alertView) in
-
-                        UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 0.2, initialSpringVelocity: 0.1, options: .curveEaseIn, animations: {alertView.frame.origin = CGPoint(x: 0, y: -20)}) { (isFinished) in
-                            if isFinished {
-                                UIView.animate(withDuration: 0.5, delay: 5, options: .curveEaseOut, animations: {alertView.frame.origin = CGPoint(x: 0, y: -64)}, completion: nil)
-                            }
-                        }
-                    }
+                    self?.showTopView(title: "Password was reset. Please check you email.", backgroundColor: R.Colors.systemGreen)
                 case .failed:
-                    self?.createTopView(textWarning: "Incorrect email. Please try again.", color: R.Colors.systemRed) { (alertView) in
-
-                        UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 0.2, initialSpringVelocity: 0.1, options: .curveEaseIn, animations: {alertView.frame.origin = CGPoint(x: 0, y: -20)}) { (isFinished) in
-                            if isFinished {
-                                // возможно придется скрыть cancel button
-                                UIView.animate(withDuration: 0.5, delay: 5, options: .curveEaseOut, animations: {alertView.frame.origin = CGPoint(x: 0, y: -64)}, completion: nil)
-                            }
-                        }
-                    }
+                    self?.showTopView(title: "Something went wrong! Try again!", backgroundColor: R.Colors.systemRed)
+                case .userTokenExpired:
+                    self?.showTopView(title: "You need to re-login to your account!", backgroundColor: R.Colors.systemRed)
+                case .requiresRecentLogin:
+                    self?.showTopView(title: "You need to re-login to your account!", backgroundColor: R.Colors.systemRed)
+                case .tooManyRequests:
+                    self?.showTopView(title: "Try again later!", backgroundColor: R.Colors.systemRed)
+                case .invalidRecipientEmail:
+                    self?.showTopView(title: "Incorrect email. Please try again!", backgroundColor: R.Colors.systemRed)
+                case .missingEmail:
+                    self?.showTopView(title: "Email was not provided!", backgroundColor: R.Colors.systemRed)
+                case .invalidEmail:
+                    self?.showTopView(title: "Email has an invalid format!", backgroundColor: R.Colors.systemRed)
+                default:
+                    self?.showTopView(title: "Something went wrong! Try again!", backgroundColor: R.Colors.systemRed)
                 }
             }
         }
     }
+    
+    private func showTopView(title: String, backgroundColor: UIColor) {
+        self.createTopView(textWarning: title, color: backgroundColor) { (alertView) in
+
+            UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 0.2, initialSpringVelocity: 0.1, options: .curveEaseIn, animations: {alertView.frame.origin = CGPoint(x: 0, y: -20)}) { (isFinished) in
+                if isFinished {
+                    UIView.animate(withDuration: 0.5, delay: 5, options: .curveEaseOut, animations: {alertView.frame.origin = CGPoint(x: 0, y: -64)}, completion: nil)
+                }
+            }
+        }
+    }
+    
+
     
     @IBAction func signInTextFieldChanged(_ sender: UITextField) {
         switch sender {
@@ -558,3 +570,35 @@ private extension NewSignInViewController {
         present(alertController, animated: true, completion: nil)
     }
 }
+
+
+
+
+//    @objc func didTapForgotPasswordButton(_ sender: UIButton) {
+//
+//        sendPasswordResetAlert(title: "We will send you a link to reset your password", placeholder: "Enter your email") { [weak self] (enteredEmail) in
+//            self?.managerFB.sendPasswordReset(email: enteredEmail) { [weak self] stateAuthError in
+//                switch stateAuthError {
+//                case .success:
+//                    self?.createTopView(textWarning: "Password was reset. Please check you email.", color: R.Colors.systemGreen) { (alertView) in
+//
+//                        UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 0.2, initialSpringVelocity: 0.1, options: .curveEaseIn, animations: {alertView.frame.origin = CGPoint(x: 0, y: -20)}) { (isFinished) in
+//                            if isFinished {
+//                                UIView.animate(withDuration: 0.5, delay: 5, options: .curveEaseOut, animations: {alertView.frame.origin = CGPoint(x: 0, y: -64)}, completion: nil)
+//                            }
+//                        }
+//                    }
+//                case .failed:
+//                    self?.createTopView(textWarning: "Incorrect email. Please try again.", color: R.Colors.systemRed) { (alertView) in
+//
+//                        UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 0.2, initialSpringVelocity: 0.1, options: .curveEaseIn, animations: {alertView.frame.origin = CGPoint(x: 0, y: -20)}) { (isFinished) in
+//                            if isFinished {
+//                                // возможно придется скрыть cancel button
+//                                UIView.animate(withDuration: 0.5, delay: 5, options: .curveEaseOut, animations: {alertView.frame.origin = CGPoint(x: 0, y: -64)}, completion: nil)
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }

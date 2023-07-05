@@ -245,58 +245,58 @@ import Firebase
 //            newHVC.modalPresentationStyle = .fullScreen
 //            present(newHVC, animated: true, completion: nil)
 
-            getFetchDataHVC()
-            setupDeleteAlert(title: "Warning", message: "Deleting your account will permanently lose your data!") { isDelete in
-
-                if isDelete {
-                    self.isAnimateDeleteButtonAnonUser = true
-//                     удаляем корзину user и в случае не успеха deleteAccaunt должны ее вернуть
-                    self.managerFB.deleteCurrentUserProducts()
-                    self.deleteAccountButton.configuration?.showsActivityIndicator = true
-
-                    self.managerFB.deleteAccaunt { (stateCallback) in
-                        switch stateCallback {
-
-                        case .success:
-                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                            self.managerFB.removeAvatarFromDeletedUser()
-                            self.setupAlert(title: "Success", message: "Current accaunt delete!")
-                        case .failed:
-                            // сохранить данные обратно в корзину?
-//                            saveRemuveCartProductFB
-
-                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                            self.isAnimateDeleteButtonAnonUser = false
-                            self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again!")
-//                        case .failedRequiresRecentLogin:
+//            getFetchDataHVC()
+//            setupDeleteAlert(title: "Warning", message: "Deleting your account will permanently lose your data!") { isDelete in
+//
+//                if isDelete {
+//                    self.isAnimateDeleteButtonAnonUser = true
+////                     удаляем корзину user и в случае не успеха deleteAccaunt должны ее вернуть
+//                    self.managerFB.deleteCurrentUserProducts()
+//                    self.deleteAccountButton.configuration?.showsActivityIndicator = true
+//
+//                    self.managerFB.deleteAccaunt { (stateCallback) in
+//                        switch stateCallback {
+//
+//                        case .success:
 //                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-//                            self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
-                        case .userNotFound:
-                            print("")
-                        case .networkError:
-                            print("")
-                        case .userTokenExpired:
-                            print("")
-                        case .requiresRecentLogin:
-                            print("")
-                        case .keychainError:
-                            print("")
-                        case .wrongPassword:
-                            print("")
-                        case .tooManyRequests:
-                            print("")
-                        case .expiredActionCode:
-                            print("")
-                        case .invalidCredential:
-                            print("")
-                        }
-                    }
-
-                } else {
-                    self.isAnimateDeleteButtonAnonUser = false
-                    print("Cancel delete Accaunt!")
-                }
-            }
+//                            self.managerFB.removeAvatarFromDeletedUser()
+//                            self.setupAlert(title: "Success", message: "Current accaunt delete!")
+//                        case .failed:
+//                            // сохранить данные обратно в корзину?
+////                            saveRemuveCartProductFB
+//
+//                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+//                            self.isAnimateDeleteButtonAnonUser = false
+//                            self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again!")
+////                        case .failedRequiresRecentLogin:
+////                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+////                            self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+//                        case .userNotFound:
+//                            print("")
+//                        case .networkError:
+//                            print("")
+//                        case .userTokenExpired:
+//                            print("")
+//                        case .requiresRecentLogin:
+//                            print("")
+//                        case .keychainError:
+//                            print("")
+//                        case .wrongPassword:
+//                            print("")
+//                        case .tooManyRequests:
+//                            print("")
+//                        case .expiredActionCode:
+//                            print("")
+//                        case .invalidCredential:
+//                            print("")
+//                        }
+//                    }
+//
+//                } else {
+//                    self.isAnimateDeleteButtonAnonUser = false
+//                    print("Cancel delete Accaunt!")
+//                }
+//            }
         }
 
 
@@ -618,80 +618,80 @@ private extension ProfileViewController {
 
 
     func wrapperOverDeleteAlert(title:String, message: String) {
-        self.setupAlertRecentLogin(title: title, message: message, placeholder: "enter password") { password in
-
-            self.deleteAccountButton.configuration?.showsActivityIndicator = true
-
-            self.managerFB.reauthenticateUser(password: password) { (stateCallback) in
-
-                switch stateCallback {
-
-                case .success:
-
-                    self.managerFB.deleteAccaunt { (state) in
-                        switch state {
-
-                        case .success:
-                            self.managerFB.removeAvatarFromDeletedUser()
-                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                            self.setupAlert(title: "Success", message: "Current accaunt delete!")
-                        case .failed:
-                            self.isAnimateDeleteButtonAnonUser = false
-                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                            self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again!")
-//                        case .failedRequiresRecentLogin:
+//        self.setupAlertRecentLogin(title: title, message: message, placeholder: "enter password") { password in
+//
+//            self.deleteAccountButton.configuration?.showsActivityIndicator = true
+//
+//            self.managerFB.reauthenticateUser(password: password) { (stateCallback) in
+//
+//                switch stateCallback {
+//
+//                case .success:
+//
+//                    self.managerFB.deleteAccaunt { (state) in
+//                        switch state {
+//
+//                        case .success:
+//                            self.managerFB.removeAvatarFromDeletedUser()
 //                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
-//                            self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
-                        case .userNotFound:
-                            print("")
-                        case .networkError:
-                            print("")
-                        case .userTokenExpired:
-                            print("")
-                        case .requiresRecentLogin:
-                            print("")
-                        case .keychainError:
-                            print("")
-                        case .wrongPassword:
-                            print("")
-                        case .tooManyRequests:
-                            print("")
-                        case .expiredActionCode:
-                            print("")
-                        case .invalidCredential:
-                            print("")
-                        }
-                    }
-                case .failed:
-                    self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                    // тут вызвать вместо setupFailedAlertDeleteAccount -> user.reauthenticate(with: credential)
-                    // потому что иначе мы заново будем создавать удаление -> deleteAccaunt { error in } а оно уже вызвано и привело сюда.
-                    // или написать [weak self] в setupAlertRecentLogin
-
-                    self.isAnimateDeleteButtonAnonUser = false
-                    self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again later!")
-                case .wrongPassword:
-                    self.deleteAccountButton.configuration?.showsActivityIndicator = false
-                    self.wrapperOverDeleteAlert(title: "Invalid password", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
-                case .userTokenExpired:
-                    print("")
-                case .requiresRecentLogin:
-                    print("")
-                case .keychainError:
-                    print("")
-                case .networkError:
-                    print("")
-                case .userNotFound:
-                    print("")
-                case .tooManyRequests:
-                    print("")
-                case .expiredActionCode:
-                    print("")
-                case .invalidCredential:
-                    print("")
-                }
-            }
-        }
+//                            self.setupAlert(title: "Success", message: "Current accaunt delete!")
+//                        case .failed:
+//                            self.isAnimateDeleteButtonAnonUser = false
+//                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+//                            self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again!")
+////                        case .failedRequiresRecentLogin:
+////                            self.deleteAccountButton.configuration?.showsActivityIndicator = false
+////                            self.wrapperOverDeleteAlert(title: "Error", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+//                        case .userNotFound:
+//                            print("")
+//                        case .networkError:
+//                            print("")
+//                        case .userTokenExpired:
+//                            print("")
+//                        case .requiresRecentLogin:
+//                            print("")
+//                        case .keychainError:
+//                            print("")
+//                        case .wrongPassword:
+//                            print("")
+//                        case .tooManyRequests:
+//                            print("")
+//                        case .expiredActionCode:
+//                            print("")
+//                        case .invalidCredential:
+//                            print("")
+//                        }
+//                    }
+//                case .failed:
+//                    self.deleteAccountButton.configuration?.showsActivityIndicator = false
+//                    // тут вызвать вместо setupFailedAlertDeleteAccount -> user.reauthenticate(with: credential)
+//                    // потому что иначе мы заново будем создавать удаление -> deleteAccaunt { error in } а оно уже вызвано и привело сюда.
+//                    // или написать [weak self] в setupAlertRecentLogin
+//
+//                    self.isAnimateDeleteButtonAnonUser = false
+//                    self.setupFailedAlertDeleteAccount(title: "Failed", message: "Something went wrong. Try again later!")
+//                case .wrongPassword:
+//                    self.deleteAccountButton.configuration?.showsActivityIndicator = false
+//                    self.wrapperOverDeleteAlert(title: "Invalid password", message: "Enter the password for \(self.currentUser?.email ?? "the current account") to delete your account!")
+//                case .userTokenExpired:
+//                    print("")
+//                case .requiresRecentLogin:
+//                    print("")
+//                case .keychainError:
+//                    print("")
+//                case .networkError:
+//                    print("")
+//                case .userNotFound:
+//                    print("")
+//                case .tooManyRequests:
+//                    print("")
+//                case .expiredActionCode:
+//                    print("")
+//                case .invalidCredential:
+//                    print("")
+//                }
+//            }
+//        }
     }
 
 
