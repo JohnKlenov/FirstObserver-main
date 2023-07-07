@@ -317,7 +317,7 @@ class NewProductViewController: ParentNetworkViewController {
         mapView.addGestureRecognizer(mapTapGestureRecognizer)
     }
     
-    private func saveProductFB() {
+    private func saveProductFB(callBack: @escaping (StateCallback) -> Void) {
         
         guard let product = productModel else { return }
         
@@ -326,10 +326,19 @@ class NewProductViewController: ParentNetworkViewController {
         do {
             let data = try encoder.encode(productEncode)
             let json = try JSONSerialization.jsonObject(with: data)
-            managerFB.addProductInBaseData(nameProduct: product.model, json: json)
-            configureBadgeValue()
+            managerFB.addProductInBaseData(nameProduct: product.model, json: json) { state in
+                switch state {
+                    
+                case .success:
+                    self.configureBadgeValue()
+                    callBack(.success)
+                case .failed:
+                    callBack(.failed)
+                }
+            }
         } catch {
-            print("an error occured", error)
+            print("func saveProductFB error -", error)
+            callBack(.failed)
         }
     }
     
@@ -469,16 +478,25 @@ class NewProductViewController: ParentNetworkViewController {
         }
     }
     
-    @objc func addToCardPressed(_ sender: UIButton) {
-        
-        saveProductFB()
-        let alertView = SPAlertView(title: "Product added to cart", preset: .done)
-//        alertView = SPAlertView(preset: .spinner)
+    private func alertViewSP(present: SPAlertIconPreset) {
+        let alertView = SPAlertView(title: "Product added to cart", preset: present)
         alertView.layout.margins.top = 30
         alertView.layout.iconSize = .init(width: view.frame.width/4, height: view.frame.width/4)
         alertView.duration = 2
         alertView.present()
-        isAddedToCard = !isAddedToCard
+    }
+    
+    @objc func addToCardPressed(_ sender: UIButton) {
+        
+        saveProductFB() { state in
+            switch state {
+            case .success:
+                self.alertViewSP(present: .done)
+                self.isAddedToCard = !self.isAddedToCard
+            case .failed:
+                self.alertViewSP(present: .error)
+            }
+        }
     }
     
     @objc func websiteButtonPressed(_ sender: UIButton) {

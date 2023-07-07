@@ -297,9 +297,9 @@ final class NewSignUpViewController: ParentNetworkViewController {
             isInvalidSignIn = false
         }
         
-        managerFB.registerUserSignUpVC(email: email, password: password, name: name) { [weak self] (state) in
+        managerFB.registerUserSignUpVC(email: email, password: password, name: name) { [weak self] stateAuthError in
             
-            switch state {
+            switch stateAuthError {
             case .success:
                 self?.signingIn = false
                 self?.isEnabledSignUpButton(enabled: false)
@@ -307,32 +307,47 @@ final class NewSignUpViewController: ParentNetworkViewController {
                 self?.registerShowAlert(title: "Success", message: "An email has been sent to \(email), please confirm your email address.") {
                     self?.presentingViewController?.presentingViewController?.dismiss(animated: true, completion: nil)
                 }
-            case .failure(let error):
-                
+            case .failed:
                 self?.signingIn = false
                 self?.isEnabledSignUpButton(enabled: false)
-                
-                switch error {
-                    
-                case .invalidEmail:
-                    self?.registerShowAlert(title: "Error", message: "Email address is not in the correct format!")
-                    self?.separatorEmailView.backgroundColor = R.Colors.systemRed
-                case .emailAlreadyInUse:
-                    self?.registerShowAlert(title: "Error", message: "The email address used to attempt registration already exists!")
-                    self?.separatorEmailView.backgroundColor = R.Colors.systemRed
-                case .weakPassword:
-                    self?.registerShowAlert(title: "Error", message: "The entered password is too weak!")
-                    self?.separatorPasswordView.backgroundColor = R.Colors.systemRed
-                case .wrongPassword:
-                    self?.registerShowAlert(title: "Error", message: "Wrong Password!")
-                    self?.separatorPasswordView.backgroundColor = R.Colors.systemRed
-                case .somethingWentWrong:
-                    self?.registerShowAlert(title: "Error", message: "Something went wrong try again!")
-                }
+                self?.registerShowAlert(title: "Error", message: "Something went wrong! Try again!")
+            case .userTokenExpired:
+                self?.signingIn = false
+                self?.isEnabledSignUpButton(enabled: false)
+                self?.registerShowAlert(title: "Error", message: "You need to re-login to your account!")
+            case .requiresRecentLogin:
+                self?.signingIn = false
+                self?.isEnabledSignUpButton(enabled: false)
+                self?.registerShowAlert(title: "Error", message: "You need to re-login to your account!")
+            case .networkError:
+                self?.signingIn = false
+                self?.isEnabledSignUpButton(enabled: false)
+                self?.registerShowAlert(title: "Error", message: "Server connection problems. Try again!")
+            case .tooManyRequests:
+                self?.signingIn = false
+                self?.isEnabledSignUpButton(enabled: false)
+                self?.registerShowAlert(title: "Error", message: "Try again later!")
+            case .invalidEmail:
+                self?.signingIn = false
+                self?.isEnabledSignUpButton(enabled: false)
+                self?.separatorEmailView.backgroundColor = R.Colors.systemRed
+                self?.registerShowAlert(title: "Error", message: "Email address is not in the correct format!")
+            case .emailAlreadyInUse:
+                self?.signingIn = false
+                self?.isEnabledSignUpButton(enabled: false)
+                self?.separatorEmailView.backgroundColor = R.Colors.systemRed
+                self?.registerShowAlert(title: "Error", message: "The email address used to attempt registration already exists!")
+            case .weakPassword:
+                self?.signingIn = false
+                self?.isEnabledSignUpButton(enabled: false)
+                self?.separatorPasswordView.backgroundColor = R.Colors.systemRed
+                self?.registerShowAlert(title: "Error", message: "The entered password is too weak!")
+            default:
+                self?.signingIn = false
+                self?.isEnabledSignUpButton(enabled: false)
+                self?.registerShowAlert(title: "Error", message: "Something went wrong! Try again!")
             }
-
         }
-        
     }
     
     @objc func keyboardWillHideSignUp(notification: Notification) {
@@ -522,3 +537,35 @@ private extension NewSignUpViewController {
     
 }
 
+
+
+
+//            case .success:
+//                self?.signingIn = false
+//                self?.isEnabledSignUpButton(enabled: false)
+//                self?.signInDelegate?.userDidRegisteredNew?()
+//                self?.registerShowAlert(title: "Success", message: "An email has been sent to \(email), please confirm your email address.") {
+//                    self?.presentingViewController?.presentingViewController?.dismiss(animated: true, completion: nil)
+//                }
+//            case .failure(let error):
+//
+//                self?.signingIn = false
+//                self?.isEnabledSignUpButton(enabled: false)
+//
+//                switch error {
+//
+//                case .invalidEmail:
+//                    self?.registerShowAlert(title: "Error", message: "Email address is not in the correct format!")
+//                    self?.separatorEmailView.backgroundColor = R.Colors.systemRed
+//                case .emailAlreadyInUse:
+//                    self?.registerShowAlert(title: "Error", message: "The email address used to attempt registration already exists!")
+//                    self?.separatorEmailView.backgroundColor = R.Colors.systemRed
+//                case .weakPassword:
+//                    self?.registerShowAlert(title: "Error", message: "The entered password is too weak!")
+//                    self?.separatorPasswordView.backgroundColor = R.Colors.systemRed
+//                case .wrongPassword:
+//                    self?.registerShowAlert(title: "Error", message: "Wrong Password!")
+//                    self?.separatorPasswordView.backgroundColor = R.Colors.systemRed
+//                case .somethingWentWrong:
+//                    self?.registerShowAlert(title: "Error", message: "Something went wrong try again!")
+//                }

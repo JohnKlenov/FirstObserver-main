@@ -235,43 +235,62 @@ final class NewSignInViewController: ParentNetworkViewController {
     
     @objc func didTapSignInButton(_ sender: UIButton) {
         
-//        self.signingIn = true
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-//            print("DispatchQueue.main.asyncAfter")
-//            self.signingIn = false
-//        }
+        //        self.signingIn = true
+        //        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+        //            print("DispatchQueue.main.asyncAfter")
+        //            self.signingIn = false
+        //        }
         guard let email = emailTextField.text, let password = passwordTextField.text else { return }
         
         //  signingIn - flag changed configuration button
         signingIn = true
-        managerFB.signIn(email: email, password: password) { [weak self] (response) in
+        managerFB.signIn(email: email, password: password) { [weak self] (stateAuthError) in
             
-            switch response {
+            switch stateAuthError {
             case .success:
                 self?.signingIn = false
                 self?.isEnabledSignInButton(enabled: false)
                 self?.userDidRegisteredNew()
                 self?.presentingViewController?.dismiss(animated: true, completion: nil)
+            case .failed:
+                self?.signingIn = false
+                self?.signInAlert(title: "Error", message: "Something went wrong! Try again!", comletionHandler: {
+                    self?.isInvalidSignIn = true
+                })
             case .invalidEmail:
                 self?.signingIn = false
                 self?.signInAlert(title: "Error", message: "Invalid email", comletionHandler: {
                     self?.separatorEmailView.backgroundColor = R.Colors.systemRed
                     self?.isInvalidSignIn = true
                 })
-            case .invalidPassword:
+            case .wrongPassword:
                 self?.signingIn = false
-                self?.signInAlert(title: "Error", message: "Invalid password", comletionHandler: {
+                self?.signInAlert(title: "Error", message: "Wrong password!", comletionHandler: {
                     self?.separatorPasswordView.backgroundColor = R.Colors.systemRed
                     self?.isInvalidSignIn = true
                 })
-            case .wentWrong:
+            case .userTokenExpired:
                 self?.signingIn = false
-                self?.signInAlert(title: "Error", message: "Something went wrong try again", comletionHandler: {
+                self?.signInAlert(title: "Error", message: "You need to re-login to your account!", comletionHandler: {
+                    self?.isInvalidSignIn = true
+                })
+            case .requiresRecentLogin:
+                self?.signingIn = false
+                self?.signInAlert(title: "Error", message: "You need to re-login to your account!", comletionHandler: {
+                    self?.isInvalidSignIn = true
+                })
+            case .tooManyRequests:
+                self?.signingIn = false
+                self?.signInAlert(title: "Error", message: "Try again later!", comletionHandler: {
+                    self?.isInvalidSignIn = true
+                })
+            default:
+                self?.signingIn = false
+                self?.signInAlert(title: "Error", message: "Something went wrong! Try again!", comletionHandler: {
                     self?.isInvalidSignIn = true
                 })
             }
         }
-        
     }
     
     @objc func didTapSignUpButton(_ sender: UIButton) {
