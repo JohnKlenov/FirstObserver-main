@@ -113,6 +113,7 @@ final class FBManager {
 
     static let shared = FBManager()
     var currentUser: User?
+    var cartProducts = [PopularProduct]()
     var avatarRef: StorageReference?
     var refHandleCart: DatabaseHandle?
     var refHandleCatalog: DatabaseHandle?
@@ -1090,84 +1091,55 @@ final class FBManager {
 //        }
 //    }
     
-    func signIn(email: String, password: String, callBack: @escaping (AuthErrorCodeState) -> Void) {
-        
-        guard let currentUser = currentUser else {
-            return
-        }
-        
-        if currentUser.isAnonymous {
-            let uidUser = currentUser.uid
-            Database.database().reference().child("usersAccaunt").child(uidUser).removeValue()
-        }
-        
-        Auth.auth().signIn(withEmail: email, password: password) { (result, error) in
-            
-            if let error = error as? AuthErrorCode {
-                
-                switch error.code {
-                    
-                case .invalidEmail:
-                    callBack(.invalidEmail)
-                case .wrongPassword:
-                    callBack(.wrongPassword)
-                case .tooManyRequests:
-                    callBack(.tooManyRequests)
-                case .networkError:
-                    callBack(.networkError)
-                case .userTokenExpired:
-                    callBack(.userTokenExpired)
-                case .requiresRecentLogin:
-                    callBack(.requiresRecentLogin)
-                case .userDisabled:
-                    callBack(.userDisabled)
-                default:
-                    callBack(.failed)
-                }
-            } else {
-                if currentUser.isAnonymous {
-                    currentUser.delete { error in
-                        print("Error func signIn  - \(String(describing: error))")
-                        if error != nil {
-                            self.collectorFailedMethods.isFailedDeleteIsAnonymousUser = true
-                        }
-                    }
-                }
-                callBack(.success)
-            }
-        }
-    }
-    
-//    func signIn(email: String, password: String, callBack: @escaping (SignInCallback) -> Void) {
-//
+//    func signIn(email: String, password: String, callBack: @escaping (AuthErrorCodeState) -> Void) {
+//        
 //        guard let currentUser = currentUser else {
 //            return
 //        }
-//
-//        if currentUser.isAnonymous {
+//        
+//        if currentUser.isAnonymous, cartProducts.count > 0 {
 //            let uidUser = currentUser.uid
-//            print("currentUser.isAnonymous - Database.database().reference().child().child(uidUser).removeValue()")
-//            Database.database().reference().child("usersAccaunt").child(uidUser).removeValue()
+//            Database.database().reference().child("usersAccaunt").child(uidUser).removeValue { (error, reference) in
+//                if error != nil {
+//                    // не будем мешать пользователю регистрации если он сможет
+//                    // нужно оповестить админа о том что этот uidUser не смог удалить корзину
+//                    self.collectorFailedMethods.isFailedRemoveCartProductsAnonymousUser = uidUser
+//                    print("isFailedRemoveCartProductsAnonymousUser - \(String(describing: error))")
+//                }
+//                
+//            }
 //        }
-//
+//        
 //        Auth.auth().signIn(withEmail: email, password: password) { (result, error) in
-//
+//            
 //            if let error = error as? AuthErrorCode {
-//
+//                
 //                switch error.code {
-//
+//                    
 //                case .invalidEmail:
 //                    callBack(.invalidEmail)
 //                case .wrongPassword:
-//                    callBack(.invalidPassword)
+//                    callBack(.wrongPassword)
+//                case .tooManyRequests:
+//                    callBack(.tooManyRequests)
+//                case .networkError:
+//                    callBack(.networkError)
+//                case .userTokenExpired:
+//                    callBack(.userTokenExpired)
+//                case .requiresRecentLogin:
+//                    callBack(.requiresRecentLogin)
+//                case .userDisabled:
+//                    callBack(.userDisabled)
 //                default:
-//                    callBack(.wentWrong)
+//                    callBack(.failed)
 //                }
 //            } else {
 //                if currentUser.isAnonymous {
-//                    print("func signIn - currentUser.isAnonymous")
-//                    currentUser.delete { (error) in
-//                        print("Error - \(String(describing: error))")
+//                    currentUser.delete { error in
+//                        print("Error func signIn  - \(String(describing: error))")
+//                        if error != nil {
+//                            self.collectorFailedMethods.isFailedDeleteIsAnonymousUser = true
+//                        }
 //                    }
 //                }
 //                callBack(.success)
@@ -1175,11 +1147,13 @@ final class FBManager {
 //        }
 //    }
     
+
+    
     func saveDeletedFromCart(products: [PopularProduct]) {
         
         guard let currentUser = currentUser else { return }
         
-        if currentUser.isAnonymous {
+        if currentUser.isAnonymous, products.count > 0 {
             
             let encoder = JSONEncoder()
             let uid = currentUser.uid
@@ -1199,7 +1173,6 @@ final class FBManager {
                     let data = try encoder.encode(addedProduct.value)
                     let json = try JSONSerialization.jsonObject(with: data)
                     let ref = Database.database().reference(withPath: "usersAccaunt/\(uid)/AddedProducts")
-//                    ref.updateChildValues([addedProduct.key:json])
                     ref.updateChildValues([addedProduct.key:json]) { (error, reference) in
                         if error != nil {
                             self.collectorFailedMethods.isFailedSaveDeletedFromCart = true
@@ -1258,16 +1231,6 @@ final class FBManager {
             }
         }
     }
-    
-//    Auth.auth().currentUser?.reload(completion: { error in
-    //                    if error != nil {
-    //                        print("Error currentUser?.reload(completion func sendPasswordReset( - \(String(describing: error))")
-    //                    } else {
-    //                        print("Auth.auth().currentUser?.reload - Auth.auth().currentUser - \(String(describing: Auth.auth().currentUser))")
-    //                        self.currentUser = Auth.auth().currentUser
-    //                    }
-    //
-    //                })
     
     // MARK: - NewSignUpViewController
     
@@ -1378,12 +1341,85 @@ final class FBManager {
         })
     }
     
+    
+
+    func signIn2(email: String, password: String, callBack: @escaping (AuthErrorCodeState) -> Void) {
+        
+        guard let currentUser = currentUser else {
+            return
+        }
+        var countProduct = self.cartProducts.count
+       
+        
+        Auth.auth().signIn(withEmail: email, password: password) { (result, error) in
+            
+            if let error = error as? AuthErrorCode {
+                
+                switch error.code {
+                    
+                case .invalidEmail:
+                    callBack(.invalidEmail)
+                case .wrongPassword:
+                    callBack(.wrongPassword)
+                case .tooManyRequests:
+                    callBack(.tooManyRequests)
+                case .networkError:
+                    callBack(.networkError)
+                case .userTokenExpired:
+                    callBack(.userTokenExpired)
+                case .requiresRecentLogin:
+                    callBack(.requiresRecentLogin)
+                case .userDisabled:
+                    callBack(.userDisabled)
+                default:
+                    callBack(.failed)
+                }
+            } else {
+                if currentUser.isAnonymous {
+                    print("old urrentUser.isAnonymous - \(currentUser.uid)")
+                    currentUser.delete { error in
+                        if let error = error {
+                            print("currentUser.delete error - \(error.localizedDescription) ")
+//                            Crashlytics.sharedInstance().recordError(error)
+                        } else {
+                            print(".success currentUser.delete")
+                        }
+                    }
+                }
+                if currentUser.isAnonymous, countProduct > 0 {
+                    
+                    let uidUser = currentUser.uid
+//                    let timestamp = ServerValue.timestamp()
+//                    let data: [String: Any] = [
+//                        "timestamp": timestamp
+//                    ]
+                    let canDelete: [String:Bool] = [uidUser:true]
+                    let ref = Database.database().reference().child("usersAccaunt").child(uidUser)
+                    ref.updateChildValues(canDelete) { (error, ref) in
+                        if error == nil {
+                            Database.database().reference().child("usersAccaunt").child(uidUser).removeValue { (error, reference) in
+                                if let error = error {
+                                    print(" .failed child(usersAccaunt).child(uidUser).removeValue Error - \(error.localizedDescription)")
+                //                    Crashlytics.sharedInstance().recordError(error)
+                                } else {
+                                    print(".success child(uidUser).removeValue")
+                                }
+                            }
+                        } else {
+                            print(".failed updateChildValues(canDelete) Error - \(String(describing: error?.localizedDescription))")
+//                            Crashlytics.sharedInstance().recordError(error)
+                        }
+                    }
+                }
+                callBack(.success)
+            }
+        }
+    }
+
 }
 
 
 extension UIImageView {
-
-
 
     func fetchingImageWithPlaceholder(url: String, defaultImage: UIImage?) {
         let storage = Storage.storage()
@@ -1401,6 +1437,53 @@ extension UIImageView {
 
 
 
+
+
+//    func signIn(email: String, password: String, callBack: @escaping (SignInCallback) -> Void) {
+//
+//        guard let currentUser = currentUser else {
+//            return
+//        }
+//
+//        if currentUser.isAnonymous {
+//            let uidUser = currentUser.uid
+//            print("currentUser.isAnonymous - Database.database().reference().child().child(uidUser).removeValue()")
+//            Database.database().reference().child("usersAccaunt").child(uidUser).removeValue()
+//        }
+//
+//        Auth.auth().signIn(withEmail: email, password: password) { (result, error) in
+//
+//            if let error = error as? AuthErrorCode {
+//
+//                switch error.code {
+//
+//                case .invalidEmail:
+//                    callBack(.invalidEmail)
+//                case .wrongPassword:
+//                    callBack(.invalidPassword)
+//                default:
+//                    callBack(.wentWrong)
+//                }
+//            } else {
+//                if currentUser.isAnonymous {
+//                    print("func signIn - currentUser.isAnonymous")
+//                    currentUser.delete { (error) in
+//                        print("Error - \(String(describing: error))")
+//                    }
+//                }
+//                callBack(.success)
+//            }
+//        }
+//    }
+//    Auth.auth().currentUser?.reload(completion: { error in
+    //                    if error != nil {
+    //                        print("Error currentUser?.reload(completion func sendPasswordReset( - \(String(describing: error))")
+    //                    } else {
+    //                        print("Auth.auth().currentUser?.reload - Auth.auth().currentUser - \(String(describing: Auth.auth().currentUser))")
+    //                        self.currentUser = Auth.auth().currentUser
+    //                    }
+    //
+    //                })
 
 //    func registerUserSignUpVC(email: String, password: String, name: String, completion: @escaping (AuthErrorCodeState) -> Void) {
 //

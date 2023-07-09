@@ -191,8 +191,7 @@ final class NewProfileViewController: ParentNetworkViewController {
         
         managerFB.userListener { [weak self] (user) in
             self?.currentUser = user
-            print("23:59")
-
+            
             if let user = user, !user.isAnonymous {
                 self?.updateUIForPermanentUser(user)
             } else {

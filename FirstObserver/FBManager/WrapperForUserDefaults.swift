@@ -23,6 +23,8 @@ final class CollectorFailedMethods {
     }
     
     // func signIn
+    
+    // должны передать объект user for here Anonymously что бы повториь удаление если проблема в сети?
     var isFailedDeleteIsAnonymousUser: Bool {
         get {
             return userDeafaults.bool(forKey: "isFailedDeleteIsAnonymousUser")
@@ -42,13 +44,13 @@ final class CollectorFailedMethods {
         }
     }
     
-    // func registerUserSignUpVC FBManager
-//    var isFailedSaveNameForLinkUserAnon: String? {
+//     func registerUserSignUpVC FBManager
+//    var isFailedRemoveCartProductsAnonymousUser : String? {
 //        get {
-//            return userDeafaults.string(forKey: "isFailedSaveNameForLinkUserAnon")
+//            return userDeafaults.string(forKey: "isFailedRemoveCartProductsAnonymousUser")
 //        }
 //        set(newValue) {
-//            userDeafaults.set(newValue, forKey: "isFailedSaveNameForLinkUserAnon")
+//            userDeafaults.set(newValue, forKey: "isFailedRemoveCartProductsAnonymousUser")
 //        }
 //    }
 }

@@ -89,7 +89,7 @@ class NewHomeViewController: ParentNetworkViewController {
         //        }
         
         managerFB.userListener { currentUser in
-            print("NewHomeViewController  managerFB.userListener")
+            print("NewHomeViewController  managerFB.userListener currentUser - \(currentUser?.uid) ")
             if currentUser == nil {
                 print("NewHomeViewController  if currentUser == nil {")
                 self.cartProducts = []
@@ -99,6 +99,7 @@ class NewHomeViewController: ParentNetworkViewController {
             self.managerFB.getCartProduct { cartProducts in
                 print("NewHomeViewController  getCartProduct")
                 self.cartProducts = cartProducts
+                self.managerFB.cartProducts = cartProducts
             }
         }
         

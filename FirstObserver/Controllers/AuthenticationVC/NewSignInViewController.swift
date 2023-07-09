@@ -244,7 +244,7 @@ final class NewSignInViewController: ParentNetworkViewController {
         
         //  signingIn - flag changed configuration button
         signingIn = true
-        managerFB.signIn(email: email, password: password) { [weak self] (stateAuthError) in
+        managerFB.signIn2(email: email, password: password) { [weak self] (stateAuthError) in
             
             switch stateAuthError {
             case .success:
