@@ -35,14 +35,14 @@ final class CollectorFailedMethods {
     }
     
     // func saveDeletedFromCart for signIn
-    var isFailedSaveDeletedFromCart: Bool {
-        get {
-            return userDeafaults.bool(forKey: "isFailedSaveDeletedFromCart")
-        }
-        set(newValue) {
-            userDeafaults.set(newValue, forKey: "isFailedSaveDeletedFromCart")
-        }
-    }
+//    var isFailedSaveDeletedFromCart: Bool {
+//        get {
+//            return userDeafaults.bool(forKey: "isFailedSaveDeletedFromCart")
+//        }
+//        set(newValue) {
+//            userDeafaults.set(newValue, forKey: "isFailedSaveDeletedFromCart")
+//        }
+//    }
     
 //     func registerUserSignUpVC FBManager
 //    var isFailedRemoveCartProductsAnonymousUser : String? {

@@ -167,7 +167,7 @@ final class NewProfileViewController: ParentNetworkViewController {
         return gesture
     }()
     
-    private var cartProducts: [PopularProduct] = []
+//    private var cartProducts: [PopularProduct] = []
     private var isStateEditingModeProfile = true
     private var isAnimatedRemovalOfButtonsForAnonUser = false
     
@@ -228,9 +228,9 @@ final class NewProfileViewController: ParentNetworkViewController {
 //            self.cartProducts = cartProducts
 //        }
         
-        getCartProducts { cartProducts in
-            self.cartProducts = cartProducts
-        }
+//        getCartProducts { cartProducts in
+//            self.cartProducts = cartProducts
+//        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -271,17 +271,17 @@ final class NewProfileViewController: ParentNetworkViewController {
         self.userNameTextField.text = self.currentUser?.displayName
     }
     
-    private func getCartProducts(completionHandler: @escaping ([PopularProduct]) -> Void) {
-        guard let tabBarVCs = tabBarController?.viewControllers else { return }
-        tabBarVCs.forEach { vc in
-            if let nc = vc as? UINavigationController {
-                if let homeVC = nc.viewControllers.first as? NewHomeViewController {
-//                    self?.arrayPlaces = homeVC.placesMap
-                    completionHandler(homeVC.cartProducts)
-                }
-            }
-        }
-    }
+//    private func getCartProducts(completionHandler: @escaping ([PopularProduct]) -> Void) {
+//        guard let tabBarVCs = tabBarController?.viewControllers else { return }
+//        tabBarVCs.forEach { vc in
+//            if let nc = vc as? UINavigationController {
+//                if let homeVC = nc.viewControllers.first as? NewHomeViewController {
+////                    self?.arrayPlaces = homeVC.placesMap
+//                    completionHandler(homeVC.cartProducts)
+//                }
+//            }
+//        }
+//    }
 
     
     // MARK: - update UI methods
@@ -396,35 +396,35 @@ final class NewProfileViewController: ParentNetworkViewController {
 
 
     // нужно продумать что делать если у нас не получается вернуть корзину обратно на сервер(допустим сохранить ее на устройстве)
-    private func saveRemuveCartProductFB() {
-
-        // i think here error - !currentUser.isAnonymous and setValue(["permanentUser":uid])
-        if let currentUser = currentUser, !currentUser.isAnonymous {
-//                let uid = currentUser.uid
-//                let refFBR = Database.database().reference()
-//                refFBR.child("usersAccaunt/\(uid)").setValue(["uidAnonymous":uid])
-            managerFB.addUidFromCurrentUserAccount()
-            var removeCartProduct: [String:AddedProduct] = [:]
-
-            cartProducts.forEach { (cartProduct) in
-                let productEncode = AddedProduct(product: cartProduct)
-                removeCartProduct[cartProduct.model] = productEncode
-            }
-
-            removeCartProduct.forEach { (addedProduct) in
-                do {
-                    let data = try encoder.encode(addedProduct.value)
-                    let json = try JSONSerialization.jsonObject(with: data)
-                    managerFB.addProductsToANonRemoteUser(products: [addedProduct.key:json])
-//                        let ref = Database.database().reference(withPath: "usersAccaunt/\(uid)/AddedProducts")
-//                        ref.updateChildValues([addedProduct.key:json])
-
-                } catch {
-                    print("an error occured", error)
-                }
-            }
-        }
-    }
+//    private func saveRemuveCartProductFB() {
+//
+//        // i think here error - !currentUser.isAnonymous and setValue(["permanentUser":uid])
+//        if let currentUser = currentUser, !currentUser.isAnonymous {
+////                let uid = currentUser.uid
+////                let refFBR = Database.database().reference()
+////                refFBR.child("usersAccaunt/\(uid)").setValue(["uidAnonymous":uid])
+//            managerFB.addUidFromCurrentUserAccount()
+//            var removeCartProduct: [String:AddedProduct] = [:]
+//
+//            cartProducts.forEach { (cartProduct) in
+//                let productEncode = AddedProduct(product: cartProduct)
+//                removeCartProduct[cartProduct.model] = productEncode
+//            }
+//
+//            removeCartProduct.forEach { (addedProduct) in
+//                do {
+//                    let data = try encoder.encode(addedProduct.value)
+//                    let json = try JSONSerialization.jsonObject(with: data)
+//                    managerFB.addProductsToANonRemoteUser(products: [addedProduct.key:json])
+////                        let ref = Database.database().reference(withPath: "usersAccaunt/\(uid)/AddedProducts")
+////                        ref.updateChildValues([addedProduct.key:json])
+//
+//                } catch {
+//                    print("an error occured", error)
+//                }
+//            }
+//        }
+//    }
     
     
     
@@ -488,7 +488,7 @@ private extension NewProfileViewController {
         
 //        getFetchDataHVC()
         let signInVC = NewSignInViewController()
-        signInVC.cartProducts = cartProducts
+//        signInVC.cartProducts = cartProducts
         signInVC.delegate = self
         signInVC.presentationController?.delegate = self
         present(signInVC, animated: true, completion: nil)
@@ -535,7 +535,7 @@ private extension NewProfileViewController {
             if isDelete {
                 self.isAnimatedRemovalOfButtonsForAnonUser = true
 //                     удаляем корзину user и в случае не успеха deleteAccaunt должны ее вернуть
-                self.managerFB.deleteCurrentUserProducts()
+//                self.managerFB.deleteCurrentUserProducts()
                 self.deleteAccountButton.configuration?.showsActivityIndicator = true
                 self.deleteAccountUser()
             } else {
@@ -849,7 +849,7 @@ private extension NewProfileViewController {
 
         let actionCancel = UIAlertAction(title: "Cancel", style: .cancel) { action in
             // если у нас не получается удалить аккаунт то нужно оставить его корзину
-            self.saveRemuveCartProductFB()
+//            self.saveRemuveCartProductFB()
         }
 
         alertController.addAction(actionOK)
@@ -944,7 +944,7 @@ private extension NewProfileViewController {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let okAction = UIAlertAction(title: "OK", style: .default) { action in
             // save data user remuveProducts
-            self.saveRemuveCartProductFB()
+//            self.saveRemuveCartProductFB()
         }
         alert.addAction(okAction)
         present(alert, animated: true, completion: nil)

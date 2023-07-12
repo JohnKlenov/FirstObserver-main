@@ -10,7 +10,7 @@ import UIKit
 
 
 @objc protocol NewSignUpViewControllerDelegate: AnyObject {
-    @objc optional func saveCartProductFBNew()
+//    @objc optional func saveCartProductFBNew()
     @objc optional func userDidRegisteredNew()
 }
 
@@ -211,7 +211,7 @@ final class NewSignUpViewController: ParentNetworkViewController {
     }
     
     let managerFB = FBManager.shared
-    var isInvalidSignIn = false
+//    var isInvalidSignIn = false
     weak var signInDelegate:NewSignUpViewControllerDelegate?
     
     // MARK: - Methods
@@ -291,59 +291,61 @@ final class NewSignUpViewController: ParentNetworkViewController {
         guard let name = nameTextField.text, let email = emailTextField.text, let password = passwordTextField.text else { return }
         
         self.signingIn = true
-        
-        if isInvalidSignIn {
-            signInDelegate?.saveCartProductFBNew?()
-            isInvalidSignIn = false
-        }
+//
+//        if isInvalidSignIn {
+//            signInDelegate?.saveCartProductFBNew?()
+//            isInvalidSignIn = false
+//        }
         
         managerFB.registerUserSignUpVC(email: email, password: password, name: name) { [weak self] stateAuthError in
             
+            self?.signingIn = false
             switch stateAuthError {
             case .success:
-                self?.signingIn = false
+//                self?.signingIn = false
                 self?.isEnabledSignUpButton(enabled: false)
+                // это нужно для ProfileVC и CartVC что бы обновить UI
                 self?.signInDelegate?.userDidRegisteredNew?()
                 self?.registerShowAlert(title: "Success", message: "An email has been sent to \(email), please confirm your email address.") {
                     self?.presentingViewController?.presentingViewController?.dismiss(animated: true, completion: nil)
                 }
             case .failed:
-                self?.signingIn = false
+//                self?.signingIn = false
                 self?.isEnabledSignUpButton(enabled: false)
                 self?.registerShowAlert(title: "Error", message: "Something went wrong! Try again!")
             case .userTokenExpired:
-                self?.signingIn = false
+//                self?.signingIn = false
                 self?.isEnabledSignUpButton(enabled: false)
                 self?.registerShowAlert(title: "Error", message: "You need to re-login to your account!")
             case .requiresRecentLogin:
-                self?.signingIn = false
+//                self?.signingIn = false
                 self?.isEnabledSignUpButton(enabled: false)
                 self?.registerShowAlert(title: "Error", message: "You need to re-login to your account!")
             case .networkError:
-                self?.signingIn = false
+//                self?.signingIn = false
                 self?.isEnabledSignUpButton(enabled: false)
                 self?.registerShowAlert(title: "Error", message: "Server connection problems. Try again!")
             case .tooManyRequests:
-                self?.signingIn = false
+//                self?.signingIn = false
                 self?.isEnabledSignUpButton(enabled: false)
                 self?.registerShowAlert(title: "Error", message: "Try again later!")
             case .invalidEmail:
-                self?.signingIn = false
+//                self?.signingIn = false
                 self?.isEnabledSignUpButton(enabled: false)
                 self?.separatorEmailView.backgroundColor = R.Colors.systemRed
                 self?.registerShowAlert(title: "Error", message: "Email address is not in the correct format!")
             case .emailAlreadyInUse:
-                self?.signingIn = false
+//                self?.signingIn = false
                 self?.isEnabledSignUpButton(enabled: false)
                 self?.separatorEmailView.backgroundColor = R.Colors.systemRed
                 self?.registerShowAlert(title: "Error", message: "The email address used to attempt registration already exists!")
             case .weakPassword:
-                self?.signingIn = false
+//                self?.signingIn = false
                 self?.isEnabledSignUpButton(enabled: false)
                 self?.separatorPasswordView.backgroundColor = R.Colors.systemRed
                 self?.registerShowAlert(title: "Error", message: "The entered password is too weak!")
             default:
-                self?.signingIn = false
+//                self?.signingIn = false
                 self?.isEnabledSignUpButton(enabled: false)
                 self?.registerShowAlert(title: "Error", message: "Something went wrong! Try again!")
             }

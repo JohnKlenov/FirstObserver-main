@@ -179,9 +179,9 @@ final class NewSignInViewController: ParentNetworkViewController {
     private var isPrivateEye = true
     private var buttonCentre: CGPoint!
     
-    var isInvalidSignIn = false
+//    var isInvalidSignIn = false
     let managerFB = FBManager.shared
-    var cartProducts: [PopularProduct] = []
+//    var cartProducts: [PopularProduct] = []
     
     // profileVC - userIsPermanentUpdateUI
     weak var delegate:SignInViewControllerDelegate?
@@ -235,16 +235,11 @@ final class NewSignInViewController: ParentNetworkViewController {
     
     @objc func didTapSignInButton(_ sender: UIButton) {
         
-        //        self.signingIn = true
-        //        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-        //            print("DispatchQueue.main.asyncAfter")
-        //            self.signingIn = false
-        //        }
         guard let email = emailTextField.text, let password = passwordTextField.text else { return }
         
         //  signingIn - flag changed configuration button
         signingIn = true
-        managerFB.signIn2(email: email, password: password) { [weak self] (stateAuthError) in
+        managerFB.signIn(email: email, password: password) { [weak self] (stateAuthError) in
             
             switch stateAuthError {
             case .success:
@@ -255,39 +250,39 @@ final class NewSignInViewController: ParentNetworkViewController {
             case .failed:
                 self?.signingIn = false
                 self?.signInAlert(title: "Error", message: "Something went wrong! Try again!", comletionHandler: {
-                    self?.isInvalidSignIn = true
+//                    self?.isInvalidSignIn = true
                 })
             case .invalidEmail:
                 self?.signingIn = false
                 self?.signInAlert(title: "Error", message: "Invalid email", comletionHandler: {
                     self?.separatorEmailView.backgroundColor = R.Colors.systemRed
-                    self?.isInvalidSignIn = true
+//                    self?.isInvalidSignIn = true
                 })
             case .wrongPassword:
                 self?.signingIn = false
                 self?.signInAlert(title: "Error", message: "Wrong password!", comletionHandler: {
                     self?.separatorPasswordView.backgroundColor = R.Colors.systemRed
-                    self?.isInvalidSignIn = true
+//                    self?.isInvalidSignIn = true
                 })
             case .userTokenExpired:
                 self?.signingIn = false
                 self?.signInAlert(title: "Error", message: "You need to re-login to your account!", comletionHandler: {
-                    self?.isInvalidSignIn = true
+//                    self?.isInvalidSignIn = true
                 })
             case .requiresRecentLogin:
                 self?.signingIn = false
                 self?.signInAlert(title: "Error", message: "You need to re-login to your account!", comletionHandler: {
-                    self?.isInvalidSignIn = true
+//                    self?.isInvalidSignIn = true
                 })
             case .tooManyRequests:
                 self?.signingIn = false
                 self?.signInAlert(title: "Error", message: "Try again later!", comletionHandler: {
-                    self?.isInvalidSignIn = true
+//                    self?.isInvalidSignIn = true
                 })
             default:
                 self?.signingIn = false
                 self?.signInAlert(title: "Error", message: "Something went wrong! Try again!", comletionHandler: {
-                    self?.isInvalidSignIn = true
+//                    self?.isInvalidSignIn = true
                 })
             }
         }
@@ -297,7 +292,7 @@ final class NewSignInViewController: ParentNetworkViewController {
         
         let signUpVC = NewSignUpViewController()
         signUpVC.signInDelegate = self
-        signUpVC.isInvalidSignIn = isInvalidSignIn
+//        signUpVC.isInvalidSignIn = isInvalidSignIn
         signUpVC.presentationController?.delegate = self
         present(signUpVC, animated: true, completion: nil)
     }
@@ -379,12 +374,12 @@ final class NewSignInViewController: ParentNetworkViewController {
         signInButton.center = CGPoint(x: view.center.x, y: view.frame.height - keyboardFrame.height - 15 - signInButton.frame.height/2)
     }
     
-    deinit {
-        print("Deinit NewSignInViewController")
-        if isInvalidSignIn {
-            saveCartProductFBNew()
-        }
-    }
+//    deinit {
+//        print("Deinit NewSignInViewController")
+//        if isInvalidSignIn {
+//            saveCartProductFBNew()
+//        }
+//    }
     
 }
 
@@ -538,10 +533,10 @@ extension NewSignInViewController: UITextFieldDelegate {
 // MARK: - SignUpViewControllerDelegate
 extension NewSignInViewController: NewSignUpViewControllerDelegate {
     
-    func saveCartProductFBNew() {
-        managerFB.saveDeletedFromCart(products: cartProducts)
-        self.isInvalidSignIn = false
-    }
+//    func saveCartProductFBNew() {
+//        managerFB.saveDeletedFromCart(products: cartProducts)
+//        self.isInvalidSignIn = false
+//    }
     
     func userDidRegisteredNew() {
         // это свойство не nil только из ProfileVC

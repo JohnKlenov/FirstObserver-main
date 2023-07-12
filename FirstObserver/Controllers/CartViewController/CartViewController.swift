@@ -148,7 +148,7 @@ extension CartViewController: CartViewControllerDelegate {
     func didTaplogInButton() {
         
         let signInVC = NewSignInViewController()
-        signInVC.cartProducts = cartProducts
+//        signInVC.cartProducts = cartProducts
         signInVC.delegate = self
         signInVC.presentationController?.delegate = self
         present(signInVC, animated: true, completion: nil)
