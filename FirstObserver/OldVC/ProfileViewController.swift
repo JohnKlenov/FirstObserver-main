@@ -465,33 +465,33 @@ import Firebase
         private func saveRemuveCartProductFB() {
 
             // i think here error - !currentUser.isAnonymous and setValue(["permanentUser":uid])
-            if let currentUser = currentUser, !currentUser.isAnonymous {
-//                let uid = currentUser.uid
-
-//                let refFBR = Database.database().reference()
-//                refFBR.child("usersAccaunt/\(uid)").setValue(["uidAnonymous":uid])
-                managerFB.addUidFromCurrentUserAccount()
-                var removeCartProduct: [String:AddedProduct] = [:]
-
-                addedToCardProducts.forEach { (cartProduct) in
-                    let productEncode = AddedProduct(product: cartProduct)
-                    print("cartProduct - \(productEncode)")
-                    removeCartProduct[cartProduct.model] = productEncode
-                }
-
-                removeCartProduct.forEach { (addedProduct) in
-                    do {
-                        let data = try encoder.encode(addedProduct.value)
-                        let json = try JSONSerialization.jsonObject(with: data)
-                        managerFB.addProductsToANonRemoteUser(products: [addedProduct.key:json])
-//                        let ref = Database.database().reference(withPath: "usersAccaunt/\(uid)/AddedProducts")
-//                        ref.updateChildValues([addedProduct.key:json])
-
-                    } catch {
-                        print("an error occured", error)
-                    }
-                }
-            }
+//            if let currentUser = currentUser, !currentUser.isAnonymous {
+////                let uid = currentUser.uid
+//
+////                let refFBR = Database.database().reference()
+////                refFBR.child("usersAccaunt/\(uid)").setValue(["uidAnonymous":uid])
+//                managerFB.addUidFromCurrentUserAccount()
+//                var removeCartProduct: [String:AddedProduct] = [:]
+//
+//                addedToCardProducts.forEach { (cartProduct) in
+//                    let productEncode = AddedProduct(product: cartProduct)
+//                    print("cartProduct - \(productEncode)")
+//                    removeCartProduct[cartProduct.model] = productEncode
+//                }
+//
+//                removeCartProduct.forEach { (addedProduct) in
+//                    do {
+//                        let data = try encoder.encode(addedProduct.value)
+//                        let json = try JSONSerialization.jsonObject(with: data)
+//                        managerFB.addProductsToANonRemoteUser(products: [addedProduct.key:json])
+////                        let ref = Database.database().reference(withPath: "usersAccaunt/\(uid)/AddedProducts")
+////                        ref.updateChildValues([addedProduct.key:json])
+//
+//                    } catch {
+//                        print("an error occured", error)
+//                    }
+//                }
+//            }
         }
     }
 

@@ -34,7 +34,6 @@
 		5E5625E329CA55E40089B5BF /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E5625E229CA55E40089B5BF /* NavigationController.swift */; };
 		5E5AF8192A276B53005EA28F /* NetworkConnectivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E5AF8182A276B53005EA28F /* NetworkConnectivityManager.swift */; };
 		5E61BCCD299E3A4F009C8366 /* CartCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E61BCCC299E3A4F009C8366 /* CartCell.swift */; };
-		5E65CC952A03AF7900561DB2 /* SPAlert in Frameworks */ = {isa = PBXBuildFile; productRef = 5E65CC942A03AF7900561DB2 /* SPAlert */; };
 		5E6DEDB229B347AE004A87BC /* FullScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6DEDB129B347AE004A87BC /* FullScreenViewController.swift */; };
 		5E6DEDB429B36753004A87BC /* FullScreenProductCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6DEDB329B36753004A87BC /* FullScreenProductCell.swift */; };
 		5E6DEDB629B476E0004A87BC /* ImageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6DEDB529B476E0004A87BC /* ImageScrollView.swift */; };
@@ -93,6 +92,8 @@
 		5E92FDF629A9EE1C002CDE51 /* NewImageProductCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E92FDF529A9EE1C002CDE51 /* NewImageProductCell.swift */; };
 		5E92FDF829A9EFA7002CDE51 /* FooterViewCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E92FDF729A9EFA7002CDE51 /* FooterViewCollectionView.swift */; };
 		5E92FDFA29A9F16E002CDE51 /* TestModelProductVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E92FDF929A9F16E002CDE51 /* TestModelProductVC.swift */; };
+		5E9AFC3C2A625B640016A0E0 /* TestCustomAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9AFC3B2A625B640016A0E0 /* TestCustomAlertView.swift */; };
+		5E9AFC3E2A62C22E0016A0E0 /* CustomAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9AFC3D2A62C22D0016A0E0 /* CustomAlertView.swift */; };
 		5E9C8E04297A7EF1009855AE /* FBManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9C8E03297A7EF1009855AE /* FBManager.swift */; };
 		5E9DF45D2968A425006544F9 /* UIView + extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9DF45C2968A425006544F9 /* UIView + extension.swift */; };
 		5EA25D1229BB266B00EF06F6 /* NewSignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA25D1129BB266B00EF06F6 /* NewSignInViewController.swift */; };
@@ -208,6 +209,8 @@
 		5E92FDF529A9EE1C002CDE51 /* NewImageProductCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewImageProductCell.swift; sourceTree = "<group>"; };
 		5E92FDF729A9EFA7002CDE51 /* FooterViewCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FooterViewCollectionView.swift; sourceTree = "<group>"; };
 		5E92FDF929A9F16E002CDE51 /* TestModelProductVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestModelProductVC.swift; sourceTree = "<group>"; };
+		5E9AFC3B2A625B640016A0E0 /* TestCustomAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCustomAlertView.swift; sourceTree = "<group>"; };
+		5E9AFC3D2A62C22D0016A0E0 /* CustomAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlertView.swift; sourceTree = "<group>"; };
 		5E9C8E03297A7EF1009855AE /* FBManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FBManager.swift; sourceTree = "<group>"; };
 		5E9DF45C2968A425006544F9 /* UIView + extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView + extension.swift"; sourceTree = "<group>"; };
 		5EA25D1129BB266B00EF06F6 /* NewSignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewSignInViewController.swift; sourceTree = "<group>"; };
@@ -238,7 +241,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5E65CC952A03AF7900561DB2 /* SPAlert in Frameworks */,
 				49D31F7E0B5EF6A377633A6A /* Pods_FirstObserver.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -454,6 +456,7 @@
 		5E7EF58428A53B0300814F4D /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				5E9AFC3A2A625B3A0016A0E0 /* CustomAlertViewController */,
 				5E8C73A32A30A5740080F3F5 /* ParentViewControllers */,
 				5EA4A3DA29E9502F00913E3F /* CartViewController */,
 				5EA4A3D929E94EF300913E3F /* CategoriesViewController */,
@@ -567,6 +570,14 @@
 				5E9101DE291CFE4B00D37E92 /* ChildCollectionViewController.swift */,
 			);
 			path = childCVC;
+			sourceTree = "<group>";
+		};
+		5E9AFC3A2A625B3A0016A0E0 /* CustomAlertViewController */ = {
+			isa = PBXGroup;
+			children = (
+				5E9AFC3B2A625B640016A0E0 /* TestCustomAlertView.swift */,
+			);
+			path = CustomAlertViewController;
 			sourceTree = "<group>";
 		};
 		5E9C8E02297A7EC9009855AE /* FBManager */ = {
@@ -686,6 +697,7 @@
 				5E6DEDB929B7889B004A87BC /* NumberPagesView.swift */,
 				5E2C0E6029FD01CB006DCF6F /* MallTableViewCell.swift */,
 				5E2C0E6229FD15DF006DCF6F /* DetailViewController.swift */,
+				5E9AFC3D2A62C22D0016A0E0 /* CustomAlertView.swift */,
 			);
 			path = ProductViewController;
 			sourceTree = "<group>";
@@ -743,7 +755,6 @@
 			);
 			name = FirstObserver;
 			packageProductDependencies = (
-				5E65CC942A03AF7900561DB2 /* SPAlert */,
 			);
 			productName = FirstObserver;
 			productReference = 5E7EF55B28A12DBB00814F4D /* FirstObserver.app */;
@@ -774,7 +785,6 @@
 			);
 			mainGroup = 5E7EF55228A12DBB00814F4D;
 			packageReferences = (
-				5E65CC932A03AF7900561DB2 /* XCRemoteSwiftPackageReference "SPAlert" */,
 			);
 			productRefGroup = 5E7EF55C28A12DBB00814F4D /* Products */;
 			projectDirPath = "";
@@ -886,6 +896,7 @@
 				5E7EF57728A13BF600814F4D /* MallsViewController.swift in Sources */,
 				5E731C9628E4441200AF3A21 /* SignUpViewController.swift in Sources */,
 				5EC4764F290D816C0077D940 /* DynamicHeightCollectionView.swift in Sources */,
+				5E9AFC3E2A62C22E0016A0E0 /* CustomAlertView.swift in Sources */,
 				5E837CC12A54313900AFB2AF /* WrapperForUserDefaults.swift in Sources */,
 				5EB696052A00513000CDA901 /* HeaderMallsCollectionReusableView.swift in Sources */,
 				5EC212E32A062A9D00FFB216 /* OnboardViewController.swift in Sources */,
@@ -900,6 +911,7 @@
 				5E069F8829BA640B003BF506 /* DeleteView.swift in Sources */,
 				5E2EEF7B2A095B8600843CF0 /* ChildContentViewController.swift in Sources */,
 				5E7EF58928A7FE7300814F4D /* Model.swift in Sources */,
+				5E9AFC3C2A625B640016A0E0 /* TestCustomAlertView.swift in Sources */,
 				5E7EF58D28A81EF100814F4D /* SegmentedControlMW.swift in Sources */,
 				5E92FDF629A9EE1C002CDE51 /* NewImageProductCell.swift in Sources */,
 				5EAA598A29A8CD7B00AEFE45 /* NewProductViewController.swift in Sources */,
@@ -1170,25 +1182,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		5E65CC932A03AF7900561DB2 /* XCRemoteSwiftPackageReference "SPAlert" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ivanvorobei/SPAlert";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		5E65CC942A03AF7900561DB2 /* SPAlert */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 5E65CC932A03AF7900561DB2 /* XCRemoteSwiftPackageReference "SPAlert" */;
-			productName = SPAlert;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5E7EF55328A12DBB00814F4D /* Project object */;
 }

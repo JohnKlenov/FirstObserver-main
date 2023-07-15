@@ -8,7 +8,8 @@
 import Foundation
 import MapKit
 import UIKit
-import SPAlert
+//import SPAlert
+//import AlertKit
 
 class NewProductViewController: ParentNetworkViewController {
     
@@ -478,26 +479,77 @@ class NewProductViewController: ParentNetworkViewController {
         }
     }
     
-    private func alertViewSP(present: SPAlertIconPreset) {
-        let alertView = SPAlertView(title: "Product added to cart", preset: present)
-        alertView.layout.margins.top = 30
-        alertView.layout.iconSize = .init(width: view.frame.width/4, height: view.frame.width/4)
-        alertView.duration = 2
-        alertView.present()
-    }
+//    private func alertViewSP(present: AlertIcon) {
+//        
+////        AlertKitAPI.present(
+////            title: "Added to Library",
+////            icon: present,
+////            style: .iOS17AppleMusic,
+////            haptic: .success
+////        )
+////        let alertView = SPAlertView(title: "Product added to cart", preset: present)
+////        alertView.layout.margins.top = 30
+////        alertView.layout.iconSize = .init(width: view.frame.width/4, height: view.frame.width/4)
+////        alertView.duration = 2
+////        alertView.present()
+//    }
     
     @objc func addToCardPressed(_ sender: UIButton) {
+        
+//        saveProductFB() { state in
+//            switch state {
+//            case .success:
+//                self.alertViewSP(present: .done)
+//                self.isAddedToCard = !self.isAddedToCard
+//            case .failed:
+//                self.alertViewSP(present: .error)
+//            }
+//        }
         
         saveProductFB() { state in
             switch state {
             case .success:
-                self.alertViewSP(present: .done)
+//                self.configureAlertView(state: .success)
+                self.setupAlertView(state: .success, frame: self.view.frame)
                 self.isAddedToCard = !self.isAddedToCard
             case .failed:
-                self.alertViewSP(present: .error)
+                self.setupAlertView(state: .failed, frame: self.view.frame)
+//                self.configureAlertView(state: .failed)
             }
         }
     }
+    
+    private func setupAlertView(state: AlertType, frame: CGRect) {
+        let alert = CustomAlertView(alertType: state, frame: frame)
+        view.addSubview(alert)
+    }
+    
+//    private func configureAlertView(state: AlertType) {
+////        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
+//        let containerView = UIView(frame: self.view.frame)
+//        containerView.center = view.center
+//        containerView.backgroundColor = UIColor.black.withAlphaComponent(0.6)
+//        view.addSubview(containerView)
+//
+//        let successAlert = TestCustomAlertView(alertType: state)
+//        containerView.addSubview(successAlert)
+//        successAlert.translatesAutoresizingMaskIntoConstraints = false
+//
+//        let centerXConstraint = successAlert.centerXAnchor.constraint(equalTo: containerView.centerXAnchor)
+//        let centerYConstraint = successAlert.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
+//        let widthConstraint = successAlert.widthAnchor.constraint(equalToConstant: 200)
+//        let heightConstraint = successAlert.heightAnchor.constraint(equalToConstant: 200)
+//        NSLayoutConstraint.activate([centerXConstraint, centerYConstraint, widthConstraint, heightConstraint])
+//
+//        successAlert.showAnimation()
+//
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: {
+//            successAlert.hideAnimation {
+//                containerView.removeFromSuperview()
+//            }
+//        })
+//
+//    }
     
     @objc func websiteButtonPressed(_ sender: UIButton) {
 
