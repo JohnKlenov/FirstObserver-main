@@ -133,7 +133,7 @@ final class FBManager {
     var removeObserverForUserID: String?
     
     let defaults = UserDefaults.standard
-    let collectorFailedMethods = CollectorFailedMethods.shared
+//    let collectorFailedMethods = CollectorFailedMethods.shared
 //    var databaseRef: DatabaseReference?
     //
 //    lazy var databaseRef = Database.database().reference().child("usersAccaunt/\(currentUser?.uid ?? "")")
@@ -831,13 +831,14 @@ final class FBManager {
     
     func deleteStorageData(refStorage: StorageReference) {
         refStorage.delete { error in
-            print("profileImgReference.delete - \(String(describing: error))")
+            print("deleteStorageData Returne message for analitic FB Crashlystics error - \(String(describing: error))")
         }
     }
 
     
     // если callback: ((StateProfileInfo, Error?) -> ())? = nil) closure не пометить как @escaping (зачем он нам не обязательный?)
-    func createProfileChangeRequest(name: String? = nil, photoURL: URL? = nil,_ callBack: ((Error?) -> Void)? = nil) {
+    // if error == nil этот callBack не будет вызван(вызов проигнорируется) - callBack: ((Error?) -> Void)? = nil // callBack?(error)
+    func createProfileChangeRequest(name: String? = nil, photoURL: URL? = nil,_ callBack: @escaping (Error?) -> Void) {
 
         if let request = currentUser?.createProfileChangeRequest() {
             if let name = name {
@@ -850,7 +851,7 @@ final class FBManager {
 
             request.commitChanges { error in
                 print("request.commitChanges error - \(String(describing: error)) ")
-                    callBack?(error)
+                    callBack(error)
             }
         }
     }
@@ -869,7 +870,7 @@ final class FBManager {
                 request.photoURL = nil
             }
             request.commitChanges { error in
-                print("")
+                print("resetProfileChangeRequest - \(String(describing: error))")
                 callBack(error)
             }
         }
@@ -881,49 +882,73 @@ final class FBManager {
             avatarRef.delete(completion: { error in
                 self.avatarRef = nil
                 if error != nil {
+                    // тут нужно сообщить админу что бы он руками почистил
                     print("func removeAvatarFromDeletedUser() - Returne message for analitic FB Crashlystics error != nil")
                 }
             })
-        } else {
-            print("Returne message for analitic FB Crashlystics avatarRef = nil")
         }
     }
     
     func removeAvatarFromCurrentUser(_ callback: @escaping (StorageErrorCodeState) -> Void) {
-        // Если по какой то причине avatarRef = nil вызов метода avatarRef?.delete будет проигнорирован
+        
         if let avatarRef = avatarRef {
-            avatarRef.delete(completion: { error in
-                
-                if let error = error as? StorageErrorCode {
-                    switch error {
-                        
-                    case .unauthenticated:
-                        callback(.unauthenticated)
-                    case .unauthorized:
-                        callback(.unauthorized)
-                    case .retryLimitExceeded:
-                        callback(.retryLimitExceeded)
-                    case .downloadSizeExceeded:
-                        callback(.downloadSizeExceeded)
-                    default:
-                        callback(.failed)
-                    }
+            self.resetProfileChangeRequest(reset: .photoURL) { error in
+                if error != nil {
+                    print("func removeAvatarFromCurrentUser Returne message for analitic FB Crashlystics error != nil -  \(String(describing: error))")
+                    callback(.failed)
                 } else {
-                    self.avatarRef = nil
-                    self.resetProfileChangeRequest(reset: .photoURL) { error in
+                    avatarRef.delete(completion: { error in
+                        self.avatarRef = nil
+                        callback(.success)
                         if error != nil {
-                            self.collectorFailedMethods.isFailedChangePhotoURLUser = true
-                            print("func removeAvatarFromCurrentUser resetProfileChangeRequest(reset: .photoURL) -  \(String(describing: error))")
+                            // вызывая `putData` с таким же именем и форматом, то уже существующий файл будет заменен новым файлом по этому если мы с этим id будем еще раз добавлять image это не страшно
+                            // не очень если мы удалим аккаунт тогда нужно будет чистить админу
+                            print("func removeAvatarFromDeletedUser() - Returne message for analitic FB Crashlystics error != nil")
                         }
-                    }
-                    callback(.success)
+                    })
                 }
-            })
+            }
         } else {
             callback(.failed)
             print("func removeAvatarFromCurrentUser - Returne message for analitic FB Crashlystics")
         }
     }
+    
+//    func removeAvatarFromCurrentUser(_ callback: @escaping (StorageErrorCodeState) -> Void) {
+//        // Если по какой то причине avatarRef = nil вызов метода avatarRef?.delete будет проигнорирован
+//        if let avatarRef = avatarRef {
+//            avatarRef.delete(completion: { error in
+//
+//                if let error = error as? StorageErrorCode {
+//                    switch error {
+//
+//                    case .unauthenticated:
+//                        callback(.unauthenticated)
+//                    case .unauthorized:
+//                        callback(.unauthorized)
+//                    case .retryLimitExceeded:
+//                        callback(.retryLimitExceeded)
+//                    case .downloadSizeExceeded:
+//                        callback(.downloadSizeExceeded)
+//                    default:
+//                        callback(.failed)
+//                    }
+//                } else {
+//                    self.avatarRef = nil
+//                    self.resetProfileChangeRequest(reset: .photoURL) { error in
+//                        if error != nil {
+//                            self.collectorFailedMethods.isFailedChangePhotoURLUser = true
+//                            print("func removeAvatarFromCurrentUser Returne message for analitic FB Crashlystics error != nil -  \(String(describing: error))")
+//                        }
+//                        callback(.success)
+//                    }
+//                }
+//            })
+//        } else {
+//            callback(.failed)
+//            print("func removeAvatarFromCurrentUser - Returne message for analitic FB Crashlystics")
+//        }
+//    }
 
 //    func addUidFromCurrentUserAccount() {
 //        guard let currentUser = currentUser else {
@@ -952,8 +977,10 @@ final class FBManager {
 
     func cacheImageRemoveMemoryAndDisk(imageView: UIImageView) {
         if let cacheKey = imageView.sd_imageURL?.absoluteString {
+            print("cacheKey = imageView.sd_imageURL?.absoluteString  - \(String(describing: imageView.sd_imageURL?.absoluteString))")
             SDImageCache.shared.removeImageFromDisk(forKey: cacheKey)
             SDImageCache.shared.removeImageFromMemory(forKey: cacheKey)
+            print("cacheKey = imageView.sd_imageURL?.absoluteString  - \(String(describing: imageView.sd_imageURL?.absoluteString))")
         }
     }
 
@@ -1018,10 +1045,10 @@ final class FBManager {
     }
 
     func deleteAccaunt(_ callback: @escaping (AuthErrorCodeState) -> Void) {
-
+        
         guard let user = currentUser else {return}
         let countProducts = self.cartProducts.count
-
+        
         user.delete { (error) in
             if let error = error as? AuthErrorCode {
                 switch error.code {
@@ -1040,9 +1067,7 @@ final class FBManager {
                     callback(.failed)
                 }
             } else {
-                if countProducts > 0 {
-                    self.deleteCartProductsUser(user: user)
-                }
+                self.deleteCartProductsUser(user: user)
                 callback(.success)
             }
         }
@@ -1285,14 +1310,12 @@ final class FBManager {
                     self?.currentUser = user
                     self?.createProfileChangeRequest(name: name, { error in
                         if error != nil {
-                            // можно игнорировать этот bug или пробывть в этот же момент еще раз попробывать createProfileChangeRequest при isConnectedNetwork
-                            print("createProfileChangeRequest error - \(String(describing: error))")
-//                            self?.collectorFailedMethods.isFailedSaveNameForLinkUserAnon = name
+                            print("Returne message for analitic FB Crashlystics error - \(String(describing: error))")
                         }
+                        self?.updateRefPathForUserAccount(user: user)
+                        self?.verificationEmailSignUp()
+                        callBack(.success)
                     })
-                    self?.updateRefPathForUserAccount(user: user)
-                    self?.verificationEmailSignUp()
-                    callBack(.success)
                 }
             }
         } else {
@@ -1326,14 +1349,12 @@ final class FBManager {
                     }
                     self?.createProfileChangeRequest(name: name, { error in
                         if error != nil {
-                            // можно игнорировать этот bug или пробывть в этот же момент еще раз попробывать createProfileChangeRequest при isConnectedNetwork
-                            print("createProfileChangeRequest error - \(String(describing: error))")
-//                            self?.collectorFailedMethods.isFailedSaveNameForLinkUserAnon = name
+                            print("Returne message for analitic FB Crashlystics error - \(String(describing: error))")
                         }
+                        self?.updateRefPathForUserAccount(user: user)
+                        self?.verificationEmailSignUp()
+                        callBack(.success)
                     })
-                    self?.updateRefPathForUserAccount(user: user)
-                    self?.verificationEmailSignUp()
-                    callBack(.success)
                 }
             }
         }

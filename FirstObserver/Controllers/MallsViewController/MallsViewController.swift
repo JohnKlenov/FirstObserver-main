@@ -71,7 +71,7 @@ class MallsViewController: ParentNetworkViewController {
         switchGender()
         getPlacesHVC()
         
-        print("managerFB.avatarRef - \(String(describing: managerFB.avatarRef))")
+//        print("managerFB.avatarRef - \(String(describing: managerFB.avatarRef))")
     }
     
     override func viewWillDisappear(_ animated: Bool) {

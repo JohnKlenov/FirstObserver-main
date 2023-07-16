@@ -7,34 +7,42 @@
 
 import Foundation
 
-final class CollectorFailedMethods {
+//final class CollectorFailedMethods {
+//
+//    static let shared = CollectorFailedMethods()
+//    let userDeafaults = UserDefaults.standard
+//
+//    // func removeAvatarFromCurrentUser for ProfileVC
+//    var isFailedChangePhotoURLUser: Bool {
+//        get {
+//            return userDeafaults.bool(forKey: "isFailedChangePhotoURLUser")
+//        }
+//        set(newValue) {
+//            userDeafaults.set(newValue, forKey: "isFailedChangePhotoURLUser")
+//        }
+//    }
+//}
 
-    static let shared = CollectorFailedMethods()
-    let userDeafaults = UserDefaults.standard
 
-    // func removeAvatarFromCurrentUser for ProfileVC
-    var isFailedChangePhotoURLUser: Bool {
-        get {
-            return userDeafaults.bool(forKey: "isFailedChangePhotoURLUser")
-        }
-        set(newValue) {
-            userDeafaults.set(newValue, forKey: "isFailedChangePhotoURLUser")
-        }
-    }
-    
-    // func signIn
-    
-    // должны передать объект user for here Anonymously что бы повториь удаление если проблема в сети?
-    var isFailedDeleteIsAnonymousUser: Bool {
-        get {
-            return userDeafaults.bool(forKey: "isFailedDeleteIsAnonymousUser")
-        }
-        set(newValue) {
-            userDeafaults.set(newValue, forKey: "isFailedDeleteIsAnonymousUser")
-        }
-    }
-    
-    // func saveDeletedFromCart for signIn
+
+
+
+
+
+
+// func signIn
+
+// должны передать объект user for here Anonymously что бы повториь удаление если проблема в сети?
+//    var isFailedDeleteIsAnonymousUser: Bool {
+//        get {
+//            return userDeafaults.bool(forKey: "isFailedDeleteIsAnonymousUser")
+//        }
+//        set(newValue) {
+//            userDeafaults.set(newValue, forKey: "isFailedDeleteIsAnonymousUser")
+//        }
+//    }
+
+// func saveDeletedFromCart for signIn
 //    var isFailedSaveDeletedFromCart: Bool {
 //        get {
 //            return userDeafaults.bool(forKey: "isFailedSaveDeletedFromCart")
@@ -43,7 +51,7 @@ final class CollectorFailedMethods {
 //            userDeafaults.set(newValue, forKey: "isFailedSaveDeletedFromCart")
 //        }
 //    }
-    
+
 //     func registerUserSignUpVC FBManager
 //    var isFailedRemoveCartProductsAnonymousUser : String? {
 //        get {
@@ -53,6 +61,3 @@ final class CollectorFailedMethods {
 //            userDeafaults.set(newValue, forKey: "isFailedRemoveCartProductsAnonymousUser")
 //        }
 //    }
-}
-
-

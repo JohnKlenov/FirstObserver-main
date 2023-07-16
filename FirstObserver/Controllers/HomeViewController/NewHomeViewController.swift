@@ -89,15 +89,15 @@ class NewHomeViewController: ParentNetworkViewController {
         //        }
         
         managerFB.userListener { currentUser in
-            print("NewHomeViewController  managerFB.userListener currentUser - \(currentUser?.uid) ")
+            print("NewHomeViewController  managerFB.userListener currentUser - \(String(describing: currentUser?.uid)) ")
             if currentUser == nil {
-                print("NewHomeViewController  if currentUser == nil {")
+//                print("NewHomeViewController  if currentUser == nil {")
                 self.cartProducts = []
                 self.managerFB.signInAnonymously()
             }
             self.managerFB.removeObserverForCartProductsUser()
             self.managerFB.getCartProduct { cartProducts in
-                print("NewHomeViewController  getCartProduct")
+//                print("NewHomeViewController  getCartProduct")
                 self.cartProducts = cartProducts
                 self.managerFB.cartProducts = cartProducts
             }

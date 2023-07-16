@@ -181,7 +181,7 @@ final class NewProfileViewController: ParentNetworkViewController {
     // MARK: FB property
     let managerFB = FBManager.shared
     private var currentUser: User?
-    let collectorFailedMethods = CollectorFailedMethods.shared
+//    let collectorFailedMethods = CollectorFailedMethods.shared
     
     
     override func viewDidLoad() {
@@ -290,6 +290,7 @@ final class NewProfileViewController: ParentNetworkViewController {
         editButton.isHidden = false
         emailUserTextField.isHidden = false
         emailUserTextField.text = user.email
+        print("user.displayName - \(String(describing: user.displayName))")
         userNameTextField.text = user.displayName
         cancelButton.isHidden = true
         userNameTextField.isUserInteractionEnabled = false
@@ -300,8 +301,10 @@ final class NewProfileViewController: ParentNetworkViewController {
         deleteAccountButton.isHidden = false
         
     
-        print("collectorFailedMethods.isFailedChangePhotoURLUser - \(collectorFailedMethods.isFailedChangePhotoURLUser)")
-        if let photoURL = user.photoURL?.absoluteString, !collectorFailedMethods.isFailedChangePhotoURLUser {
+//        print("collectorFailedMethods.isFailedChangePhotoURLUser - \(collectorFailedMethods.isFailedChangePhotoURLUser)")
+//        , !collectorFailedMethods.isFailedChangePhotoURLUser
+        print("user.photoURL?.absoluteString - \(String(describing: user.photoURL?.absoluteString))")
+        if let photoURL = user.photoURL?.absoluteString {
             print("photoURL - \(photoURL)")
             imageUser.fetchingImageWithPlaceholder(url: photoURL, defaultImage: R.Images.Profile.defaultAvatarImage)
 
@@ -708,22 +711,26 @@ private extension NewProfileViewController {
         
         let deleteAvatar = UIAlertAction(title: "Delete Avatar", style: .destructive) { action in
             self.startRemoveAvatarUpdateUI()
+            print("self.imageUser.sd_imageURL?.absoluteString - \(String(describing: self.imageUser.sd_imageURL?.absoluteString))")
             self.managerFB.removeAvatarFromCurrentUser { stateStorageError in
                 switch stateStorageError {
                 case .success:
+                    print("currentUser.photoURL?.absoluteString - \(String(describing: self.currentUser?.photoURL?.absoluteString))")
                     self.managerFB.cacheImageRemoveMemoryAndDisk(imageView: self.imageUser)
                     self.endRemoveAvatarUpdateUI()
                     self.imageUser.image = UIImage(named: "DefaultImage")
                 case .failed:
                     self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Try again!")
-                case .unauthenticated:
-                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Please Log in!")
-                case .unauthorized:
-                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Please Log in!")
-                case .retryLimitExceeded:
-                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! The maximum time limit on an operation has been exceeded. Try again!")
-                case .downloadSizeExceeded:
-                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Size of the downloaded file exceeds the amount of memory allocated for the download. Try again!")
+                default:
+                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Try again!")
+//                case .unauthenticated:
+//                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Please Log in!")
+//                case .unauthorized:
+//                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Please Log in!")
+//                case .retryLimitExceeded:
+//                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! The maximum time limit on an operation has been exceeded. Try again!")
+//                case .downloadSizeExceeded:
+//                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Size of the downloaded file exceeds the amount of memory allocated for the download. Try again!")
                 }
             }
         }
