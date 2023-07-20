@@ -269,6 +269,11 @@ final class NewSignInViewController: ParentNetworkViewController {
                 self?.signInAlert(title: "Error", message: "You need to re-login to your account!", comletionHandler: {
 //                    self?.isInvalidSignIn = true
                 })
+            case .invalidUserToken:
+                self?.signingIn = false
+                self?.signInAlert(title: "Error", message: "You need to re-login to your account!", comletionHandler: {
+//                    self?.isInvalidSignIn = true
+                })
             case .requiresRecentLogin:
                 self?.signingIn = false
                 self?.signInAlert(title: "Error", message: "You need to re-login to your account!", comletionHandler: {
@@ -307,6 +312,8 @@ final class NewSignInViewController: ParentNetworkViewController {
                 case .failed:
                     self?.showTopView(title: "Something went wrong! Try again!", backgroundColor: R.Colors.systemRed)
                 case .userTokenExpired:
+                    self?.showTopView(title: "You need to re-login to your account!", backgroundColor: R.Colors.systemRed)
+                case .invalidUserToken:
                     self?.showTopView(title: "You need to re-login to your account!", backgroundColor: R.Colors.systemRed)
                 case .requiresRecentLogin:
                     self?.showTopView(title: "You need to re-login to your account!", backgroundColor: R.Colors.systemRed)

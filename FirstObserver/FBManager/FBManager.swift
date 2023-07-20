@@ -74,6 +74,7 @@ enum StorageErrorCodeState {
 enum AuthErrorCodeState {
     case success
     case failed
+    case invalidUserToken
     case userTokenExpired
     case requiresRecentLogin
     case keychainError
@@ -790,7 +791,6 @@ final class FBManager {
         } else {
             callback?(.nul, nil)
         }
-        print(" TEST - func updateProfileInfo(withImage image: Data?")
     }
     
     // если callback: ((StateProfileInfo, Error?) -> ())? = nil) closure не пометить как @escaping (зачем он нам не обязательный?)
@@ -858,26 +858,29 @@ final class FBManager {
 
     // ошибка на давнее не log in ??????
 //    ((Error?) -> Void)? = nil
-    func resetProfileChangeRequest(reset: ResetProfile,_ callBack: @escaping (Error?) -> Void) {
-
-        if let request = Auth.auth().currentUser?.createProfileChangeRequest() {
-
-            switch reset {
-
-            case .name:
-                request.displayName = nil
-            case .photoURL:
-                request.photoURL = nil
-            }
-            request.commitChanges { error in
-                print("resetProfileChangeRequest - \(String(describing: error))")
-                callBack(error)
-            }
-        }
-    }
+//    func resetProfileChangeRequest(reset: ResetProfile,_ callBack: @escaping (Error?) -> Void) {
+//
+//        if let request = Auth.auth().currentUser?.createProfileChangeRequest() {
+//
+//            switch reset {
+//
+//            case .name:
+//                request.displayName = nil
+//            case .photoURL:
+//                request.photoURL = nil
+//            }
+//            request.commitChanges { error in
+//                print("resetProfileChangeRequest - \(String(describing: error))")
+////                self.currentUser?.reload()
+//                callBack(error)
+//            }
+//        }
+//    }
     
     // сдесь обработка ошибки не актуальна так как вызов метода происходит автоматически после удаления account
     func removeAvatarFromDeletedUser() {
+        
+
         if let avatarRef = avatarRef {
             avatarRef.delete(completion: { error in
                 self.avatarRef = nil
@@ -889,22 +892,32 @@ final class FBManager {
         }
     }
     
-    func removeAvatarFromCurrentUser(_ callback: @escaping (StorageErrorCodeState) -> Void) {
+    func removeAvatarFromCurrentUser(_ callback: @escaping (AuthErrorCodeState) -> Void) {
         
         if let avatarRef = avatarRef {
-            self.resetProfileChangeRequest(reset: .photoURL) { error in
-                if error != nil {
-                    print("func removeAvatarFromCurrentUser Returne message for analitic FB Crashlystics error != nil -  \(String(describing: error))")
-                    callback(.failed)
+            let url = URL(string: "nil")
+            self.createProfileChangeRequest(photoURL: url) { error in
+                if let error = error as? AuthErrorCode {
+                    switch error.code {
+                    case .userTokenExpired:
+                        callback(.userTokenExpired)
+                    case .invalidUserToken:
+                        callback(.invalidUserToken)
+                    case .requiresRecentLogin:
+                        callback(.requiresRecentLogin)
+                    default:
+                        callback(.failed)
+                    }
                 } else {
                     avatarRef.delete(completion: { error in
-                        self.avatarRef = nil
-                        callback(.success)
+                        
                         if error != nil {
                             // вызывая `putData` с таким же именем и форматом, то уже существующий файл будет заменен новым файлом по этому если мы с этим id будем еще раз добавлять image это не страшно
                             // не очень если мы удалим аккаунт тогда нужно будет чистить админу
                             print("func removeAvatarFromDeletedUser() - Returne message for analitic FB Crashlystics error != nil")
                         }
+                        self.avatarRef = nil
+                        callback(.success)
                     })
                 }
             }
@@ -914,73 +927,38 @@ final class FBManager {
         }
     }
     
-//    func removeAvatarFromCurrentUser(_ callback: @escaping (StorageErrorCodeState) -> Void) {
-//        // Если по какой то причине avatarRef = nil вызов метода avatarRef?.delete будет проигнорирован
-//        if let avatarRef = avatarRef {
-//            avatarRef.delete(completion: { error in
-//
-//                if let error = error as? StorageErrorCode {
-//                    switch error {
-//
-//                    case .unauthenticated:
-//                        callback(.unauthenticated)
-//                    case .unauthorized:
-//                        callback(.unauthorized)
-//                    case .retryLimitExceeded:
-//                        callback(.retryLimitExceeded)
-//                    case .downloadSizeExceeded:
-//                        callback(.downloadSizeExceeded)
-//                    default:
-//                        callback(.failed)
-//                    }
-//                } else {
-//                    self.avatarRef = nil
-//                    self.resetProfileChangeRequest(reset: .photoURL) { error in
-//                        if error != nil {
-//                            self.collectorFailedMethods.isFailedChangePhotoURLUser = true
-//                            print("func removeAvatarFromCurrentUser Returne message for analitic FB Crashlystics error != nil -  \(String(describing: error))")
-//                        }
-//                        callback(.success)
-//                    }
-//                }
-//            })
-//        } else {
-//            callback(.failed)
-//            print("func removeAvatarFromCurrentUser - Returne message for analitic FB Crashlystics")
-//        }
-//    }
+    func reloadCurrentUser() {
+        Auth.auth().currentUser?.reload() { error in
+            if error == nil {
+                print("func reloadCurrentUser() success")
+            } else {
+                print("func reloadCurrentUser() failed")
+            }
+        }
+    }
+    
 
-//    func addUidFromCurrentUserAccount() {
-//        guard let currentUser = currentUser else {
-//            return
-//        }
-//        let refFBR = Database.database().reference()
-//        refFBR.child("usersAccaunt/\(currentUser.uid)").setValue(["uidCurrentUser":currentUser.uid])
-//    }
-
-//    func addProductsToANonRemoteUser(products: [String:Any]) {
-//        guard let currentUser = currentUser else {
-//            return
-//        }
-//        let ref = Database.database().reference(withPath: "usersAccaunt/\(currentUser.uid)/AddedProducts")
-////        ref.updateChildValues(products)
-//        ref.updateChildValues(products) { (error, reference) in
-//            if error != nil {
-//                // можно сохранить в UserDefaults и при следующем появлении инета повторить попытку!
-//                print("ref.updateChildValues(products)  - \(String(describing: error))")
-//                if let jsonData = try? JSONSerialization.data(withJSONObject: products, options: []) {
-//                    self.defaults.set(jsonData, forKey: currentUser.uid)
-//                }
-//            }
-//        }
-//    }
 
     func cacheImageRemoveMemoryAndDisk(imageView: UIImageView) {
         if let cacheKey = imageView.sd_imageURL?.absoluteString {
-            print("cacheKey = imageView.sd_imageURL?.absoluteString  - \(String(describing: imageView.sd_imageURL?.absoluteString))")
             SDImageCache.shared.removeImageFromDisk(forKey: cacheKey)
             SDImageCache.shared.removeImageFromMemory(forKey: cacheKey)
-            print("cacheKey = imageView.sd_imageURL?.absoluteString  - \(String(describing: imageView.sd_imageURL?.absoluteString))")
+            print("func cacheImageRemoveMemoryAndDisk imageView.sd_imageURL?.absoluteString  - \(String(describing: imageView.sd_imageURL?.absoluteString))")
+           
+            let imageCache = SDImageCache.shared
+            // Проверяем наличие изображения в кэше памяти
+            let isImageInMemoryCache = imageCache.imageFromMemoryCache(forKey: imageView.sd_imageURL?.absoluteString)
+            print("isImageInMemoryCache - \(String(describing: isImageInMemoryCache))")
+
+            // Проверяем наличие изображения в кэше диска
+            imageCache.diskImageExists(withKey: imageView.sd_imageURL?.absoluteString) { (isImageInDiskCache) in
+                if isImageInDiskCache {
+                    print("Изображение есть в кэше диска")
+                } else {
+                    print("Изображение удалено из кэша диска")
+                }
+            }
+
         }
     }
 
@@ -1028,6 +1006,8 @@ final class FBManager {
                     callback(.requiresRecentLogin)
                 case .userTokenExpired:
                     callback(.requiresRecentLogin)
+                case .invalidUserToken:
+                    callback(.requiresRecentLogin)
                 case .networkError:
                     callback(.networkError)
                 case .userNotFound:
@@ -1055,6 +1035,8 @@ final class FBManager {
                 case .requiresRecentLogin:
                     callback(.requiresRecentLogin)
                 case .userTokenExpired:
+                    callback(.requiresRecentLogin)
+                case .invalidUserToken:
                     callback(.requiresRecentLogin)
                 case .networkError:
                     callback(.networkError)
@@ -1134,6 +1116,8 @@ final class FBManager {
                     callBack(.networkError)
                 case .userTokenExpired:
                     callBack(.userTokenExpired)
+                case .invalidUserToken:
+                    callBack(.invalidUserToken)
                 case .requiresRecentLogin:
                     callBack(.requiresRecentLogin)
                 case .userDisabled:
@@ -1153,7 +1137,7 @@ final class FBManager {
                         }
                     }
                 }
-                if currentUser.isAnonymous, countProduct > 0 {
+                if currentUser.isAnonymous {
                     self.deleteCartProductsUser(user: currentUser)
                 }
                 callBack(.success)
@@ -1247,6 +1231,8 @@ final class FBManager {
                 switch error.code {
                 case .userTokenExpired:
                     callBack(.userTokenExpired)
+                case .invalidUserToken:
+                    callBack(.invalidUserToken)
                 case .requiresRecentLogin:
                     callBack(.requiresRecentLogin)
                 case .tooManyRequests:
@@ -1334,6 +1320,8 @@ final class FBManager {
                         callBack(.requiresRecentLogin)
                     case .userTokenExpired:
                         callBack(.userTokenExpired)
+                    case .invalidUserToken:
+                        callBack(.invalidUserToken)
                     case .networkError:
                         callBack(.networkError)
                     case .tooManyRequests:
@@ -1389,6 +1377,75 @@ extension UIImageView {
 }
 
 
+
+
+
+
+
+
+
+
+
+//    func removeAvatarFromCurrentUser(_ callback: @escaping (StorageErrorCodeState) -> Void) {
+//        // Если по какой то причине avatarRef = nil вызов метода avatarRef?.delete будет проигнорирован
+//        if let avatarRef = avatarRef {
+//            avatarRef.delete(completion: { error in
+//
+//                if let error = error as? StorageErrorCode {
+//                    switch error {
+//
+//                    case .unauthenticated:
+//                        callback(.unauthenticated)
+//                    case .unauthorized:
+//                        callback(.unauthorized)
+//                    case .retryLimitExceeded:
+//                        callback(.retryLimitExceeded)
+//                    case .downloadSizeExceeded:
+//                        callback(.downloadSizeExceeded)
+//                    default:
+//                        callback(.failed)
+//                    }
+//                } else {
+//                    self.avatarRef = nil
+//                    self.resetProfileChangeRequest(reset: .photoURL) { error in
+//                        if error != nil {
+//                            self.collectorFailedMethods.isFailedChangePhotoURLUser = true
+//                            print("func removeAvatarFromCurrentUser Returne message for analitic FB Crashlystics error != nil -  \(String(describing: error))")
+//                        }
+//                        callback(.success)
+//                    }
+//                }
+//            })
+//        } else {
+//            callback(.failed)
+//            print("func removeAvatarFromCurrentUser - Returne message for analitic FB Crashlystics")
+//        }
+//    }
+
+//    func addUidFromCurrentUserAccount() {
+//        guard let currentUser = currentUser else {
+//            return
+//        }
+//        let refFBR = Database.database().reference()
+//        refFBR.child("usersAccaunt/\(currentUser.uid)").setValue(["uidCurrentUser":currentUser.uid])
+//    }
+
+//    func addProductsToANonRemoteUser(products: [String:Any]) {
+//        guard let currentUser = currentUser else {
+//            return
+//        }
+//        let ref = Database.database().reference(withPath: "usersAccaunt/\(currentUser.uid)/AddedProducts")
+////        ref.updateChildValues(products)
+//        ref.updateChildValues(products) { (error, reference) in
+//            if error != nil {
+//                // можно сохранить в UserDefaults и при следующем появлении инета повторить попытку!
+//                print("ref.updateChildValues(products)  - \(String(describing: error))")
+//                if let jsonData = try? JSONSerialization.data(withJSONObject: products, options: []) {
+//                    self.defaults.set(jsonData, forKey: currentUser.uid)
+//                }
+//            }
+//        }
+//    }
 
 
 //    func deleteAnonymusUSer(anonymusUser:User) {

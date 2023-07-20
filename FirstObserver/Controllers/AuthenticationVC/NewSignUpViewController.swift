@@ -317,6 +317,9 @@ final class NewSignUpViewController: ParentNetworkViewController {
 //                self?.signingIn = false
                 self?.isEnabledSignUpButton(enabled: false)
                 self?.registerShowAlert(title: "Error", message: "You need to re-login to your account!")
+            case .invalidUserToken:
+                self?.isEnabledSignUpButton(enabled: false)
+                self?.registerShowAlert(title: "Error", message: "You need to re-login to your account!")
             case .requiresRecentLogin:
 //                self?.signingIn = false
                 self?.isEnabledSignUpButton(enabled: false)

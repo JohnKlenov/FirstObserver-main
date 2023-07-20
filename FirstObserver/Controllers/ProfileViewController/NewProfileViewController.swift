@@ -251,19 +251,16 @@ final class NewProfileViewController: ParentNetworkViewController {
         editButton.configuration?.showsActivityIndicator = false
 //        switchSaveButton(isSwitch: false)
         if isChangedCurrentImageUser {
-            dataForNewImageUser = nil
             imageUser.image = casheImageUserSavedOnTheServer
-            isChangedCurrentImageUser = false
-            casheImageUserSavedOnTheServer = nil
+            resetAvatarBufferProperties()
         }
     }
+    
     private func successUpdateImage() {
         if isChangedCurrentImageUser {
 //                cacheImageRemoveMemoryAndDisk()
             managerFB.cacheImageRemoveMemoryAndDisk(imageView: imageUser)
-            isChangedCurrentImageUser = false
-            dataForNewImageUser = nil
-            casheImageUserSavedOnTheServer = nil
+            resetAvatarBufferProperties()
         }
     }
 
@@ -271,6 +268,11 @@ final class NewProfileViewController: ParentNetworkViewController {
         self.userNameTextField.text = self.currentUser?.displayName
     }
     
+    private func resetAvatarBufferProperties() {
+        dataForNewImageUser = nil
+        casheImageUserSavedOnTheServer = nil
+        isChangedCurrentImageUser = false
+    }
 //    private func getCartProducts(completionHandler: @escaping ([PopularProduct]) -> Void) {
 //        guard let tabBarVCs = tabBarController?.viewControllers else { return }
 //        tabBarVCs.forEach { vc in
@@ -304,7 +306,7 @@ final class NewProfileViewController: ParentNetworkViewController {
 //        print("collectorFailedMethods.isFailedChangePhotoURLUser - \(collectorFailedMethods.isFailedChangePhotoURLUser)")
 //        , !collectorFailedMethods.isFailedChangePhotoURLUser
         print("user.photoURL?.absoluteString - \(String(describing: user.photoURL?.absoluteString))")
-        if let photoURL = user.photoURL?.absoluteString {
+        if let photoURL = user.photoURL?.absoluteString, photoURL != "nil" {
             print("photoURL - \(photoURL)")
             imageUser.fetchingImageWithPlaceholder(url: photoURL, defaultImage: R.Images.Profile.defaultAvatarImage)
 
@@ -552,17 +554,13 @@ private extension NewProfileViewController {
         if isStateEditingModeProfile {
             enableEditingModeForProfile(isSwitch: isStateEditingModeProfile)
         } else {
-            print("isStateEditingModeProfile = false")
-            //            navBarRightButton.configuration?.title = ""
             editButton.configuration?.showsActivityIndicator = true
             editButton.isUserInteractionEnabled = false
             
             let image = isChangedCurrentImageUser ? dataForNewImageUser : nil
             // if currentUser = nil ???
             let name = userNameTextField.text != currentUser?.displayName ? userNameTextField.text : nil
-            
             managerFB.updateProfileInfo(withImage: image, name: name) { (state, error) in
-                print(" TEST - managerFB.updateProfileInfo(withImage: image, name: name) { (state, error) in")
                 self.handleFirebaseAuthError(error) { isNeedAuthorization in
                     let needAuthorization = isNeedAuthorization ? "Log in and " : ""
                     self.stateHandlingForUpdateProfileInfo(state: state, additionalMessage: needAuthorization)
@@ -644,13 +642,12 @@ private extension NewProfileViewController {
     }
 
     
+    
     @objc func cancelButtonHandler() {
         
         if isChangedCurrentImageUser {
-            dataForNewImageUser = nil
             imageUser.image = casheImageUserSavedOnTheServer
-            isChangedCurrentImageUser = false
-            casheImageUserSavedOnTheServer = nil
+            resetAvatarBufferProperties()
         }
         cancelButton.isHidden = true
         userNameTextField.text = currentUser?.displayName
@@ -691,53 +688,31 @@ private extension NewProfileViewController {
 
         let cancel = UIAlertAction(title: "Cancel", style: .cancel) { action in
         }
-
-//        let deleteAvatar = UIAlertAction(title: "Delete Avatar", style: .destructive) { action in
-//            self.startRemoveAvatarUpdateUI()
-//            self.managerFB.removeAvatarFromCurrentUser { state, isNeedAuthorization in
-//                switch state {
-//
-//                case .success:
-////                    self.cacheImageRemoveMemoryAndDisk()
-//                    self.managerFB.cacheImageRemoveMemoryAndDisk(imageView: self.imageUser)
-//                    self.endRemoveAvatarUpdateUI()
-//                    self.imageUser.image = UIImage(named: "DefaultImage")
-//                case .failed:
-//                    let needAuthorization = isNeedAuthorization ? " Please Log in!" : ""
-//                    self.failedRemoveAvatarUpdateUI(additionalMessage: needAuthorization)
-//                }
-//            }
-//        }
         
         let deleteAvatar = UIAlertAction(title: "Delete Avatar", style: .destructive) { action in
             self.startRemoveAvatarUpdateUI()
-            print("self.imageUser.sd_imageURL?.absoluteString - \(String(describing: self.imageUser.sd_imageURL?.absoluteString))")
-            self.managerFB.removeAvatarFromCurrentUser { stateStorageError in
-                switch stateStorageError {
+            self.managerFB.removeAvatarFromCurrentUser { stateAuthError in
+                switch stateAuthError {
                 case .success:
-                    print("currentUser.photoURL?.absoluteString - \(String(describing: self.currentUser?.photoURL?.absoluteString))")
                     self.managerFB.cacheImageRemoveMemoryAndDisk(imageView: self.imageUser)
                     self.endRemoveAvatarUpdateUI()
                     self.imageUser.image = UIImage(named: "DefaultImage")
                 case .failed:
                     self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Try again!")
+                case .requiresRecentLogin:
+                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Please Log in!")
+                case .userTokenExpired:
+                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Please Log in!")
+                case .invalidUserToken:
+                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Please Log in!")
                 default:
                     self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Try again!")
-//                case .unauthenticated:
-//                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Please Log in!")
-//                case .unauthorized:
-//                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Please Log in!")
-//                case .retryLimitExceeded:
-//                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! The maximum time limit on an operation has been exceeded. Try again!")
-//                case .downloadSizeExceeded:
-//                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Size of the downloaded file exceeds the amount of memory allocated for the download. Try again!")
                 }
             }
         }
 
         let titleAlertController = NSAttributedString(string: "Add image to avatar", attributes: [NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: 17)])
         alert.setValue(titleAlertController, forKey: "attributedTitle")
-
 
         alert.addAction(camera)
         alert.addAction(gallery)
@@ -1073,7 +1048,33 @@ extension UIViewController {
 
 
 
+//                case .unauthenticated:
+//                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Please Log in!")
+//                case .unauthorized:
+//                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Please Log in!")
+//                case .retryLimitExceeded:
+//                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! The maximum time limit on an operation has been exceeded. Try again!")
+//                case .downloadSizeExceeded:
+//                    self.failedRemoveAvatarUpdateUI(additionalMessage: "Failed to delete profile avatar! Size of the downloaded file exceeds the amount of memory allocated for the download. Try again!")
 
+
+
+//        let deleteAvatar = UIAlertAction(title: "Delete Avatar", style: .destructive) { action in
+//            self.startRemoveAvatarUpdateUI()
+//            self.managerFB.removeAvatarFromCurrentUser { state, isNeedAuthorization in
+//                switch state {
+//
+//                case .success:
+////                    self.cacheImageRemoveMemoryAndDisk()
+//                    self.managerFB.cacheImageRemoveMemoryAndDisk(imageView: self.imageUser)
+//                    self.endRemoveAvatarUpdateUI()
+//                    self.imageUser.image = UIImage(named: "DefaultImage")
+//                case .failed:
+//                    let needAuthorization = isNeedAuthorization ? " Please Log in!" : ""
+//                    self.failedRemoveAvatarUpdateUI(additionalMessage: needAuthorization)
+//                }
+//            }
+//        }
 
 
 //                self?.managerFB.signOut { (stateCallback, error) in
