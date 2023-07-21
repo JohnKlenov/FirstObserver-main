@@ -12,6 +12,8 @@ import UIKit
 import Firebase
 import FirebaseStorage
 import FirebaseStorageUI
+import FirebaseAnalytics
+
 
 //(success: Bool)
 

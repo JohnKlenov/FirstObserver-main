@@ -993,10 +993,10 @@ extension NewProfileViewController: UIImagePickerControllerDelegate, UINavigatio
     }
 
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        let originImage = info[.editedImage] as? UIImage
+        if let originImage = info[.editedImage] as? UIImage {
         let size = CGSize(width: 400, height: 400)
         // а что если compressedImage придет nil?
-        let compressedImage = originImage?.thumbnailOfSize(size)
+        let compressedImage = originImage.thumbnailOfSize(size)
         casheImageUserSavedOnTheServer = imageUser.image
         imageUser.image = compressedImage
         imageUser.contentMode = .scaleAspectFill
@@ -1004,8 +1004,10 @@ extension NewProfileViewController: UIImagePickerControllerDelegate, UINavigatio
         dataForNewImageUser = compressedImage?.jpegData(compressionQuality: 0.2)
         isChangedCurrentImageUser = true
         enableSaveButton(isSwitch: true)
+        } else {
+            setupAlert(title: "Error", message: "Failed to get edited image! Try again!")
+        }
         dismiss(animated: true, completion: nil)
-
     }
 }
 
