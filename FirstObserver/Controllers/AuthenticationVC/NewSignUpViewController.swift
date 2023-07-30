@@ -313,6 +313,12 @@ final class NewSignUpViewController: ParentNetworkViewController {
 //                self?.signingIn = false
                 self?.isEnabledSignUpButton(enabled: false)
                 self?.registerShowAlert(title: "Error", message: "Something went wrong! Try again!")
+            case .providerAlreadyLinked:
+                self?.isEnabledSignUpButton(enabled: false)
+                self?.registerShowAlert(title: "Error", message: "Attempt to associate a provider already associated with this account!")
+            case .credentialAlreadyInUse:
+                self?.isEnabledSignUpButton(enabled: false)
+                self?.registerShowAlert(title: "Error", message: "You are trying to associate credentials that have already been associated with another account!")
             case .userTokenExpired:
 //                self?.signingIn = false
                 self?.isEnabledSignUpButton(enabled: false)

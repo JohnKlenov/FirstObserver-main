@@ -168,7 +168,11 @@ final class NewProfileViewController: ParentNetworkViewController {
     }()
     
 //    private var cartProducts: [PopularProduct] = []
-    private var isStateEditingModeProfile = true
+    private var isStateEditingModeProfile = true {
+        didSet {
+            disableAuthorizationButtons(isEdittButtonState: isStateEditingModeProfile)
+        }
+    }
     private var isAnimatedRemovalOfButtonsForAnonUser = false
     
     
@@ -395,6 +399,13 @@ final class NewProfileViewController: ParentNetworkViewController {
         let isValid = (!(email.isEmpty) && email != emailUser) || (!(name.isEmpty) && name != currentUser?.displayName)
         comletion(isValid)
     }
+    
+    private func disableAuthorizationButtons(isEdittButtonState: Bool) {
+        signInSignUp.isEnabled = isEdittButtonState ? true : false
+        signOutButton.isEnabled = isEdittButtonState ? true : false
+        deleteAccountButton.isEnabled = isEdittButtonState ? true : false
+    }
+
     
     
     // MARK: - FB methods

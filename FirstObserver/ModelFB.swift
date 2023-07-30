@@ -174,6 +174,7 @@ struct PreviewCategory: Hashable {
 
 struct PopularProduct: Hashable {
     
+//    let brand: String
     let model: String
     let description: String
     let price: String
@@ -184,7 +185,7 @@ struct PopularProduct: Hashable {
     init(snapshot: DataSnapshot, refArray: [String], malls: [String]) {
         
         let snapshotValue = snapshot.value as! [String:AnyObject]
-        
+        // self.brand = snapshotValue["brand"] as! String
         self.model = snapshotValue["model"] as! String
         self.description = snapshotValue["description"] as! String
         self.price = snapshotValue["price"] as! String
@@ -211,7 +212,6 @@ class PopularGroup {
 class PopularGarderob {
     
     var groups = [PopularGroup]()
-    
 }
 
 

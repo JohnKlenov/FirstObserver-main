@@ -52,6 +52,7 @@ class NewHomeViewController: ParentNetworkViewController {
     private var collectionViewLayout:UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<SectionHVC, ItemCell>?
 
+    var updateJson = UpdateJson()
     
     // MARK: - lifeCycle methods
     
@@ -100,6 +101,11 @@ class NewHomeViewController: ParentNetworkViewController {
 //                print("NewHomeViewController  getCartProduct")
                 self.cartProducts = cartProducts
                 self.managerFB.cartProducts = cartProducts
+               
+                let brands = ["Nike", "Vans", "Adidas", "Vans", "Nike", "Puma", "Vans", "Nike"]
+                self.favoriteBrandAnalytics(brands: brands) { popularBrand in
+                    // managerFB.postAnalytics(id:user.id, brand:popularBrand)
+                }
             }
         }
         
@@ -154,6 +160,32 @@ class NewHomeViewController: ParentNetworkViewController {
 
     
     // MARK: - another methods
+    
+    private func favoriteBrandAnalytics(brands: [String], _ callback: (String) -> Void) {
+        // Создаем словарь, чтобы подсчитать количество каждого фрукта
+        var brandCount: [String: Int] = [:]
+
+        // Перебираем элементы массива и увеличиваем счетчик для каждого фрукта
+        for brand in brands {
+            if let count = brandCount[brand] {
+                brandCount[brand] = count + 1
+            } else {
+                brandCount[brand] = 1
+            }
+        }
+
+        // Находим фрукт с максимальным количеством
+        var maxCount = 0
+        var mostFrequentBrand = ""
+        for (brand, count) in brandCount {
+            if count > maxCount {
+                maxCount = count
+                mostFrequentBrand = brand
+            }
+        }
+        print("Самый популярный бренд: \(mostFrequentBrand)")
+        callback(mostFrequentBrand)
+    }
     
     private func getDataFB(path: String) {
         
