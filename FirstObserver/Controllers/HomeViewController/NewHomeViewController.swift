@@ -203,6 +203,10 @@ class NewHomeViewController: ParentNetworkViewController {
             let section = SectionHVC(section: "PopularProducts", items: products)
             self.modelHomeViewControllerDict["C"] = section
         }
+        
+//        managerFB.getMagazineGender(path: path) { magazines in
+//            self.magazines = magazines
+//        }
     }
     
     func switchGender() {
@@ -448,23 +452,63 @@ extension NewHomeViewController: UICollectionViewDelegate {
             let productVC = NewProductViewController()
             let productSection = modelHomeViewController.filter({$0.section == "PopularProducts"})
             let malls = productSection.first?.items[indexPath.row].popularProduct?.malls ?? [""]
+            
             var placesArray:[Places] = []
             placesMap.forEach { (places) in
                 if malls.contains(places.title ?? "") {
                     placesArray.append(places)
                 }
             }
+            
             cartProducts.forEach { (addedProduct) in
                 if addedProduct.model == productSection.first?.items[indexPath.row].popularProduct?.model {
                     productVC.isAddedToCard = true
                 }
             }
-//            productVC.fireBaseModel = productSection.first?.items[indexPath.row].popularProduct
             productVC.arrayPin = placesArray
             productVC.productModel = productSection.first?.items[indexPath.row].popularProduct
             self.navigationController?.pushViewController(productVC, animated: true)
-//            present(productVC, animated: true, completion: nil)
-            print("Products section")
+            // альтернатива (product не содержит поле malls только magazines)
+            
+            //            let productMagazines = productSection.first?.items[indexPath.row].popularProduct?.magazines ?? [""]
+            
+            //            var magazinesArray:[Magazine] = []
+            //            magazines.forEach { (magazine) in
+            //                if productMagazines.contains(mazazine.name ?? "") {
+            //                    magazinesArray.append(magazine)
+            //                }
+            //            }
+            
+//            let arrayMall = createUniqueMallArray(from: magazinesArray)
+
+            //            var placesArray:[Places] = []
+            //            placesMap.forEach { (places) in
+            //                if arrayMall.contains(places.title ?? "") {
+            //                    placesArray.append(places)
+            //                }
+            //            }
+            
+            //            productVC.magazinesArray = magazinesArray
+            //            productVC.arrayPin = placesArray
+            //            productVC.productModel = productSection.first?.items[indexPath.row].popularProduct
+            //            self.navigationController?.pushViewController(productVC, animated: true)
+            
+//            func createUniqueMallArray(from magazines: [Magazine]) -> [String] {
+//                // Создаем временный Set для хранения уникальных значений
+//                var mallSet = Set<String>()
+//
+//                // Итерируемся по массиву magazines и добавляем поля "mall" во множество
+//                for magazine in magazines {
+//                    mallSet.insert(magazine.mall)
+//                }
+//
+//                // Преобразуем Set обратно в массив
+//                let uniqueMallArray = Array(mallSet)
+//
+//                return uniqueMallArray
+//            }
+
+            
         default:
             print("default \(indexPath.section)")
         }

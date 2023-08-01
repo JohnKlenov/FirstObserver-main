@@ -162,6 +162,7 @@ class BrandsViewController: ParentNetworkViewController {
             if let nc = vc as? UINavigationController {
                 if let homeVC = nc.viewControllers.first as? NewHomeViewController {
                     self.arrayPin = homeVC.placesMap
+//                    self.magazinesArray = homeVC.magazines
                     completionHandler(homeVC.cartProducts)
                 }
             }

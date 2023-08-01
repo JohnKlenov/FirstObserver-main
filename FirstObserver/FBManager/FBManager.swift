@@ -1348,6 +1348,220 @@ extension UIImageView {
 
 
 
+// MARK: - Cloud Firestore API -
+
+//Ваша структура данных в Firebase Firestore выглядит следующим образом:
+//
+//```
+//- Magazines (коллекция)
+//    - Zara (документ)
+//        - ZaraMagazines (коллекция)
+//            - ZaraGreenCity (документ)
+//                - объект
+//        - ZaraDanaMall (документ)
+//            - объект
+//    - LCWikiki (документ)
+//        - LCWikikiMagazines (коллекция)
+//            - LCWikikiPalazzo (документ)
+//                - объект
+//- NikeZamok (документ)
+//    - NikeZamokMagazines (коллекция)
+//        - NikeZamok (документ)
+//            - объект
+//```
+
+
+struct Magazine {
+    var name:String?
+    var mall:String?
+    var floor:String?
+    var refImage:String?
+    var telefon:String?
+    var webSite:String?
+}
+class ManagerFB {
+    
+    let firestore = Firestore.firestore()
+    var listener: ListenerRegistration?
+    
+    func fetchMagazines(completion: @escaping ([Magazine]?, Error?) -> Void) {
+        let firestore = Firestore.firestore()
+        let magazinesCollection = firestore.collection("Magazines")
+        
+        magazinesCollection.addSnapshotListener { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {
+                completion([Magazine](), error)
+                return
+            }
+            
+            var magazines: [Magazine] = []
+            
+            let dispatchGroup = DispatchGroup()
+            
+            for document in documents {
+                let documentData = document.data()
+                // Доступ к полям данных по мере необходимости
+                let magazineName = documentData["magazine"] as? String
+                print("magazineName - \(String(describing: magazineName))")
+                
+                // Get products subcollection reference
+                let productsCollectionRef = document.reference.collection("products")
+                // Enter dispatch group before async call
+                dispatchGroup.enter()
+                
+                productsCollectionRef.getDocuments { (subquerySnapshot, suberror) in
+                    guard let subdocuments = subquerySnapshot?.documents else {
+                        // Leave dispatch group if there's an error
+                        dispatchGroup.leave()
+                        return
+                    }
+                    
+                    for subdocument in subdocuments {
+                        // Работа с каждым поддокументом из подколлекции
+                        let subDocumentData = subdocument.data()
+                        
+                        let name = subDocumentData["name"] as? String
+                        let mall = subDocumentData["mall"] as? String
+                        let floor = subDocumentData["floor"] as? String
+                        let refImage = subDocumentData["refImage"] as? String
+                        let telefon = subDocumentData["telefon"] as? String
+                        let webSite = subDocumentData["webSite"] as? String
+                        let magazine = Magazine(name: name, mall: mall, floor: floor, refImage: refImage, telefon: telefon, webSite: webSite)
+                        magazines.append(magazine)
+                    }
+                    // Leave dispatch group after processing each subdocument
+                    dispatchGroup.leave()
+                }
+            }
+            
+            dispatchGroup.notify(queue: .main) {
+                // Call completion only after all async operations have completed
+                completion(magazines, nil)
+            }
+        }
+    }
+}
+
+
+
+//func observeAllMagazines(completion: @escaping ([Magazine]?, Error?) -> Void) {
+//        let collectionRef = firestore.collection("Magazines")
+//        // Добавить наблюдатель за изменениями
+//        listener = collectionRef.addSnapshotListener { (querySnapshot, error) in
+//            var magazines = [Magazine]()
+//            guard let documents = querySnapshot?.documents else {
+//                print("Ошибка при получении документов: \(error!)")
+//                completion(magazines,error)
+//                return
+//            }
+//
+//            // Обработка каждого документа
+//            for document in documents {
+//                let documentData = document.data()
+//                // Доступ к полям данных по мере необходимости
+//                let magazineName = documentData["magazine"] as? String
+//                print("magazineName - \(String(describing: magazineName))")
+//
+//
+//                // Обработка подколлекций (если есть)
+//                let subcollectionRef = document.reference.collection("products")
+//                subcollectionRef.getDocuments { (subCollectionQuerySnapshot, error) in
+//                    guard let subDocuments = subCollectionQuerySnapshot?.documents else {
+//                        print("Ошибка при получении поддокументов: \(error!)")
+//                        completion(magazines,error)
+//                        return
+//                    }
+//
+//                    for subDocument in subDocuments {
+//                        // Работа с каждым поддокументом из подколлекции
+//                        let subDocumentData = subDocument.data()
+//
+//                        let name = subDocumentData["name"] as? String
+//                        let mall = subDocumentData["mall"] as? String
+//                        let floor = subDocumentData["floor"] as? String
+//                        let refImage = subDocumentData["refImage"] as? String
+//                        let telefon = subDocumentData["telefon"] as? String
+//                        let webSite = subDocumentData["webSite"] as? String
+//                        let magazine = Magazine(name: name, mall: mall, floor: floor, refImage: refImage, telefon: telefon, webSite: webSite)
+//                        magazines.append(magazine)
+//
+//                    }
+//                }
+//
+//            }
+//            completion(magazines,nil)
+//        }
+//    }
+
+
+
+//            for document in querySnapshot!.documents {
+//                let documentID = document.documentID
+////                let documentRef = document.reference
+//
+//                let refMagazine = collectionRef.document(documentID).collection("products")
+//
+//            }
+
+//    class ManagerFB {
+//        let firestore = Firestore.firestore()
+//
+//        func observeAllObjects(completion: @escaping ([Object]?, Error?) -> Void) {
+//            let collectionRef = firestore.collection("Magazines")
+//
+//            collectionRef.getDocuments { querySnapshot, error in
+//                if let error = error {
+//                    completion(nil, error)
+//                    return
+//                }
+//
+//                var objects = [Object]()
+//
+//                for document in querySnapshot!.documents {
+//                    let documentID = document.documentID
+//                    let documentRef = document.reference
+//
+//                    documentRef.collections { collectionRefs, collectionError in
+//                        // Обработка ошибок получения коллекций
+//                        if let collectionError = collectionError {
+//                            completion(nil, collectionError)
+//                            return
+//                        }
+//
+//                        // Обойти каждую подколлекцию
+//                        for subCollectionRef in collectionRefs {
+//                            let subCollectionID = subCollectionRef.documentID
+//
+//                            // Получить документы в подколлекции
+//                            subCollectionRef.getDocuments { subQuerySnapshot, subError in
+//                                // Обработка ошибок подзапроса
+//                                if let subError = subError {
+//                                    completion(nil, subError)
+//                                    return
+//                                }
+//
+//                                // Парсинг данных объектов из подколлекции
+//                                for subDocument in subQuerySnapshot!.documents {
+//                                    let data = subDocument.data()
+//                                    if let object = parseObject(data: data) {
+//                                        objects.append(object)
+//                                    }
+//                                }
+//
+//                                completion(objects, nil)
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        private func parseObject(data: [String: Any]) -> Object? {
+//            // Парсинг данных объекта
+//            // ...
+//            return nil
+//        }
+//    }
 
 
 
