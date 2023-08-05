@@ -216,6 +216,48 @@ class PopularGarderob {
 
 
 
+// MARK: - Cloude Firestore model -
+
+
+struct Shop {
+    var name:String?
+    var mall:String?
+    var floor:String?
+    var refImage:String?
+    var telefon:String?
+    var webSite:String?
+}
+
+struct ProductItem {
+    let brand: String?
+    let model: String?
+    let category: String?
+    let popularityIndex: Int?
+    let strengthIndex: Int?
+    let type: String?
+    let description: String?
+    let price: Int?
+    let refImage: [String]?
+    let shops: [String]?
+    let originalContent: String?
+}
+
+class CategoryProducts {
+    
+    var name: String?
+    var product: [ProductItem]?
+    
+    init(name: String, product: [ProductItem]?) {
+        self.name = name
+        self.product = product
+    }
+}
+
+class CatalogProducts {
+    
+    var category = [CategoryProducts]()
+}
+
 
 
 //class HomeModel {

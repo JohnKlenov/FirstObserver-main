@@ -1371,41 +1371,59 @@ extension UIImageView {
 //```
 
 
-struct Magazine {
-    var name:String?
-    var mall:String?
-    var floor:String?
-    var refImage:String?
-    var telefon:String?
-    var webSite:String?
-}
+//struct Shop {
+//    var name:String?
+//    var mall:String?
+//    var floor:String?
+//    var refImage:String?
+//    var telefon:String?
+//    var webSite:String?
+//}
+//
+//struct ProductItem {
+//    let brand: String?
+//    let model: String?
+//    let category: String?
+//    let popularityIndex: Int?
+//    let strengthIndex: Int?
+//    let type: String?
+//    let description: String?
+//    let price: Int?
+//    let refImage: [String]?
+//    let shops: [String]?
+//    let originalContent: String?
+//}
+
 class ManagerFB {
     
     let firestore = Firestore.firestore()
-    var listener: ListenerRegistration?
+    var listenerFetchShops: ListenerRegistration?
+    var listenerFetchProductsMan: ListenerRegistration?
     
-    func fetchMagazines(completion: @escaping ([Magazine]?, Error?) -> Void) {
+    // если будет изменение данных по ref и при этом ошибка не удалять уже имеющийся маасив с продуктами на VC
+    func fetchShops(gender: String, completion: @escaping ([Shop]?, Error?) -> Void) {
+        let path = "shops" + gender
         let firestore = Firestore.firestore()
-        let magazinesCollection = firestore.collection("Magazines")
+        let shopsCollection = firestore.collection(path)
         
-        magazinesCollection.addSnapshotListener { querySnapshot, error in
+        listenerFetchShops = shopsCollection.addSnapshotListener { querySnapshot, error in
             guard let documents = querySnapshot?.documents else {
-                completion([Magazine](), error)
+                completion([Shop](), error)
                 return
             }
             
-            var magazines: [Magazine] = []
+            var shops: [Shop] = []
             
             let dispatchGroup = DispatchGroup()
             
             for document in documents {
                 let documentData = document.data()
                 // Доступ к полям данных по мере необходимости
-                let magazineName = documentData["magazine"] as? String
+                let magazineName = documentData["brandShop"] as? String
                 print("magazineName - \(String(describing: magazineName))")
                 
                 // Get products subcollection reference
-                let productsCollectionRef = document.reference.collection("products")
+                let productsCollectionRef = document.reference.collection("allShops")
                 // Enter dispatch group before async call
                 dispatchGroup.enter()
                 
@@ -1426,8 +1444,8 @@ class ManagerFB {
                         let refImage = subDocumentData["refImage"] as? String
                         let telefon = subDocumentData["telefon"] as? String
                         let webSite = subDocumentData["webSite"] as? String
-                        let magazine = Magazine(name: name, mall: mall, floor: floor, refImage: refImage, telefon: telefon, webSite: webSite)
-                        magazines.append(magazine)
+                        let magazine = Shop(name: name, mall: mall, floor: floor, refImage: refImage, telefon: telefon, webSite: webSite)
+                        shops.append(magazine)
                     }
                     // Leave dispatch group after processing each subdocument
                     dispatchGroup.leave()
@@ -1436,13 +1454,130 @@ class ManagerFB {
             
             dispatchGroup.notify(queue: .main) {
                 // Call completion only after all async operations have completed
-                completion(magazines, nil)
+                completion(shops, nil)
+            }
+        }
+    }
+    
+    func fetchProductsGender(gender: String, callback: @escaping (CatalogProducts?) -> Void) {
+        let path = "products" + gender
+        let db = Firestore.firestore()
+        let productsManCollection = db.collection(path)
+        
+        // Получение всех документов из коллекции "productsMan"
+        listenerFetchProductsMan = productsManCollection.addSnapshotListener { (querySnapshot, error) in
+            
+            if let error = error {
+                print("Ошибка при получении документов: \(error)")
+                callback(nil)
+                return
+            }
+            
+            guard let documents = querySnapshot?.documents else {
+                print("Документы не найдены")
+                callback(nil)
+                return
+            }
+            
+            let productsForCatalog = CatalogProducts()
+            let allCategory = CategoryProducts(name: "All", product: [])
+            productsForCatalog.category.append(allCategory)
+            
+            let dispatchGroup = DispatchGroup()
+            
+            for document in documents {
+                
+                let brandShop = document.documentID
+                
+                dispatchGroup.enter()
+                
+                let productsRef = db.collection("productsMan").document(brandShop).collection("products")
+                
+                // Запрос для сортировки документов по полю indexPopularity в порядке убывания
+                //                let query = productsRef.order(by: "indexPopularity", descending: true)
+                
+                productsRef.getDocuments { (snapshot, error) in
+                    if let error = error {
+                        print("Ошибка при получении документов: \(error)")
+                        dispatchGroup.leave()
+                        return
+                    }
+                    
+                    guard let documents = snapshot?.documents else {
+                        print("Документы не найдены")
+                        dispatchGroup.leave()
+                        return
+                    }
+                    var categoryProductsDict: [String: [ProductItem]] = [:]
+                    
+                    for document in documents {
+                        // Обрабатываем каждый документ здесь
+                        let product = document.data()
+                        print("product - \(product)")
+                        
+                        let brand = product["brand"] as? String
+                        let model = product["model"] as? String
+                        let category = product["category"] as? String
+                        let popularityIndex = product["popularityIndex"] as? Int
+                        let strengthIndex = product["strengthIndex"] as? Int
+                        let type = product["type"] as? String
+                        let description = product["description"] as? String
+                        let price = product["price"] as? Int
+                        let originalContent = product["originalContent"] as? String
+                        let refImage = product["refImage"] as? [String]
+                        let shops = product["shops"] as? [String]
+                        
+                        let productItem = ProductItem(brand: brand, model: model, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, originalContent: originalContent)
+                        
+                        if let category = productItem.category {
+                            if categoryProductsDict[category] != nil {
+                                categoryProductsDict[category]?.append(productItem)
+                            } else {
+                                categoryProductsDict[category] = [productItem]
+                            }
+                        }
+                        allCategory.product?.append(productItem)
+                    }
+                    
+                    for (category, products) in categoryProductsDict {
+                        let categoryProduct = CategoryProducts(name: category, product: products)
+                        productsForCatalog.category.append(categoryProduct)
+                    }
+                    dispatchGroup.leave()
+                }
+            }
+            dispatchGroup.notify(queue: .main) {
+                
+                for category in productsForCatalog.category {
+                    
+                    guard let products = category.product else { continue }
+                    let sortedProducts = products.sorted(by: { $0.popularityIndex ?? 0 > $1.popularityIndex ?? 0 })
+                    category.product = sortedProducts
+                }
+                callback(productsForCatalog)
             }
         }
     }
 }
 
+//                db.collection("productsMan").document(brandShop).collection("products").whereField("category", isEqualTo: "your_category").getDocuments { (querySnapshot, error) in
+//                    if let error = error {
+//                        print("Ошибка при получении документов: \(error)")
+//                        dispatchGroup.leave()
+//                        return
+//                    }
 
+//                    guard let productsDocuments = querySnapshot?.documents else {
+//                        print("Документы не найдены")
+//                        dispatchGroup.leave()
+//                        return
+//                    }
+//
+//                    // Обработка каждого найденного документа
+//                    for productDocument in productsDocuments {
+//                        let productName = productDocument.documentID
+//                        filteredDocuments.append("\(brandShop)/\(productName)")
+//                    }
 
 //func observeAllMagazines(completion: @escaping ([Magazine]?, Error?) -> Void) {
 //        let collectionRef = firestore.collection("Magazines")
