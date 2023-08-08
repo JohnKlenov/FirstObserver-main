@@ -1399,8 +1399,23 @@ class ManagerFB {
     let firestore = Firestore.firestore()
     var listenerFetchShops: ListenerRegistration?
     var listenerFetchProductsMan: ListenerRegistration?
+    var listenerFetchPreviewShops: ListenerRegistration?
+    var listenerFetchPreviewMalls: ListenerRegistration?
+    var listenerFetchPopularProducts: ListenerRegistration?
+    var listenerFetchCartProducts: ListenerRegistration?
+    var removeListenerForUserID: String?
+    
+    
+    // MARK: - HomeVC -
     
     // если будет изменение данных по ref и при этом ошибка не удалять уже имеющийся маасив с продуктами на VC
+    
+    func removeListenerFetchShops() {
+        if let listenerFetchShops = listenerFetchShops {
+            listenerFetchShops.remove()
+        }
+    }
+    
     func fetchShops(gender: String, completion: @escaping ([Shop]?, Error?) -> Void) {
         let path = "shops" + gender
         let firestore = Firestore.firestore()
@@ -1427,7 +1442,7 @@ class ManagerFB {
                 // Enter dispatch group before async call
                 dispatchGroup.enter()
                 
-                productsCollectionRef.getDocuments { (subquerySnapshot, suberror) in
+                productsCollectionRef.getDocuments { (subquerySnapshot, error) in
                     guard let subdocuments = subquerySnapshot?.documents else {
                         // Leave dispatch group if there's an error
                         dispatchGroup.leave()
@@ -1459,7 +1474,204 @@ class ManagerFB {
         }
     }
     
-    func fetchProductsGender(gender: String, callback: @escaping (CatalogProducts?) -> Void) {
+    func removeListenerFetchPreviewShops() {
+        if let listenerFetchPreviewShops = listenerFetchPreviewShops {
+            listenerFetchPreviewShops.remove()
+        }
+    }
+    
+    func fetchPreviewShops(gender: String, completion: @escaping ([Item]) -> Void) {
+        let path = "previewShops" + gender
+        let firestore = Firestore.firestore()
+        let shopsCollection = firestore.collection(path)
+        let quary = shopsCollection.order(by: "number", descending: false)
+        
+        listenerFetchPreviewShops = quary.addSnapshotListener { (querySnapshot, error) in
+            guard let documents = querySnapshot?.documents else {
+                completion([Item]())
+                return
+            }
+            
+            var items = [Item]()
+            
+            for document in documents {
+                let documentData = document.data()
+                
+                let shop = documentData["shop"] as? String
+                let refImage = documentData["refImage"] as? String
+                let model = PreviewSection(name: shop, refImage: refImage)
+                let item = Item(malls: nil, shops: model, popularProduct: nil, mallImage: nil)
+                items.append(item)
+            }
+            completion(items)
+        }
+    }
+    
+    func removeListenerFetchPreviewMalls() {
+        if let listenerFetchPreviewMalls = listenerFetchPreviewMalls {
+            listenerFetchPreviewMalls.remove()
+        }
+    }
+    
+    func fetchPreviewMalls(gender: String, completion: @escaping ([Item]) -> Void) {
+        
+        let path = "previewMalls" + gender
+        let firestore = Firestore.firestore()
+        let mallsCollection = firestore.collection(path)
+        let quary = mallsCollection.order(by: "number", descending: false)
+        
+        listenerFetchPreviewMalls = quary.addSnapshotListener { (querySnapshot, error) in
+            guard let documents = querySnapshot?.documents else {
+                completion([Item]())
+                return
+            }
+            
+            var items = [Item]()
+            
+            for document in documents {
+                let documentData = document.data()
+                
+                let shop = documentData["mall"] as? String
+                let refImage = documentData["refImage"] as? String
+                let model = PreviewSection(name: shop, refImage: refImage)
+                let item = Item(malls: model, shops: nil, popularProduct: nil, mallImage: nil)
+                items.append(item)
+            }
+            completion(items)
+        }
+    }
+    
+    func removeListenerFetchPopularProducts() {
+        if let listenerFetchPopularProducts = listenerFetchPopularProducts {
+            listenerFetchPopularProducts.remove()
+        }
+    }
+    
+    func fetchPopularProducts(gender: String, completion: @escaping ([Item]) -> Void) {
+        
+        let path = "popularProducts" + gender
+        let firestore = Firestore.firestore()
+        let popularProductsCollection = firestore.collection(path)
+        
+        listenerFetchPopularProducts = popularProductsCollection.addSnapshotListener { (querySnapshot, error) in
+            guard let documents = querySnapshot?.documents else {
+                completion([Item]())
+                return
+            }
+            
+            var items = [Item]()
+            
+            for document in documents {
+                let documentData = document.data()
+                
+                let brand = documentData["brand"] as? String
+                let modelProduct = documentData["model"] as? String
+                let category = documentData["category"] as? String
+                let popularityIndex = documentData["popularityIndex"] as? Int
+                let strengthIndex = documentData["strengthIndex"] as? Int
+                let type = documentData["type"] as? String
+                let description = documentData["description"] as? String
+                let price = documentData["price"] as? Int
+                let refImage = documentData["refImage"] as? [String]
+                let shops = documentData["shops"] as? [String]
+                let originalContent = documentData["originalContent"] as? String
+                let model = ProductItem(brand: brand, model: modelProduct, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, originalContent: originalContent)
+                let item = Item(malls: nil, shops: nil, popularProduct: model, mallImage: nil)
+                items.append(item)
+            }
+            completion(items)
+        }
+    }
+    
+    func removeListenerFetchCartProducts() {
+        if let listenerFetchCartProducts = listenerFetchCartProducts {
+            if let _ = removeListenerForUserID {
+                listenerFetchCartProducts.remove()
+                self.removeListenerForUserID = nil
+            }
+            
+        }
+    }
+
+    
+    func fetchCartProducts(completion: @escaping ([ProductItem]) -> Void) {
+        
+//        guard let currentUser = currentUser else {
+//            completionHandler([])
+//            return
+//        }
+        
+//        removeListenerForUserID = currentUser.uid
+        let firestore = Firestore.firestore()
+        let cartProductsCollection = firestore.collection("users").document("removeListenerForUserID").collection("cartProducts")
+        
+        listenerFetchCartProducts = cartProductsCollection.addSnapshotListener { (querySnapshot, error) in
+            guard let documents = querySnapshot?.documents else {
+                completion([ProductItem]())
+                return
+            }
+            
+            var cartProducts = [ProductItem]()
+            
+            for document in documents {
+                let documentData = document.data()
+                
+                let brand = documentData["brand"] as? String
+                let modelProduct = documentData["model"] as? String
+                let category = documentData["category"] as? String
+                let popularityIndex = documentData["popularityIndex"] as? Int
+                let strengthIndex = documentData["strengthIndex"] as? Int
+                let type = documentData["type"] as? String
+                let description = documentData["description"] as? String
+                let price = documentData["price"] as? Int
+                let refImage = documentData["refImage"] as? [String]
+                let shops = documentData["shops"] as? [String]
+                let originalContent = documentData["originalContent"] as? String
+                let model = ProductItem(brand: brand, model: modelProduct, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, originalContent: originalContent)
+                cartProducts.append(model)
+            }
+            completion(cartProducts)
+        }
+    }
+    
+    func fetchPinMalls(completion: @escaping ([PinMallsFB]) -> Void) {
+        
+        let firestore = Firestore.firestore()
+        let pinCollection = firestore.collection("pinMalls")
+        
+        pinCollection.addSnapshotListener { (querySnapshot, error) in
+            guard let documents = querySnapshot?.documents else {
+                completion([PinMallsFB]())
+                return
+            }
+            
+            var items = [PinMallsFB]()
+            
+            for document in documents {
+                let documentData = document.data()
+                
+                let mall = documentData["mall"] as! String
+                let address = documentData["address"] as! String
+                let refImage = documentData["refImage"] as! String
+                let latitude = documentData["latitude"] as! Double
+                let longitude = documentData["longitude"] as! Double
+                let pinMall = PinMallsFB(mall: mall, refImage: refImage, address: address, latitude: latitude, longitude: longitude)
+                items.append(pinMall)
+            }
+            completion(items)
+        }
+    }
+    
+    
+    // MARK: - CatalogVC -
+   
+    func removeListenerFetchProducts() {
+        if let listenerFetchProductsMan = listenerFetchProductsMan {
+            listenerFetchProductsMan.remove()
+        }
+    }
+    
+    func fetchProducts(gender: String, callback: @escaping (CatalogProducts?) -> Void) {
         let path = "products" + gender
         let db = Firestore.firestore()
         let productsManCollection = db.collection(path)

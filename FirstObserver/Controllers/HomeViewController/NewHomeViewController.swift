@@ -238,6 +238,14 @@ class NewHomeViewController: ParentNetworkViewController {
         }
     }
     
+    func getMap() {
+        self.placesMap = []
+        placesFB.forEach { place in
+            let pin = Places(title: place.name, locationName: place.address, discipline:"Торговый центр", coordinate: CLLocationCoordinate2D(latitude: place.latitude, longitude: place.longitude), imageName: place.refImage)
+            self.placesMap.append(pin)
+        }
+    }
+    
     private func setupCollectionView() {
         
         collectionViewLayout = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())

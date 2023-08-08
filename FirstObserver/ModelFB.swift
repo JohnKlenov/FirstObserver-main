@@ -228,7 +228,7 @@ struct Shop {
     var webSite:String?
 }
 
-struct ProductItem {
+struct ProductItem: Hashable {
     let brand: String?
     let model: String?
     let category: String?
@@ -242,6 +242,7 @@ struct ProductItem {
     let originalContent: String?
 }
 
+// CatalogVC
 class CategoryProducts {
     
     var name: String?
@@ -258,6 +259,57 @@ class CatalogProducts {
     var category = [CategoryProducts]()
 }
 
+// HomeVC
+
+struct SectionModelHVC: Hashable {
+    let section: String
+    var items: [Item]
+}
+
+struct Item: Hashable {
+    let malls: PreviewSection?
+    let shops: PreviewSection?
+    let popularProduct: ProductItem?
+    let mallImage: String?
+}
+
+struct PreviewSection: Hashable {
+    let name: String?
+    let refImage: String?
+}
+
+struct PinMallsFB {
+    
+    let mall:String
+    let refImage:String
+    let address:String
+    let latitude:Double
+    let longitude:Double
+}
+
+class PinMall: NSObject, MKAnnotation {
+    
+    let title: String?
+    let locationName: String?
+    let discipline: String?
+    let imageName: String?
+    let coordinate: CLLocationCoordinate2D
+    
+    init(title:String?, locationName:String?, discipline:String?, coordinate: CLLocationCoordinate2D, imageName: String?) {
+        
+        self.title = title
+        self.locationName = locationName
+        self.discipline = discipline
+        self.coordinate = coordinate
+        self.imageName = imageName
+        super.init()
+    }
+    
+    var subtitle: String? {
+        return locationName
+    }
+    
+}
 
 
 //class HomeModel {
