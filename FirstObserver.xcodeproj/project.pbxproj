@@ -28,6 +28,7 @@
 		5E2EEF772A0955CF00843CF0 /* PresentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2EEF762A0955CF00843CF0 /* PresentViewController.swift */; };
 		5E2EEF792A095A9100843CF0 /* ChildPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2EEF782A095A9100843CF0 /* ChildPageViewController.swift */; };
 		5E2EEF7B2A095B8600843CF0 /* ChildContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2EEF7A2A095B8600843CF0 /* ChildContentViewController.swift */; };
+		5E359AD12A8272500012DD8E /* CloudFBControllers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E359AD02A8272500012DD8E /* CloudFBControllers.swift */; };
 		5E3F053E299C12B000678956 /* ProductCellForBrandsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E3F053D299C12B000678956 /* ProductCellForBrandsVC.swift */; };
 		5E3F0540299C183C00678956 /* ProductCellForProductCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E3F053F299C183C00678956 /* ProductCellForProductCell.swift */; };
 		5E5625E329CA55E40089B5BF /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E5625E229CA55E40089B5BF /* NavigationController.swift */; };
@@ -143,6 +144,7 @@
 		5E2EEF762A0955CF00843CF0 /* PresentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentViewController.swift; sourceTree = "<group>"; };
 		5E2EEF782A095A9100843CF0 /* ChildPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildPageViewController.swift; sourceTree = "<group>"; };
 		5E2EEF7A2A095B8600843CF0 /* ChildContentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildContentViewController.swift; sourceTree = "<group>"; };
+		5E359AD02A8272500012DD8E /* CloudFBControllers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudFBControllers.swift; sourceTree = "<group>"; };
 		5E3F053D299C12B000678956 /* ProductCellForBrandsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCellForBrandsVC.swift; sourceTree = "<group>"; };
 		5E3F053F299C183C00678956 /* ProductCellForProductCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCellForProductCell.swift; sourceTree = "<group>"; };
 		5E5625E229CA55E40089B5BF /* NavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationController.swift; sourceTree = "<group>"; };
@@ -338,6 +340,14 @@
 			path = anotherNewOnboards;
 			sourceTree = "<group>";
 		};
+		5E359ACF2A8272240012DD8E /* CloudFirestoreControllers */ = {
+			isa = PBXGroup;
+			children = (
+				5E359AD02A8272500012DD8E /* CloudFBControllers.swift */,
+			);
+			path = CloudFirestoreControllers;
+			sourceTree = "<group>";
+		};
 		5E3F0541299C1C6900678956 /* legacyProductCell */ = {
 			isa = PBXGroup;
 			children = (
@@ -469,6 +479,7 @@
 		5E7EF58428A53B0300814F4D /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				5E359ACF2A8272240012DD8E /* CloudFirestoreControllers */,
 				5E9AFC3A2A625B3A0016A0E0 /* CustomAlertViewController */,
 				5E8C73A32A30A5740080F3F5 /* ParentViewControllers */,
 				5EA4A3DA29E9502F00913E3F /* CartViewController */,
@@ -959,6 +970,7 @@
 				5E890BBC290AB57E00147C5F /* ModelFB.swift in Sources */,
 				5EB02F8C2A2CCE2B00B08FDF /* NetworkManager.swift in Sources */,
 				5EC212E52A07FD3F00FFB216 /* OnboardPageViewController.swift in Sources */,
+				5E359AD12A8272500012DD8E /* CloudFBControllers.swift in Sources */,
 				5E7EF59628AE5B2200814F4D /* ProductCollectionViewCell.swift in Sources */,
 				5E2EEF772A0955CF00843CF0 /* PresentViewController.swift in Sources */,
 				5E9101DC291B9FBA00D37E92 /* ImageMallCollectionViewCell.swift in Sources */,

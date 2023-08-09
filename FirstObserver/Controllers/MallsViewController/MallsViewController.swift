@@ -41,6 +41,8 @@ class MallsViewController: ParentNetworkViewController {
     let defaults = UserDefaults.standard
     private var currentGender = ""
     
+    // CloudFirestore
+    var shops:[String:[Shop]] = [:]
     
     // MARK: life cycle methods
     
@@ -90,6 +92,7 @@ class MallsViewController: ParentNetworkViewController {
             if let nc = vc as? UINavigationController {
                 if let homeVC = nc.viewControllers.first as? NewHomeViewController {
                     self.arrayPins = homeVC.placesMap
+//                    self.shops = homeVC.shops
                 }
             }
         }

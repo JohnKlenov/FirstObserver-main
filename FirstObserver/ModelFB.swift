@@ -270,21 +270,22 @@ struct Item: Hashable {
     let malls: PreviewSection?
     let shops: PreviewSection?
     let popularProduct: ProductItem?
-    let mallImage: String?
+//    let mallImage: String?
 }
 
 struct PreviewSection: Hashable {
     let name: String?
     let refImage: String?
+    let floor: Int?
 }
 
 struct PinMallsFB {
     
-    let mall:String
-    let refImage:String
-    let address:String
-    let latitude:Double
-    let longitude:Double
+    let mall:String?
+    let refImage:String?
+    let address:String?
+    let latitude:Double?
+    let longitude:Double?
 }
 
 class PinMall: NSObject, MKAnnotation {
@@ -309,6 +310,29 @@ class PinMall: NSObject, MKAnnotation {
         return locationName
     }
     
+}
+
+// MallViewController
+
+struct MallItem {
+    
+    var name: String?
+    var description: String?
+    var floorPlan: String?
+    var refImage: [String]?
+    var webSite: String?
+    
+//    init(snapshot: DataSnapshot, refImage: [String], brands: [String]) {
+//
+//        let snapshotValue = snapshot.value as! [String:AnyObject]
+//        self.brands = brands
+//        self.description = snapshotValue["description"] as! String
+//        self.floorPlan = snapshotValue["floorPlan"] as? String
+//        self.infocenter = snapshotValue["infocenter"] as! String
+//        self.name = snapshotValue["name"] as! String
+//        self.refImage = refImage
+//        self.webSite = snapshotValue["www"] as? String
+//    }
 }
 
 

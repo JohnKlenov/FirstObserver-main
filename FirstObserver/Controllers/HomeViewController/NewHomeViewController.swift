@@ -13,6 +13,16 @@ import SwiftUI
 class NewHomeViewController: ParentNetworkViewController {
 
     private let managerFB = FBManager.shared
+    
+    // Cloud Firestore
+    private let managerCloudFB = ManagerFB.shared
+    private(set) var shops:[String:[Shop]] = [:] {
+        didSet {
+            if shops.count == 2 {
+                
+            }
+        }
+    }
     let defaults = UserDefaults.standard
     
 //    private var isNotVisableViewController = false
@@ -41,6 +51,7 @@ class NewHomeViewController: ParentNetworkViewController {
         }
     }
    
+    
 
     var placesMap:[Places] = []
     private var placesFB:[PlacesFB] = [] {
@@ -109,10 +120,24 @@ class NewHomeViewController: ParentNetworkViewController {
             }
         }
         
+        managerCloudFB.fetchShops(gender: "Man") { (shops, error) in
+            if let shops = shops {
+                self.shops["Man"] = shops
+            }
+        }
+        
+        managerCloudFB.fetchShops(gender: "Woman") { (shops, error) in
+            if let shops = shops {
+                self.shops["Woman"] = shops
+            }
+        }
+        
+        
         // релоад дата после получения modelPlaces
         managerFB.getPlaces { modelPlaces in
             self.placesFB = modelPlaces
         }
+        
         
         let gender = defaults.string(forKey: "gender") ?? "Woman"
         currentGender = gender
@@ -203,10 +228,6 @@ class NewHomeViewController: ParentNetworkViewController {
             let section = SectionHVC(section: "PopularProducts", items: products)
             self.modelHomeViewControllerDict["C"] = section
         }
-        
-//        managerFB.getMagazineGender(path: path) { magazines in
-//            self.magazines = magazines
-//        }
     }
     
     func switchGender() {
@@ -447,6 +468,7 @@ extension NewHomeViewController: UICollectionViewDelegate {
             }
             self.navigationController?.pushViewController(mallVC, animated: true)
         case 1:
+            // при Cloud Firestore мы будем в NC переходить на VC с вертикальной прокруткой collectionView и cell как у popularProduct
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let brandVC = storyboard.instantiateViewController(withIdentifier: "BrandsViewController") as! BrandsViewController
             let brandsSection = modelHomeViewController.filter({$0.section == "Brands"})
@@ -480,8 +502,8 @@ extension NewHomeViewController: UICollectionViewDelegate {
             
             //            let productMagazines = productSection.first?.items[indexPath.row].popularProduct?.magazines ?? [""]
             
-            //            var magazinesArray:[Magazine] = []
-            //            magazines.forEach { (magazine) in
+            //            var magazinesArray:[Shop] = []
+            //            shops["currentGender"].forEach { (magazine) in
             //                if productMagazines.contains(mazazine.name ?? "") {
             //                    magazinesArray.append(magazine)
             //                }

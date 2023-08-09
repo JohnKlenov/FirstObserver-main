@@ -1396,6 +1396,8 @@ extension UIImageView {
 
 class ManagerFB {
     
+    static let shared = ManagerFB()
+    
     let firestore = Firestore.firestore()
     var listenerFetchShops: ListenerRegistration?
     var listenerFetchProductsMan: ListenerRegistration?
@@ -1499,8 +1501,8 @@ class ManagerFB {
                 
                 let shop = documentData["shop"] as? String
                 let refImage = documentData["refImage"] as? String
-                let model = PreviewSection(name: shop, refImage: refImage)
-                let item = Item(malls: nil, shops: model, popularProduct: nil, mallImage: nil)
+                let model = PreviewSection(name: shop, refImage: refImage, floor: nil)
+                let item = Item(malls: nil, shops: model, popularProduct: nil)
                 items.append(item)
             }
             completion(items)
@@ -1533,8 +1535,8 @@ class ManagerFB {
                 
                 let shop = documentData["mall"] as? String
                 let refImage = documentData["refImage"] as? String
-                let model = PreviewSection(name: shop, refImage: refImage)
-                let item = Item(malls: model, shops: nil, popularProduct: nil, mallImage: nil)
+                let model = PreviewSection(name: shop, refImage: refImage, floor: nil)
+                let item = Item(malls: model, shops: nil, popularProduct: nil)
                 items.append(item)
             }
             completion(items)
@@ -1576,7 +1578,7 @@ class ManagerFB {
                 let shops = documentData["shops"] as? [String]
                 let originalContent = documentData["originalContent"] as? String
                 let model = ProductItem(brand: brand, model: modelProduct, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, originalContent: originalContent)
-                let item = Item(malls: nil, shops: nil, popularProduct: model, mallImage: nil)
+                let item = Item(malls: nil, shops: nil, popularProduct: model)
                 items.append(item)
             }
             completion(items)
@@ -1650,15 +1652,87 @@ class ManagerFB {
             for document in documents {
                 let documentData = document.data()
                 
-                let mall = documentData["mall"] as! String
-                let address = documentData["address"] as! String
-                let refImage = documentData["refImage"] as! String
-                let latitude = documentData["latitude"] as! Double
-                let longitude = documentData["longitude"] as! Double
+                let mall = documentData["mall"] as? String
+                let address = documentData["address"] as? String
+                let refImage = documentData["refImage"] as? String
+                let latitude = documentData["latitude"] as? Double
+                let longitude = documentData["longitude"] as? Double
                 let pinMall = PinMallsFB(mall: mall, refImage: refImage, address: address, latitude: latitude, longitude: longitude)
                 items.append(pinMall)
             }
             completion(items)
+        }
+    }
+    
+    
+    // MARK: - MallVC -
+    
+    func fetchMall(gender: String, path: String, completion: @escaping (MallItem) -> Void) {
+        
+        let firestore = Firestore.firestore()
+        let mallDocument = firestore.collection("malls\(gender)").document(path)
+        
+        mallDocument.getDocument { (document, error) in
+            if let document = document, document.exists {
+                  // Документ существует
+                let data = document.data() // Получаем данные из документа
+                
+                if let data = data {
+                    let name = data["name"] as? String
+                    let description = data["description"] as? String
+                    let floorPlan = data["floorPlan"] as? String
+                    let webSite = data["webSite"] as? String
+                    let refImage = data["refImage"] as? [String]
+                    let mall = MallItem(name: name, description: description, floorPlan: floorPlan, refImage: refImage, webSite: webSite)
+                    completion(mall)
+                }
+                  // Обработка данных
+                  // ...
+              } else {
+                  print("Документ не найден")
+              }
+
+        }
+    }
+    
+    
+    // MARK: - ShopProdutctsVC -
+    
+    func fetchShopProdutcts(gender: String, path: String, completion: @escaping ([ProductItem]) -> Void) {
+        let firestore = Firestore.firestore()
+        let productsRef = firestore.collection("products\(gender)").document(path).collection("products")
+        productsRef.getDocuments { (snapshot, error) in
+            if let error = error {
+                print("Ошибка при получении документов: \(error)")
+                return
+            }
+            
+            guard let documents = snapshot?.documents else {
+                print("Документы не найдены")
+                return
+            }
+            
+            var productsShop: [ProductItem] = []
+            for document in documents {
+                
+                let product = document.data()
+                let brand = product["brand"] as? String
+                let model = product["model"] as? String
+                let category = product["category"] as? String
+                let popularityIndex = product["popularityIndex"] as? Int
+                let strengthIndex = product["strengthIndex"] as? Int
+                let type = product["type"] as? String
+                let description = product["description"] as? String
+                let price = product["price"] as? Int
+                let originalContent = product["originalContent"] as? String
+                let refImage = product["refImage"] as? [String]
+                let shops = product["shops"] as? [String]
+                
+                let productItem = ProductItem(brand: brand, model: model, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, originalContent: originalContent)
+                
+                productsShop.append(productItem)
+            }
+            completion(productsShop)
         }
     }
     
@@ -1703,7 +1777,7 @@ class ManagerFB {
                 
                 dispatchGroup.enter()
                 
-                let productsRef = db.collection("productsMan").document(brandShop).collection("products")
+                let productsRef = db.collection("products\(gender)").document(brandShop).collection("products")
                 
                 // Запрос для сортировки документов по полю indexPopularity в порядке убывания
                 //                let query = productsRef.order(by: "indexPopularity", descending: true)
@@ -1770,6 +1844,8 @@ class ManagerFB {
             }
         }
     }
+    
+    
 }
 
 //                db.collection("productsMan").document(brandShop).collection("products").whereField("category", isEqualTo: "your_category").getDocuments { (querySnapshot, error) in

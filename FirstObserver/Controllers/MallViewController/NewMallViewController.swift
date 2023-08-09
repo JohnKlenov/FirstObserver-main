@@ -136,9 +136,20 @@ class NewMallViewController: ParentNetworkViewController {
     let managerFB = FBManager.shared
     private var isMapSelected = false
     
+    // CloudFirestore
+    let defaults = UserDefaults.standard
+    private var currentGender = ""
+    
+    
     // fhink about move getMallModel in viewWillAppear and create handler
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // CloudFirestore
+        let gender = defaults.string(forKey: "gender") ?? "Woman"
+        currentGender = gender
+        
+        
         navigationItem.largeTitleDisplayMode = .never
         configureActivityView()
         managerFB.getMallModel(refPath: refPath) { mallModel in
@@ -454,6 +465,7 @@ extension NewMallViewController: UICollectionViewDelegate {
         case 0:
             print("DidTap Mall Section")
         case 1:
+            // при Cloud Firestore мы будем в NC переходить на VC с вертикальной прокруткой collectionView и cell как у popularProduct
             let brandVC = UIStoryboard.vcById("BrandsViewController") as! BrandsViewController
             let refPath = section[indexPath.section].items[indexPath.row].brands?.brand ?? ""
             brandVC.pathRefBrandVC = refPath

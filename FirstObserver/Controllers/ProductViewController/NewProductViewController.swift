@@ -646,6 +646,14 @@ extension NewProductViewController: UITableViewDelegate, UITableViewDataSource {
         vc.modalPresentationStyle = .pageSheet
         vc.sheetPresentationController?.detents = [.medium()]
         vc.sheetPresentationController?.prefersGrabberVisible = true
+//        let mall = arrayPin[indexPath.row].title
+//        var magazine:[Shop] = []
+//                    magazinesArray.forEach { (magazine) in
+//                        if magazine.mall == mall {
+//                            magazine.append(magazine)
+//                        }
+//                    }
+//        vc.configure(magazine.first)
         vc.nameMallLabel.text = arrayPin[indexPath.row].title
         present(vc, animated: true, completion: nil)
     }
