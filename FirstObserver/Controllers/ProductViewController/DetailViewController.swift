@@ -179,4 +179,7 @@ class DetailViewController: UIViewController {
 //        containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20).isActive = true
     }
     
+    func configureViews(model: Shop) {
+        
+    }
 }

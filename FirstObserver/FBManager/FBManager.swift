@@ -1394,6 +1394,12 @@ extension UIImageView {
 //    let originalContent: String?
 //}
 
+enum AppErrorCode: Int {
+    case fetchDocumentsError = 1
+    // Добавьте другие коды ошибок, если необходимо
+}
+
+
 class ManagerFB {
     
     static let shared = ManagerFB()
@@ -1407,74 +1413,247 @@ class ManagerFB {
     var listenerFetchCartProducts: ListenerRegistration?
     var removeListenerForUserID: String?
     
+    // test
+    var listenerFetchShopsMan: ListenerRegistration?
+    var listenerFetchShopsWoman: ListenerRegistration?
+    
+    var cartProducts: [ProductItem] = []
     
     // MARK: - HomeVC -
     
     // если будет изменение данных по ref и при этом ошибка не удалять уже имеющийся маасив с продуктами на VC
     
-    func removeListenerFetchShops() {
-        if let listenerFetchShops = listenerFetchShops {
+    
+    func removeListenerFetchShopsMan() {
+        if let listenerFetchShops = listenerFetchShopsMan {
             listenerFetchShops.remove()
         }
     }
     
-    func fetchShops(gender: String, completion: @escaping ([Shop]?, Error?) -> Void) {
-        let path = "shops" + gender
+    func removeListenerFetchShopsWoman() {
+        if let listenerFetchShops = listenerFetchShopsWoman {
+            listenerFetchShops.remove()
+        }
+    }
+    
+    func fetchShopsWoman(completion: @escaping ([Shop]?, Error?) -> Void) {
+        let path = "shops" + "Woman"
         let firestore = Firestore.firestore()
         let shopsCollection = firestore.collection(path)
-        
-        listenerFetchShops = shopsCollection.addSnapshotListener { querySnapshot, error in
-            guard let documents = querySnapshot?.documents else {
-                completion([Shop](), error)
+
+        listenerFetchShopsWoman = shopsCollection.addSnapshotListener { querySnapshot, error in
+
+            guard error == nil else {
+                completion(nil, error)
                 return
             }
-            
+
+            guard let documents = querySnapshot?.documents else {
+                completion(nil, error)
+                return
+            }
+
             var shops: [Shop] = []
-            
+            var currentErrors: [Error] = []
             let dispatchGroup = DispatchGroup()
-            
+
             for document in documents {
-                let documentData = document.data()
-                // Доступ к полям данных по мере необходимости
-                let magazineName = documentData["brandShop"] as? String
-                print("magazineName - \(String(describing: magazineName))")
-                
-                // Get products subcollection reference
-                let productsCollectionRef = document.reference.collection("allShops")
-                // Enter dispatch group before async call
+//                let documentData = document.data()
+
                 dispatchGroup.enter()
-                
-                productsCollectionRef.getDocuments { (subquerySnapshot, error) in
-                    guard let subdocuments = subquerySnapshot?.documents else {
-                        // Leave dispatch group if there's an error
+
+                let productsCollectionRef = document.reference.collection("allShops")
+
+                productsCollectionRef.getDocuments { [weak self] (subquerySnapshot, error) in
+
+                    guard error == nil else {
+                        currentErrors.append(error!)
                         dispatchGroup.leave()
                         return
                     }
-                    
+
+                    guard let subdocuments = subquerySnapshot?.documents else {
+                        dispatchGroup.leave()
+                        return
+                    }
+
                     for subdocument in subdocuments {
-                        // Работа с каждым поддокументом из подколлекции
                         let subDocumentData = subdocument.data()
-                        
+
+                        // Работа с каждым поддокументом из подколлекции
                         let name = subDocumentData["name"] as? String
                         let mall = subDocumentData["mall"] as? String
                         let floor = subDocumentData["floor"] as? String
                         let refImage = subDocumentData["refImage"] as? String
                         let telefon = subDocumentData["telefon"] as? String
                         let webSite = subDocumentData["webSite"] as? String
+
                         let magazine = Shop(name: name, mall: mall, floor: floor, refImage: refImage, telefon: telefon, webSite: webSite)
+
                         shops.append(magazine)
                     }
-                    // Leave dispatch group after processing each subdocument
                     dispatchGroup.leave()
                 }
             }
-            
+
             dispatchGroup.notify(queue: .main) {
-                // Call completion only after all async operations have completed
-                completion(shops, nil)
+                if currentErrors.isEmpty {
+                    completion(shops, nil)
+                } else {
+                    print("Returned message for analytic FB Crashlytics error")
+                    completion(shops, currentErrors.first)
+                }
             }
         }
     }
+    
+    func fetchShopsMan(completion: @escaping ([Shop]?, Error?) -> Void) {
+        let path = "shops" + "Man"
+        let firestore = Firestore.firestore()
+        let shopsCollection = firestore.collection(path)
+
+        listenerFetchShopsMan = shopsCollection.addSnapshotListener { querySnapshot, error in
+
+            guard error == nil else {
+                completion(nil, error)
+                return
+            }
+
+            guard let documents = querySnapshot?.documents else {
+                completion(nil, error)
+                return
+            }
+
+            var shops: [Shop] = []
+            var currentErrors: [Error] = []
+            let dispatchGroup = DispatchGroup()
+
+            for document in documents {
+//                let documentData = document.data()
+
+                dispatchGroup.enter()
+
+                let productsCollectionRef = document.reference.collection("allShops")
+
+                productsCollectionRef.getDocuments { [weak self] (subquerySnapshot, error) in
+
+                    guard error == nil else {
+                        currentErrors.append(error!)
+                        dispatchGroup.leave()
+                        return
+                    }
+
+                    guard let subdocuments = subquerySnapshot?.documents else {
+                        dispatchGroup.leave()
+                        return
+                    }
+
+                    for subdocument in subdocuments {
+                        let subDocumentData = subdocument.data()
+
+                        // Работа с каждым поддокументом из подколлекции
+                        let name = subDocumentData["name"] as? String
+                        let mall = subDocumentData["mall"] as? String
+                        let floor = subDocumentData["floor"] as? String
+                        let refImage = subDocumentData["refImage"] as? String
+                        let telefon = subDocumentData["telefon"] as? String
+                        let webSite = subDocumentData["webSite"] as? String
+
+                        let magazine = Shop(name: name, mall: mall, floor: floor, refImage: refImage, telefon: telefon, webSite: webSite)
+
+                        shops.append(magazine)
+                    }
+                    dispatchGroup.leave()
+                }
+            }
+
+            dispatchGroup.notify(queue: .main) {
+                if currentErrors.isEmpty {
+                    completion(shops, nil)
+                } else {
+                    print("Returned message for analytic FB Crashlytics error")
+                    completion(shops, currentErrors.first)
+                }
+            }
+        }
+    }
+   
+    //    func removeListenerFetchShops() {
+    //        if let listenerFetchShops = listenerFetchShops {
+    //            listenerFetchShops.remove()
+    //        }
+    //    }
+    
+//    func fetchShops(gender: String, completion: @escaping ([Shop]?, Error?) -> Void) {
+//        let path = "shops" + gender
+//        let firestore = Firestore.firestore()
+//        let shopsCollection = firestore.collection(path)
+//
+//        listenerFetchShops = shopsCollection.addSnapshotListener { querySnapshot, error in
+//
+//            guard error == nil else {
+//                completion(nil, error)
+//                return
+//            }
+//
+//            guard let documents = querySnapshot?.documents else {
+//                completion(nil, error)
+//                return
+//            }
+//
+//            var shops: [Shop] = []
+//            var currentErrors: [Error] = []
+//            let dispatchGroup = DispatchGroup()
+//
+//            for document in documents {
+////                let documentData = document.data()
+//
+//                dispatchGroup.enter()
+//
+//                let productsCollectionRef = document.reference.collection("allShops")
+//
+//                productsCollectionRef.getDocuments { [weak self] (subquerySnapshot, error) in
+//
+//                    guard error == nil else {
+//                        currentErrors.append(error!)
+//                        dispatchGroup.leave()
+//                        return
+//                    }
+//
+//                    guard let subdocuments = subquerySnapshot?.documents else {
+//                        dispatchGroup.leave()
+//                        return
+//                    }
+//
+//                    for subdocument in subdocuments {
+//                        let subDocumentData = subdocument.data()
+//
+//                        // Работа с каждым поддокументом из подколлекции
+//                        let name = subDocumentData["name"] as? String
+//                        let mall = subDocumentData["mall"] as? String
+//                        let floor = subDocumentData["floor"] as? String
+//                        let refImage = subDocumentData["refImage"] as? String
+//                        let telefon = subDocumentData["telefon"] as? String
+//                        let webSite = subDocumentData["webSite"] as? String
+//
+//                        let magazine = Shop(name: name, mall: mall, floor: floor, refImage: refImage, telefon: telefon, webSite: webSite)
+//
+//                        shops.append(magazine)
+//                    }
+//                    dispatchGroup.leave()
+//                }
+//            }
+//
+//            dispatchGroup.notify(queue: .main) {
+//                if currentErrors.isEmpty {
+//                    completion(shops, nil)
+//                } else {
+//                    print("Returned message for analytic FB Crashlytics error")
+//                    completion(shops, currentErrors.first)
+//                }
+//            }
+//        }
+//    }
     
     func removeListenerFetchPreviewShops() {
         if let listenerFetchPreviewShops = listenerFetchPreviewShops {
@@ -1846,8 +2025,103 @@ class ManagerFB {
     }
     
     
+    // MARK: - ProductVC -
+    
+    func addProductFB(documentID:String, product: [String:Any], completion:  @escaping (StateCallback) -> Void) {
+        let db = Firestore.firestore()
+        let productsRef = db.collection("usersAccount").document("currentUser?.uid").collection("addedProducts").document(documentID)
+        productsRef.setData(product) { error in
+            if let error = error {
+                  print("Ошибка при добавлении документа: \(error.localizedDescription)")
+                completion(.failed)
+              } else {
+                  print("Документ успешно добавлен")
+                  completion(.success)
+              }
+        }
+    }
 }
 
+
+
+
+//func fetchShops(gender: String, completion: @escaping ([Shop]?, Error?) -> Void) {
+//        let path = "shops" + gender
+//        let firestore = Firestore.firestore()
+//        let shopsCollection = firestore.collection(path)
+//
+//        listenerFetchShops = shopsCollection.addSnapshotListener { querySnapshot, error in
+//
+//            guard error == nil else {
+//                completion([Shop](), error)
+//                return
+//            }
+//            // Если documents == nil, значит нет документов для обработки.
+//            guard let documents = querySnapshot?.documents else {
+//                completion([Shop](), error)
+//                return
+//            }
+//
+//            var shops: [Shop] = []
+//            var currentErrors: [NSError] = []
+//            let dispatchGroup = DispatchGroup()
+//
+//            for document in documents {
+//                // Enter dispatch group before async call
+//                dispatchGroup.enter()
+//                // Get products subcollection reference
+//                let productsCollectionRef = document.reference.collection("allShops")
+//
+//
+//                productsCollectionRef.getDocuments { (subquerySnapshot, error) in
+//
+//                    let userInfo = [NSLocalizedDescriptionKey: "Error fetchShops for allShops - \(String(describing: error?.localizedDescription))"]
+//                    let customError = NSError(domain: "CloudFirestore", code: AppErrorCode.fetchDocumentsError.rawValue, userInfo: userInfo)
+//
+//                    guard error == nil else {
+//                        currentErrors.append(customError)
+//                        dispatchGroup.leave()
+//                        return
+//                    }
+//
+//                    guard let subdocuments = subquerySnapshot?.documents else {
+//                        // Leave dispatch group if there's an error
+////                        currentErrors?.append(customError)
+//                        dispatchGroup.leave()
+//                        return
+//                    }
+//
+//                    for subdocument in subdocuments {
+//                        // Работа с каждым поддокументом из подколлекции
+//                        let subDocumentData = subdocument.data()
+//
+//                        let name = subDocumentData["name"] as? String
+//                        let mall = subDocumentData["mall"] as? String
+//                        let floor = subDocumentData["floor"] as? String
+//                        let refImage = subDocumentData["refImage"] as? String
+//                        let telefon = subDocumentData["telefon"] as? String
+//                        let webSite = subDocumentData["webSite"] as? String
+//                        let magazine = Shop(name: name, mall: mall, floor: floor, refImage: refImage, telefon: telefon, webSite: webSite)
+//                        shops.append(magazine)
+//                    }
+//                    // Leave dispatch group after processing each subdocument
+//                    dispatchGroup.leave()
+//                }
+//            }
+//
+//            dispatchGroup.notify(queue: .main) {
+//                // Call completion only after all async operations have completed
+//                if currentErrors.count != 0 {
+//                    print("Returne message for analitic FB Crashlystics error")
+//                }
+//                completion(shops, currentErrors.first)
+//            }
+//        }
+//    }
+//    //                let documentData = document.data()
+//    //                // Доступ к полям данных по мере необходимости
+//    //                let magazineName = documentData["brandShop"] as? String
+//    //                print("m
 //                db.collection("productsMan").document(brandShop).collection("products").whereField("category", isEqualTo: "your_category").getDocuments { (querySnapshot, error) in
 //                    if let error = error {
 //                        print("Ошибка при получении документов: \(error)")
