@@ -22,7 +22,7 @@ class HomeVC: ParentNetworkViewController {
     var model = [SectionModelHVC]() {
         didSet {
             if model.count == 3 {
-                if isFirstLoadingStatus {
+                if isFirstLoading, !isSwitchLoading {
 //                    reloadData()
                 }
                 
@@ -40,32 +40,46 @@ class HomeVC: ParentNetworkViewController {
         }
     }
     
-    var checkLoadingStatus: [String:Bool] = [:] {
+    var firstLoadingStatus: [String:Bool] = [:] {
         didSet {
-            
-            if checkLoadingStatus.count == 7 {
-                let filteredDictionary = checkLoadingStatus.filter { (_, value) in
+            if firstLoadingStatus.count == 7 {
+                let filteredDictionary = firstLoadingStatus.filter { (_, value) in
                     return value == false
                 }
                 
                 if filteredDictionary.isEmpty {
                     // Обработка случая отсутствия элементов со значением false
-                    if !isFirstLoadingStatus {
                         tabBarController?.view.isUserInteractionEnabled = true
                         activityView.stopAnimating()
                         activityView.removeFromSuperview()
                         //                    reloadData()
-                        isFirstLoadingStatus = true
-                        print("Finished loading data")
-                    }
-                    
+                        isFirstLoading = true
+                        firstLoadingStatus = [:]
                 } else {
-                    if !isFirstLoadingStatus {
-                        // удаляем те элементы из checkLoadingStatus которые false
-                        // stopSpiner
-                        // func alertView(forData:filteredDictionary) - Try again! ->
-                        // -> reloadingData(forData: filteredDictionary)
-                    }
+                        activityView.stopAnimating()
+                        activityView.removeFromSuperview()
+                        self.setupAlertReloadFirstData(forData: filteredDictionary)
+                }
+            }
+        }
+    }
+    
+    var switchLoadingStatus: [String:Bool] = [:] {
+        didSet {
+            if switchLoadingStatus.count == 3 {
+                let filteredDictionary = switchLoadingStatus.filter { (_, value) in
+                    return value == false
+                }
+                if filteredDictionary.isEmpty {
+                    activityView.stopAnimating()
+                    activityView.removeFromSuperview()
+                    //                    reloadData()
+                    isSwitchLoading = false
+                    switchLoadingStatus = [:]
+                } else {
+                    activityView.stopAnimating()
+                    activityView.removeFromSuperview()
+                    self.setupAlertReloadSwitchData(forData: filteredDictionary)
                 }
             }
         }
@@ -74,7 +88,8 @@ class HomeVC: ParentNetworkViewController {
     var cartProducts: [ProductItem] = []
     var shops:[String:[Shop]] = [:]
     private var currentGender = ""
-    var isFirstLoadingStatus = false
+    var isFirstLoading = false
+    var isSwitchLoading = false
     
     let cloudFB = ManagerFB.shared
     let managerFB = FBManager.shared
@@ -96,37 +111,14 @@ class HomeVC: ParentNetworkViewController {
                 self.managerFB.signInAnonymously()
             }
             self.cloudFB.removeListenerFetchCartProducts()
-            self.cloudFB.fetchCartProducts { products in
-                self.cartProducts = products
-                self.cloudFB.cartProducts = products
-            }
+            self.fetchCartProducts()
         }
-        
-        getGenderData(gender: currentGender)
-        
-        // а что если сработает наблюдатель при имеющихся данных в shops["Man"]
-        // но вернется ошибка и shops = []???
-//        cloudFB.fetchShops(gender: "Man") { (shops, error) in
-//            if let shops = shops, error == nil {
-//                self.shops["Man"] = shops
-//                self.checkLoadingStatus["ShopsMan"] = true
-//            } else {
-//                if !self.isFirstLoadingStatus {
-//                    self.checkLoadingStatus["ShopsMan"] = false
-//                }
-//            }
-//        }
-//
-//        cloudFB.fetchShops(gender: "Woman") { (shops, error) in
-//            if let shops = shops {
-//                self.shops["Woman"] = shops
-//            }
-//        }
-        
-        cloudFB.fetchPinMalls { pins in
-            self.pinsMallFB = pins
-        }
-        
+        fetchShopsMan()
+        fetchShopsWoman()
+        fetchPinMalls()
+        fetchPreviewMalls(gender: currentGender)
+        fetchPreviewShops(gender: currentGender)
+        fetchPopularProducts(gender: currentGender)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -140,10 +132,12 @@ class HomeVC: ParentNetworkViewController {
         cloudFB.fetchShopsMan { (shops, error) in
             if let shops = shops, error == nil {
                 self.shops["Man"] = shops
-                self.checkLoadingStatus["ShopsMan"] = true
+                if !self.isFirstLoading {
+                    self.firstLoadingStatus["ShopsMan"] = true
+                }
             } else {
-                if !self.isFirstLoadingStatus {
-                    self.checkLoadingStatus["ShopsMan"] = false
+                if !self.isFirstLoading {
+                    self.firstLoadingStatus["ShopsMan"] = false
                 }
             }
         }
@@ -153,17 +147,105 @@ class HomeVC: ParentNetworkViewController {
         cloudFB.fetchShopsWoman { (shops, error) in
             if let shops = shops, error == nil {
                 self.shops["Woman"] = shops
-                self.checkLoadingStatus["ShopsWoman"] = true
+                if !self.isFirstLoading {
+                    self.firstLoadingStatus["ShopsWoman"] = true
+                }
             } else {
-                if !self.isFirstLoadingStatus {
-                    self.checkLoadingStatus["ShopsWoman"] = false
+                if !self.isFirstLoading {
+                    self.firstLoadingStatus["ShopsWoman"] = false
                 }
             }
         }
     }
     
-//    func fetchData
+    func fetchPinMalls() {
+        cloudFB.fetchPinMalls { (pins, errro) in
+            if let pins = pins, errro == nil {
+                self.pinsMallFB = pins
+                if !self.isFirstLoading {
+                    self.firstLoadingStatus["PinMalls"] = true
+                }
+            } else {
+                if !self.isFirstLoading {
+                    self.firstLoadingStatus["PinMalls"] = false
+                }
+            }
+        }
+    }
     
+    func fetchPreviewMalls(gender: String) {
+        cloudFB.fetchPreviewMalls(gender: gender) { (malls, error) in
+            if let malls = malls, error == nil {
+                let section = SectionModelHVC(section: "Malls", items: malls)
+                self.modelDict["A"] = section
+                if !self.isFirstLoading {
+                    self.firstLoadingStatus["PreviewMalls"] = true
+                }
+                if self.isSwitchLoading {
+                    self.switchLoadingStatus["PreviewMalls"] = true
+                }
+            } else {
+                if !self.isFirstLoading {
+                    self.firstLoadingStatus["PreviewMalls"] = false
+                }
+                if self.isSwitchLoading {
+                    self.switchLoadingStatus["PreviewMalls"] = false
+                }
+            }
+        }
+    }
+    
+    func fetchPreviewShops(gender: String) {
+        cloudFB.fetchPreviewShops(gender: gender) { (shops, error) in
+            if let shops = shops, error == nil {
+                let section = SectionModelHVC(section: "Shops", items: shops)
+                self.modelDict["B"] = section
+                if !self.isFirstLoading {
+                    self.firstLoadingStatus["PreviewShops"] = true
+                }
+            } else {
+                if !self.isFirstLoading {
+                    self.firstLoadingStatus["PreviewShops"] = false
+                }
+            }
+        }
+    }
+    
+    func fetchPopularProducts(gender: String) {
+        cloudFB.fetchPopularProducts(gender: gender) { (products, error) in
+            if let products = products, error == nil {
+                let section = SectionModelHVC(section: "PopularProducts", items: products)
+                self.modelDict["C"] = section
+                if !self.isFirstLoading {
+                    self.firstLoadingStatus["PopularProducts"] = true
+                }
+            } else {
+                if !self.isFirstLoading {
+                    self.firstLoadingStatus["PopularProducts"] = false
+                }
+            }
+        }
+    }
+    
+    func fetchCartProducts() {
+        self.cloudFB.fetchCartProducts { (products, error) in
+            if let products = products, error == nil {
+                self.cartProducts = products
+                self.cloudFB.cartProducts = products
+                if !self.isFirstLoading {
+                    self.firstLoadingStatus["CartProducts"] = true
+                }
+            } else {
+                if !self.isFirstLoading {
+                    self.firstLoadingStatus["CartProducts"] = false
+                }
+            }
+        }
+    }
+    
+    func startTimer() {
+        
+    }
     func getPinsMall() {
         self.pinsMall = []
         pinsMallFB.forEach { pin in
@@ -172,65 +254,104 @@ class HomeVC: ParentNetworkViewController {
         }
     }
     
-    func getGenderData(gender: String) {
-        
-        cloudFB.fetchPreviewMalls(gender: gender) { malls in
-            let section = SectionModelHVC(section: "Malls", items: malls)
-            self.modelDict["A"] = section
-        }
-        
-        cloudFB.fetchPreviewShops(gender: gender) { shops in
-            let section = SectionModelHVC(section: "Shops", items: shops)
-            self.modelDict["B"] = section
-        }
-        
-        cloudFB.fetchPopularProducts(gender: gender) { products in
-            let section = SectionModelHVC(section: "PopularProducts", items: products)
-            self.modelDict["C"] = section
-        }
-    }
-    
     func switchGender() {
         let gender = defaults.string(forKey: "gender") ?? "Woman"
         if currentGender != gender {
-//            configureActivityView()
+            configureActivityView()
             cloudFB.removeListenerFetchPreviewMalls()
             cloudFB.removeListenerFetchPreviewShops()
             cloudFB.removeListenerFetchPopularProducts()
             modelDict = [:]
             currentGender = gender
-            getGenderData(gender: currentGender)
+            isSwitchLoading = true
+            fetchPreviewMalls(gender: currentGender)
+            fetchPreviewShops(gender: currentGender)
+            fetchPopularProducts(gender: currentGender)
+
         }
     }
     
-    func reloadingData(forData: [String : Bool]) {
-        
+    func reloadingFirstData(forData: [String : Bool]) {
+        configureActivityView()
         forData.forEach { item in
             switch item.key {
             case "ShopsMan":
-                // removeListenerFetchShopsMan()
-                // self.shops["Man"] = nil
-                // fetchShopsMan()
-                print("")
+                cloudFB.removeListenerFetchShopsMan()
+                firstLoadingStatus["ShopsMan"] = nil
+                fetchShopsMan()
             case "ShopsWoman":
-                // removeListenerFetchShopsWoman()
-                // self.shops["Woman"] = nil
-                // fetchShopsWoman()
-                print("")
+                cloudFB.removeListenerFetchShopsWoman()
+                firstLoadingStatus["ShopsWoman"] = nil
+                fetchShopsWoman()
             case "PinMalls":
-                print("")
+                cloudFB.removeListenerFetchPinMalls()
+                firstLoadingStatus["PinMalls"] = nil
+                fetchPinMalls()
             case "PreviewMalls":
-                print("")
+                cloudFB.removeListenerFetchPreviewMalls()
+                firstLoadingStatus["PreviewMalls"] = nil
+                fetchPreviewMalls(gender: currentGender)
             case "PreviewShops":
-                print("")
+                cloudFB.removeListenerFetchPreviewShops()
+                firstLoadingStatus["PreviewShops"] = nil
+                fetchPreviewShops(gender: currentGender)
             case "PopularProducts":
-                print("")
+                cloudFB.removeListenerFetchPopularProducts()
+                firstLoadingStatus["PopularProducts"] = nil
+                fetchPopularProducts(gender: currentGender)
             case "CartProducts":
-                print("")
+                cloudFB.removeListenerFetchCartProducts()
+                firstLoadingStatus["CartProducts"] = nil
+                fetchCartProducts()
             default:
                 print("Returned message for analytic FB Crashlytics error")
             }
         }
+    }
+    
+    func reloadingSwitchData(forData: [String : Bool]) {
+        configureActivityView()
+        forData.forEach { item in
+            switch item.key {
+                
+            case "PreviewMalls":
+                cloudFB.removeListenerFetchPreviewMalls()
+                switchLoadingStatus["PreviewMalls"] = nil
+                fetchPreviewMalls(gender: currentGender)
+            case "PreviewShops":
+                cloudFB.removeListenerFetchPreviewShops()
+                switchLoadingStatus["PreviewShops"] = nil
+                fetchPreviewShops(gender: currentGender)
+            case "PopularProducts":
+                cloudFB.removeListenerFetchPopularProducts()
+                switchLoadingStatus["PopularProducts"] = nil
+                fetchPopularProducts(gender: currentGender)
+            default:
+                print("Returned message for analytic FB Crashlytics error")
+            }
+        }
+    }
+    
+    func setupAlertReloadFirstData(forData: [String : Bool]) {
+        let alert = UIAlertController(title: "Error ", message: "Something went wrong!", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Try agayn", style: .cancel) {[weak self] _ in
+            self?.reloadingFirstData(forData: forData)
+        }
+        
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func setupAlertReloadSwitchData(forData: [String : Bool]) {
+        let alert = UIAlertController(title: "Error ", message: "Something went wrong!", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Try agayn", style: .cancel) {[weak self] _ in
+            self?.reloadingSwitchData(forData: forData)
+        }
+        
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
     }
 }
 
@@ -266,14 +387,19 @@ class MallsVC: ParentNetworkViewController {
     
     private func getDataFB(gender: String) {
         
-        cloudFB.fetchPreviewMalls(gender: gender) { malls in
-        var mallsItem: [PreviewSection] = []
-            malls.forEach { item in
-                if let mall = item.malls {
-                    mallsItem.append(mall)
+        cloudFB.fetchPreviewMalls(gender: gender) { (malls, error) in
+            
+            if let malls = malls, error == nil {
+                var mallsItem: [PreviewSection] = []
+                malls.forEach { item in
+                    if let mall = item.malls {
+                        mallsItem.append(mall)
+                    }
                 }
+                self.mallsModel = mallsItem
+            } else {
+                // alert??? Try agayne?
             }
-            self.mallsModel = mallsItem
         }
     }
     
@@ -600,3 +726,62 @@ class CartVC: ParentNetworkViewController {
     // тут мы должны иметь все shops потому что в корзине может быть добавлен товар Man and Woman
     var shops:[String:[Shop]] = [:]
 }
+
+
+
+
+
+
+
+
+
+//            self.cloudFB.fetchCartProducts { (products, error) in
+//                if let products = products, error == nil {
+//                    self.cartProducts = products
+//                    self.cloudFB.cartProducts = products
+//                    if !self.isFirstLoading {
+//                        self.firstLoadingStatus["CartProducts"] = true
+//                    }
+//                } else {
+//                    if !self.isFirstLoading {
+//                        self.firstLoadingStatus["CartProducts"] = false
+//                    }
+//                }
+//            }
+
+//    func getGenderData(gender: String) {
+        
+//        cloudFB.fetchPreviewMalls(gender: gender) { malls in
+//            let section = SectionModelHVC(section: "Malls", items: malls)
+//            self.modelDict["A"] = section
+//        }
+        
+//        cloudFB.fetchPreviewShops(gender: gender) { shops in
+//            let section = SectionModelHVC(section: "Shops", items: shops)
+//            self.modelDict["B"] = section
+//        }
+        
+//        cloudFB.fetchPopularProducts(gender: gender) { products in
+//            let section = SectionModelHVC(section: "PopularProducts", items: products)
+//            self.modelDict["C"] = section
+//        }
+//    }
+
+// а что если сработает наблюдатель при имеющихся данных в shops["Man"]
+// но вернется ошибка и shops = []???
+//        cloudFB.fetchShops(gender: "Man") { (shops, error) in
+//            if let shops = shops, error == nil {
+//                self.shops["Man"] = shops
+//                self.checkLoadingStatus["ShopsMan"] = true
+//            } else {
+//                if !self.isFirstLoadingStatus {
+//                    self.checkLoadingStatus["ShopsMan"] = false
+//                }
+//            }
+//        }
+//
+//        cloudFB.fetchShops(gender: "Woman") { (shops, error) in
+//            if let shops = shops {
+//                self.shops["Woman"] = shops
+//            }
+//        }

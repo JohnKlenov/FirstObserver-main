@@ -120,17 +120,17 @@ class NewHomeViewController: ParentNetworkViewController {
             }
         }
         
-        managerCloudFB.fetchShops(gender: "Man") { (shops, error) in
-            if let shops = shops {
-                self.shops["Man"] = shops
-            }
-        }
-        
-        managerCloudFB.fetchShops(gender: "Woman") { (shops, error) in
-            if let shops = shops {
-                self.shops["Woman"] = shops
-            }
-        }
+//        managerCloudFB.fetchShops(gender: "Man") { (shops, error) in
+//            if let shops = shops {
+//                self.shops["Man"] = shops
+//            }
+//        }
+//
+//        managerCloudFB.fetchShops(gender: "Woman") { (shops, error) in
+//            if let shops = shops {
+//                self.shops["Woman"] = shops
+//            }
+//        }
         
         
         // релоад дата после получения modelPlaces

@@ -1412,6 +1412,7 @@ class ManagerFB {
     var listenerFetchPopularProducts: ListenerRegistration?
     var listenerFetchCartProducts: ListenerRegistration?
     var removeListenerForUserID: String?
+    var listenerFetchPinMalls: ListenerRegistration?
     
     // test
     var listenerFetchShopsMan: ListenerRegistration?
@@ -1437,7 +1438,7 @@ class ManagerFB {
     }
     
     func fetchShopsWoman(completion: @escaping ([Shop]?, Error?) -> Void) {
-        let path = "shops" + "Woman"
+        let path = "shopsWoman"
         let firestore = Firestore.firestore()
         let shopsCollection = firestore.collection(path)
 
@@ -1508,7 +1509,7 @@ class ManagerFB {
     }
     
     func fetchShopsMan(completion: @escaping ([Shop]?, Error?) -> Void) {
-        let path = "shops" + "Man"
+        let path = "shopsMan"
         let firestore = Firestore.firestore()
         let shopsCollection = firestore.collection(path)
 
@@ -1577,83 +1578,6 @@ class ManagerFB {
             }
         }
     }
-   
-    //    func removeListenerFetchShops() {
-    //        if let listenerFetchShops = listenerFetchShops {
-    //            listenerFetchShops.remove()
-    //        }
-    //    }
-    
-//    func fetchShops(gender: String, completion: @escaping ([Shop]?, Error?) -> Void) {
-//        let path = "shops" + gender
-//        let firestore = Firestore.firestore()
-//        let shopsCollection = firestore.collection(path)
-//
-//        listenerFetchShops = shopsCollection.addSnapshotListener { querySnapshot, error in
-//
-//            guard error == nil else {
-//                completion(nil, error)
-//                return
-//            }
-//
-//            guard let documents = querySnapshot?.documents else {
-//                completion(nil, error)
-//                return
-//            }
-//
-//            var shops: [Shop] = []
-//            var currentErrors: [Error] = []
-//            let dispatchGroup = DispatchGroup()
-//
-//            for document in documents {
-////                let documentData = document.data()
-//
-//                dispatchGroup.enter()
-//
-//                let productsCollectionRef = document.reference.collection("allShops")
-//
-//                productsCollectionRef.getDocuments { [weak self] (subquerySnapshot, error) in
-//
-//                    guard error == nil else {
-//                        currentErrors.append(error!)
-//                        dispatchGroup.leave()
-//                        return
-//                    }
-//
-//                    guard let subdocuments = subquerySnapshot?.documents else {
-//                        dispatchGroup.leave()
-//                        return
-//                    }
-//
-//                    for subdocument in subdocuments {
-//                        let subDocumentData = subdocument.data()
-//
-//                        // Работа с каждым поддокументом из подколлекции
-//                        let name = subDocumentData["name"] as? String
-//                        let mall = subDocumentData["mall"] as? String
-//                        let floor = subDocumentData["floor"] as? String
-//                        let refImage = subDocumentData["refImage"] as? String
-//                        let telefon = subDocumentData["telefon"] as? String
-//                        let webSite = subDocumentData["webSite"] as? String
-//
-//                        let magazine = Shop(name: name, mall: mall, floor: floor, refImage: refImage, telefon: telefon, webSite: webSite)
-//
-//                        shops.append(magazine)
-//                    }
-//                    dispatchGroup.leave()
-//                }
-//            }
-//
-//            dispatchGroup.notify(queue: .main) {
-//                if currentErrors.isEmpty {
-//                    completion(shops, nil)
-//                } else {
-//                    print("Returned message for analytic FB Crashlytics error")
-//                    completion(shops, currentErrors.first)
-//                }
-//            }
-//        }
-//    }
     
     func removeListenerFetchPreviewShops() {
         if let listenerFetchPreviewShops = listenerFetchPreviewShops {
@@ -1661,15 +1585,21 @@ class ManagerFB {
         }
     }
     
-    func fetchPreviewShops(gender: String, completion: @escaping ([Item]) -> Void) {
+    func fetchPreviewShops(gender: String, completion: @escaping ([Item]?, Error?) -> Void) {
         let path = "previewShops" + gender
         let firestore = Firestore.firestore()
         let shopsCollection = firestore.collection(path)
         let quary = shopsCollection.order(by: "number", descending: false)
         
         listenerFetchPreviewShops = quary.addSnapshotListener { (querySnapshot, error) in
+            
+            guard error == nil else {
+                completion(nil, error)
+                return
+            }
+            
             guard let documents = querySnapshot?.documents else {
-                completion([Item]())
+                completion(nil, error)
                 return
             }
             
@@ -1684,7 +1614,7 @@ class ManagerFB {
                 let item = Item(malls: nil, shops: model, popularProduct: nil)
                 items.append(item)
             }
-            completion(items)
+            completion(items, nil)
         }
     }
     
@@ -1694,7 +1624,7 @@ class ManagerFB {
         }
     }
     
-    func fetchPreviewMalls(gender: String, completion: @escaping ([Item]) -> Void) {
+    func fetchPreviewMalls(gender: String, completion: @escaping ([Item]?, Error?) -> Void) {
         
         let path = "previewMalls" + gender
         let firestore = Firestore.firestore()
@@ -1702,8 +1632,14 @@ class ManagerFB {
         let quary = mallsCollection.order(by: "number", descending: false)
         
         listenerFetchPreviewMalls = quary.addSnapshotListener { (querySnapshot, error) in
+            
+            guard error == nil else {
+                completion(nil, error)
+                return
+            }
+            
             guard let documents = querySnapshot?.documents else {
-                completion([Item]())
+                completion(nil, error)
                 return
             }
             
@@ -1718,7 +1654,7 @@ class ManagerFB {
                 let item = Item(malls: model, shops: nil, popularProduct: nil)
                 items.append(item)
             }
-            completion(items)
+            completion(items, nil)
         }
     }
     
@@ -1728,15 +1664,21 @@ class ManagerFB {
         }
     }
     
-    func fetchPopularProducts(gender: String, completion: @escaping ([Item]) -> Void) {
+    func fetchPopularProducts(gender: String, completion: @escaping ([Item]?, Error?) -> Void) {
         
         let path = "popularProducts" + gender
         let firestore = Firestore.firestore()
         let popularProductsCollection = firestore.collection(path)
         
         listenerFetchPopularProducts = popularProductsCollection.addSnapshotListener { (querySnapshot, error) in
+            
+            guard error == nil else {
+                completion(nil, error)
+                return
+            }
+            
             guard let documents = querySnapshot?.documents else {
-                completion([Item]())
+                completion(nil, error)
                 return
             }
             
@@ -1760,7 +1702,7 @@ class ManagerFB {
                 let item = Item(malls: nil, shops: nil, popularProduct: model)
                 items.append(item)
             }
-            completion(items)
+            completion(items, nil)
         }
     }
     
@@ -1775,7 +1717,7 @@ class ManagerFB {
     }
 
     
-    func fetchCartProducts(completion: @escaping ([ProductItem]) -> Void) {
+    func fetchCartProducts(completion: @escaping ([ProductItem]?, Error?) -> Void) {
         
 //        guard let currentUser = currentUser else {
 //            completionHandler([])
@@ -1787,8 +1729,14 @@ class ManagerFB {
         let cartProductsCollection = firestore.collection("users").document("removeListenerForUserID").collection("cartProducts")
         
         listenerFetchCartProducts = cartProductsCollection.addSnapshotListener { (querySnapshot, error) in
+            
+            guard error == nil else {
+                completion(nil, error)
+                return
+            }
+            
             guard let documents = querySnapshot?.documents else {
-                completion([ProductItem]())
+                completion(nil, error)
                 return
             }
             
@@ -1811,18 +1759,30 @@ class ManagerFB {
                 let model = ProductItem(brand: brand, model: modelProduct, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, originalContent: originalContent)
                 cartProducts.append(model)
             }
-            completion(cartProducts)
+            completion(cartProducts, nil)
         }
     }
     
-    func fetchPinMalls(completion: @escaping ([PinMallsFB]) -> Void) {
+    func removeListenerFetchPinMalls() {
+        if let listenerFetchPinMalls = listenerFetchPinMalls {
+            listenerFetchPinMalls.remove()
+        }
+    }
+    
+    func fetchPinMalls(completion: @escaping ([PinMallsFB]?, Error?) -> Void) {
         
         let firestore = Firestore.firestore()
         let pinCollection = firestore.collection("pinMalls")
         
-        pinCollection.addSnapshotListener { (querySnapshot, error) in
+        listenerFetchPinMalls = pinCollection.addSnapshotListener { (querySnapshot, error) in
+            
+            guard error == nil else {
+                completion(nil, error)
+                return
+            }
+            
             guard let documents = querySnapshot?.documents else {
-                completion([PinMallsFB]())
+                completion(nil, error)
                 return
             }
             
@@ -1839,7 +1799,7 @@ class ManagerFB {
                 let pinMall = PinMallsFB(mall: mall, refImage: refImage, address: address, latitude: latitude, longitude: longitude)
                 items.append(pinMall)
             }
-            completion(items)
+            completion(items, nil)
         }
     }
     
@@ -2043,7 +2003,82 @@ class ManagerFB {
 }
 
 
+//    func removeListenerFetchShops() {
+//        if let listenerFetchShops = listenerFetchShops {
+//            listenerFetchShops.remove()
+//        }
+//    }
 
+//    func fetchShops(gender: String, completion: @escaping ([Shop]?, Error?) -> Void) {
+//        let path = "shops" + gender
+//        let firestore = Firestore.firestore()
+//        let shopsCollection = firestore.collection(path)
+//
+//        listenerFetchShops = shopsCollection.addSnapshotListener { querySnapshot, error in
+//
+//            guard error == nil else {
+//                completion(nil, error)
+//                return
+//            }
+//
+//            guard let documents = querySnapshot?.documents else {
+//                completion(nil, error)
+//                return
+//            }
+//
+//            var shops: [Shop] = []
+//            var currentErrors: [Error] = []
+//            let dispatchGroup = DispatchGroup()
+//
+//            for document in documents {
+////                let documentData = document.data()
+//
+//                dispatchGroup.enter()
+//
+//                let productsCollectionRef = document.reference.collection("allShops")
+//
+//                productsCollectionRef.getDocuments { [weak self] (subquerySnapshot, error) in
+//
+//                    guard error == nil else {
+//                        currentErrors.append(error!)
+//                        dispatchGroup.leave()
+//                        return
+//                    }
+//
+//                    guard let subdocuments = subquerySnapshot?.documents else {
+//                        dispatchGroup.leave()
+//                        return
+//                    }
+//
+//                    for subdocument in subdocuments {
+//                        let subDocumentData = subdocument.data()
+//
+//                        // Работа с каждым поддокументом из подколлекции
+//                        let name = subDocumentData["name"] as? String
+//                        let mall = subDocumentData["mall"] as? String
+//                        let floor = subDocumentData["floor"] as? String
+//                        let refImage = subDocumentData["refImage"] as? String
+//                        let telefon = subDocumentData["telefon"] as? String
+//                        let webSite = subDocumentData["webSite"] as? String
+//
+//                        let magazine = Shop(name: name, mall: mall, floor: floor, refImage: refImage, telefon: telefon, webSite: webSite)
+//
+//                        shops.append(magazine)
+//                    }
+//                    dispatchGroup.leave()
+//                }
+//            }
+//
+//            dispatchGroup.notify(queue: .main) {
+//                if currentErrors.isEmpty {
+//                    completion(shops, nil)
+//                } else {
+//                    print("Returned message for analytic FB Crashlytics error")
+//                    completion(shops, currentErrors.first)
+//                }
+//            }
+//        }
+//    }
 
 //func fetchShops(gender: String, completion: @escaping ([Shop]?, Error?) -> Void) {
 //        let path = "shops" + gender
