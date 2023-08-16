@@ -13,7 +13,7 @@ import MapKit
 class HomeVC: ParentNetworkViewController {
     
     let allState = ["ShopsMan":false, "ShopsWoman":false, "PinMalls":false, "PreviewMalls":false, "PreviewShops":false, "PopularProducts":false, "CartProducts":false]
-    
+    let switchState = ["PreviewMalls":false, "PreviewShops":false, "PopularProducts":false]
     var pinsMall: [PinMall] = []
     private var pinsMallFB: [PinMallsFB] = [] {
         didSet {
@@ -47,6 +47,9 @@ class HomeVC: ParentNetworkViewController {
     var firstLoadingStatus: [String:Bool] = [:] {
         didSet {
             if firstLoadingStatus.count == allState.count {
+               
+                    timer?.invalidate()
+                
                 let filteredDictionary = firstLoadingStatus.filter { (_, value) in
                     return value == false
                 }
@@ -74,6 +77,9 @@ class HomeVC: ParentNetworkViewController {
     var switchLoadingStatus: [String:Bool] = [:] {
         didSet {
             if switchLoadingStatus.count == 3 {
+                
+                timer?.invalidate()
+               
                 let filteredDictionary = switchLoadingStatus.filter { (_, value) in
                     return value == false
                 }
@@ -112,6 +118,7 @@ class HomeVC: ParentNetworkViewController {
         super.viewDidLoad()
         
         tabBarController?.view.isUserInteractionEnabled = false
+        startFirstTimer()
         configureActivityView()
         
         let gender = defaults.string(forKey: "gender") ?? "Woman"
@@ -270,10 +277,21 @@ class HomeVC: ParentNetworkViewController {
     func startFirstTimer() {
         
         timer = Timer.scheduledTimer(withTimeInterval: 12, repeats: false) { _ in
-            var reloadDictionary = self.calculateDifference(allState: self.allState, currentState: self.firstLoadingStatus)
+            self.isBlockingFirstLoading = true
+            self.isBlockingModel = false
+            let reloadDictionary = self.calculateDifference(allState: self.allState, currentState: self.firstLoadingStatus)
             self.firstLoadingStatus = reloadDictionary
         }
-//        timer?.invalidate()
+    }
+    
+    func startSwitchGenderTimer() {
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 12, repeats: false) { _ in
+            self.isBlockingSwitchGenderLoading = true
+            self.isBlockingModel = false
+            let reloadDictionary = self.calculateDifference(allState: self.switchState, currentState: self.switchLoadingStatus)
+            self.switchLoadingStatus = reloadDictionary
+        }
     }
     
     func calculateDifference(allState: [String: Bool], currentState: [String: Bool]) -> [String: Bool] {
@@ -309,6 +327,7 @@ class HomeVC: ParentNetworkViewController {
         let gender = defaults.string(forKey: "gender") ?? "Woman"
         if currentGender != gender {
             configureActivityView()
+            startSwitchGenderTimer()
             cloudFB.removeListenerFetchPreviewMalls()
             cloudFB.removeListenerFetchPreviewShops()
             cloudFB.removeListenerFetchPopularProducts()
@@ -318,13 +337,13 @@ class HomeVC: ParentNetworkViewController {
             fetchPreviewMalls(gender: currentGender)
             fetchPreviewShops(gender: currentGender)
             fetchPopularProducts(gender: currentGender)
-
         }
     }
     
     func reloadingFirstData(forData: [String : Bool]) {
         isBlockingFirstLoading = false
         configureActivityView()
+        startFirstTimer()
         // сначало в цикле удалим все firstLoadingStatus["ShopsMan"] = nil и cloudFB.removeListenerFetchShopsMan()
         forData.forEach { item in
             switch item.key {
@@ -365,6 +384,7 @@ class HomeVC: ParentNetworkViewController {
     func reloadingSwitchData(forData: [String : Bool]) {
         isBlockingSwitchGenderLoading = false
         configureActivityView()
+        startSwitchGenderTimer()
         // сначало в цикле удалим все firstLoadingStatus["ShopsMan"] = nil и cloudFB.removeListenerFetchShopsMan()
         forData.forEach { item in
             switch item.key {
