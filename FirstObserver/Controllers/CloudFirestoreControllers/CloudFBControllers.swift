@@ -12,6 +12,8 @@ import MapKit
 
 class HomeVC: ParentNetworkViewController {
     
+    let allState = ["ShopsMan":false, "ShopsWoman":false, "PinMalls":false, "PreviewMalls":false, "PreviewShops":false, "PopularProducts":false, "CartProducts":false]
+    
     var pinsMall: [PinMall] = []
     private var pinsMallFB: [PinMallsFB] = [] {
         didSet {
@@ -22,7 +24,9 @@ class HomeVC: ParentNetworkViewController {
     var model = [SectionModelHVC]() {
         didSet {
             if model.count == 3 {
-                if isFirstLoading, !isSwitchLoading {
+                if isBlockingFirstLoading, isBlockingSwitchGenderLoading, isBlockingModel {
+//                    activityView.stopAnimating()
+//                    activityView.removeFromSuperview()
 //                    reloadData()
                 }
                 
@@ -42,23 +46,26 @@ class HomeVC: ParentNetworkViewController {
     
     var firstLoadingStatus: [String:Bool] = [:] {
         didSet {
-            if firstLoadingStatus.count == 7 {
+            if firstLoadingStatus.count == allState.count {
                 let filteredDictionary = firstLoadingStatus.filter { (_, value) in
                     return value == false
                 }
                 
                 if filteredDictionary.isEmpty {
                     // Обработка случая отсутствия элементов со значением false
-                        tabBarController?.view.isUserInteractionEnabled = true
-                        activityView.stopAnimating()
-                        activityView.removeFromSuperview()
-                        //                    reloadData()
-                        isFirstLoading = true
-                        firstLoadingStatus = [:]
+                    tabBarController?.view.isUserInteractionEnabled = true
+                    activityView.stopAnimating()
+                    activityView.removeFromSuperview()
+                    isBlockingFirstLoading = true
+                    isBlockingModel = true
+                    firstLoadingStatus = [:]
+                    //                    reloadData()
                 } else {
-                        activityView.stopAnimating()
-                        activityView.removeFromSuperview()
-                        self.setupAlertReloadFirstData(forData: filteredDictionary)
+                    isBlockingFirstLoading = true
+                    isBlockingModel = false
+                    activityView.stopAnimating()
+                    activityView.removeFromSuperview()
+                    self.setupAlertReloadFirstData(forData: filteredDictionary)
                 }
             }
         }
@@ -73,10 +80,13 @@ class HomeVC: ParentNetworkViewController {
                 if filteredDictionary.isEmpty {
                     activityView.stopAnimating()
                     activityView.removeFromSuperview()
-                    //                    reloadData()
-                    isSwitchLoading = false
+                    isBlockingSwitchGenderLoading = true
+                    isBlockingModel = true
                     switchLoadingStatus = [:]
+                    //                    reloadData()
                 } else {
+                    isBlockingSwitchGenderLoading = true
+                    isBlockingModel = false
                     activityView.stopAnimating()
                     activityView.removeFromSuperview()
                     self.setupAlertReloadSwitchData(forData: filteredDictionary)
@@ -88,13 +98,15 @@ class HomeVC: ParentNetworkViewController {
     var cartProducts: [ProductItem] = []
     var shops:[String:[Shop]] = [:]
     private var currentGender = ""
-    var isFirstLoading = false
-    var isSwitchLoading = false
+    var isBlockingFirstLoading = false
+    var isBlockingSwitchGenderLoading = true
+    var isBlockingModel = true
     
     let cloudFB = ManagerFB.shared
     let managerFB = FBManager.shared
     let defaults = UserDefaults.standard
     
+    var timer: Timer?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -132,11 +144,11 @@ class HomeVC: ParentNetworkViewController {
         cloudFB.fetchShopsMan { (shops, error) in
             if let shops = shops, error == nil {
                 self.shops["Man"] = shops
-                if !self.isFirstLoading {
+                if !self.isBlockingFirstLoading {
                     self.firstLoadingStatus["ShopsMan"] = true
                 }
             } else {
-                if !self.isFirstLoading {
+                if !self.isBlockingFirstLoading {
                     self.firstLoadingStatus["ShopsMan"] = false
                 }
             }
@@ -147,11 +159,11 @@ class HomeVC: ParentNetworkViewController {
         cloudFB.fetchShopsWoman { (shops, error) in
             if let shops = shops, error == nil {
                 self.shops["Woman"] = shops
-                if !self.isFirstLoading {
+                if !self.isBlockingFirstLoading {
                     self.firstLoadingStatus["ShopsWoman"] = true
                 }
             } else {
-                if !self.isFirstLoading {
+                if !self.isBlockingFirstLoading {
                     self.firstLoadingStatus["ShopsWoman"] = false
                 }
             }
@@ -162,11 +174,11 @@ class HomeVC: ParentNetworkViewController {
         cloudFB.fetchPinMalls { (pins, errro) in
             if let pins = pins, errro == nil {
                 self.pinsMallFB = pins
-                if !self.isFirstLoading {
+                if !self.isBlockingFirstLoading {
                     self.firstLoadingStatus["PinMalls"] = true
                 }
             } else {
-                if !self.isFirstLoading {
+                if !self.isBlockingFirstLoading {
                     self.firstLoadingStatus["PinMalls"] = false
                 }
             }
@@ -178,17 +190,17 @@ class HomeVC: ParentNetworkViewController {
             if let malls = malls, error == nil {
                 let section = SectionModelHVC(section: "Malls", items: malls)
                 self.modelDict["A"] = section
-                if !self.isFirstLoading {
+                if !self.isBlockingFirstLoading {
                     self.firstLoadingStatus["PreviewMalls"] = true
                 }
-                if self.isSwitchLoading {
+                if !self.isBlockingSwitchGenderLoading {
                     self.switchLoadingStatus["PreviewMalls"] = true
                 }
             } else {
-                if !self.isFirstLoading {
+                if !self.isBlockingFirstLoading {
                     self.firstLoadingStatus["PreviewMalls"] = false
                 }
-                if self.isSwitchLoading {
+                if !self.isBlockingSwitchGenderLoading {
                     self.switchLoadingStatus["PreviewMalls"] = false
                 }
             }
@@ -200,12 +212,18 @@ class HomeVC: ParentNetworkViewController {
             if let shops = shops, error == nil {
                 let section = SectionModelHVC(section: "Shops", items: shops)
                 self.modelDict["B"] = section
-                if !self.isFirstLoading {
+                if !self.isBlockingFirstLoading {
                     self.firstLoadingStatus["PreviewShops"] = true
                 }
+                if !self.isBlockingSwitchGenderLoading {
+                    self.switchLoadingStatus["PreviewShops"] = true
+                }
             } else {
-                if !self.isFirstLoading {
+                if !self.isBlockingFirstLoading {
                     self.firstLoadingStatus["PreviewShops"] = false
+                }
+                if !self.isBlockingSwitchGenderLoading {
+                    self.switchLoadingStatus["PreviewShops"] = false
                 }
             }
         }
@@ -216,12 +234,18 @@ class HomeVC: ParentNetworkViewController {
             if let products = products, error == nil {
                 let section = SectionModelHVC(section: "PopularProducts", items: products)
                 self.modelDict["C"] = section
-                if !self.isFirstLoading {
+                if !self.isBlockingFirstLoading {
                     self.firstLoadingStatus["PopularProducts"] = true
                 }
+                if !self.isBlockingSwitchGenderLoading {
+                    self.switchLoadingStatus["PopularProducts"] = true
+                }
             } else {
-                if !self.isFirstLoading {
+                if !self.isBlockingFirstLoading {
                     self.firstLoadingStatus["PopularProducts"] = false
+                }
+                if !self.isBlockingSwitchGenderLoading {
+                    self.switchLoadingStatus["PopularProducts"] = false
                 }
             }
         }
@@ -232,20 +256,47 @@ class HomeVC: ParentNetworkViewController {
             if let products = products, error == nil {
                 self.cartProducts = products
                 self.cloudFB.cartProducts = products
-                if !self.isFirstLoading {
+                if !self.isBlockingFirstLoading {
                     self.firstLoadingStatus["CartProducts"] = true
                 }
             } else {
-                if !self.isFirstLoading {
+                if !self.isBlockingFirstLoading {
                     self.firstLoadingStatus["CartProducts"] = false
                 }
             }
         }
     }
     
-    func startTimer() {
+    func startFirstTimer() {
         
+        timer = Timer.scheduledTimer(withTimeInterval: 12, repeats: false) { _ in
+            var reloadDictionary = self.calculateDifference(allState: self.allState, currentState: self.firstLoadingStatus)
+            self.firstLoadingStatus = reloadDictionary
+        }
+//        timer?.invalidate()
     }
+    
+    func calculateDifference(allState: [String: Bool], currentState: [String: Bool]) -> [String: Bool] {
+        
+        guard currentState.count > 0 else {
+            return allState
+        }
+        var newDictionary:[String: Bool] = [:]
+
+        for (key, _ ) in allState {
+            guard let currentValue = currentState[key] else {
+                newDictionary[key] = false
+                continue
+            }
+            if currentValue != true {
+                newDictionary[key] = false
+            } else {
+                newDictionary[key] = true
+            }
+        }
+        return newDictionary
+    }
+
     func getPinsMall() {
         self.pinsMall = []
         pinsMallFB.forEach { pin in
@@ -263,7 +314,7 @@ class HomeVC: ParentNetworkViewController {
             cloudFB.removeListenerFetchPopularProducts()
             modelDict = [:]
             currentGender = gender
-            isSwitchLoading = true
+            isBlockingSwitchGenderLoading = false
             fetchPreviewMalls(gender: currentGender)
             fetchPreviewShops(gender: currentGender)
             fetchPopularProducts(gender: currentGender)
@@ -272,7 +323,9 @@ class HomeVC: ParentNetworkViewController {
     }
     
     func reloadingFirstData(forData: [String : Bool]) {
+        isBlockingFirstLoading = false
         configureActivityView()
+        // сначало в цикле удалим все firstLoadingStatus["ShopsMan"] = nil и cloudFB.removeListenerFetchShopsMan()
         forData.forEach { item in
             switch item.key {
             case "ShopsMan":
@@ -310,7 +363,9 @@ class HomeVC: ParentNetworkViewController {
     }
     
     func reloadingSwitchData(forData: [String : Bool]) {
+        isBlockingSwitchGenderLoading = false
         configureActivityView()
+        // сначало в цикле удалим все firstLoadingStatus["ShopsMan"] = nil и cloudFB.removeListenerFetchShopsMan()
         forData.forEach { item in
             switch item.key {
                 
