@@ -10,6 +10,10 @@ import UIKit
 import MapKit
 
 
+// ParentNetworkViewController - использование может быть пересмотрено для Cloud Firestore
+// Возможно есть смысл делать проверку на networkConnected() во viewDidLoad при первом запуске.
+// if isConnect - запускаем весь код который сейчас лежит во viewDidLoad else Alert
+// Alert - Try agayne! и снова вызываем метод networkConnected()
 class HomeVC: ParentNetworkViewController {
     
     let allState = ["ShopsMan":false, "ShopsWoman":false, "PinMalls":false, "PreviewMalls":false, "PreviewShops":false, "PopularProducts":false, "CartProducts":false]
@@ -124,10 +128,12 @@ class HomeVC: ParentNetworkViewController {
         let gender = defaults.string(forKey: "gender") ?? "Woman"
         currentGender = gender
        
+        // если networkNotConnect и мы уже заходили то user лежит в кэши
+        // пока networkNotConnect блок не выполнится
         managerFB.userListener { currentUser in
             if currentUser == nil {
                 self.cartProducts = []
-                self.managerFB.signInAnonymously()
+                self.cloudFB.signInAnonymously()
             }
             self.cloudFB.removeListenerFetchCartProducts()
             self.fetchCartProducts()
@@ -340,40 +346,90 @@ class HomeVC: ParentNetworkViewController {
         }
     }
     
+    // сначало в цикле удалим все firstLoadingStatus["ShopsMan"] = nil и cloudFB.removeListenerFetchShopsMan()
+    // мы переживаем что ответ от сервера вернется быстрее чем выполнится цикл forEach
+//        forData.forEach { item in
+//            switch item.key {
+//            case "ShopsMan":
+//                cloudFB.removeListenerFetchShopsMan()
+//                firstLoadingStatus["ShopsMan"] = nil
+//                fetchShopsMan()
+//            case "ShopsWoman":
+//                cloudFB.removeListenerFetchShopsWoman()
+//                firstLoadingStatus["ShopsWoman"] = nil
+//                fetchShopsWoman()
+//            case "PinMalls":
+//                cloudFB.removeListenerFetchPinMalls()
+//                firstLoadingStatus["PinMalls"] = nil
+//                fetchPinMalls()
+//            case "PreviewMalls":
+//                cloudFB.removeListenerFetchPreviewMalls()
+//                firstLoadingStatus["PreviewMalls"] = nil
+//                fetchPreviewMalls(gender: currentGender)
+//            case "PreviewShops":
+//                cloudFB.removeListenerFetchPreviewShops()
+//                firstLoadingStatus["PreviewShops"] = nil
+//                fetchPreviewShops(gender: currentGender)
+//            case "PopularProducts":
+//                cloudFB.removeListenerFetchPopularProducts()
+//                firstLoadingStatus["PopularProducts"] = nil
+//                fetchPopularProducts(gender: currentGender)
+//            case "CartProducts":
+//                cloudFB.removeListenerFetchCartProducts()
+//                firstLoadingStatus["CartProducts"] = nil
+//                fetchCartProducts()
+//            default:
+//                print("Returned message for analytic FB Crashlytics error")
+//            }
+//        }
     func reloadingFirstData(forData: [String : Bool]) {
         isBlockingFirstLoading = false
         configureActivityView()
         startFirstTimer()
-        // сначало в цикле удалим все firstLoadingStatus["ShopsMan"] = nil и cloudFB.removeListenerFetchShopsMan()
+        forData.enumerated()
         forData.forEach { item in
             switch item.key {
             case "ShopsMan":
                 cloudFB.removeListenerFetchShopsMan()
                 firstLoadingStatus["ShopsMan"] = nil
-                fetchShopsMan()
             case "ShopsWoman":
                 cloudFB.removeListenerFetchShopsWoman()
                 firstLoadingStatus["ShopsWoman"] = nil
-                fetchShopsWoman()
             case "PinMalls":
                 cloudFB.removeListenerFetchPinMalls()
                 firstLoadingStatus["PinMalls"] = nil
-                fetchPinMalls()
             case "PreviewMalls":
                 cloudFB.removeListenerFetchPreviewMalls()
                 firstLoadingStatus["PreviewMalls"] = nil
-                fetchPreviewMalls(gender: currentGender)
             case "PreviewShops":
                 cloudFB.removeListenerFetchPreviewShops()
                 firstLoadingStatus["PreviewShops"] = nil
-                fetchPreviewShops(gender: currentGender)
             case "PopularProducts":
                 cloudFB.removeListenerFetchPopularProducts()
                 firstLoadingStatus["PopularProducts"] = nil
-                fetchPopularProducts(gender: currentGender)
             case "CartProducts":
                 cloudFB.removeListenerFetchCartProducts()
                 firstLoadingStatus["CartProducts"] = nil
+            default:
+                print("Returned message for analytic FB Crashlytics error")
+            }
+        }
+        
+        forData.forEach { item in
+            switch item.key {
+            case "ShopsMan":
+                fetchShopsMan()
+            case "ShopsWoman":
+                fetchShopsWoman()
+            case "PinMalls":
+                fetchPinMalls()
+            case "PreviewMalls":
+                fetchPreviewMalls(gender: currentGender)
+            case "PreviewShops":
+                fetchPreviewShops(gender: currentGender)
+            case "PopularProducts":
+                fetchPopularProducts(gender: currentGender)
+            case "CartProducts":
                 fetchCartProducts()
             default:
                 print("Returned message for analytic FB Crashlytics error")

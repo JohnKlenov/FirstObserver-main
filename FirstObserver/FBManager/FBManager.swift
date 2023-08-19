@@ -1403,7 +1403,7 @@ enum AppErrorCode: Int {
 class ManagerFB {
     
     static let shared = ManagerFB()
-    
+    var currentUser:User?
     let firestore = Firestore.firestore()
     var listenerFetchShops: ListenerRegistration?
     var listenerFetchProductsMan: ListenerRegistration?
@@ -1423,7 +1423,39 @@ class ManagerFB {
     // MARK: - HomeVC -
     
     // если будет изменение данных по ref и при этом ошибка не удалять уже имеющийся маасив с продуктами на VC
+
+    // тут нужно поработать над гарантией создания анонимного, ведь без него мы не сможем загрузить все данные -> у нас всегда будет try agayne!
+    //    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+    //                    signInAnonymously()
+    //                }
+    func signInAnonymously() {
+        
+        Auth.auth().signInAnonymously { (authResult, error) in
+            
+            guard error == nil, let authResult = authResult else {
+                print("Returne message for analitic FB Crashlystics")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    self.signInAnonymously()
+                }
+                return
+            }
+            self.addEmptyCartProducts(uid: authResult.user.uid)
+        }
+    }
     
+    func addEmptyCartProducts(uid: String) {
+        
+        let usersCollection = Firestore.firestore().collection("usersAccounts")
+        let userDocument = usersCollection.document(uid)
+        userDocument.collection("cartProducts").addDocument(data: [:]) { error in
+            if error != nil {
+                print("Returne message for analitic FB Crashlystics")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    self.addEmptyCartProducts(uid: uid)
+                }
+            }
+        }
+    }
     
     func removeListenerFetchShopsMan() {
         if let listenerFetchShops = listenerFetchShopsMan {
@@ -1465,7 +1497,7 @@ class ManagerFB {
 
                 let productsCollectionRef = document.reference.collection("allShops")
 
-                productsCollectionRef.getDocuments { [weak self] (subquerySnapshot, error) in
+                productsCollectionRef.getDocuments { (subquerySnapshot, error) in
 
                     guard error == nil else {
                         currentErrors.append(error!)
@@ -1536,7 +1568,7 @@ class ManagerFB {
 
                 let productsCollectionRef = document.reference.collection("allShops")
 
-                productsCollectionRef.getDocuments { [weak self] (subquerySnapshot, error) in
+                productsCollectionRef.getDocuments { (subquerySnapshot, error) in
 
                     guard error == nil else {
                         currentErrors.append(error!)
@@ -1716,17 +1748,20 @@ class ManagerFB {
         }
     }
 
-    
+    //            guard let documents = querySnapshot?.documents else {
+    //                completion([], error)
+    //                return
+    //            }
     func fetchCartProducts(completion: @escaping ([ProductItem]?, Error?) -> Void) {
         
-//        guard let currentUser = currentUser else {
-//            completionHandler([])
-//            return
-//        }
+        guard let currentUser = currentUser else {
+            completion(nil, nil)
+            return
+        }
         
 //        removeListenerForUserID = currentUser.uid
         let firestore = Firestore.firestore()
-        let cartProductsCollection = firestore.collection("users").document("removeListenerForUserID").collection("cartProducts")
+        let cartProductsCollection = firestore.collection("usersAccounts").document(currentUser.uid).collection("cartProducts")
         
         listenerFetchCartProducts = cartProductsCollection.addSnapshotListener { (querySnapshot, error) in
             
@@ -1734,12 +1769,12 @@ class ManagerFB {
                 completion(nil, error)
                 return
             }
-            
-            guard let documents = querySnapshot?.documents else {
-                completion(nil, error)
+            guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
+                completion([], error)
                 return
             }
-            
+
+            let documents = querySnapshot.documents
             var cartProducts = [ProductItem]()
             
             for document in documents {

@@ -28,7 +28,7 @@ import UIKit
 // FullScreenViewController
 
 
-
+// для 
 class ParentNetworkViewController: UIViewController {
     
     lazy var activityView: ActivityContainerView = {
