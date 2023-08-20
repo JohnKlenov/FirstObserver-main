@@ -346,48 +346,41 @@ class HomeVC: ParentNetworkViewController {
         }
     }
     
-    // сначало в цикле удалим все firstLoadingStatus["ShopsMan"] = nil и cloudFB.removeListenerFetchShopsMan()
-    // мы переживаем что ответ от сервера вернется быстрее чем выполнится цикл forEach
-//        forData.forEach { item in
-//            switch item.key {
-//            case "ShopsMan":
-//                cloudFB.removeListenerFetchShopsMan()
-//                firstLoadingStatus["ShopsMan"] = nil
-//                fetchShopsMan()
-//            case "ShopsWoman":
-//                cloudFB.removeListenerFetchShopsWoman()
-//                firstLoadingStatus["ShopsWoman"] = nil
-//                fetchShopsWoman()
-//            case "PinMalls":
-//                cloudFB.removeListenerFetchPinMalls()
-//                firstLoadingStatus["PinMalls"] = nil
-//                fetchPinMalls()
-//            case "PreviewMalls":
-//                cloudFB.removeListenerFetchPreviewMalls()
-//                firstLoadingStatus["PreviewMalls"] = nil
-//                fetchPreviewMalls(gender: currentGender)
-//            case "PreviewShops":
-//                cloudFB.removeListenerFetchPreviewShops()
-//                firstLoadingStatus["PreviewShops"] = nil
-//                fetchPreviewShops(gender: currentGender)
-//            case "PopularProducts":
-//                cloudFB.removeListenerFetchPopularProducts()
-//                firstLoadingStatus["PopularProducts"] = nil
-//                fetchPopularProducts(gender: currentGender)
-//            case "CartProducts":
-//                cloudFB.removeListenerFetchCartProducts()
-//                firstLoadingStatus["CartProducts"] = nil
-//                fetchCartProducts()
-//            default:
-//                print("Returned message for analytic FB Crashlytics error")
-//            }
-//        }
     func reloadingFirstData(forData: [String : Bool]) {
         isBlockingFirstLoading = false
         configureActivityView()
         startFirstTimer()
-        forData.enumerated()
+        
+        deleteStatusData(forData: forData) {
+            forData.forEach { item in
+                
+                switch item.key {
+                case "ShopsMan":
+                    fetchShopsMan()
+                case "ShopsWoman":
+                    fetchShopsWoman()
+                case "PinMalls":
+                    fetchPinMalls()
+                case "PreviewMalls":
+                    fetchPreviewMalls(gender: currentGender)
+                case "PreviewShops":
+                    fetchPreviewShops(gender: currentGender)
+                case "PopularProducts":
+                    fetchPopularProducts(gender: currentGender)
+                case "CartProducts":
+                    fetchCartProducts()
+                default:
+                    print("Returned message for analytic FB Crashlytics error")
+                }
+            }
+        }
+    }
+    
+    func deleteStatusData(forData: [String : Bool], completion: () -> Void) {
+        
+        var counter = 0
         forData.forEach { item in
+            counter += 1
             switch item.key {
             case "ShopsMan":
                 cloudFB.removeListenerFetchShopsMan()
@@ -413,26 +406,8 @@ class HomeVC: ParentNetworkViewController {
             default:
                 print("Returned message for analytic FB Crashlytics error")
             }
-        }
-        
-        forData.forEach { item in
-            switch item.key {
-            case "ShopsMan":
-                fetchShopsMan()
-            case "ShopsWoman":
-                fetchShopsWoman()
-            case "PinMalls":
-                fetchPinMalls()
-            case "PreviewMalls":
-                fetchPreviewMalls(gender: currentGender)
-            case "PreviewShops":
-                fetchPreviewShops(gender: currentGender)
-            case "PopularProducts":
-                fetchPopularProducts(gender: currentGender)
-            case "CartProducts":
-                fetchCartProducts()
-            default:
-                print("Returned message for analytic FB Crashlytics error")
+            if counter == forData.count {
+                completion()
             }
         }
     }
@@ -441,24 +416,19 @@ class HomeVC: ParentNetworkViewController {
         isBlockingSwitchGenderLoading = false
         configureActivityView()
         startSwitchGenderTimer()
-        // сначало в цикле удалим все firstLoadingStatus["ShopsMan"] = nil и cloudFB.removeListenerFetchShopsMan()
-        forData.forEach { item in
-            switch item.key {
-                
-            case "PreviewMalls":
-                cloudFB.removeListenerFetchPreviewMalls()
-                switchLoadingStatus["PreviewMalls"] = nil
-                fetchPreviewMalls(gender: currentGender)
-            case "PreviewShops":
-                cloudFB.removeListenerFetchPreviewShops()
-                switchLoadingStatus["PreviewShops"] = nil
-                fetchPreviewShops(gender: currentGender)
-            case "PopularProducts":
-                cloudFB.removeListenerFetchPopularProducts()
-                switchLoadingStatus["PopularProducts"] = nil
-                fetchPopularProducts(gender: currentGender)
-            default:
-                print("Returned message for analytic FB Crashlytics error")
+        
+        deleteStatusData(forData: forData) {
+            forData.forEach { item in
+                switch item.key {
+                case "PreviewMalls":
+                    fetchPreviewMalls(gender: currentGender)
+                case "PreviewShops":
+                    fetchPreviewShops(gender: currentGender)
+                case "PopularProducts":
+                    fetchPopularProducts(gender: currentGender)
+                default:
+                    print("Returned message for analytic FB Crashlytics error")
+                }
             }
         }
     }
@@ -483,6 +453,110 @@ class HomeVC: ParentNetworkViewController {
         
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
+    }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        switch indexPath.section {
+        case 0:
+            print("case 0")
+//            let mallVC = UIStoryboard.vcById("MallVC") as! MallVC
+//            let mallSection = model.filter({$0.section == "Malls"})
+//            let nameMall = mallSection.first?.items[indexPath.row].malls?.name ?? ""
+//            mallVC.path = nameMall
+//            mallVC.title = nameMall
+//            mallVC.currentGender = currentGender
+//
+//            if let shops = shops[currentGender] {
+//                mallVC.shops = shops
+//            }
+//
+//            let currentPin = pinsMall.filter({$0.title == nameMall})
+//                    mallVC.currentPin = currentPin
+//                }
+//            self.navigationController?.pushViewController(mallVC, animated: true)
+        case 1:
+            print("case 1")
+            // при Cloud Firestore мы будем в NC переходить на VC с вертикальной прокруткой collectionView и cell как у popularProduct
+//            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+//            let brandVC = storyboard.instantiateViewController(withIdentifier: "BrandsViewController") as! BrandsViewController
+//            let brandsSection = modelHomeViewController.filter({$0.section == "Brands"})
+//            let refBrand = brandsSection.first?.items[indexPath.row].brands?.brand ?? ""
+//            let fullPath = "Brands" + currentGender + "/" + refBrand
+//            brandVC.pathRefBrandVC = refBrand
+//            brandVC.title = refBrand
+//            brandVC.arrayPin = placesMap
+//            self.navigationController?.pushViewController(brandVC, animated: true)
+        case 2:
+            print("case 2")
+//            let productVC = NewProductViewController()
+//            let productSection = modelHomeViewController.filter({$0.section == "PopularProducts"})
+//            let malls = productSection.first?.items[indexPath.row].popularProduct?.malls ?? [""]
+//
+//            var placesArray:[Places] = []
+//            placesMap.forEach { (places) in
+//                if malls.contains(places.title ?? "") {
+//                    placesArray.append(places)
+//                }
+//            }
+//
+//            cartProducts.forEach { (addedProduct) in
+//                if addedProduct.model == productSection.first?.items[indexPath.row].popularProduct?.model {
+//                    productVC.isAddedToCard = true
+//                }
+//            }
+//            productVC.arrayPin = placesArray
+//            productVC.productModel = productSection.first?.items[indexPath.row].popularProduct
+//            self.navigationController?.pushViewController(productVC, animated: true)
+            
+            
+            
+            
+            // альтернатива (product не содержит поле malls только magazines)
+            
+            //            let productMagazines = productSection.first?.items[indexPath.row].popularProduct?.magazines ?? [""]
+            
+            //            var magazinesArray:[Shop] = []
+            //            shops["currentGender"].forEach { (magazine) in
+            //                if productMagazines.contains(mazazine.name ?? "") {
+            //                    magazinesArray.append(magazine)
+            //                }
+            //            }
+            
+//            let arrayMall = createUniqueMallArray(from: magazinesArray)
+
+            //            var placesArray:[Places] = []
+            //            placesMap.forEach { (places) in
+            //                if arrayMall.contains(places.title ?? "") {
+            //                    placesArray.append(places)
+            //                }
+            //            }
+            
+            //            productVC.magazinesArray = magazinesArray
+            //            productVC.arrayPin = placesArray
+            //            productVC.productModel = productSection.first?.items[indexPath.row].popularProduct
+            //            self.navigationController?.pushViewController(productVC, animated: true)
+            
+//            func createUniqueMallArray(from magazines: [Magazine]) -> [String] {
+//                // Создаем временный Set для хранения уникальных значений
+//                var mallSet = Set<String>()
+//
+//                // Итерируемся по массиву magazines и добавляем поля "mall" во множество
+//                for magazine in magazines {
+//                    mallSet.insert(magazine.mall)
+//                }
+//
+//                // Преобразуем Set обратно в массив
+//                let uniqueMallArray = Array(mallSet)
+//
+//                return uniqueMallArray
+//            }
+
+            
+        default:
+            print("default \(indexPath.section)")
+        }
     }
 }
 
@@ -549,7 +623,7 @@ class MallsVC: ParentNetworkViewController {
         guard let tabBarVCs = tabBarController?.viewControllers else {return}
         for vc in tabBarVCs {
             if let nc = vc as? UINavigationController {
-                if let homeVC = nc.viewControllers.first as? NewHomeViewController {
+                if let _ = nc.viewControllers.first as? NewHomeViewController {
 //                    self.pinsMall = homeVC.pinsMall
 //                    self.shops = homeVC.shops
                 }
@@ -562,13 +636,13 @@ class MallsVC: ParentNetworkViewController {
     //        let mallVC = UIStoryboard.vcById("MallVC") as? MallVC
     //        if let mallVC = mallVC {
     //            mallVC.pinsMall = self.pinsMall
-    //            mallVC.shops = self.shops[self.currentGender]
-    //            mallVC.currentGender = self.scurrentGender
+//                mallVC.shops = self.shops[self.currentGender]
+//                mallVC.currentGender = self.scurrentGender
     //            if let path = mallsModel[indexPath.item].brand {
-    //        let currentPin = pinsMall.filter({$0.title == path})
-    //                mallVC.path = path
-    //                mallVC.currentPin = currentPin
-    //            }
+//            let currentPin = pinsMall.filter({$0.title == path})
+//                    mallVC.path = path
+//                    mallVC.currentPin = currentPin
+//                }
     //            self.navigationController?.pushViewController(mallVC, animated: true)
     //        }
     //    }
@@ -577,7 +651,6 @@ class MallsVC: ParentNetworkViewController {
 class MallVC: ParentNetworkViewController {
     
     var shops:[Shop] = []
-//    var pinsMall: [PinMall] = []
     var currentPin:[PinMall] = []
     var path: String = ""
     var currentGender = ""
