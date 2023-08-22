@@ -656,6 +656,7 @@ class MallVC: ParentNetworkViewController {
     var currentGender = ""
     
     let cloudFB = ManagerFB.shared
+    var timer: Timer?
     
     var mallModel: [SectionModelHVC] = [] {
         didSet {
@@ -667,17 +668,62 @@ class MallVC: ParentNetworkViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureActivityView()
-        cloudFB.fetchMall(gender: currentGender, path: path) { mallModel in
-//            self.configureViews(mallModel: mallModel)
-        }
-//        mapView.arrayPin = currentPin
-        
+        fetchMall()
+        // перенести все методы из viewDidLoad в configureViews(mallModel: mallModel)?
+        //        mapView.arrayPin = currentPin
+        // another methods
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+    }
+    
+    private func fetchMall() {
+        startTimer()
+        configureActivityView()
+        cloudFB.fetchMall(gender: currentGender, path: path) { (mallModel, error) in
+            if let _ = mallModel, error == nil {
+                self.timer?.invalidate()
+                self.cloudFB.removeListenerFetchMall()
+//                self.configureViews(mallModel: mallModel)
+                
+            } else {
+                self.cloudFB.removeListenerFetchMall()
+                self.timer?.invalidate()
+                self.activityView.stopAnimating()
+                self.activityView.removeFromSuperview()
+                self.setupAlertReloadData()
+            }
+        }
+    }
+
+    private func startTimer() {
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
+            self.cloudFB.removeListenerFetchMall()
+            self.activityView.stopAnimating()
+            self.activityView.removeFromSuperview()
+            self.setupAlertReloadData()
+        }
+    }
+    
+    private func setupAlertReloadData() {
+        let alert = UIAlertController(title: "Error ", message: "Something went wrong!", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Try agayn", style: .default) { [weak self] _ in
+            self?.fetchMall()
+        }
+        
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            // Для возврата на предыдущий экран в стеке навигации
+            self.navigationController?.popViewController(animated: true)
+
+        }
+        
+        alert.addAction(cancel)
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
     }
     
     //    private func configureViews(mallModel:MallModel)  {
@@ -739,7 +785,7 @@ class MallVC: ParentNetworkViewController {
     //            print("DidTap Mall Section")
     //        case 1:
     //            // при Cloud Firestore мы будем в NC переходить на VC с вертикальной прокруткой collectionView и cell как у popularProduct
-    //            let shopProductVC = UIStoryboard.vcById("ShopProdutctVC") as! ShopProdutctVC
+    //            let shopProductVC = UIStoryboard.vcById("ShopProdutctVC") as! ShopProdutctsVC
     //            let path = section[indexPath.section].items[indexPath.row].shops?.name ?? ""
     //            shopProductVC.path = path
     //            shopProductVC.currentGender = currentGender
@@ -761,24 +807,52 @@ class ShopProdutctsVC: ParentNetworkViewController {
     var currentGender = ""
     var modelShopProducts: [ProductItem] = [] {
         didSet {
+            activityView.stopAnimating()
+            activityView.removeFromSuperview()
             //            collectionView.reloadData()
         }
     }
     var cartProducts: [ProductItem] = []
     
     let cloudFB = ManagerFB.shared
+    var timer: Timer?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        cloudFB.fetchShopProdutcts(gender: currentGender, path: path) { model in
-            self.modelShopProducts = model
-        }
+        fetchShopProducts()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         fetchCartProdutcs()
+    }
+    
+    private func fetchShopProducts() {
+        startTimer()
+        configureActivityView()
+        cloudFB.fetchShopProdutcts(gender: currentGender, path: path) { (shopProducts, error) in
+            if let shopProducts = shopProducts, error == nil {
+                self.timer?.invalidate()
+                self.cloudFB.removeListenerFetchShopProducts()
+                self.modelShopProducts = shopProducts
+            } else {
+                self.cloudFB.removeListenerFetchShopProducts()
+                self.timer?.invalidate()
+                self.activityView.stopAnimating()
+                self.activityView.removeFromSuperview()
+                self.setupAlertReloadData()
+            }
+        }
+    }
+    
+    private func startTimer() {
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
+            self.cloudFB.removeListenerFetchShopProducts()
+            self.activityView.stopAnimating()
+            self.activityView.removeFromSuperview()
+            self.setupAlertReloadData()
+        }
     }
     
     func fetchCartProdutcs() {
@@ -791,6 +865,24 @@ class ShopProdutctsVC: ParentNetworkViewController {
                 }
             }
         }
+    }
+    
+    private func setupAlertReloadData() {
+        let alert = UIAlertController(title: "Error ", message: "Something went wrong!", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Try agayn", style: .default) { [weak self] _ in
+            self?.fetchShopProducts()
+        }
+        
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            // Для возврата на предыдущий экран в стеке навигации
+            self.navigationController?.popViewController(animated: true)
+
+        }
+        
+        alert.addAction(cancel)
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
     }
     
     func createUniqueMallArray(from shops: [Shop]) -> [String] {
@@ -832,6 +924,11 @@ class ShopProdutctsVC: ParentNetworkViewController {
         productVC.shops = shopsList
         productVC.modelProduct = modelShopProducts[indexPath.row]
         
+        cartProducts.forEach { (addedProduct) in
+            if addedProduct.model == modelShopProducts[indexPath.row].model {
+                productVC.isAddedToCard = true
+            }
+        }
     }
 }
 

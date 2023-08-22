@@ -1418,6 +1418,12 @@ class ManagerFB {
     var listenerFetchShopsMan: ListenerRegistration?
     var listenerFetchShopsWoman: ListenerRegistration?
     
+    // MallVC
+    var listenerFetchMall: ListenerRegistration?
+    
+    // ShopProductsVC
+    var listenerFetchShopProducts: ListenerRegistration?
+    
     var cartProducts: [ProductItem] = []
     
     // MARK: - HomeVC -
@@ -1841,15 +1847,30 @@ class ManagerFB {
     
     // MARK: - MallVC -
     
-    func fetchMall(gender: String, path: String, completion: @escaping (MallItem) -> Void) {
+    func removeListenerFetchMall() {
+        if let listenerFetchMall = listenerFetchMall {
+            listenerFetchMall.remove()
+        }
+    }
+    
+    func fetchMall(gender: String, path: String, completion: @escaping (MallItem?, Error?) -> Void) {
         
         let firestore = Firestore.firestore()
         let mallDocument = firestore.collection("malls\(gender)").document(path)
-        
-        mallDocument.getDocument { (document, error) in
-            if let document = document, document.exists {
-                  // Документ существует
-                let data = document.data() // Получаем данные из документа
+        listenerFetchMall = mallDocument.addSnapshotListener { (documentSnapshot, error) in
+            
+            guard error == nil else {
+                completion(nil, error)
+                return
+            }
+            
+            guard let document = documentSnapshot else {
+                completion(nil, error)
+                return
+            }
+            
+            if document.exists {
+                let data = document.data()
                 
                 if let data = data {
                     let name = data["name"] as? String
@@ -1858,38 +1879,46 @@ class ManagerFB {
                     let webSite = data["webSite"] as? String
                     let refImage = data["refImage"] as? [String]
                     let mall = MallItem(name: name, description: description, floorPlan: floorPlan, refImage: refImage, webSite: webSite)
-                    completion(mall)
+                    completion(mall,error)
                 }
-                  // Обработка данных
-                  // ...
-              } else {
-                  print("Документ не найден")
-              }
-
+            } else {
+                // Документ не найден
+                completion(nil, error)
+            }
         }
     }
     
     
     // MARK: - ShopProdutctsVC -
     
-    func fetchShopProdutcts(gender: String, path: String, completion: @escaping ([ProductItem]) -> Void) {
+    func removeListenerFetchShopProducts() {
+        if let listenerFetchShopProducts = listenerFetchShopProducts {
+            listenerFetchShopProducts.remove()
+        }
+    }
+    
+    func fetchShopProdutcts(gender: String, path: String, completion: @escaping ([ProductItem]?, Error?) -> Void) {
         let firestore = Firestore.firestore()
         let productsRef = firestore.collection("products\(gender)").document(path).collection("products")
-        productsRef.getDocuments { (snapshot, error) in
-            if let error = error {
-                print("Ошибка при получении документов: \(error)")
+        
+        listenerFetchShopProducts = productsRef.addSnapshotListener { (querySnapshot, error) in
+            
+            guard error == nil else {
+                completion(nil, error)
                 return
             }
             
-            guard let documents = snapshot?.documents else {
-                print("Документы не найдены")
+            guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
+                completion(nil, error)
                 return
             }
             
-            var productsShop: [ProductItem] = []
+            let documents = querySnapshot.documents
+            var productsShop = [ProductItem]()
+            
             for document in documents {
-                
                 let product = document.data()
+                
                 let brand = product["brand"] as? String
                 let model = product["model"] as? String
                 let category = product["category"] as? String
@@ -1901,12 +1930,12 @@ class ManagerFB {
                 let originalContent = product["originalContent"] as? String
                 let refImage = product["refImage"] as? [String]
                 let shops = product["shops"] as? [String]
-                
+
                 let productItem = ProductItem(brand: brand, model: model, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, originalContent: originalContent)
-                
+
                 productsShop.append(productItem)
             }
-            completion(productsShop)
+            completion(productsShop, error)
         }
     }
     
@@ -2978,3 +3007,4 @@ class ManagerFB {
 //            completionHandler(arrayProduct)
 //        }
 //    }
+
