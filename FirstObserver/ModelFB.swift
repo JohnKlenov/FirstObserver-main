@@ -267,8 +267,8 @@ struct SectionModelHVC: Hashable {
 }
 
 struct Item: Hashable {
-    let malls: PreviewSection?
-    let shops: PreviewSection?
+    let mall: PreviewSection?
+    let shop: PreviewSection?
     let popularProduct: ProductItem?
 //    let mallImage: String?
 }

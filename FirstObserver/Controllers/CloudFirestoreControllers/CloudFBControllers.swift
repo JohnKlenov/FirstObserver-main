@@ -118,6 +118,12 @@ class HomeVC: ParentNetworkViewController {
     
     var timer: Timer?
     
+    let allShops: UIButton = {
+        let button = UIButton()
+        button.addTarget(self, action: #selector(didTapAllShops(_:)), for: .touchUpInside)
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -151,6 +157,9 @@ class HomeVC: ParentNetworkViewController {
         switchGender()
     }
     
+    @objc func didTapAllShops(_ sender: UIButton) {
+        
+    }
 //    data methods
     
     func fetchShopsMan() {
@@ -455,107 +464,82 @@ class HomeVC: ParentNetworkViewController {
         present(alert, animated: true, completion: nil)
     }
     
+    func createUniqueMallArray(from shops: [Shop]) -> [String] {
+        
+        var mallSet = Set<String>()
+        for shop in shops {
+            mallSet.insert(shop.mall ?? "")
+        }
+        let uniqueMallArray = Array(mallSet)
+        
+        return uniqueMallArray
+    }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
         switch indexPath.section {
+            
         case 0:
-            print("case 0")
-//            let mallVC = UIStoryboard.vcById("MallVC") as! MallVC
-//            let mallSection = model.filter({$0.section == "Malls"})
-//            let nameMall = mallSection.first?.items[indexPath.row].malls?.name ?? ""
-//            mallVC.path = nameMall
-//            mallVC.title = nameMall
-//            mallVC.currentGender = currentGender
-//
-//            if let shops = shops[currentGender] {
-//                mallVC.shops = shops
-//            }
-//
-//            let currentPin = pinsMall.filter({$0.title == nameMall})
-//                    mallVC.currentPin = currentPin
-//                }
-//            self.navigationController?.pushViewController(mallVC, animated: true)
+            let mallVC = MallVC()
+            let mallSection = model.filter({$0.section == "Malls"})
+            let nameMall = mallSection.first?.items[indexPath.row].mall?.name ?? ""
+            mallVC.path = nameMall
+            mallVC.title = nameMall
+            mallVC.currentGender = currentGender
+            
+            if let shops = shops[currentGender] {
+                mallVC.shops = shops
+            }
+            
+            let currentPin = pinsMall.filter({$0.title == nameMall})
+            mallVC.currentPin = currentPin
+            self.navigationController?.pushViewController(mallVC, animated: true)
+            
         case 1:
-            print("case 1")
-            // при Cloud Firestore мы будем в NC переходить на VC с вертикальной прокруткой collectionView и cell как у popularProduct
-//            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-//            let brandVC = storyboard.instantiateViewController(withIdentifier: "BrandsViewController") as! BrandsViewController
-//            let brandsSection = modelHomeViewController.filter({$0.section == "Brands"})
-//            let refBrand = brandsSection.first?.items[indexPath.row].brands?.brand ?? ""
-//            let fullPath = "Brands" + currentGender + "/" + refBrand
-//            brandVC.pathRefBrandVC = refBrand
-//            brandVC.title = refBrand
-//            brandVC.arrayPin = placesMap
-//            self.navigationController?.pushViewController(brandVC, animated: true)
+            let shopProductVC = ShopProdutctsVC()
+            let productSection = model.filter({$0.section == "Shops"})
+            let path = productSection.first?.items[indexPath.row].shop?.name ?? ""
+            shopProductVC.path = path
+            shopProductVC.currentGender = currentGender
+            shopProductVC.title = path
+            shopProductVC.shops = shops[currentGender] ?? []
+            self.navigationController?.pushViewController(shopProductVC, animated: true)
+            
         case 2:
-            print("case 2")
-//            let productVC = NewProductViewController()
-//            let productSection = modelHomeViewController.filter({$0.section == "PopularProducts"})
-//            let malls = productSection.first?.items[indexPath.row].popularProduct?.malls ?? [""]
-//
-//            var placesArray:[Places] = []
-//            placesMap.forEach { (places) in
-//                if malls.contains(places.title ?? "") {
-//                    placesArray.append(places)
-//                }
-//            }
-//
-//            cartProducts.forEach { (addedProduct) in
-//                if addedProduct.model == productSection.first?.items[indexPath.row].popularProduct?.model {
-//                    productVC.isAddedToCard = true
-//                }
-//            }
-//            productVC.arrayPin = placesArray
-//            productVC.productModel = productSection.first?.items[indexPath.row].popularProduct
-//            self.navigationController?.pushViewController(productVC, animated: true)
+            let productVC = ProductVC()
+            let productSection = model.filter({$0.section == "PopularProducts"})
+            let shopsProduct = productSection.first?.items[indexPath.row].popularProduct?.shops ?? []
             
+            var shopsList: [Shop] = []
             
+            shops[currentGender]?.forEach { shop in
+                if shopsProduct.contains(shop.name ?? "") {
+                    shopsList.append(shop)
+                }
+            }
             
+            let mallList = createUniqueMallArray(from: shopsList)
+            var pinList: [PinMall] = []
             
-            // альтернатива (product не содержит поле malls только magazines)
+            pinsMall.forEach { pin in
+                if mallList.contains(pin.title ?? "") {
+                    pinList.append(pin)
+                }
+            }
             
-            //            let productMagazines = productSection.first?.items[indexPath.row].popularProduct?.magazines ?? [""]
+            productVC.pinsMall = pinList
+            productVC.shops = shopsList
+            productVC.modelProduct = productSection.first?.items[indexPath.row].popularProduct
             
-            //            var magazinesArray:[Shop] = []
-            //            shops["currentGender"].forEach { (magazine) in
-            //                if productMagazines.contains(mazazine.name ?? "") {
-            //                    magazinesArray.append(magazine)
-            //                }
-            //            }
-            
-//            let arrayMall = createUniqueMallArray(from: magazinesArray)
-
-            //            var placesArray:[Places] = []
-            //            placesMap.forEach { (places) in
-            //                if arrayMall.contains(places.title ?? "") {
-            //                    placesArray.append(places)
-            //                }
-            //            }
-            
-            //            productVC.magazinesArray = magazinesArray
-            //            productVC.arrayPin = placesArray
-            //            productVC.productModel = productSection.first?.items[indexPath.row].popularProduct
-            //            self.navigationController?.pushViewController(productVC, animated: true)
-            
-//            func createUniqueMallArray(from magazines: [Magazine]) -> [String] {
-//                // Создаем временный Set для хранения уникальных значений
-//                var mallSet = Set<String>()
-//
-//                // Итерируемся по массиву magazines и добавляем поля "mall" во множество
-//                for magazine in magazines {
-//                    mallSet.insert(magazine.mall)
-//                }
-//
-//                // Преобразуем Set обратно в массив
-//                let uniqueMallArray = Array(mallSet)
-//
-//                return uniqueMallArray
-//            }
-
+            cartProducts.forEach { (addedProduct) in
+                if addedProduct.model == productSection.first?.items[indexPath.row].popularProduct?.model {
+                    productVC.isAddedToCard = true
+                }
+            }
+            self.navigationController?.pushViewController(productVC, animated: true)
             
         default:
-            print("default \(indexPath.section)")
+            print("Returned message for analytic FB Crashlytics error")
         }
     }
 }
@@ -597,7 +581,7 @@ class MallsVC: ParentNetworkViewController {
             if let malls = malls, error == nil {
                 var mallsItem: [PreviewSection] = []
                 malls.forEach { item in
-                    if let mall = item.malls {
+                    if let mall = item.mall {
                         mallsItem.append(mall)
                     }
                 }
@@ -787,11 +771,11 @@ class MallVC: ParentNetworkViewController {
     //            // при Cloud Firestore мы будем в NC переходить на VC с вертикальной прокруткой collectionView и cell как у popularProduct
     //            let shopProductVC = UIStoryboard.vcById("ShopProdutctVC") as! ShopProdutctsVC
     //            let path = section[indexPath.section].items[indexPath.row].shops?.name ?? ""
-    //            shopProductVC.path = path
-    //            shopProductVC.currentGender = currentGender
-    //            shopProductVC.title = path
-    //            shopProductVC.shops = shops
-    //            self.navigationController?.pushViewController(brandVC, animated: true)
+//                shopProductVC.path = path
+//                shopProductVC.currentGender = currentGender
+//                shopProductVC.title = path
+//                shopProductVC.shops = shops
+//                self.navigationController?.pushViewController(brandVC, animated: true)
     //        default:
     //            print("DidTap Default Section")
     //        }

@@ -1649,7 +1649,7 @@ class ManagerFB {
                 let shop = documentData["shop"] as? String
                 let refImage = documentData["refImage"] as? String
                 let model = PreviewSection(name: shop, refImage: refImage, floor: nil)
-                let item = Item(malls: nil, shops: model, popularProduct: nil)
+                let item = Item(mall: nil, shop: model, popularProduct: nil)
                 items.append(item)
             }
             completion(items, nil)
@@ -1689,7 +1689,7 @@ class ManagerFB {
                 let shop = documentData["mall"] as? String
                 let refImage = documentData["refImage"] as? String
                 let model = PreviewSection(name: shop, refImage: refImage, floor: nil)
-                let item = Item(malls: model, shops: nil, popularProduct: nil)
+                let item = Item(mall: model, shop: nil, popularProduct: nil)
                 items.append(item)
             }
             completion(items, nil)
@@ -1737,7 +1737,7 @@ class ManagerFB {
                 let shops = documentData["shops"] as? [String]
                 let originalContent = documentData["originalContent"] as? String
                 let model = ProductItem(brand: brand, model: modelProduct, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, originalContent: originalContent)
-                let item = Item(malls: nil, shops: nil, popularProduct: model)
+                let item = Item(mall: nil, shop: nil, popularProduct: model)
                 items.append(item)
             }
             completion(items, nil)
