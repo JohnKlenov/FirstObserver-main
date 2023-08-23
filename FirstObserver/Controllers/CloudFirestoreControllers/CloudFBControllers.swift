@@ -159,7 +159,19 @@ class HomeVC: ParentNetworkViewController {
     
     @objc func didTapAllShops(_ sender: UIButton) {
         
+        let allShopsVC = AllShopsVC()
+        
+        allShopsVC.currentGender = currentGender
+        
+        let productSection = model.filter({$0.section == "Shops"})
+        
+        if let previewShops = productSection.first?.items {
+            allShopsVC.modelPreviewShops = previewShops
+        }
+        
+        self.navigationController?.pushViewController(allShopsVC, animated: true)
     }
+    
 //    data methods
     
     func fetchShopsMan() {
@@ -474,6 +486,7 @@ class HomeVC: ParentNetworkViewController {
         
         return uniqueMallArray
     }
+    
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
@@ -808,7 +821,7 @@ class ShopProdutctsVC: ParentNetworkViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        fetchCartProdutcs()
+        fetchDataHVC()
     }
     
     private func fetchShopProducts() {
@@ -839,13 +852,14 @@ class ShopProdutctsVC: ParentNetworkViewController {
         }
     }
     
-    func fetchCartProdutcs() {
+    func fetchDataHVC() {
         guard let tabBarVCs = tabBarController?.viewControllers else { return }
         tabBarVCs.forEach { (vc) in
             if let nc = vc as? UINavigationController {
                 if let homeVC = nc.viewControllers.first as? HomeVC {
                     self.pinsMall = homeVC.pinsMall
                     self.cartProducts = homeVC.cartProducts
+                    self.shops = homeVC.shops[currentGender] ?? []
                 }
             }
         }
@@ -952,7 +966,7 @@ class ProductVC: ParentNetworkViewController {
             "shops": product.shops ?? [""],
             "originalContent": product.originalContent ?? [""]
         ]
-        
+        // может имеет смысл ставить таймер если операция сохранения будет долгой без ответа?
         cloudFB.addProductFB(documentID: product.model ?? "", product: data) { state in
             
             switch state {
@@ -1005,6 +1019,31 @@ class ProductVC: ParentNetworkViewController {
     }
 }
 
+class AllShopsVC: ParentNetworkViewController {
+    
+    var currentGender = ""
+    var modelPreviewShops: [Item] = []
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+//        tableView.reloadData()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        let shopProductVC = ShopProdutctsVC()
+        let path = modelPreviewShops[indexPath.row].shop?.name ?? ""
+        shopProductVC.path = path
+        shopProductVC.currentGender = currentGender
+        shopProductVC.title = path
+        self.navigationController?.pushViewController(shopProductVC, animated: true)
+    }
+    
+}
 
 class CartVC: ParentNetworkViewController {
     
