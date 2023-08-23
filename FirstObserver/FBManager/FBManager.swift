@@ -1487,16 +1487,21 @@ class ManagerFB {
                 return
             }
 
-            guard let documents = querySnapshot?.documents else {
+//            guard let documents = querySnapshot?.documents else {
+//                completion(nil, error)
+//                return
+//            }
+
+            guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
                 completion(nil, error)
                 return
             }
-
+            
             var shops: [Shop] = []
             var currentErrors: [Error] = []
             let dispatchGroup = DispatchGroup()
 
-            for document in documents {
+            for document in querySnapshot.documents {
 //                let documentData = document.data()
 
                 dispatchGroup.enter()
@@ -1558,7 +1563,11 @@ class ManagerFB {
                 return
             }
 
-            guard let documents = querySnapshot?.documents else {
+//            guard let documents = querySnapshot?.documents else {
+//                completion(nil, error)
+//                return
+//            }
+            guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
                 completion(nil, error)
                 return
             }
@@ -1567,7 +1576,7 @@ class ManagerFB {
             var currentErrors: [Error] = []
             let dispatchGroup = DispatchGroup()
 
-            for document in documents {
+            for document in querySnapshot.documents {
 //                let documentData = document.data()
 
                 dispatchGroup.enter()
@@ -1636,14 +1645,18 @@ class ManagerFB {
                 return
             }
             
-            guard let documents = querySnapshot?.documents else {
+//            guard let documents = querySnapshot?.documents else {
+//                completion(nil, error)
+//                return
+//            }
+            guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
                 completion(nil, error)
                 return
             }
             
             var items = [Item]()
             
-            for document in documents {
+            for document in querySnapshot.documents {
                 let documentData = document.data()
                 
                 let shop = documentData["shop"] as? String
@@ -1676,14 +1689,19 @@ class ManagerFB {
                 return
             }
             
-            guard let documents = querySnapshot?.documents else {
+//            guard let documents = querySnapshot?.documents else {
+//                completion(nil, error)
+//                return
+//            }
+            
+            guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
                 completion(nil, error)
                 return
             }
             
             var items = [Item]()
             
-            for document in documents {
+            for document in querySnapshot.documents {
                 let documentData = document.data()
                 
                 let shop = documentData["mall"] as? String
@@ -1715,14 +1733,18 @@ class ManagerFB {
                 return
             }
             
-            guard let documents = querySnapshot?.documents else {
+//            guard let documents = querySnapshot?.documents else {
+//                completion(nil, error)
+//                return
+//            }
+            guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
                 completion(nil, error)
                 return
             }
             
             var items = [Item]()
             
-            for document in documents {
+            for document in querySnapshot.documents {
                 let documentData = document.data()
                 
                 let brand = documentData["brand"] as? String
@@ -1822,14 +1844,18 @@ class ManagerFB {
                 return
             }
             
-            guard let documents = querySnapshot?.documents else {
+//            guard let documents = querySnapshot?.documents else {
+//                completion(nil, error)
+//                return
+//            }
+            guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
                 completion(nil, error)
                 return
             }
             
             var items = [PinMallsFB]()
             
-            for document in documents {
+            for document in querySnapshot.documents {
                 let documentData = document.data()
                 
                 let mall = documentData["mall"] as? String
@@ -1948,42 +1974,49 @@ class ManagerFB {
         }
     }
     
-    func fetchProducts(gender: String, callback: @escaping (CatalogProducts?) -> Void) {
+    // у нас есть в циклах обращения к API CloudFirestore что увеличивает появление bugs
+    // может проще бы было не содавать доументы внутри коллекции productsMan
+    // а просто иметь document -> products
+    // получать из него снимок а потом в оперативной памяти сделать сортировку?
+    
+    // Запрос для сортировки документов по полю indexPopularity в порядке убывания
+    // let query = productsRef.order(by: "indexPopularity", descending: true)
+    
+    // такой вариант более правельный нежели
+    //  guard let documents = querySnapshot?.documents else ведь documents = [ ]
+    
+    func fetchProducts(gender: String, completion: @escaping (CatalogProducts?, Error?) -> Void) {
         let path = "products" + gender
         let db = Firestore.firestore()
         let productsManCollection = db.collection(path)
         
         // Получение всех документов из коллекции "productsMan"
         listenerFetchProductsMan = productsManCollection.addSnapshotListener { (querySnapshot, error) in
-            
-            if let error = error {
-                print("Ошибка при получении документов: \(error)")
-                callback(nil)
+          
+            guard error == nil else {
+                completion(nil, error)
                 return
             }
             
-            guard let documents = querySnapshot?.documents else {
-                print("Документы не найдены")
-                callback(nil)
+            guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
+                completion(nil, error)
                 return
             }
             
             let productsForCatalog = CatalogProducts()
             let allCategory = CategoryProducts(name: "All", product: [])
-            productsForCatalog.category.append(allCategory)
+            productsForCatalog.categorys.append(allCategory)
+            var categoryProductsDict: [String: [ProductItem]] = [:]
             
             let dispatchGroup = DispatchGroup()
             
-            for document in documents {
+            for document in querySnapshot.documents {
                 
                 let brandShop = document.documentID
                 
                 dispatchGroup.enter()
                 
                 let productsRef = db.collection("products\(gender)").document(brandShop).collection("products")
-                
-                // Запрос для сортировки документов по полю indexPopularity в порядке убывания
-                //                let query = productsRef.order(by: "indexPopularity", descending: true)
                 
                 productsRef.getDocuments { (snapshot, error) in
                     if let error = error {
@@ -1997,8 +2030,7 @@ class ManagerFB {
                         dispatchGroup.leave()
                         return
                     }
-                    var categoryProductsDict: [String: [ProductItem]] = [:]
-                    
+
                     for document in documents {
                         // Обрабатываем каждый документ здесь
                         let product = document.data()
@@ -2027,23 +2059,23 @@ class ManagerFB {
                         }
                         allCategory.product?.append(productItem)
                     }
-                    
-                    for (category, products) in categoryProductsDict {
-                        let categoryProduct = CategoryProducts(name: category, product: products)
-                        productsForCatalog.category.append(categoryProduct)
-                    }
                     dispatchGroup.leave()
                 }
             }
             dispatchGroup.notify(queue: .main) {
                 
-                for category in productsForCatalog.category {
+                for (category, products) in categoryProductsDict {
+                    let categoryProduct = CategoryProducts(name: category, product: products)
+                    productsForCatalog.categorys.append(categoryProduct)
+                }
+                
+                for category in productsForCatalog.categorys {
                     
                     guard let products = category.product else { continue }
                     let sortedProducts = products.sorted(by: { $0.popularityIndex ?? 0 > $1.popularityIndex ?? 0 })
                     category.product = sortedProducts
                 }
-                callback(productsForCatalog)
+                completion(productsForCatalog, error)
             }
         }
     }
@@ -2066,6 +2098,110 @@ class ManagerFB {
     }
 }
 
+
+
+
+//    func fetchProducts(gender: String, completion: @escaping (CatalogProducts?, Error?) -> Void) {
+//        let path = "products" + gender
+//        let db = Firestore.firestore()
+//        let productsManCollection = db.collection(path)
+//
+//        // Получение всех документов из коллекции "productsMan"
+//        listenerFetchProductsMan = productsManCollection.addSnapshotListener { (querySnapshot, error) in
+//
+//            guard error == nil else {
+//                completion(nil, error)
+//                return
+//            }
+//
+//            // такой вариант более правельный нежели
+//            //  guard let documents = querySnapshot?.documents else ведь documents = [ ]
+//            guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
+//                completion(nil, error)
+//                return
+//            }
+//
+//
+//
+//            let productsForCatalog = CatalogProducts()
+//            let allCategory = CategoryProducts(name: "All", product: [])
+//            productsForCatalog.categorys.append(allCategory)
+////            var categoryProductsDict: [String: [ProductItem]] = [:]
+//            let dispatchGroup = DispatchGroup()
+//
+//            for document in querySnapshot.documents {
+//
+//                let brandShop = document.documentID
+//
+//                dispatchGroup.enter()
+//
+//                let productsRef = db.collection("products\(gender)").document(brandShop).collection("products")
+//
+//                // Запрос для сортировки документов по полю indexPopularity в порядке убывания
+//                //                let query = productsRef.order(by: "indexPopularity", descending: true)
+//
+//                productsRef.getDocuments { (snapshot, error) in
+//                    if let error = error {
+//                        print("Ошибка при получении документов: \(error)")
+//                        dispatchGroup.leave()
+//                        return
+//                    }
+//
+//                    guard let documents = snapshot?.documents else {
+//                        print("Документы не найдены")
+//                        dispatchGroup.leave()
+//                        return
+//                    }
+//                    var categoryProductsDict: [String: [ProductItem]] = [:]
+//
+//                    for document in documents {
+//                        // Обрабатываем каждый документ здесь
+//                        let product = document.data()
+//                        print("product - \(product)")
+//
+//                        let brand = product["brand"] as? String
+//                        let model = product["model"] as? String
+//                        let category = product["category"] as? String
+//                        let popularityIndex = product["popularityIndex"] as? Int
+//                        let strengthIndex = product["strengthIndex"] as? Int
+//                        let type = product["type"] as? String
+//                        let description = product["description"] as? String
+//                        let price = product["price"] as? Int
+//                        let originalContent = product["originalContent"] as? String
+//                        let refImage = product["refImage"] as? [String]
+//                        let shops = product["shops"] as? [String]
+//
+//                        let productItem = ProductItem(brand: brand, model: model, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, originalContent: originalContent)
+//
+//                        if let category = productItem.category {
+//                            if categoryProductsDict[category] != nil {
+//                                categoryProductsDict[category]?.append(productItem)
+//                            } else {
+//                                categoryProductsDict[category] = [productItem]
+//                            }
+//                        }
+//                        allCategory.product?.append(productItem)
+//                    }
+//
+//                    for (category, products) in categoryProductsDict {
+//                        let categoryProduct = CategoryProducts(name: category, product: products)
+//                        productsForCatalog.categorys.append(categoryProduct)
+//                    }
+//                    dispatchGroup.leave()
+//                }
+//            }
+//            dispatchGroup.notify(queue: .main) {
+//
+//                for category in productsForCatalog.categorys {
+//
+//                    guard let products = category.product else { continue }
+//                    let sortedProducts = products.sorted(by: { $0.popularityIndex ?? 0 > $1.popularityIndex ?? 0 })
+//                    category.product = sortedProducts
+//                }
+//                completion(productsForCatalog, error)
+//            }
+//        }
+//    }
 
 //    func removeListenerFetchShops() {
 //        if let listenerFetchShops = listenerFetchShops {

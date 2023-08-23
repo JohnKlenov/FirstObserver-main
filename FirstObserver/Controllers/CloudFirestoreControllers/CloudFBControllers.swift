@@ -1045,6 +1045,46 @@ class AllShopsVC: ParentNetworkViewController {
     
 }
 
+// views implemintation from BrandsViewController
+class CatalogVC: ParentNetworkViewController {
+    
+//    @IBOutlet weak var categorysCollectionView: UICollectionView!
+//    @IBOutlet weak var productsCollectionView: UICollectionView!
+    
+    var indexCategoryCollectionView = 0
+    var selectedCategory:CategoryProducts?
+    
+    var modelCatalog: CatalogProducts? {
+        didSet {
+            if let modelCatalog = modelCatalog, !modelCatalog.categorys.isEmpty {
+                selectedCategory = modelCatalog.categorys[indexCategoryCollectionView]
+            }
+            activityView.stopAnimating()
+            activityView.removeFromSuperview()
+//            categorysCollectionView.reloadData()
+//            productsCollectionView.reloadData()
+        }
+    }
+    
+    let defaults = UserDefaults.standard
+    
+    private var currentGender = ""
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+//        startFirstTimer()
+//        configureActivityView()
+        
+        let gender = defaults.string(forKey: "gender") ?? "Woman"
+        currentGender = gender
+        
+    }
+    
+    
+    
+}
+
 class CartVC: ParentNetworkViewController {
     
     // тут мы должны иметь все shops потому что в корзине может быть добавлен товар Man and Woman

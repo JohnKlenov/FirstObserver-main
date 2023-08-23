@@ -256,7 +256,7 @@ class CategoryProducts {
 
 class CatalogProducts {
     
-    var category = [CategoryProducts]()
+    var categorys = [CategoryProducts]()
 }
 
 // HomeVC
