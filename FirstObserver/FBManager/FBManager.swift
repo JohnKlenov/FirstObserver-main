@@ -1406,7 +1406,8 @@ class ManagerFB {
     var currentUser:User?
     let firestore = Firestore.firestore()
     var listenerFetchShops: ListenerRegistration?
-    var listenerFetchProductsMan: ListenerRegistration?
+//    var listenerFetchProductsMan: ListenerRegistration?
+    var listenerFetchProducts: ListenerRegistration?
     var listenerFetchPreviewShops: ListenerRegistration?
     var listenerFetchPreviewMalls: ListenerRegistration?
     var listenerFetchPopularProducts: ListenerRegistration?
@@ -1423,6 +1424,7 @@ class ManagerFB {
     
     // ShopProductsVC
     var listenerFetchShopProducts: ListenerRegistration?
+//    var listenerFetchShopProductsFilter: ListenerRegistration?
     
     var cartProducts: [ProductItem] = []
     
@@ -1758,7 +1760,9 @@ class ManagerFB {
                 let refImage = documentData["refImage"] as? [String]
                 let shops = documentData["shops"] as? [String]
                 let originalContent = documentData["originalContent"] as? String
-                let model = ProductItem(brand: brand, model: modelProduct, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, originalContent: originalContent)
+                let shop = documentData["shop"] as? String
+                
+                let model = ProductItem(brand: brand, model: modelProduct, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, shop: shop, originalContent: originalContent)
                 let item = Item(mall: nil, shop: nil, popularProduct: model)
                 items.append(item)
             }
@@ -1819,7 +1823,9 @@ class ManagerFB {
                 let refImage = documentData["refImage"] as? [String]
                 let shops = documentData["shops"] as? [String]
                 let originalContent = documentData["originalContent"] as? String
-                let model = ProductItem(brand: brand, model: modelProduct, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, originalContent: originalContent)
+                let shop = documentData["shop"] as? String
+                
+                let model = ProductItem(brand: brand, model: modelProduct, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, shop: shop, originalContent: originalContent)
                 cartProducts.append(model)
             }
             completion(cartProducts, nil)
@@ -1917,17 +1923,66 @@ class ManagerFB {
     
     // MARK: - ShopProdutctsVC -
     
+//    func removeListenerFetchShopProducts() {
+//        if let listenerFetchShopProducts = listenerFetchShopProducts {
+//            listenerFetchShopProducts.remove()
+//        }
+//    }
+    
+//    func fetchShopProdutcts(gender: String, path: String, completion: @escaping ([ProductItem]?, Error?) -> Void) {
+//        let firestore = Firestore.firestore()
+//        let productsRef = firestore.collection("products\(gender)").document(path).collection("products")
+//
+//        listenerFetchShopProducts = productsRef.addSnapshotListener { (querySnapshot, error) in
+//
+//            guard error == nil else {
+//                completion(nil, error)
+//                return
+//            }
+//
+//            guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
+//                completion(nil, error)
+//                return
+//            }
+//
+//            let documents = querySnapshot.documents
+//            var productsShop = [ProductItem]()
+//
+//            for document in documents {
+//                let product = document.data()
+//                
+//                let brand = product["brand"] as? String
+//                let model = product["model"] as? String
+//                let category = product["category"] as? String
+//                let popularityIndex = product["popularityIndex"] as? Int
+//                let strengthIndex = product["strengthIndex"] as? Int
+//                let type = product["type"] as? String
+//                let description = product["description"] as? String
+//                let price = product["price"] as? Int
+//                let originalContent = product["originalContent"] as? String
+//                let refImage = product["refImage"] as? [String]
+//                let shops = product["shops"] as? [String]
+//                let shop = product["shop"] as? String
+//
+//                let productItem = ProductItem(brand: brand, model: model, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, shop: shop, originalContent: originalContent)
+//
+//                productsShop.append(productItem)
+//            }
+//            completion(productsShop, error)
+//        }
+//    }
+    
     func removeListenerFetchShopProducts() {
         if let listenerFetchShopProducts = listenerFetchShopProducts {
             listenerFetchShopProducts.remove()
         }
     }
     
-    func fetchShopProdutcts(gender: String, path: String, completion: @escaping ([ProductItem]?, Error?) -> Void) {
+    func fetchShopProdutcts(gender: String, query: String, completion: @escaping ([ProductItem]?, Error?) -> Void) {
         let firestore = Firestore.firestore()
-        let productsRef = firestore.collection("products\(gender)").document(path).collection("products")
+        let query = firestore.collection("products\(gender)").whereField("shop", isEqualTo: query)
         
-        listenerFetchShopProducts = productsRef.addSnapshotListener { (querySnapshot, error) in
+        listenerFetchShopProducts = query.addSnapshotListener { (querySnapshot, error) in
             
             guard error == nil else {
                 completion(nil, error)
@@ -1956,9 +2011,10 @@ class ManagerFB {
                 let originalContent = product["originalContent"] as? String
                 let refImage = product["refImage"] as? [String]
                 let shops = product["shops"] as? [String]
-
-                let productItem = ProductItem(brand: brand, model: model, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, originalContent: originalContent)
-
+                let shop = product["shop"] as? String
+                
+                let productItem = ProductItem(brand: brand, model: model, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, shop: shop, originalContent: originalContent)
+                
                 productsShop.append(productItem)
             }
             completion(productsShop, error)
@@ -1968,31 +2024,17 @@ class ManagerFB {
     
     // MARK: - CatalogVC -
    
-    func removeListenerFetchProducts() {
-        if let listenerFetchProductsMan = listenerFetchProductsMan {
-            listenerFetchProductsMan.remove()
-        }
-    }
+   
     
-    // у нас есть в циклах обращения к API CloudFirestore что увеличивает появление bugs
-    // может проще бы было не содавать доументы внутри коллекции productsMan
-    // а просто иметь document -> products
-    // получать из него снимок а потом в оперативной памяти сделать сортировку?
-    
-    // Запрос для сортировки документов по полю indexPopularity в порядке убывания
-    // let query = productsRef.order(by: "indexPopularity", descending: true)
-    
-    // такой вариант более правельный нежели
-    //  guard let documents = querySnapshot?.documents else ведь documents = [ ]
     
     func fetchProducts(gender: String, completion: @escaping (CatalogProducts?, Error?) -> Void) {
         let path = "products" + gender
         let db = Firestore.firestore()
-        let productsManCollection = db.collection(path)
+        let productsCollection = db.collection(path)
         
-        // Получение всех документов из коллекции "productsMan"
-        listenerFetchProductsMan = productsManCollection.addSnapshotListener { (querySnapshot, error) in
-          
+        // Получение всех документов из коллекции "products..."
+        listenerFetchProducts = productsCollection.addSnapshotListener { (querySnapshot, error) in
+            
             guard error == nil else {
                 completion(nil, error)
                 return
@@ -2008,77 +2050,161 @@ class ManagerFB {
             productsForCatalog.categorys.append(allCategory)
             var categoryProductsDict: [String: [ProductItem]] = [:]
             
-            let dispatchGroup = DispatchGroup()
-            
             for document in querySnapshot.documents {
                 
-                let brandShop = document.documentID
+                let product = document.data()
                 
-                dispatchGroup.enter()
-                
-                let productsRef = db.collection("products\(gender)").document(brandShop).collection("products")
-                
-                productsRef.getDocuments { (snapshot, error) in
-                    if let error = error {
-                        print("Ошибка при получении документов: \(error)")
-                        dispatchGroup.leave()
-                        return
-                    }
-                    
-                    guard let documents = snapshot?.documents else {
-                        print("Документы не найдены")
-                        dispatchGroup.leave()
-                        return
-                    }
+                let brand = product["brand"] as? String
+                let model = product["model"] as? String
+                let category = product["category"] as? String
+                let popularityIndex = product["popularityIndex"] as? Int
+                let strengthIndex = product["strengthIndex"] as? Int
+                let type = product["type"] as? String
+                let description = product["description"] as? String
+                let price = product["price"] as? Int
+                let originalContent = product["originalContent"] as? String
+                let refImage = product["refImage"] as? [String]
+                let shops = product["shops"] as? [String]
+                let shop = product["shop"] as? String
 
-                    for document in documents {
-                        // Обрабатываем каждый документ здесь
-                        let product = document.data()
-                        print("product - \(product)")
-                        
-                        let brand = product["brand"] as? String
-                        let model = product["model"] as? String
-                        let category = product["category"] as? String
-                        let popularityIndex = product["popularityIndex"] as? Int
-                        let strengthIndex = product["strengthIndex"] as? Int
-                        let type = product["type"] as? String
-                        let description = product["description"] as? String
-                        let price = product["price"] as? Int
-                        let originalContent = product["originalContent"] as? String
-                        let refImage = product["refImage"] as? [String]
-                        let shops = product["shops"] as? [String]
-                        
-                        let productItem = ProductItem(brand: brand, model: model, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, originalContent: originalContent)
-                        
-                        if let category = productItem.category {
-                            if categoryProductsDict[category] != nil {
-                                categoryProductsDict[category]?.append(productItem)
-                            } else {
-                                categoryProductsDict[category] = [productItem]
-                            }
-                        }
-                        allCategory.product?.append(productItem)
+                let productItem = ProductItem(brand: brand, model: model, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, shop: shop, originalContent: originalContent)
+                
+                if let category = productItem.category {
+                    if categoryProductsDict[category] != nil {
+                        categoryProductsDict[category]?.append(productItem)
+                    } else {
+                        categoryProductsDict[category] = [productItem]
                     }
-                    dispatchGroup.leave()
                 }
+                allCategory.product?.append(productItem)
             }
-            dispatchGroup.notify(queue: .main) {
-                
-                for (category, products) in categoryProductsDict {
-                    let categoryProduct = CategoryProducts(name: category, product: products)
-                    productsForCatalog.categorys.append(categoryProduct)
-                }
-                
-                for category in productsForCatalog.categorys {
-                    
-                    guard let products = category.product else { continue }
-                    let sortedProducts = products.sorted(by: { $0.popularityIndex ?? 0 > $1.popularityIndex ?? 0 })
-                    category.product = sortedProducts
-                }
-                completion(productsForCatalog, error)
+            
+            for (category, products) in categoryProductsDict {
+                let categoryProduct = CategoryProducts(name: category, product: products)
+                productsForCatalog.categorys.append(categoryProduct)
             }
+            
+            for category in productsForCatalog.categorys {
+                
+                guard let products = category.product else { continue }
+                let sortedProducts = products.sorted(by: { $0.popularityIndex ?? 0 > $1.popularityIndex ?? 0 })
+                category.product = sortedProducts
+            }
+            completion(productsForCatalog, error)
         }
     }
+    
+//    func removeListenerFetchProducts() {
+//        if let listenerFetchProductsMan = listenerFetchProductsMan {
+//            listenerFetchProductsMan.remove()
+//        }
+//    }
+//        // у нас есть в циклах обращения к API CloudFirestore что увеличивает появление bugs
+//        // может проще бы было не содавать доументы внутри коллекции productsMan
+//        // а просто иметь document -> products
+//        // получать из него снимок а потом в оперативной памяти сделать сортировку?
+//
+//        // Запрос для сортировки документов по полю indexPopularity в порядке убывания
+//        // let query = productsRef.order(by: "indexPopularity", descending: true)
+//
+//        // такой вариант более правельный нежели
+//        //  guard let documents = querySnapshot?.documents else ведь documents = [ ]
+//
+//        func fetchProductsOld(gender: String, completion: @escaping (CatalogProducts?, Error?) -> Void) {
+//            let path = "products" + gender
+//            let db = Firestore.firestore()
+//            let productsManCollection = db.collection(path)
+//
+//            // Получение всех документов из коллекции "productsMan"
+//            listenerFetchProductsMan = productsManCollection.addSnapshotListener { (querySnapshot, error) in
+//
+//                guard error == nil else {
+//                completion(nil, error)
+//                return
+//            }
+//
+//            guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
+//                completion(nil, error)
+//                return
+//            }
+//
+//            let productsForCatalog = CatalogProducts()
+//            let allCategory = CategoryProducts(name: "All", product: [])
+//            productsForCatalog.categorys.append(allCategory)
+//            var categoryProductsDict: [String: [ProductItem]] = [:]
+//
+//            let dispatchGroup = DispatchGroup()
+//
+//            for document in querySnapshot.documents {
+//
+//                let brandShop = document.documentID
+//
+//                dispatchGroup.enter()
+//
+//                let productsRef = db.collection("products\(gender)").document(brandShop).collection("products")
+//
+//                productsRef.getDocuments { (snapshot, error) in
+//                    if let error = error {
+//                        print("Ошибка при получении документов: \(error)")
+//                        dispatchGroup.leave()
+//                        return
+//                    }
+//
+//                    guard let documents = snapshot?.documents else {
+//                        print("Документы не найдены")
+//                        dispatchGroup.leave()
+//                        return
+//                    }
+//
+//                    for document in documents {
+//                        // Обрабатываем каждый документ здесь
+//                        let product = document.data()
+//                        print("product - \(product)")
+//
+//                        let brand = product["brand"] as? String
+//                        let model = product["model"] as? String
+//                        let category = product["category"] as? String
+//                        let popularityIndex = product["popularityIndex"] as? Int
+//                        let strengthIndex = product["strengthIndex"] as? Int
+//                        let type = product["type"] as? String
+//                        let description = product["description"] as? String
+//                        let price = product["price"] as? Int
+//                        let originalContent = product["originalContent"] as? String
+//                        let refImage = product["refImage"] as? [String]
+//                        let shops = product["shops"] as? [String]
+//                        let shop = product["shop"] as? String
+//
+//                        let productItem = ProductItem(brand: brand, model: model, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, shop: shop, originalContent: originalContent)
+//
+//                        if let category = productItem.category {
+//                            if categoryProductsDict[category] != nil {
+//                                categoryProductsDict[category]?.append(productItem)
+//                            } else {
+//                                categoryProductsDict[category] = [productItem]
+//                            }
+//                        }
+//                        allCategory.product?.append(productItem)
+//                    }
+//                    dispatchGroup.leave()
+//                }
+//            }
+//            dispatchGroup.notify(queue: .main) {
+//
+//                for (category, products) in categoryProductsDict {
+//                    let categoryProduct = CategoryProducts(name: category, product: products)
+//                    productsForCatalog.categorys.append(categoryProduct)
+//                }
+//
+//                for category in productsForCatalog.categorys {
+//
+//                    guard let products = category.product else { continue }
+//                    let sortedProducts = products.sorted(by: { $0.popularityIndex ?? 0 > $1.popularityIndex ?? 0 })
+//                    category.product = sortedProducts
+//                }
+//                completion(productsForCatalog, error)
+//            }
+//        }
+//    }
     
     
     // MARK: - ProductVC -

@@ -827,7 +827,7 @@ class ShopProdutctsVC: ParentNetworkViewController {
     private func fetchShopProducts() {
         startTimer()
         configureActivityView()
-        cloudFB.fetchShopProdutcts(gender: currentGender, path: path) { (shopProducts, error) in
+        cloudFB.fetchShopProdutcts(gender: currentGender, query: path) { (shopProducts, error) in
             if let shopProducts = shopProducts, error == nil {
                 self.timer?.invalidate()
                 self.cloudFB.removeListenerFetchShopProducts()

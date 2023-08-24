@@ -239,6 +239,7 @@ struct ProductItem: Hashable {
     let price: Int?
     let refImage: [String]?
     let shops: [String]?
+    let shop: String?
     let originalContent: String?
 }
 
