@@ -1067,21 +1067,133 @@ class CatalogVC: ParentNetworkViewController {
     }
     
     let defaults = UserDefaults.standard
+    let cloudFB = ManagerFB.shared
+    var timer: Timer?
+    var isTroubleFetchData = false
     
     private var currentGender = ""
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        startFirstTimer()
-//        configureActivityView()
+        getCurrentGender()
+        fetchProducts(gender: currentGender)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
-        let gender = defaults.string(forKey: "gender") ?? "Woman"
-        currentGender = gender
+        fetchDataHVC()
         
+        if !isTroubleFetchData {
+            switchGender()
+        } else {
+            getCurrentGender()
+            fetchProducts(gender: currentGender)
+        }
     }
     
     
+    
+    private func getCurrentGender() {
+        let gender = defaults.string(forKey: "gender") ?? "Woman"
+        currentGender = gender
+    }
+    
+    private func fetchProducts(gender: String) {
+        disableActiveButtons(isSwitch: false)
+        startTimer()
+        configureActivityView()
+        
+        cloudFB.fetchProducts(gender: gender) { (modelCatalog, error) in
+            
+            if let modelCatalog = modelCatalog, error == nil {
+                self.timer?.invalidate()
+                self.disableActiveButtons(isSwitch: true)
+                self.isTroubleFetchData = false
+                self.modelCatalog = modelCatalog
+            } else {
+                self.cloudFB.removeListenerFetchProducts()
+                self.timer?.invalidate()
+                self.activityView.stopAnimating()
+                self.activityView.removeFromSuperview()
+                self.setupAlertReloadData()
+            }
+        }
+    }
+    
+    
+    private func disableActiveButtons(isSwitch: Bool) {
+        // tabBarController?.view.isUserInteractionEnabled = false
+        // sigmentControll.isUserInteractionEnabled = false
+    }
+    
+    func switchGender() {
+        let gender = defaults.string(forKey: "gender") ?? "Woman"
+        if currentGender != gender {
+            currentGender = gender
+            cloudFB.removeListenerFetchProducts()
+            fetchProducts(gender: currentGender)
+        }
+    }
+    
+    private func startTimer() {
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
+            self.cloudFB.removeListenerFetchProducts()
+            self.activityView.stopAnimating()
+            self.activityView.removeFromSuperview()
+            self.setupAlertReloadData()
+        }
+    }
+    
+    func fetchDataHVC() {
+        guard let tabBarVCs = tabBarController?.viewControllers else { return }
+        tabBarVCs.forEach { (vc) in
+            if let nc = vc as? UINavigationController {
+                if let homeVC = nc.viewControllers.first as? HomeVC {
+//                    self.pinsMall = homeVC.pinsMall
+//                    self.cartProducts = homeVC.cartProducts
+//                    self.shops = homeVC.shops[currentGender] ?? []
+                }
+            }
+        }
+    }
+    
+    private func setupAlertReloadData() {
+        let alert = UIAlertController(title: "Error ", message: "Something went wrong!", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Try agayn", style: .default) { [weak self] _ in
+            
+            if let currentGender = self?.currentGender {
+                self?.fetchProducts(gender: currentGender)
+            }
+        }
+        
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+           
+            // Помечаем что данные не были получены
+            self.isTroubleFetchData = true
+            // tabBarController?.view.isUserInteractionEnabled = true
+        }
+        
+        alert.addAction(cancel)
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func createUniqueMallArray(from shops: [Shop]) -> [String] {
+        
+        var mallSet = Set<String>()
+        for shop in shops {
+            mallSet.insert(shop.mall ?? "")
+        }
+        let uniqueMallArray = Array(mallSet)
+        
+        return uniqueMallArray
+    }
     
 }
 

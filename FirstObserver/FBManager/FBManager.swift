@@ -1923,54 +1923,6 @@ class ManagerFB {
     
     // MARK: - ShopProdutctsVC -
     
-//    func removeListenerFetchShopProducts() {
-//        if let listenerFetchShopProducts = listenerFetchShopProducts {
-//            listenerFetchShopProducts.remove()
-//        }
-//    }
-    
-//    func fetchShopProdutcts(gender: String, path: String, completion: @escaping ([ProductItem]?, Error?) -> Void) {
-//        let firestore = Firestore.firestore()
-//        let productsRef = firestore.collection("products\(gender)").document(path).collection("products")
-//
-//        listenerFetchShopProducts = productsRef.addSnapshotListener { (querySnapshot, error) in
-//
-//            guard error == nil else {
-//                completion(nil, error)
-//                return
-//            }
-//
-//            guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
-//                completion(nil, error)
-//                return
-//            }
-//
-//            let documents = querySnapshot.documents
-//            var productsShop = [ProductItem]()
-//
-//            for document in documents {
-//                let product = document.data()
-//                
-//                let brand = product["brand"] as? String
-//                let model = product["model"] as? String
-//                let category = product["category"] as? String
-//                let popularityIndex = product["popularityIndex"] as? Int
-//                let strengthIndex = product["strengthIndex"] as? Int
-//                let type = product["type"] as? String
-//                let description = product["description"] as? String
-//                let price = product["price"] as? Int
-//                let originalContent = product["originalContent"] as? String
-//                let refImage = product["refImage"] as? [String]
-//                let shops = product["shops"] as? [String]
-//                let shop = product["shop"] as? String
-//
-//                let productItem = ProductItem(brand: brand, model: model, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, shop: shop, originalContent: originalContent)
-//
-//                productsShop.append(productItem)
-//            }
-//            completion(productsShop, error)
-//        }
-//    }
     
     func removeListenerFetchShopProducts() {
         if let listenerFetchShopProducts = listenerFetchShopProducts {
@@ -2024,9 +1976,12 @@ class ManagerFB {
     
     // MARK: - CatalogVC -
    
+        func removeListenerFetchProducts() {
+            if let listenerFetchProducts = listenerFetchProducts {
+                listenerFetchProducts.remove()
+            }
+        }
    
-    
-    
     func fetchProducts(gender: String, completion: @escaping (CatalogProducts?, Error?) -> Void) {
         let path = "products" + gender
         let db = Firestore.firestore()
@@ -2094,11 +2049,29 @@ class ManagerFB {
         }
     }
     
-//    func removeListenerFetchProducts() {
-//        if let listenerFetchProductsMan = listenerFetchProductsMan {
-//            listenerFetchProductsMan.remove()
-//        }
-//    }
+    
+    
+    // MARK: - ProductVC -
+    
+    func addProductFB(documentID:String, product: [String:Any], completion:  @escaping (StateCallback) -> Void) {
+        let db = Firestore.firestore()
+        let productsRef = db.collection("usersAccount").document("currentUser?.uid").collection("addedProducts").document(documentID)
+        productsRef.setData(product) { error in
+            if let error = error {
+                  print("Ошибка при добавлении документа: \(error.localizedDescription)")
+                completion(.failed)
+              } else {
+                  print("Документ успешно добавлен")
+                  completion(.success)
+              }
+        }
+    }
+}
+
+
+
+
+
 //        // у нас есть в циклах обращения к API CloudFirestore что увеличивает появление bugs
 //        // может проще бы было не содавать доументы внутри коллекции productsMan
 //        // а просто иметь document -> products
@@ -2205,27 +2178,55 @@ class ManagerFB {
 //            }
 //        }
 //    }
-    
-    
-    // MARK: - ProductVC -
-    
-    func addProductFB(documentID:String, product: [String:Any], completion:  @escaping (StateCallback) -> Void) {
-        let db = Firestore.firestore()
-        let productsRef = db.collection("usersAccount").document("currentUser?.uid").collection("addedProducts").document(documentID)
-        productsRef.setData(product) { error in
-            if let error = error {
-                  print("Ошибка при добавлении документа: \(error.localizedDescription)")
-                completion(.failed)
-              } else {
-                  print("Документ успешно добавлен")
-                  completion(.success)
-              }
-        }
-    }
-}
 
-
-
+//    func removeListenerFetchShopProducts() {
+//        if let listenerFetchShopProducts = listenerFetchShopProducts {
+//            listenerFetchShopProducts.remove()
+//        }
+//    }
+    
+//    func fetchShopProdutcts(gender: String, path: String, completion: @escaping ([ProductItem]?, Error?) -> Void) {
+//        let firestore = Firestore.firestore()
+//        let productsRef = firestore.collection("products\(gender)").document(path).collection("products")
+//
+//        listenerFetchShopProducts = productsRef.addSnapshotListener { (querySnapshot, error) in
+//
+//            guard error == nil else {
+//                completion(nil, error)
+//                return
+//            }
+//
+//            guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
+//                completion(nil, error)
+//                return
+//            }
+//
+//            let documents = querySnapshot.documents
+//            var productsShop = [ProductItem]()
+//
+//            for document in documents {
+//                let product = document.data()
+//
+//                let brand = product["brand"] as? String
+//                let model = product["model"] as? String
+//                let category = product["category"] as? String
+//                let popularityIndex = product["popularityIndex"] as? Int
+//                let strengthIndex = product["strengthIndex"] as? Int
+//                let type = product["type"] as? String
+//                let description = product["description"] as? String
+//                let price = product["price"] as? Int
+//                let originalContent = product["originalContent"] as? String
+//                let refImage = product["refImage"] as? [String]
+//                let shops = product["shops"] as? [String]
+//                let shop = product["shop"] as? String
+//
+//                let productItem = ProductItem(brand: brand, model: model, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, shop: shop, originalContent: originalContent)
+//
+//                productsShop.append(productItem)
+//            }
+//            completion(productsShop, error)
+//        }
+//    }
 
 //    func fetchProducts(gender: String, completion: @escaping (CatalogProducts?, Error?) -> Void) {
 //        let path = "products" + gender
