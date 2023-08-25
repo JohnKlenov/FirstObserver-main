@@ -19,6 +19,7 @@ class HomeVC: ParentNetworkViewController {
     let allState = ["ShopsMan":false, "ShopsWoman":false, "PinMalls":false, "PreviewMalls":false, "PreviewShops":false, "PopularProducts":false, "CartProducts":false]
     let switchState = ["PreviewMalls":false, "PreviewShops":false, "PopularProducts":false]
     var pinsMall: [PinMall] = []
+    
     private var pinsMallFB: [PinMallsFB] = [] {
         didSet {
             getPinsMall()
@@ -68,6 +69,8 @@ class HomeVC: ParentNetworkViewController {
                     firstLoadingStatus = [:]
                     //                    reloadData()
                 } else {
+                    // views.isHidden = true
+                    // viewStub.isHidden = false
                     isBlockingFirstLoading = true
                     isBlockingModel = false
                     activityView.stopAnimating()
@@ -99,6 +102,12 @@ class HomeVC: ParentNetworkViewController {
                     isBlockingModel = false
                     activityView.stopAnimating()
                     activityView.removeFromSuperview()
+                    // press cancel ->
+                    // вернуть все в исходное состояние
+                    // isBlockingSwitchGenderLoading = true
+                    // isBlockingModel = false
+                    // switchLoadingStatus = [:]
+                    // isPressCancel = true
                     self.setupAlertReloadSwitchData(forData: filteredDictionary)
                 }
             }
@@ -111,7 +120,7 @@ class HomeVC: ParentNetworkViewController {
     var isBlockingFirstLoading = false
     var isBlockingSwitchGenderLoading = true
     var isBlockingModel = true
-    
+    var isPressCancel = false
     let cloudFB = ManagerFB.shared
     let managerFB = FBManager.shared
     let defaults = UserDefaults.standard
@@ -126,6 +135,8 @@ class HomeVC: ParentNetworkViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        // configure view and view hierarchy where viewStub.isHidden = true
         
         tabBarController?.view.isUserInteractionEnabled = false
         startFirstTimer()
@@ -154,7 +165,12 @@ class HomeVC: ParentNetworkViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        switchGender()
+        
+        if isPressCancel {
+            emergencyReloadData()
+        } else {
+            switchGender()
+        }
     }
     
     @objc func didTapAllShops(_ sender: UIButton) {
@@ -367,6 +383,24 @@ class HomeVC: ParentNetworkViewController {
         }
     }
     
+    func emergencyReloadData() {
+        // let gender = defaults.string(forKey: "gender") ?? "Woman"
+        // configureActivityView()
+        // startSwitchGenderTimer()
+        // cloudFB.removeListenerFetchPreviewMalls()
+        // cloudFB.removeListenerFetchPreviewShops()
+        // cloudFB.removeListenerFetchPopularProducts()
+        // isBlockingModel = true
+        // isBlockingFirstLoading = true
+        // isBlockingSwitchGenderLoading = true
+        // switchLoadingStatus = [:]
+        // modelDict = [:]
+        // currentGender = gender
+        // fetchPreviewMalls(gender: currentGender)
+        // fetchPreviewShops(gender: currentGender)
+        // fetchPopularProducts(gender: currentGender)
+    }
+    
     func reloadingFirstData(forData: [String : Bool]) {
         isBlockingFirstLoading = false
         configureActivityView()
@@ -472,7 +506,11 @@ class HomeVC: ParentNetworkViewController {
             self?.reloadingSwitchData(forData: forData)
         }
         
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            print("Did tap Cancel for AlertReloadSwitchData")
+        }
         alert.addAction(action)
+        alert.addAction(cancel)
         present(alert, animated: true, completion: nil)
     }
     
@@ -487,6 +525,12 @@ class HomeVC: ParentNetworkViewController {
         return uniqueMallArray
     }
     
+    func reloadData() {
+        
+        // views.isHidden = false
+        // viewStub.isHidden = true
+        // implemintation reloadData
+    }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
