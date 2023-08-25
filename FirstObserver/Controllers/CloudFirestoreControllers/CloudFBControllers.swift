@@ -30,9 +30,9 @@ class HomeVC: ParentNetworkViewController {
         didSet {
             if model.count == 3 {
                 if isBlockingFirstLoading, isBlockingSwitchGenderLoading, isBlockingModel {
-//                    activityView.stopAnimating()
-//                    activityView.removeFromSuperview()
-//                    reloadData()
+                    activityView.stopAnimating()
+                    activityView.removeFromSuperview()
+                    reloadData()
                 }
                 
             }
@@ -67,7 +67,7 @@ class HomeVC: ParentNetworkViewController {
                     isBlockingFirstLoading = true
                     isBlockingModel = true
                     firstLoadingStatus = [:]
-                    //                    reloadData()
+                    reloadData()
                 } else {
                     // views.isHidden = true
                     // viewStub.isHidden = false
@@ -96,18 +96,12 @@ class HomeVC: ParentNetworkViewController {
                     isBlockingSwitchGenderLoading = true
                     isBlockingModel = true
                     switchLoadingStatus = [:]
-                    //                    reloadData()
+                    reloadData()
                 } else {
                     isBlockingSwitchGenderLoading = true
                     isBlockingModel = false
                     activityView.stopAnimating()
                     activityView.removeFromSuperview()
-                    // press cancel ->
-                    // вернуть все в исходное состояние
-                    // isBlockingSwitchGenderLoading = true
-                    // isBlockingModel = false
-                    // switchLoadingStatus = [:]
-                    // isPressCancel = true
                     self.setupAlertReloadSwitchData(forData: filteredDictionary)
                 }
             }
@@ -120,7 +114,7 @@ class HomeVC: ParentNetworkViewController {
     var isBlockingFirstLoading = false
     var isBlockingSwitchGenderLoading = true
     var isBlockingModel = true
-    var isPressCancel = false
+    var isEmergencyReloadData = false
     let cloudFB = ManagerFB.shared
     let managerFB = FBManager.shared
     let defaults = UserDefaults.standard
@@ -166,7 +160,7 @@ class HomeVC: ParentNetworkViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if isPressCancel {
+        if isEmergencyReloadData {
             emergencyReloadData()
         } else {
             switchGender()
@@ -384,21 +378,21 @@ class HomeVC: ParentNetworkViewController {
     }
     
     func emergencyReloadData() {
-        // let gender = defaults.string(forKey: "gender") ?? "Woman"
-        // configureActivityView()
-        // startSwitchGenderTimer()
-        // cloudFB.removeListenerFetchPreviewMalls()
-        // cloudFB.removeListenerFetchPreviewShops()
-        // cloudFB.removeListenerFetchPopularProducts()
-        // isBlockingModel = true
-        // isBlockingFirstLoading = true
-        // isBlockingSwitchGenderLoading = true
-        // switchLoadingStatus = [:]
-        // modelDict = [:]
-        // currentGender = gender
-        // fetchPreviewMalls(gender: currentGender)
-        // fetchPreviewShops(gender: currentGender)
-        // fetchPopularProducts(gender: currentGender)
+        let gender = defaults.string(forKey: "gender") ?? "Woman"
+        configureActivityView()
+        startSwitchGenderTimer()
+        cloudFB.removeListenerFetchPreviewMalls()
+        cloudFB.removeListenerFetchPreviewShops()
+        cloudFB.removeListenerFetchPopularProducts()
+        isBlockingModel = true
+        isBlockingFirstLoading = true
+        isBlockingSwitchGenderLoading = false
+        switchLoadingStatus = [:]
+        modelDict = [:]
+        currentGender = gender
+        fetchPreviewMalls(gender: currentGender)
+        fetchPreviewShops(gender: currentGender)
+        fetchPopularProducts(gender: currentGender)
     }
     
     func reloadingFirstData(forData: [String : Bool]) {
@@ -406,7 +400,7 @@ class HomeVC: ParentNetworkViewController {
         configureActivityView()
         startFirstTimer()
         
-        deleteStatusData(forData: forData) {
+        deleteStatusDataFirstLoading(forData: forData) {
             forData.forEach { item in
                 
                 switch item.key {
@@ -431,7 +425,7 @@ class HomeVC: ParentNetworkViewController {
         }
     }
     
-    func deleteStatusData(forData: [String : Bool], completion: () -> Void) {
+    func deleteStatusDataFirstLoading(forData: [String : Bool], completion: () -> Void) {
         
         var counter = 0
         forData.forEach { item in
@@ -467,12 +461,37 @@ class HomeVC: ParentNetworkViewController {
         }
     }
     
+    func deleteStatusDataSwitch(forData: [String : Bool], completion: () -> Void) {
+        
+        var counter = 0
+        forData.forEach { item in
+            counter += 1
+            switch item.key {
+           
+            case "PreviewMalls":
+                cloudFB.removeListenerFetchPreviewMalls()
+                switchLoadingStatus["PreviewMalls"] = nil
+            case "PreviewShops":
+                cloudFB.removeListenerFetchPreviewShops()
+                switchLoadingStatus["PreviewShops"] = nil
+            case "PopularProducts":
+                cloudFB.removeListenerFetchPopularProducts()
+                switchLoadingStatus["PopularProducts"] = nil
+            default:
+                print("Returned message for analytic FB Crashlytics error")
+            }
+            if counter == forData.count {
+                completion()
+            }
+        }
+    }
+    
     func reloadingSwitchData(forData: [String : Bool]) {
         isBlockingSwitchGenderLoading = false
         configureActivityView()
         startSwitchGenderTimer()
         
-        deleteStatusData(forData: forData) {
+        deleteStatusDataSwitch(forData: forData) {
             forData.forEach { item in
                 switch item.key {
                 case "PreviewMalls":
@@ -507,6 +526,9 @@ class HomeVC: ParentNetworkViewController {
         }
         
         let cancel = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            self.switchLoadingStatus = [:]
+            self.modelDict = [:]
+            self.isEmergencyReloadData = true
             print("Did tap Cancel for AlertReloadSwitchData")
         }
         alert.addAction(action)
@@ -529,6 +551,7 @@ class HomeVC: ParentNetworkViewController {
         
         // views.isHidden = false
         // viewStub.isHidden = true
+        // isEmergencyReloadData = false
         // implemintation reloadData
     }
     
