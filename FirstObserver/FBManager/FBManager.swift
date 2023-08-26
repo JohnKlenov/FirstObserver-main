@@ -1761,8 +1761,9 @@ class ManagerFB {
                 let shops = documentData["shops"] as? [String]
                 let originalContent = documentData["originalContent"] as? String
                 let shop = documentData["shop"] as? String
+                let gender = documentData["gender"] as? String
                 
-                let model = ProductItem(brand: brand, model: modelProduct, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, shop: shop, originalContent: originalContent)
+                let model = ProductItem(brand: brand, model: modelProduct, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, shop: shop, originalContent: originalContent, gender: gender)
                 let item = Item(mall: nil, shop: nil, popularProduct: model)
                 items.append(item)
             }
@@ -1824,8 +1825,9 @@ class ManagerFB {
                 let shops = documentData["shops"] as? [String]
                 let originalContent = documentData["originalContent"] as? String
                 let shop = documentData["shop"] as? String
+                let gender = documentData["gender"] as? String
                 
-                let model = ProductItem(brand: brand, model: modelProduct, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, shop: shop, originalContent: originalContent)
+                let model = ProductItem(brand: brand, model: modelProduct, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, shop: shop, originalContent: originalContent, gender: gender)
                 cartProducts.append(model)
             }
             completion(cartProducts, nil)
@@ -1964,8 +1966,9 @@ class ManagerFB {
                 let refImage = product["refImage"] as? [String]
                 let shops = product["shops"] as? [String]
                 let shop = product["shop"] as? String
+                let gender = product["gender"] as? String
                 
-                let productItem = ProductItem(brand: brand, model: model, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, shop: shop, originalContent: originalContent)
+                let productItem = ProductItem(brand: brand, model: model, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, shop: shop, originalContent: originalContent, gender: gender)
                 
                 productsShop.append(productItem)
             }
@@ -2021,8 +2024,9 @@ class ManagerFB {
                 let refImage = product["refImage"] as? [String]
                 let shops = product["shops"] as? [String]
                 let shop = product["shop"] as? String
-
-                let productItem = ProductItem(brand: brand, model: model, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, shop: shop, originalContent: originalContent)
+                let gender = product["gender"] as? String
+                
+                let productItem = ProductItem(brand: brand, model: model, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, shop: shop, originalContent: originalContent, gender: gender)
                 
                 if let category = productItem.category {
                     if categoryProductsDict[category] != nil {

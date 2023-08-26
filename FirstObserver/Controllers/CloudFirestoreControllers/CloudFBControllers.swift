@@ -115,6 +115,7 @@ class HomeVC: ParentNetworkViewController {
     var isBlockingSwitchGenderLoading = true
     var isBlockingModel = true
     var isEmergencyReloadData = false
+    var emergencyCurrentGender: String?
     let cloudFB = ManagerFB.shared
     let managerFB = FBManager.shared
     let defaults = UserDefaults.standard
@@ -369,6 +370,7 @@ class HomeVC: ParentNetworkViewController {
             cloudFB.removeListenerFetchPreviewShops()
             cloudFB.removeListenerFetchPopularProducts()
             modelDict = [:]
+            // можно менять currentGender не тут
             currentGender = gender
             isBlockingSwitchGenderLoading = false
             fetchPreviewMalls(gender: currentGender)
@@ -518,6 +520,7 @@ class HomeVC: ParentNetworkViewController {
         present(alert, animated: true, completion: nil)
     }
     
+    // когда крутится спинер мы не должны иметь возможность взаимодействовать с UI
     func setupAlertReloadSwitchData(forData: [String : Bool]) {
         let alert = UIAlertController(title: "Error ", message: "Something went wrong!", preferredStyle: .alert)
         
@@ -529,8 +532,21 @@ class HomeVC: ParentNetworkViewController {
             self.switchLoadingStatus = [:]
             self.modelDict = [:]
             self.isEmergencyReloadData = true
+            
+            if self.emergencyCurrentGender == nil {
+                switch self.currentGender {
+                case "Man":
+                    self.emergencyCurrentGender = "Woman"
+                case "Woman":
+                    self.emergencyCurrentGender = "Man"
+                default:
+                    self.emergencyCurrentGender = "Woman"
+                    print("Returned message for analytic FB Crashlytics error")
+                }
+            }
             print("Did tap Cancel for AlertReloadSwitchData")
         }
+        
         alert.addAction(action)
         alert.addAction(cancel)
         present(alert, animated: true, completion: nil)
@@ -552,6 +568,7 @@ class HomeVC: ParentNetworkViewController {
         // views.isHidden = false
         // viewStub.isHidden = true
         // isEmergencyReloadData = false
+        // emergencyCurrentGender = nil
         // implemintation reloadData
     }
     
@@ -565,11 +582,20 @@ class HomeVC: ParentNetworkViewController {
             let nameMall = mallSection.first?.items[indexPath.row].mall?.name ?? ""
             mallVC.path = nameMall
             mallVC.title = nameMall
-            mallVC.currentGender = currentGender
-            
-            if let shops = shops[currentGender] {
-                mallVC.shops = shops
+           
+            if !isEmergencyReloadData {
+                mallVC.currentGender = currentGender
+                mallVC.shops = shops[currentGender] ?? []
+            } else {
+                if let emergencyCurrentGender = emergencyCurrentGender {
+                    mallVC.currentGender = emergencyCurrentGender
+                    mallVC.shops = shops[emergencyCurrentGender] ?? []
+                } else {
+                    mallVC.currentGender = currentGender
+                    mallVC.shops = shops[currentGender] ?? []
+                }
             }
+            
             
             let currentPin = pinsMall.filter({$0.title == nameMall})
             mallVC.currentPin = currentPin
@@ -580,9 +606,21 @@ class HomeVC: ParentNetworkViewController {
             let productSection = model.filter({$0.section == "Shops"})
             let path = productSection.first?.items[indexPath.row].shop?.name ?? ""
             shopProductVC.path = path
-            shopProductVC.currentGender = currentGender
             shopProductVC.title = path
-            shopProductVC.shops = shops[currentGender] ?? []
+            
+            if !isEmergencyReloadData {
+                shopProductVC.currentGender = currentGender
+                shopProductVC.shops = shops[currentGender] ?? []
+            } else {
+                if let emergencyCurrentGender = emergencyCurrentGender {
+                    shopProductVC.currentGender = emergencyCurrentGender
+                    shopProductVC.shops = shops[emergencyCurrentGender] ?? []
+                } else {
+                    shopProductVC.currentGender = currentGender
+                    shopProductVC.shops = shops[currentGender] ?? []
+                }
+            }
+            
             self.navigationController?.pushViewController(shopProductVC, animated: true)
             
         case 2:
@@ -590,25 +628,81 @@ class HomeVC: ParentNetworkViewController {
             let productSection = model.filter({$0.section == "PopularProducts"})
             let shopsProduct = productSection.first?.items[indexPath.row].popularProduct?.shops ?? []
             
-            var shopsList: [Shop] = []
-            
-            shops[currentGender]?.forEach { shop in
-                if shopsProduct.contains(shop.name ?? "") {
-                    shopsList.append(shop)
+            if let emergencyCurrentGender = emergencyCurrentGender, isEmergencyReloadData {
+                //
+                var shopsList: [Shop] = []
+
+                shops[emergencyCurrentGender]?.forEach { shop in
+                    if shopsProduct.contains(shop.name ?? "") {
+                        shopsList.append(shop)
+                    }
                 }
-            }
-            
-            let mallList = createUniqueMallArray(from: shopsList)
-            var pinList: [PinMall] = []
-            
-            pinsMall.forEach { pin in
-                if mallList.contains(pin.title ?? "") {
-                    pinList.append(pin)
+
+                let mallList = createUniqueMallArray(from: shopsList)
+                var pinList: [PinMall] = []
+
+                pinsMall.forEach { pin in
+                    if mallList.contains(pin.title ?? "") {
+                        pinList.append(pin)
+                    }
                 }
+                //
+                productVC.pinsMall = pinList
+                productVC.shops = shopsList
+            } else {
+
             }
+//            if !isEmergencyReloadData {
+//                //
+//                var shopsList: [Shop] = []
+//
+//                shops[currentGender]?.forEach { shop in
+//                    if shopsProduct.contains(shop.name ?? "") {
+//                        shopsList.append(shop)
+//                    }
+//                }
+//
+//                let mallList = createUniqueMallArray(from: shopsList)
+//                var pinList: [PinMall] = []
+//
+//                pinsMall.forEach { pin in
+//                    if mallList.contains(pin.title ?? "") {
+//                        pinList.append(pin)
+//                    }
+//                }
+//                //
+//                productVC.pinsMall = pinList
+//                productVC.shops = shopsList
+//            } else {
+//                if let emergencyCurrentGender = emergencyCurrentGender {
+//                    //
+//                    var shopsList: [Shop] = []
+//
+//                    shops[emergencyCurrentGender]?.forEach { shop in
+//                        if shopsProduct.contains(shop.name ?? "") {
+//                            shopsList.append(shop)
+//                        }
+//                    }
+//
+//                    let mallList = createUniqueMallArray(from: shopsList)
+//                    var pinList: [PinMall] = []
+//
+//                    pinsMall.forEach { pin in
+//                        if mallList.contains(pin.title ?? "") {
+//                            pinList.append(pin)
+//                        }
+//                    }
+//                    //
+//                    productVC.pinsMall = pinList
+//                    productVC.shops = shopsList
+//                } else {
+//
+//                }
+//
+//            }
             
-            productVC.pinsMall = pinList
-            productVC.shops = shopsList
+            
+            
             productVC.modelProduct = productSection.first?.items[indexPath.row].popularProduct
             
             cartProducts.forEach { (addedProduct) in
@@ -622,6 +716,20 @@ class HomeVC: ParentNetworkViewController {
             print("Returned message for analytic FB Crashlytics error")
         }
     }
+}
+
+extension HomeVC: HeaderMallsViewDelegate {
+    func didSelectSegmentControl() {
+        
+        if isEmergencyReloadData {
+            emergencyReloadData()
+        } else {
+            switchGender()
+        }
+
+    }
+    
+    
 }
 
 class MallsVC: ParentNetworkViewController {

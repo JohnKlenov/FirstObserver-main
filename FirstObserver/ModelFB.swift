@@ -241,6 +241,7 @@ struct ProductItem: Hashable {
     let shops: [String]?
     let shop: String?
     let originalContent: String?
+    let gender: String?
 }
 
 // CatalogVC
