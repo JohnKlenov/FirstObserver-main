@@ -114,7 +114,7 @@ class HomeVC: ParentNetworkViewController {
     var isBlockingFirstLoading = false
     var isBlockingSwitchGenderLoading = true
     var isBlockingModel = true
-    var isEmergencyReloadData = false
+//    var isEmergencyReloadData = false
     var emergencyCurrentGender: String?
     let cloudFB = ManagerFB.shared
     let managerFB = FBManager.shared
@@ -161,11 +161,12 @@ class HomeVC: ParentNetworkViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if isEmergencyReloadData {
+        if let _ = emergencyCurrentGender {
             emergencyReloadData()
         } else {
             switchGender()
         }
+        
     }
     
     @objc func didTapAllShops(_ sender: UIButton) {
@@ -370,7 +371,6 @@ class HomeVC: ParentNetworkViewController {
             cloudFB.removeListenerFetchPreviewShops()
             cloudFB.removeListenerFetchPopularProducts()
             modelDict = [:]
-            // можно менять currentGender не тут
             currentGender = gender
             isBlockingSwitchGenderLoading = false
             fetchPreviewMalls(gender: currentGender)
@@ -531,7 +531,6 @@ class HomeVC: ParentNetworkViewController {
         let cancel = UIAlertAction(title: "Cancel", style: .cancel) { _ in
             self.switchLoadingStatus = [:]
             self.modelDict = [:]
-            self.isEmergencyReloadData = true
             
             if self.emergencyCurrentGender == nil {
                 switch self.currentGender {
@@ -567,7 +566,6 @@ class HomeVC: ParentNetworkViewController {
         
         // views.isHidden = false
         // viewStub.isHidden = true
-        // isEmergencyReloadData = false
         // emergencyCurrentGender = nil
         // implemintation reloadData
     }
@@ -582,20 +580,14 @@ class HomeVC: ParentNetworkViewController {
             let nameMall = mallSection.first?.items[indexPath.row].mall?.name ?? ""
             mallVC.path = nameMall
             mallVC.title = nameMall
-           
-            if !isEmergencyReloadData {
+            
+            if let emergencyCurrentGender = emergencyCurrentGender {
+                mallVC.currentGender = emergencyCurrentGender
+                mallVC.shops = shops[emergencyCurrentGender] ?? []
+            } else {
                 mallVC.currentGender = currentGender
                 mallVC.shops = shops[currentGender] ?? []
-            } else {
-                if let emergencyCurrentGender = emergencyCurrentGender {
-                    mallVC.currentGender = emergencyCurrentGender
-                    mallVC.shops = shops[emergencyCurrentGender] ?? []
-                } else {
-                    mallVC.currentGender = currentGender
-                    mallVC.shops = shops[currentGender] ?? []
-                }
             }
-            
             
             let currentPin = pinsMall.filter({$0.title == nameMall})
             mallVC.currentPin = currentPin
@@ -608,19 +600,14 @@ class HomeVC: ParentNetworkViewController {
             shopProductVC.path = path
             shopProductVC.title = path
             
-            if !isEmergencyReloadData {
+            if let emergencyCurrentGender = emergencyCurrentGender {
+                shopProductVC.currentGender = emergencyCurrentGender
+                shopProductVC.shops = shops[emergencyCurrentGender] ?? []
+            } else {
                 shopProductVC.currentGender = currentGender
                 shopProductVC.shops = shops[currentGender] ?? []
-            } else {
-                if let emergencyCurrentGender = emergencyCurrentGender {
-                    shopProductVC.currentGender = emergencyCurrentGender
-                    shopProductVC.shops = shops[emergencyCurrentGender] ?? []
-                } else {
-                    shopProductVC.currentGender = currentGender
-                    shopProductVC.shops = shops[currentGender] ?? []
-                }
             }
-            
+
             self.navigationController?.pushViewController(shopProductVC, animated: true)
             
         case 2:
@@ -628,8 +615,8 @@ class HomeVC: ParentNetworkViewController {
             let productSection = model.filter({$0.section == "PopularProducts"})
             let shopsProduct = productSection.first?.items[indexPath.row].popularProduct?.shops ?? []
             
-            if let emergencyCurrentGender = emergencyCurrentGender, isEmergencyReloadData {
-                //
+            if let emergencyCurrentGender = emergencyCurrentGender {
+            
                 var shopsList: [Shop] = []
 
                 shops[emergencyCurrentGender]?.forEach { shop in
@@ -646,63 +633,32 @@ class HomeVC: ParentNetworkViewController {
                         pinList.append(pin)
                     }
                 }
-                //
+                
                 productVC.pinsMall = pinList
                 productVC.shops = shopsList
             } else {
 
+                var shopsList: [Shop] = []
+
+                shops[currentGender]?.forEach { shop in
+                    if shopsProduct.contains(shop.name ?? "") {
+                        shopsList.append(shop)
+                    }
+                }
+
+                let mallList = createUniqueMallArray(from: shopsList)
+                var pinList: [PinMall] = []
+
+                pinsMall.forEach { pin in
+                    if mallList.contains(pin.title ?? "") {
+                        pinList.append(pin)
+                    }
+                }
+                
+                productVC.pinsMall = pinList
+                productVC.shops = shopsList
             }
-//            if !isEmergencyReloadData {
-//                //
-//                var shopsList: [Shop] = []
-//
-//                shops[currentGender]?.forEach { shop in
-//                    if shopsProduct.contains(shop.name ?? "") {
-//                        shopsList.append(shop)
-//                    }
-//                }
-//
-//                let mallList = createUniqueMallArray(from: shopsList)
-//                var pinList: [PinMall] = []
-//
-//                pinsMall.forEach { pin in
-//                    if mallList.contains(pin.title ?? "") {
-//                        pinList.append(pin)
-//                    }
-//                }
-//                //
-//                productVC.pinsMall = pinList
-//                productVC.shops = shopsList
-//            } else {
-//                if let emergencyCurrentGender = emergencyCurrentGender {
-//                    //
-//                    var shopsList: [Shop] = []
-//
-//                    shops[emergencyCurrentGender]?.forEach { shop in
-//                        if shopsProduct.contains(shop.name ?? "") {
-//                            shopsList.append(shop)
-//                        }
-//                    }
-//
-//                    let mallList = createUniqueMallArray(from: shopsList)
-//                    var pinList: [PinMall] = []
-//
-//                    pinsMall.forEach { pin in
-//                        if mallList.contains(pin.title ?? "") {
-//                            pinList.append(pin)
-//                        }
-//                    }
-//                    //
-//                    productVC.pinsMall = pinList
-//                    productVC.shops = shopsList
-//                } else {
-//
-//                }
-//
-//            }
-            
-            
-            
+
             productVC.modelProduct = productSection.first?.items[indexPath.row].popularProduct
             
             cartProducts.forEach { (addedProduct) in
@@ -721,15 +677,12 @@ class HomeVC: ParentNetworkViewController {
 extension HomeVC: HeaderMallsViewDelegate {
     func didSelectSegmentControl() {
         
-        if isEmergencyReloadData {
+        if let _ = emergencyCurrentGender {
             emergencyReloadData()
         } else {
             switchGender()
         }
-
     }
-    
-    
 }
 
 class MallsVC: ParentNetworkViewController {
