@@ -1360,48 +1360,48 @@ class PlaceholderNavigationController: UINavigationController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        NotificationCenter.default.addObserver(self, selector: #selector(showOfflineDeviceUI(notification:)), name: NSNotification.Name.connectivityStatus, object: nil)
-        networkConnected()
+//        NotificationCenter.default.addObserver(self, selector: #selector(showOfflineDeviceUI(notification:)), name: NSNotification.Name.connectivityStatus, object: nil)
+//        networkConnected()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        NotificationCenter.default.removeObserver(self)
+//        NotificationCenter.default.removeObserver(self)
     }
     
-    @objc func showOfflineDeviceUI(notification: Notification) {
-        networkConnected()
-    }
+//    @objc func showOfflineDeviceUI(notification: Notification) {
+//        networkConnected()
+//    }
     
-    func networkConnected() {
-        if NetworkMonitor.shared.isConnected {
-            DispatchQueue.main.async {
-                self.alert?.dismiss(animated: true)
-                self.alert = nil
-            }
-        } else {
-            DispatchQueue.main.async {
-                self.activityView.isAnimating { [weak self] isAnimatig in
-                    if isAnimatig {
-                        self?.activityView.stopAnimating()
-                        self?.activityView.removeFromSuperview()                }
-                }
-                self.setupAlertNotConnected()
-            }
-        }
-    }
+//    func networkConnected() {
+//        if NetworkMonitor.shared.isConnected {
+//            DispatchQueue.main.async {
+//                self.alert?.dismiss(animated: true)
+//                self.alert = nil
+//            }
+//        } else {
+//            DispatchQueue.main.async {
+//                self.activityView.isAnimating { [weak self] isAnimatig in
+//                    if isAnimatig {
+//                        self?.activityView.stopAnimating()
+//                        self?.activityView.removeFromSuperview()                }
+//                }
+//                self.setupAlertNotConnected()
+//            }
+//        }
+//    }
     
-    func setupAlertNotConnected() {
-        
-        alert = UIAlertController(title: "You're offline!", message: "No internet connection", preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "Try again", style: .default) { [weak self] action in
-            self?.networkConnected()
-        }
-        alert?.addAction(okAction)
-        if let alert = alert {
-            present(alert, animated: true, completion: nil)
-        }
-    }
+//    func setupAlertNotConnected() {
+//
+//        alert = UIAlertController(title: "You're offline!", message: "No internet connection", preferredStyle: .alert)
+//        let okAction = UIAlertAction(title: "Try again", style: .default) { [weak self] action in
+//            self?.networkConnected()
+//        }
+//        alert?.addAction(okAction)
+//        if let alert = alert {
+//            present(alert, animated: true, completion: nil)
+//        }
+//    }
     
     // MARK: PlaceholderView -
     

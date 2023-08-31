@@ -32,7 +32,9 @@ class NewHomeViewController: UIViewController {
     private var currentGender = ""
     private var isConnectedFB:Bool = false
     
-    var navController: PlaceholderNavigationController?
+    var navController: PlaceholderNavigationController? {
+            return self.navigationController as? PlaceholderNavigationController
+        }
     
     var modelHomeViewController = [SectionHVC]() {
         didSet {
@@ -79,7 +81,6 @@ class NewHomeViewController: UIViewController {
         
         title = "Observer"
         navigationController?.navigationBar.prefersLargeTitles = true
-        navController = navigationController as? PlaceholderNavigationController
         
         managerFB.isNetworkConnectivity { isConnect in
             isConnect ? print("FB Connected") : print("FB Not connected")
@@ -334,6 +335,7 @@ class NewHomeViewController: UIViewController {
                 return cell
             } else if kind == "HeaderCategory" {
                 let cell = collectionView.dequeueReusableSupplementaryView(ofKind: HeaderCategoryView.headerIdentifier, withReuseIdentifier: HeaderCategoryView.headerIdentifier, for: IndexPath) as? HeaderCategoryView
+                cell?.delegate = self
                 cell?.configureCell(title: R.Strings.TabBarController.Home.ViewsHome.headerCategoryView)
                 return cell
             } else if kind == "HeaderMalls" {
@@ -558,6 +560,16 @@ extension NewHomeViewController: UICollectionViewDelegate {
 extension NewHomeViewController: HeaderMallsViewDelegate {
     func didSelectSegmentControl() {
         switchGender()
+    }
+}
+
+extension NewHomeViewController: HeaderCategoryViewDelegate {
+    func didSelectAllBrandButton() {
+        print("didSelectAllBrandButton didSelectAllBrandButton didSelectAllBrandButton")
+        let allShopsVC = AllShopsViewController()
+        let shopsModel = modelHomeViewController.filter({$0.section == "Brands"})
+        allShopsVC.shopsModel = shopsModel
+        navigationController?.pushViewController(allShopsVC, animated: true)
     }
     
     
