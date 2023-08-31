@@ -10,7 +10,9 @@ import Firebase
 import MapKit
 import SwiftUI
 
-class NewHomeViewController: ParentNetworkViewController {
+//PlaceholderNavigationController
+//ParentNetworkViewController
+class NewHomeViewController: UIViewController {
 
     private let managerFB = FBManager.shared
     
@@ -30,11 +32,16 @@ class NewHomeViewController: ParentNetworkViewController {
     private var currentGender = ""
     private var isConnectedFB:Bool = false
     
+    var navController: PlaceholderNavigationController?
+    
     var modelHomeViewController = [SectionHVC]() {
         didSet {
             if modelHomeViewController.count == 3 {
-                activityView.stopAnimating()
-                activityView.removeFromSuperview()
+//                activityView.stopAnimating()
+//                activityView.removeFromSuperview()
+                
+                
+                navController?.stopSpinnerForView()
                 tabBarController?.view.isUserInteractionEnabled = true
                 reloadData()
             }
@@ -72,7 +79,7 @@ class NewHomeViewController: ParentNetworkViewController {
         
         title = "Observer"
         navigationController?.navigationBar.prefersLargeTitles = true
-       
+        navController = navigationController as? PlaceholderNavigationController
         
         managerFB.isNetworkConnectivity { isConnect in
             isConnect ? print("FB Connected") : print("FB Not connected")
@@ -146,7 +153,8 @@ class NewHomeViewController: ParentNetworkViewController {
 //        self.setLeftAlignedNavigationItemTitle(text: "Observer", color: R.Colors.label, margin: 20)
         view.backgroundColor = R.Colors.systemBackground
         tabBarController?.view.isUserInteractionEnabled = false
-        configureActivityView()
+//        configureActivityView()
+        navController?.startSpinnerForView()
         setupCollectionView()
         setupConstraints()
         createDataSource()
@@ -171,6 +179,7 @@ class NewHomeViewController: ParentNetworkViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        
 //        startOnbordingPresentation()
     }
     
@@ -233,7 +242,8 @@ class NewHomeViewController: ParentNetworkViewController {
     func switchGender() {
         let gender = defaults.string(forKey: "gender") ?? "Woman"
         if currentGender != gender {
-            configureActivityView()
+//            configureActivityView()
+            navController?.startSpinnerForView()
             managerFB.removeObserverPreviewMallsGenderHVC(path: currentGender)
             managerFB.removeObserverPopularProductGender(path: currentGender)
             managerFB.removeObserverPreviewBrandsGenderHVC(path: currentGender)

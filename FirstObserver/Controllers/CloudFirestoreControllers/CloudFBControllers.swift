@@ -114,7 +114,6 @@ class HomeVC: ParentNetworkViewController {
     var isBlockingFirstLoading = false
     var isBlockingSwitchGenderLoading = true
     var isBlockingModel = true
-//    var isEmergencyReloadData = false
     var emergencyCurrentGender: String?
     let cloudFB = ManagerFB.shared
     let managerFB = FBManager.shared
@@ -173,7 +172,11 @@ class HomeVC: ParentNetworkViewController {
         
         let allShopsVC = AllShopsVC()
         
-        allShopsVC.currentGender = currentGender
+        if let emergencyCurrentGender = emergencyCurrentGender {
+            allShopsVC.currentGender = emergencyCurrentGender
+        } else {
+            allShopsVC.currentGender = currentGender
+        }
         
         let productSection = model.filter({$0.section == "Shops"})
         
@@ -818,6 +821,7 @@ class MallVC: ParentNetworkViewController {
                 self.timer?.invalidate()
                 self.activityView.stopAnimating()
                 self.activityView.removeFromSuperview()
+                // configure viewStub maby ceate method into superClass
                 self.setupAlertReloadData()
             }
         }
@@ -887,7 +891,7 @@ class MallVC: ParentNetworkViewController {
     //        }
     //
     //        if brandSection.items.count == mallModel.brands.count && mallSection.items.count == mallModel.refImage.count {
-    //            section = [mallSection, shopSection]
+    //            mallModel = [mallSection, shopSection]
     //        }
     //    }
     
@@ -1332,6 +1336,151 @@ class CartVC: ParentNetworkViewController {
 }
 
 
+
+class PlaceholderNavigationController: UINavigationController {
+    
+    private var placeholderView: UIView?
+    lazy var activityView: ActivityContainerView = {
+        let view = ActivityContainerView()
+        view.layer.cornerRadius = 8
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    // temporary property
+    var alert: UIAlertController?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        configurePlaceholderView()
+    }
+    
+    // temporary methods
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        NotificationCenter.default.addObserver(self, selector: #selector(showOfflineDeviceUI(notification:)), name: NSNotification.Name.connectivityStatus, object: nil)
+        networkConnected()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    @objc func showOfflineDeviceUI(notification: Notification) {
+        networkConnected()
+    }
+    
+    func networkConnected() {
+        if NetworkMonitor.shared.isConnected {
+            DispatchQueue.main.async {
+                self.alert?.dismiss(animated: true)
+                self.alert = nil
+            }
+        } else {
+            DispatchQueue.main.async {
+                self.activityView.isAnimating { [weak self] isAnimatig in
+                    if isAnimatig {
+                        self?.activityView.stopAnimating()
+                        self?.activityView.removeFromSuperview()                }
+                }
+                self.setupAlertNotConnected()
+            }
+        }
+    }
+    
+    func setupAlertNotConnected() {
+        
+        alert = UIAlertController(title: "You're offline!", message: "No internet connection", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Try again", style: .default) { [weak self] action in
+            self?.networkConnected()
+        }
+        alert?.addAction(okAction)
+        if let alert = alert {
+            present(alert, animated: true, completion: nil)
+        }
+    }
+    
+    // MARK: PlaceholderView -
+    
+    
+    func configurePlaceholderView() {
+        
+        // Создайте и настройте placeholder view
+        let frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height)
+        placeholderView = UIView(frame: frame)
+        placeholderView?.backgroundColor = .purple
+        
+        // Добавьте placeholder view на главное представление навигационного контроллера
+        if let placeholderView = placeholderView {
+            view.addSubview(placeholderView)
+//            view.bringSubviewToFront(placeholderView)
+        }
+        hidePlaceholder()
+    }
+
+    func showPlaceholder() {
+        // Показать placeholder view и скрыть содержимое контроллера
+        topViewController?.view.isHidden = true
+        placeholderView?.isHidden = false
+    }
+
+    func hidePlaceholder() {
+        // Скрыть placeholder view и показать содержимое контроллера
+        topViewController?.view.isHidden = false
+        placeholderView?.isHidden = true
+    }
+    
+    
+    // MARK: ActivityIndicatorView -
+    
+    func setupSpinnerForPlaceholder() {
+        
+        if let placeholderView = placeholderView {
+            
+            placeholderView.addSubview(activityView)
+            activityView.centerXAnchor.constraint(equalTo: placeholderView.centerXAnchor).isActive = true
+            activityView.centerYAnchor.constraint(equalTo: placeholderView.centerYAnchor).isActive = true
+            activityView.heightAnchor.constraint(equalTo: placeholderView.widthAnchor, multiplier: 1/4).isActive = true
+            activityView.widthAnchor.constraint(equalTo: placeholderView.widthAnchor, multiplier: 1/4).isActive = true
+        }
+    }
+    
+    func startSpinnerForPlaceholder() {
+        setupSpinnerForPlaceholder()
+        activityView.startAnimating()
+    }
+    
+    func stopSpinnerForPlaceholder() {
+        activityView.stopAnimating()
+        activityView.removeFromSuperview()
+    }
+    
+    func setupSpinnerForView() {
+        
+        if let view = topViewController?.view {
+            print("topViewController?.view")
+            view.addSubview(activityView)
+            activityView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+            activityView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+            activityView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
+            activityView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
+        }
+    }
+    
+    func startSpinnerForView() {
+        setupSpinnerForView()
+        activityView.startAnimating()
+    }
+    
+    func stopSpinnerForView() {
+        activityView.stopAnimating()
+        activityView.removeFromSuperview()
+    }
+    
+}
 
 
 

@@ -12,7 +12,8 @@ class ActivityContainerView: UIView {
     
     private var loader: UIActivityIndicatorView = {
         let loader = UIActivityIndicatorView()
-        loader.color = R.Colors.systemPurple
+//        loader.color = R.Colors.systemPurple
+        loader.color = .blue
 //        loader.isHidden = true
         loader.hidesWhenStopped = true
         loader.translatesAutoresizingMaskIntoConstraints = false
