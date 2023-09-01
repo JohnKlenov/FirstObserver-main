@@ -1335,11 +1335,49 @@ class CartVC: ParentNetworkViewController {
     var shops:[String:[Shop]] = [:]
 }
 
+class PlaceholderView: UIView {
+    
+    let imageView: UIImageView = {
+        let image = UIImageView()
+        image.translatesAutoresizingMaskIntoConstraints = false
+        image.contentMode = .scaleAspectFit
+        image.tintColor = R.Colors.label
+        return image
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        // Дополнительные настройки вашего кастомного view
+        backgroundColor = R.Colors.systemBackground
+        configureImageView()
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func configureImageView() {
+        
+        // есть несколько стилей прорисовок для символов системных иконок: .thin, .medium ..
+        let symbolConfig = UIImage.SymbolConfiguration(weight: .ultraLight)
+
+            let image = UIImage(systemName: "wifi.slash", withConfiguration: symbolConfig)
+            let tintableImage = image?.withRenderingMode(.alwaysTemplate)
+            imageView.image = tintableImage
+            addSubview(imageView)
+            setupConstraints()
+    }
+    
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([imageView.centerXAnchor.constraint(equalTo: centerXAnchor), imageView.centerYAnchor.constraint(equalTo: centerYAnchor), imageView.widthAnchor.constraint(equalTo: widthAnchor), imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor)])
+    }
+    
+}
 
 
 class PlaceholderNavigationController: UINavigationController {
     
-    private var placeholderView: UIView?
+    private var placeholderView: PlaceholderView?
     lazy var activityView: ActivityContainerView = {
         let view = ActivityContainerView()
         view.layer.cornerRadius = 8
@@ -1347,61 +1385,23 @@ class PlaceholderNavigationController: UINavigationController {
         return view
     }()
 
-    // temporary property
-    var alert: UIAlertController?
-
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         configurePlaceholderView()
+       
     }
-    
-    // temporary methods
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        NotificationCenter.default.addObserver(self, selector: #selector(showOfflineDeviceUI(notification:)), name: NSNotification.Name.connectivityStatus, object: nil)
-//        networkConnected()
+
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-//        NotificationCenter.default.removeObserver(self)
+        
     }
     
-//    @objc func showOfflineDeviceUI(notification: Notification) {
-//        networkConnected()
-//    }
-    
-//    func networkConnected() {
-//        if NetworkMonitor.shared.isConnected {
-//            DispatchQueue.main.async {
-//                self.alert?.dismiss(animated: true)
-//                self.alert = nil
-//            }
-//        } else {
-//            DispatchQueue.main.async {
-//                self.activityView.isAnimating { [weak self] isAnimatig in
-//                    if isAnimatig {
-//                        self?.activityView.stopAnimating()
-//                        self?.activityView.removeFromSuperview()                }
-//                }
-//                self.setupAlertNotConnected()
-//            }
-//        }
-//    }
-    
-//    func setupAlertNotConnected() {
-//
-//        alert = UIAlertController(title: "You're offline!", message: "No internet connection", preferredStyle: .alert)
-//        let okAction = UIAlertAction(title: "Try again", style: .default) { [weak self] action in
-//            self?.networkConnected()
-//        }
-//        alert?.addAction(okAction)
-//        if let alert = alert {
-//            present(alert, animated: true, completion: nil)
-//        }
-//    }
+
     
     // MARK: PlaceholderView -
     
@@ -1410,12 +1410,14 @@ class PlaceholderNavigationController: UINavigationController {
         
         // Создайте и настройте placeholder view
         let frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height)
-        placeholderView = UIView(frame: frame)
-        placeholderView?.backgroundColor = .purple
+        placeholderView = PlaceholderView(frame:frame)
         
         // Добавьте placeholder view на главное представление навигационного контроллера
         if let placeholderView = placeholderView {
             view.addSubview(placeholderView)
+            // Перемещает указанное подпредставление так, чтобы оно отображалось позади своих одноуровневых элементов.
+            view.sendSubviewToBack(placeholderView)
+            // Перемещает указанное подпредставление так, чтобы оно отображалось поверх своих одноуровневых элементов.
 //            view.bringSubviewToFront(placeholderView)
         }
         hidePlaceholder()
@@ -1482,9 +1484,45 @@ class PlaceholderNavigationController: UINavigationController {
     
 }
 
+//        NotificationCenter.default.removeObserver(self)
+// temporary property
+//    var alert: UIAlertController?
+//        NotificationCenter.default.addObserver(self, selector: #selector(showOfflineDeviceUI(notification:)), name: NSNotification.Name.connectivityStatus, object: nil)
+//        networkConnected()
 
-
-
+//    @objc func showOfflineDeviceUI(notification: Notification) {
+//        networkConnected()
+//    }
+    
+//    func networkConnected() {
+//        if NetworkMonitor.shared.isConnected {
+//            DispatchQueue.main.async {
+//                self.alert?.dismiss(animated: true)
+//                self.alert = nil
+//            }
+//        } else {
+//            DispatchQueue.main.async {
+//                self.activityView.isAnimating { [weak self] isAnimatig in
+//                    if isAnimatig {
+//                        self?.activityView.stopAnimating()
+//                        self?.activityView.removeFromSuperview()                }
+//                }
+//                self.setupAlertNotConnected()
+//            }
+//        }
+//    }
+    
+//    func setupAlertNotConnected() {
+//
+//        alert = UIAlertController(title: "You're offline!", message: "No internet connection", preferredStyle: .alert)
+//        let okAction = UIAlertAction(title: "Try again", style: .default) { [weak self] action in
+//            self?.networkConnected()
+//        }
+//        alert?.addAction(okAction)
+//        if let alert = alert {
+//            present(alert, animated: true, completion: nil)
+//        }
+//    }
 
 
 

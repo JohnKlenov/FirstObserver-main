@@ -568,7 +568,7 @@ extension NewHomeViewController: HeaderCategoryViewDelegate {
         print("didSelectAllBrandButton didSelectAllBrandButton didSelectAllBrandButton")
         let allShopsVC = AllShopsViewController()
         let shopsModel = modelHomeViewController.filter({$0.section == "Brands"})
-        allShopsVC.shopsModel = shopsModel
+        allShopsVC.shopsModelTest = shopsModel
         navigationController?.pushViewController(allShopsVC, animated: true)
     }
     
