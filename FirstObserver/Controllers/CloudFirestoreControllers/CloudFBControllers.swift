@@ -14,10 +14,17 @@ import MapKit
 // Возможно есть смысл делать проверку на networkConnected() во viewDidLoad при первом запуске.
 // if isConnect - запускаем весь код который сейчас лежит во viewDidLoad else Alert
 // Alert - Try agayne! и снова вызываем метод networkConnected()
-class HomeVC: ParentNetworkViewController {
+//PlaceholderNavigationController
+//ParentNetworkViewController
+class HomeVC: PlaceholderNavigationController {
     
     let allState = ["ShopsMan":false, "ShopsWoman":false, "PinMalls":false, "PreviewMalls":false, "PreviewShops":false, "PopularProducts":false, "CartProducts":false]
     let switchState = ["PreviewMalls":false, "PreviewShops":false, "PopularProducts":false]
+    
+    var navController: PlaceholderNavigationController? {
+            return self.navigationController as? PlaceholderNavigationController
+        }
+    
     var pinsMall: [PinMall] = []
     
     private var pinsMallFB: [PinMallsFB] = [] {
@@ -30,8 +37,9 @@ class HomeVC: ParentNetworkViewController {
         didSet {
             if model.count == 3 {
                 if isBlockingFirstLoading, isBlockingSwitchGenderLoading, isBlockingModel {
-                    activityView.stopAnimating()
-                    activityView.removeFromSuperview()
+                    navController?.stopSpinner()
+//                    activityView.stopAnimating()
+//                    activityView.removeFromSuperview()
                     reloadData()
                 }
                 
@@ -49,6 +57,7 @@ class HomeVC: ParentNetworkViewController {
         }
     }
     
+    // takes responsibility for the first data load
     var firstLoadingStatus: [String:Bool] = [:] {
         didSet {
             if firstLoadingStatus.count == allState.count {
@@ -62,19 +71,17 @@ class HomeVC: ParentNetworkViewController {
                 if filteredDictionary.isEmpty {
                     // Обработка случая отсутствия элементов со значением false
                     tabBarController?.view.isUserInteractionEnabled = true
-                    activityView.stopAnimating()
-                    activityView.removeFromSuperview()
+                    // возможно для остановки stopSpinnerForPlaceholder() можно использовать navController?.stopSpinner() а startSpiner должен быть для каждого свой
+                    navController?.stopSpinner()
                     isBlockingFirstLoading = true
                     isBlockingModel = true
                     firstLoadingStatus = [:]
                     reloadData()
                 } else {
-                    // views.isHidden = true
-                    // viewStub.isHidden = false
                     isBlockingFirstLoading = true
                     isBlockingModel = false
-                    activityView.stopAnimating()
-                    activityView.removeFromSuperview()
+                    navController?.stopSpinner()
+                    navController?.showPlaceholder()
                     self.setupAlertReloadFirstData(forData: filteredDictionary)
                 }
             }
@@ -91,8 +98,9 @@ class HomeVC: ParentNetworkViewController {
                     return value == false
                 }
                 if filteredDictionary.isEmpty {
-                    activityView.stopAnimating()
-                    activityView.removeFromSuperview()
+//                    activityView.stopAnimating()
+//                    activityView.removeFromSuperview()
+                    navController?.stopSpinner()
                     isBlockingSwitchGenderLoading = true
                     isBlockingModel = true
                     switchLoadingStatus = [:]
@@ -100,8 +108,9 @@ class HomeVC: ParentNetworkViewController {
                 } else {
                     isBlockingSwitchGenderLoading = true
                     isBlockingModel = false
-                    activityView.stopAnimating()
-                    activityView.removeFromSuperview()
+//                    activityView.stopAnimating()
+//                    activityView.removeFromSuperview()
+                    navController?.stopSpinner()
                     self.setupAlertReloadSwitchData(forData: filteredDictionary)
                 }
             }
@@ -134,7 +143,8 @@ class HomeVC: ParentNetworkViewController {
         
         tabBarController?.view.isUserInteractionEnabled = false
         startFirstTimer()
-        configureActivityView()
+        navController?.startSpinner()
+//        configureActivityView()
         
         let gender = defaults.string(forKey: "gender") ?? "Woman"
         currentGender = gender
@@ -368,12 +378,14 @@ class HomeVC: ParentNetworkViewController {
     func switchGender() {
         let gender = defaults.string(forKey: "gender") ?? "Woman"
         if currentGender != gender {
-            configureActivityView()
+//            configureActivityView()
+            navController?.startSpinner()
             startSwitchGenderTimer()
             cloudFB.removeListenerFetchPreviewMalls()
             cloudFB.removeListenerFetchPreviewShops()
             cloudFB.removeListenerFetchPopularProducts()
             modelDict = [:]
+            // мы должны гарантировать что при работе spinner у нас нет возможности взаимодействовать с UI
             currentGender = gender
             isBlockingSwitchGenderLoading = false
             fetchPreviewMalls(gender: currentGender)
@@ -384,7 +396,8 @@ class HomeVC: ParentNetworkViewController {
     
     func emergencyReloadData() {
         let gender = defaults.string(forKey: "gender") ?? "Woman"
-        configureActivityView()
+//        configureActivityView()
+        navController?.startSpinner()
         startSwitchGenderTimer()
         cloudFB.removeListenerFetchPreviewMalls()
         cloudFB.removeListenerFetchPreviewShops()
@@ -402,7 +415,8 @@ class HomeVC: ParentNetworkViewController {
     
     func reloadingFirstData(forData: [String : Bool]) {
         isBlockingFirstLoading = false
-        configureActivityView()
+        navController?.startSpinnerForPlaceholder()
+//        configureActivityView()
         startFirstTimer()
         
         deleteStatusDataFirstLoading(forData: forData) {
@@ -493,7 +507,8 @@ class HomeVC: ParentNetworkViewController {
     
     func reloadingSwitchData(forData: [String : Bool]) {
         isBlockingSwitchGenderLoading = false
-        configureActivityView()
+//        configureActivityView()
+        navController?.startSpinner()
         startSwitchGenderTimer()
         
         deleteStatusDataSwitch(forData: forData) {
@@ -512,6 +527,7 @@ class HomeVC: ParentNetworkViewController {
         }
     }
     
+    // вот тут интерестно - мы скрыли topViewControllers
     func setupAlertReloadFirstData(forData: [String : Bool]) {
         let alert = UIAlertController(title: "Error ", message: "Something went wrong!", preferredStyle: .alert)
         
@@ -567,9 +583,8 @@ class HomeVC: ParentNetworkViewController {
     
     func reloadData() {
         
-        // views.isHidden = false
-        // viewStub.isHidden = true
-        // emergencyCurrentGender = nil
+        navController?.hiddenPlaceholder()
+        emergencyCurrentGender = nil
         // implemintation reloadData
     }
     
@@ -1361,7 +1376,7 @@ class PlaceholderView: UIView {
         // есть несколько стилей прорисовок для символов системных иконок: .thin, .medium ..
         let symbolConfig = UIImage.SymbolConfiguration(weight: .ultraLight)
 
-            let image = UIImage(systemName: "wifi.slash", withConfiguration: symbolConfig)
+            let image = UIImage(systemName: "exclamationmark.triangle", withConfiguration: symbolConfig)
             let tintableImage = image?.withRenderingMode(.alwaysTemplate)
             imageView.image = tintableImage
             addSubview(imageView)
@@ -1378,7 +1393,7 @@ class PlaceholderView: UIView {
 class PlaceholderNavigationController: UINavigationController {
     
     private var placeholderView: PlaceholderView?
-    lazy var activityView: ActivityContainerView = {
+    private lazy var activityView: ActivityContainerView = {
         let view = ActivityContainerView()
         view.layer.cornerRadius = 8
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -1406,7 +1421,7 @@ class PlaceholderNavigationController: UINavigationController {
     // MARK: PlaceholderView -
     
     
-    func configurePlaceholderView() {
+    private func configurePlaceholderView() {
         
         // Создайте и настройте placeholder view
         let frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height)
@@ -1420,7 +1435,7 @@ class PlaceholderNavigationController: UINavigationController {
             // Перемещает указанное подпредставление так, чтобы оно отображалось поверх своих одноуровневых элементов.
 //            view.bringSubviewToFront(placeholderView)
         }
-        hidePlaceholder()
+        hiddenPlaceholder()
     }
 
     func showPlaceholder() {
@@ -1429,7 +1444,7 @@ class PlaceholderNavigationController: UINavigationController {
         placeholderView?.isHidden = false
     }
 
-    func hidePlaceholder() {
+    func hiddenPlaceholder() {
         // Скрыть placeholder view и показать содержимое контроллера
         topViewController?.view.isHidden = false
         placeholderView?.isHidden = true
@@ -1438,7 +1453,7 @@ class PlaceholderNavigationController: UINavigationController {
     
     // MARK: ActivityIndicatorView -
     
-    func setupSpinnerForPlaceholder() {
+    private func setupSpinnerForPlaceholder() {
         
         if let placeholderView = placeholderView {
             
@@ -1455,12 +1470,13 @@ class PlaceholderNavigationController: UINavigationController {
         activityView.startAnimating()
     }
     
+    // возможно stopSpinner() можно использовать вместо stopSpinnerForPlaceholder()
     func stopSpinnerForPlaceholder() {
         activityView.stopAnimating()
         activityView.removeFromSuperview()
     }
     
-    func setupSpinnerForView() {
+    private func setupSpinnerForView() {
         
         if let view = topViewController?.view {
             print("topViewController?.view")
@@ -1472,12 +1488,12 @@ class PlaceholderNavigationController: UINavigationController {
         }
     }
     
-    func startSpinnerForView() {
+    func startSpinner() {
         setupSpinnerForView()
         activityView.startAnimating()
     }
     
-    func stopSpinnerForView() {
+    func stopSpinner() {
         activityView.stopAnimating()
         activityView.removeFromSuperview()
     }

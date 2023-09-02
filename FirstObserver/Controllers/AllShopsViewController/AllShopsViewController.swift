@@ -11,7 +11,7 @@ class AllShopsViewController: UIViewController {
     
     var shopsModel: [SectionHVC] = [] {
         didSet {
-            navController?.stopSpinnerForView()
+            navController?.stopSpinner()
             tableView.reloadData()
             startTimerPlaceholder()
         }
@@ -37,7 +37,7 @@ class AllShopsViewController: UIViewController {
         view.backgroundColor = R.Colors.systemBackground
         setupTableView()
         setupConstraints()
-        navController?.startSpinnerForView()
+        navController?.startSpinner()
         startTimerView()
     }
     
@@ -70,8 +70,10 @@ class AllShopsViewController: UIViewController {
     private func startTimerPlaceholderSpiner() {
         
         timer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
-            self.navController?.startSpinnerForPlaceholder()
-            self.startTimerPlaceholderStopSpiner()
+            print("AlertStart")
+            self.setupAlertReloadFirstData()
+//            self.navController?.startSpinnerForPlaceholder()
+//            self.startTimerPlaceholderStopSpiner()
         }
     }
     
@@ -79,8 +81,25 @@ class AllShopsViewController: UIViewController {
         
         timer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
             self.navController?.stopSpinnerForPlaceholder()
-            self.navController?.hidePlaceholder()
+            self.navController?.hiddenPlaceholder()
         }
+    }
+    
+    func setupAlertReloadFirstData() {
+        let alert = UIAlertController(title: "Error ", message: "Something went wrong!", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Try agayn", style: .cancel) {[weak self] _ in
+//            self?.reloadingFirstData(forData: forData)
+            self?.navController?.startSpinnerForPlaceholder()
+            self?.timer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
+                // протестируем тут self?.navController?.stopSpinner потому что это по сути одно и то же что и self?.navController?.stopSpinnerForPlaceholder()
+                self?.navController?.stopSpinnerForPlaceholder()
+                self?.setupAlertReloadFirstData()
+            }
+        }
+        
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
     }
 
 }
