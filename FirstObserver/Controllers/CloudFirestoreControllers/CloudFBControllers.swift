@@ -702,15 +702,17 @@ extension HomeVC: HeaderMallsViewDelegate {
         }
     }
 }
-
-class MallsVC: ParentNetworkViewController {
+//ParentNetworkViewController
+class MallsVC: PlaceholderNavigationController {
     
     var pinsMall: [PinMall] = []
     var mallsModel: [PreviewSection] = [] {
         didSet {
+            isFirstGetData = false
+            isActivePlaceholder = false
+            navController?.stopSpinner()
+            navController?.hiddenPlaceholder()
 //            collectionView.reloadData()
-            activityView.stopAnimating()
-            activityView.removeFromSuperview()
         }
     }
     var shops:[String:[Shop]] = [:]
@@ -718,26 +720,47 @@ class MallsVC: ParentNetworkViewController {
     let cloudFB = ManagerFB.shared
     let defaults = UserDefaults.standard
     private var currentGender = ""
+    private var isFirstGetData = true
+    private var isActivePlaceholder = false
+    var timer: Timer?
+    
+    var navController: PlaceholderNavigationController? {
+            return self.navigationController as? PlaceholderNavigationController
+        }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         let gender = defaults.string(forKey: "gender") ?? "Woman"
         currentGender = gender
-        configureActivityView()
+//        configureActivityView()
         getDataFB(gender: currentGender)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        switchGender()
+        if isActivePlaceholder {
+            emergencyReloadData()
+        } else {
+            switchGender()
+        }
         getDataHVC()
     }
     
     private func getDataFB(gender: String) {
         
+        startTimer()
+        navController?.checkIfPlaceholderIsHidden(completion: { isHidden in
+            if isHidden {
+                navController?.startSpinner()
+            } else {
+                navController?.startSpinnerForPlaceholder()
+            }
+        })
+        
         cloudFB.fetchPreviewMalls(gender: gender) { (malls, error) in
             
             if let malls = malls, error == nil {
+                self.timer?.invalidate()
                 var mallsItem: [PreviewSection] = []
                 malls.forEach { item in
                     if let mall = item.mall {
@@ -746,19 +769,90 @@ class MallsVC: ParentNetworkViewController {
                 }
                 self.mallsModel = mallsItem
             } else {
+                self.timer?.invalidate()
+                self.cloudFB.removeListenerFetchPreviewMalls()
+                self.navController?.stopSpinner()
+                if self.isFirstGetData {
+                    self.navController?.showPlaceholder()
+                }
+                self.setupAlertReloadData()
                 // alert??? Try agayne?
             }
         }
     }
     
+    private func startTimer() {
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
+            self.cloudFB.removeListenerFetchPreviewMalls()
+            self.navController?.stopSpinner()
+            if self.isFirstGetData {
+                self.navController?.showPlaceholder()
+            }
+            self.setupAlertReloadData()
+//            self.cloudFB.removeListenerFetchMall()
+//            self.navController?.stopSpinner()
+//            self.setupAlertReloadData()
+        }
+    }
+    
+    // когда крутится спинер мы не должны иметь возможность взаимодействовать с UI
+    func setupAlertReloadData() {
+        let alert = UIAlertController(title: "Error ", message: "Something went wrong!", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Try agayn", style: .cancel) {[weak self] _ in
+            if let currentGender = self?.currentGender {
+                self?.getDataFB(gender: currentGender)
+            }
+            
+        }
+        
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            
+            // если мы нажимаем cancel то при новом переходе на MallsVC мы должны вызвать emergencyReloadData()
+            self.navController?.checkIfPlaceholderIsHidden(completion: { isHidden in
+                if isHidden {
+                    // у нас нет Placeholder
+                } else {
+                    //  у нас есть Placeholder
+                    self.isActivePlaceholder = true
+                }
+            })
+//            if self.emergencyCurrentGender == nil {
+//                switch self.currentGender {
+//                case "Man":
+//                    self.emergencyCurrentGender = "Woman"
+//                case "Woman":
+//                    self.emergencyCurrentGender = "Man"
+//                default:
+//                    self.emergencyCurrentGender = "Woman"
+//                    print("Returned message for analytic FB Crashlytics error")
+//                }
+//            }
+            print("Did tap Cancel for AlertReloadSwitchData")
+        }
+        
+        alert.addAction(action)
+        alert.addAction(cancel)
+        present(alert, animated: true, completion: nil)
+    }
+    
     private func switchGender() {
         let gender = defaults.string(forKey: "gender") ?? "Woman"
         if currentGender != gender {
-            configureActivityView()
+//            configureActivityView()
+            
             cloudFB.removeListenerFetchPreviewMalls()
             currentGender = gender
             getDataFB(gender: currentGender)
         }
+    }
+    
+    private func emergencyReloadData() {
+        let gender = defaults.string(forKey: "gender") ?? "Woman"
+        cloudFB.removeListenerFetchPreviewMalls()
+        currentGender = gender
+        getDataFB(gender: currentGender)
     }
     
     private func getDataHVC() {
@@ -790,8 +884,8 @@ class MallsVC: ParentNetworkViewController {
     //        }
     //    }
 }
-
-class MallVC: ParentNetworkViewController {
+//ParentNetworkViewController
+class MallVC: PlaceholderNavigationController  {
     
     var shops:[Shop] = []
     var currentPin:[PinMall] = []
@@ -800,11 +894,14 @@ class MallVC: ParentNetworkViewController {
     
     let cloudFB = ManagerFB.shared
     var timer: Timer?
+    var navController: PlaceholderNavigationController? {
+            return self.navigationController as? PlaceholderNavigationController
+        }
     
     var mallModel: [SectionModelHVC] = [] {
         didSet {
-            activityView.stopAnimating()
-            activityView.removeFromSuperview()
+            navController?.stopSpinner()
+            navController?.hiddenPlaceholder()
 //            reloadData()
         }
     }
@@ -824,18 +921,25 @@ class MallVC: ParentNetworkViewController {
     
     private func fetchMall() {
         startTimer()
-        configureActivityView()
+        navController?.checkIfPlaceholderIsHidden(completion: { isHidden in
+            if isHidden {
+                navController?.startSpinner()
+            } else {
+                navController?.startSpinnerForPlaceholder()
+            }
+        })
+        
         cloudFB.fetchMall(gender: currentGender, path: path) { (mallModel, error) in
             if let _ = mallModel, error == nil {
                 self.timer?.invalidate()
                 self.cloudFB.removeListenerFetchMall()
-//                self.configureViews(mallModel: mallModel)
+                //                self.configureViews(mallModel: mallModel)
                 
             } else {
                 self.cloudFB.removeListenerFetchMall()
                 self.timer?.invalidate()
-                self.activityView.stopAnimating()
-                self.activityView.removeFromSuperview()
+                self.navController?.stopSpinner()
+                self.navController?.showPlaceholder()
                 // configure viewStub maby ceate method into superClass
                 self.setupAlertReloadData()
             }
@@ -846,8 +950,7 @@ class MallVC: ParentNetworkViewController {
         
         timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
             self.cloudFB.removeListenerFetchMall()
-            self.activityView.stopAnimating()
-            self.activityView.removeFromSuperview()
+            self.navController?.stopSpinner()
             self.setupAlertReloadData()
         }
     }
@@ -942,8 +1045,8 @@ class MallVC: ParentNetworkViewController {
     //    }
     
 }
-
-class ShopProdutctsVC: ParentNetworkViewController {
+//ParentNetworkViewController
+class ShopProdutctsVC: PlaceholderNavigationController {
     
     var shops:[Shop] = []
     var pinsMall: [PinMall] = []
@@ -951,8 +1054,8 @@ class ShopProdutctsVC: ParentNetworkViewController {
     var currentGender = ""
     var modelShopProducts: [ProductItem] = [] {
         didSet {
-            activityView.stopAnimating()
-            activityView.removeFromSuperview()
+            navController?.stopSpinner()
+            navController?.hiddenPlaceholder()
             //            collectionView.reloadData()
         }
     }
@@ -960,6 +1063,9 @@ class ShopProdutctsVC: ParentNetworkViewController {
     
     let cloudFB = ManagerFB.shared
     var timer: Timer?
+    var navController: PlaceholderNavigationController? {
+            return self.navigationController as? PlaceholderNavigationController
+        }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -973,7 +1079,14 @@ class ShopProdutctsVC: ParentNetworkViewController {
     
     private func fetchShopProducts() {
         startTimer()
-        configureActivityView()
+        navController?.checkIfPlaceholderIsHidden(completion: { isHidden in
+            if isHidden {
+                navController?.startSpinner()
+            } else {
+                navController?.startSpinnerForPlaceholder()
+            }
+        })
+        
         cloudFB.fetchShopProdutcts(gender: currentGender, query: path) { (shopProducts, error) in
             if let shopProducts = shopProducts, error == nil {
                 self.timer?.invalidate()
@@ -982,8 +1095,8 @@ class ShopProdutctsVC: ParentNetworkViewController {
             } else {
                 self.cloudFB.removeListenerFetchShopProducts()
                 self.timer?.invalidate()
-                self.activityView.stopAnimating()
-                self.activityView.removeFromSuperview()
+                self.navController?.stopSpinner()
+                self.navController?.showPlaceholder()
                 self.setupAlertReloadData()
             }
         }
@@ -993,8 +1106,7 @@ class ShopProdutctsVC: ParentNetworkViewController {
         
         timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
             self.cloudFB.removeListenerFetchShopProducts()
-            self.activityView.stopAnimating()
-            self.activityView.removeFromSuperview()
+            self.navController?.stopSpinner()
             self.setupAlertReloadData()
         }
     }
@@ -1448,6 +1560,14 @@ class PlaceholderNavigationController: UINavigationController {
         // Скрыть placeholder view и показать содержимое контроллера
         topViewController?.view.isHidden = false
         placeholderView?.isHidden = true
+    }
+
+    func checkIfPlaceholderIsHidden(completion: (Bool) -> Void) {
+        if let isHidden = placeholderView?.isHidden, isHidden {
+            completion(true)
+        } else {
+            completion(false)
+        }
     }
     
     
