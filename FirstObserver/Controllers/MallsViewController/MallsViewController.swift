@@ -178,8 +178,6 @@ extension MallsViewController: HeaderMallsCollectionViewDelegate {
     func didSelectSegmentControl() {
         switchGender()
     }
-    
-    
 }
 
 

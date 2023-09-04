@@ -709,9 +709,10 @@ class MallsVC: PlaceholderNavigationController {
     var mallsModel: [PreviewSection] = [] {
         didSet {
             isFirstGetData = false
-            isActivePlaceholder = false
+//            isActivePlaceholder = false
             navController?.stopSpinner()
             navController?.hiddenPlaceholder()
+            emergencyCurrentGender = nil
 //            collectionView.reloadData()
         }
     }
@@ -721,7 +722,7 @@ class MallsVC: PlaceholderNavigationController {
     let defaults = UserDefaults.standard
     private var currentGender = ""
     private var isFirstGetData = true
-    private var isActivePlaceholder = false
+    private var emergencyCurrentGender: String?
     var timer: Timer?
     
     var navController: PlaceholderNavigationController? {
@@ -738,11 +739,15 @@ class MallsVC: PlaceholderNavigationController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if isActivePlaceholder {
-            emergencyReloadData()
-        } else {
-            switchGender()
-        }
+        
+        navController?.checkIfPlaceholderIsHidden(completion: { isHidden in
+            
+            if isHidden, emergencyCurrentGender == nil {
+                switchGender()
+            } else {
+                emergencyReloadData()
+            }
+        })
         getDataHVC()
     }
     
@@ -804,32 +809,31 @@ class MallsVC: PlaceholderNavigationController {
             if let currentGender = self?.currentGender {
                 self?.getDataFB(gender: currentGender)
             }
-            
         }
         
         let cancel = UIAlertAction(title: "Cancel", style: .cancel) { _ in
             
+            // мы должны запомнить свой гендер если нет Placeholder
             // если мы нажимаем cancel то при новом переходе на MallsVC мы должны вызвать emergencyReloadData()
             self.navController?.checkIfPlaceholderIsHidden(completion: { isHidden in
                 if isHidden {
                     // у нас нет Placeholder
-                } else {
-                    //  у нас есть Placeholder
-                    self.isActivePlaceholder = true
+                    // с этого момента мы должны все переходы с этого экрана делать используя emergencyCurrentGender пока он не равен nil
+                    // при первом получении данных мы emergencyCurrentGender = nil
+                    // если мы используем segmentControll то пока emergencyCurrentGender != nil -> emergencyReloadData() то есть обновляем не зависимо от токо какой гендер иначе мы можем в какой то момент не обновится если они совпадут как это реализовано в switchGender.
+                    if self.emergencyCurrentGender == nil {
+                        switch self.currentGender {
+                        case "Man":
+                            self.emergencyCurrentGender = "Woman"
+                        case "Woman":
+                            self.emergencyCurrentGender = "Man"
+                        default:
+                            self.emergencyCurrentGender = "Woman"
+                            print("Returned message for analytic FB Crashlytics error")
+                        }
+                    }
                 }
             })
-//            if self.emergencyCurrentGender == nil {
-//                switch self.currentGender {
-//                case "Man":
-//                    self.emergencyCurrentGender = "Woman"
-//                case "Woman":
-//                    self.emergencyCurrentGender = "Man"
-//                default:
-//                    self.emergencyCurrentGender = "Woman"
-//                    print("Returned message for analytic FB Crashlytics error")
-//                }
-//            }
-            print("Did tap Cancel for AlertReloadSwitchData")
         }
         
         alert.addAction(action)
@@ -868,21 +872,39 @@ class MallsVC: PlaceholderNavigationController {
         }
     }
     
-    //    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-    //
-    //        let mallVC = UIStoryboard.vcById("MallVC") as? MallVC
-    //        if let mallVC = mallVC {
-    //            mallVC.pinsMall = self.pinsMall
-//                mallVC.shops = self.shops[self.currentGender]
-//                mallVC.currentGender = self.scurrentGender
-    //            if let path = mallsModel[indexPath.item].brand {
-//            let currentPin = pinsMall.filter({$0.title == path})
-//                    mallVC.path = path
-//                    mallVC.currentPin = currentPin
-//                }
-    //            self.navigationController?.pushViewController(mallVC, animated: true)
-    //        }
-    //    }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        let mallVC = MallVC()
+        
+        if let emergencyCurrentGender = emergencyCurrentGender {
+            mallVC.currentGender = emergencyCurrentGender
+            mallVC.shops = shops[emergencyCurrentGender] ?? []
+        } else {
+            mallVC.currentGender = currentGender
+            mallVC.shops = shops[currentGender] ?? []
+        }
+        
+        if let path = mallsModel[indexPath.item].name {
+            let currentPin = pinsMall.filter({$0.title == path})
+            mallVC.path = path
+            mallVC.currentPin = currentPin
+        }
+        self.navigationController?.pushViewController(mallVC, animated: true)
+        
+    }
+}
+
+extension MallsVC: HeaderMallsCollectionViewDelegate {
+    func didSelectSegmentControl() {
+        
+        if let _ = emergencyCurrentGender {
+            emergencyReloadData()
+        } else {
+            switchGender()
+        }
+    }
 }
 //ParentNetworkViewController
 class MallVC: PlaceholderNavigationController  {
