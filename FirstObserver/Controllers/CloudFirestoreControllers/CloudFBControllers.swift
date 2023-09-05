@@ -709,7 +709,6 @@ class MallsVC: PlaceholderNavigationController {
     var mallsModel: [PreviewSection] = [] {
         didSet {
             isFirstGetData = false
-//            isActivePlaceholder = false
             navController?.stopSpinner()
             navController?.hiddenPlaceholder()
             emergencyCurrentGender = nil
@@ -733,7 +732,6 @@ class MallsVC: PlaceholderNavigationController {
         super.viewDidLoad()
         let gender = defaults.string(forKey: "gender") ?? "Woman"
         currentGender = gender
-//        configureActivityView()
         getDataFB(gender: currentGender)
     }
     
@@ -781,7 +779,6 @@ class MallsVC: PlaceholderNavigationController {
                     self.navController?.showPlaceholder()
                 }
                 self.setupAlertReloadData()
-                // alert??? Try agayne?
             }
         }
     }
@@ -795,9 +792,6 @@ class MallsVC: PlaceholderNavigationController {
                 self.navController?.showPlaceholder()
             }
             self.setupAlertReloadData()
-//            self.cloudFB.removeListenerFetchMall()
-//            self.navController?.stopSpinner()
-//            self.setupAlertReloadData()
         }
     }
     
@@ -844,8 +838,6 @@ class MallsVC: PlaceholderNavigationController {
     private func switchGender() {
         let gender = defaults.string(forKey: "gender") ?? "Woman"
         if currentGender != gender {
-//            configureActivityView()
-            
             cloudFB.removeListenerFetchPreviewMalls()
             currentGender = gender
             getDataFB(gender: currentGender)
@@ -1327,7 +1319,7 @@ class AllShopsVC: ParentNetworkViewController {
 }
 
 // views implemintation from BrandsViewController
-class CatalogVC: ParentNetworkViewController {
+class CatalogVC: PlaceholderNavigationController {
     
 //    @IBOutlet weak var categorysCollectionView: UICollectionView!
 //    @IBOutlet weak var productsCollectionView: UICollectionView!
@@ -1340,8 +1332,10 @@ class CatalogVC: ParentNetworkViewController {
             if let modelCatalog = modelCatalog, !modelCatalog.categorys.isEmpty {
                 selectedCategory = modelCatalog.categorys[indexCategoryCollectionView]
             }
-            activityView.stopAnimating()
-            activityView.removeFromSuperview()
+            isFirstGetData = false
+            navController?.stopSpinner()
+            navController?.hiddenPlaceholder()
+            emergencyCurrentGender = nil
 //            categorysCollectionView.reloadData()
 //            productsCollectionView.reloadData()
         }
@@ -1350,65 +1344,67 @@ class CatalogVC: ParentNetworkViewController {
     let defaults = UserDefaults.standard
     let cloudFB = ManagerFB.shared
     var timer: Timer?
-    var isTroubleFetchData = false
-    
+    private var isFirstGetData = true
+    private var emergencyCurrentGender: String?
     private var currentGender = ""
+    var shops:[String:[Shop]] = [:]
+    var pinsMall: [PinMall] = []
+    var cartProducts: [ProductItem] = []
     
+    var navController: PlaceholderNavigationController? {
+            return self.navigationController as? PlaceholderNavigationController
+        }
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        getCurrentGender()
+        let gender = defaults.string(forKey: "gender") ?? "Woman"
+        currentGender = gender
+        
         fetchProducts(gender: currentGender)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        navController?.checkIfPlaceholderIsHidden(completion: { isHidden in
+            
+            if isHidden, emergencyCurrentGender == nil {
+                switchGender()
+            } else {
+                emergencyReloadData()
+            }
+        })
         fetchDataHVC()
-        
-        if !isTroubleFetchData {
-            switchGender()
-        } else {
-            getCurrentGender()
-            fetchProducts(gender: currentGender)
-        }
-    }
-    
-    
-    
-    private func getCurrentGender() {
-        let gender = defaults.string(forKey: "gender") ?? "Woman"
-        currentGender = gender
     }
     
     private func fetchProducts(gender: String) {
-        disableActiveButtons(isSwitch: false)
+        
         startTimer()
-        configureActivityView()
+        navController?.checkIfPlaceholderIsHidden(completion: { isHidden in
+            if isHidden {
+                navController?.startSpinner()
+            } else {
+                navController?.startSpinnerForPlaceholder()
+            }
+        })
         
         cloudFB.fetchProducts(gender: gender) { (modelCatalog, error) in
             
             if let modelCatalog = modelCatalog, error == nil {
                 self.timer?.invalidate()
-                self.disableActiveButtons(isSwitch: true)
-                self.isTroubleFetchData = false
                 self.modelCatalog = modelCatalog
             } else {
-                self.cloudFB.removeListenerFetchProducts()
                 self.timer?.invalidate()
-                self.activityView.stopAnimating()
-                self.activityView.removeFromSuperview()
+                self.cloudFB.removeListenerFetchProducts()
+                self.navController?.stopSpinner()
+                if self.isFirstGetData {
+                    self.navController?.showPlaceholder()
+                }
                 self.setupAlertReloadData()
             }
         }
-    }
-    
-    
-    private func disableActiveButtons(isSwitch: Bool) {
-        // tabBarController?.view.isUserInteractionEnabled = false
-        // sigmentControll.isUserInteractionEnabled = false
     }
     
     func switchGender() {
@@ -1420,12 +1416,21 @@ class CatalogVC: ParentNetworkViewController {
         }
     }
     
+    private func emergencyReloadData() {
+        let gender = defaults.string(forKey: "gender") ?? "Woman"
+        currentGender = gender
+        cloudFB.removeListenerFetchProducts()
+        fetchProducts(gender: currentGender)
+    }
+    
     private func startTimer() {
         
         timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
             self.cloudFB.removeListenerFetchProducts()
-            self.activityView.stopAnimating()
-            self.activityView.removeFromSuperview()
+            self.navController?.stopSpinner()
+            if self.isFirstGetData {
+                self.navController?.showPlaceholder()
+            }
             self.setupAlertReloadData()
         }
     }
@@ -1434,7 +1439,7 @@ class CatalogVC: ParentNetworkViewController {
         guard let tabBarVCs = tabBarController?.viewControllers else { return }
         tabBarVCs.forEach { (vc) in
             if let nc = vc as? UINavigationController {
-                if let homeVC = nc.viewControllers.first as? HomeVC {
+                if let _ = nc.viewControllers.first as? HomeVC {
 //                    self.pinsMall = homeVC.pinsMall
 //                    self.cartProducts = homeVC.cartProducts
 //                    self.shops = homeVC.shops[currentGender] ?? []
@@ -1453,12 +1458,28 @@ class CatalogVC: ParentNetworkViewController {
             }
         }
         
-        let cancel = UIAlertAction(title: "Cancel", style: .cancel) { _ in
-           
-            // Помечаем что данные не были получены
-            self.isTroubleFetchData = true
-            // tabBarController?.view.isUserInteractionEnabled = true
-        }
+            let cancel = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+                
+                self.navController?.checkIfPlaceholderIsHidden(completion: { isHidden in
+                    if isHidden {
+                        // у нас нет Placeholder
+                        // с этого момента мы должны все переходы с этого экрана делать используя emergencyCurrentGender пока он не равен nil
+                        // при первом получении данных мы emergencyCurrentGender = nil
+                        // если мы используем segmentControll то пока emergencyCurrentGender != nil -> emergencyReloadData() то есть обновляем не зависимо от токо какой гендер иначе мы можем в какой то момент не обновится если они совпадут как это реализовано в switchGender.
+                        if self.emergencyCurrentGender == nil {
+                            switch self.currentGender {
+                            case "Man":
+                                self.emergencyCurrentGender = "Woman"
+                            case "Woman":
+                                self.emergencyCurrentGender = "Man"
+                            default:
+                                self.emergencyCurrentGender = "Woman"
+                                print("Returned message for analytic FB Crashlytics error")
+                            }
+                        }
+                    }
+                })
+            }
         
         alert.addAction(cancel)
         alert.addAction(action)
@@ -1476,6 +1497,82 @@ class CatalogVC: ParentNetworkViewController {
         return uniqueMallArray
     }
     
+}
+
+extension CatalogVC: HeaderCatalogCollectionViewDelegate {
+    func didSelectSegmentControl() {
+
+        if let _ = emergencyCurrentGender {
+            emergencyReloadData()
+        } else {
+            switchGender()
+        }
+    }
+}
+
+protocol ProductCellDelegateForCloudF {
+    func didSelectProduct(product: ProductItem)
+}
+extension CatalogVC: ProductCellDelegateForCloudF {
+    func didSelectProduct(product: ProductItem) {
+        
+        let productVC = ProductVC()
+//        let productSection = model.filter({$0.section == "PopularProducts"})
+        let shopsProduct = product.shops ?? []
+
+        if let emergencyCurrentGender = emergencyCurrentGender {
+
+            var shopsList: [Shop] = []
+
+            shops[emergencyCurrentGender]?.forEach { shop in
+                if shopsProduct.contains(shop.name ?? "") {
+                    shopsList.append(shop)
+                }
+            }
+
+            let mallList = createUniqueMallArray(from: shopsList)
+            var pinList: [PinMall] = []
+
+            pinsMall.forEach { pin in
+                if mallList.contains(pin.title ?? "") {
+                    pinList.append(pin)
+                }
+            }
+
+            productVC.pinsMall = pinList
+            productVC.shops = shopsList
+        } else {
+
+            var shopsList: [Shop] = []
+
+            shops[currentGender]?.forEach { shop in
+                if shopsProduct.contains(shop.name ?? "") {
+                    shopsList.append(shop)
+                }
+            }
+
+            let mallList = createUniqueMallArray(from: shopsList)
+            var pinList: [PinMall] = []
+
+            pinsMall.forEach { pin in
+                if mallList.contains(pin.title ?? "") {
+                    pinList.append(pin)
+                }
+            }
+
+            productVC.pinsMall = pinList
+            productVC.shops = shopsList
+        }
+
+        productVC.modelProduct = product
+
+        cartProducts.forEach { (addedProduct) in
+            if addedProduct.model == product.model {
+                productVC.isAddedToCard = true
+            }
+        }
+        self.navigationController?.pushViewController(productVC, animated: true)
+    }
 }
 
 class CartVC: ParentNetworkViewController {
