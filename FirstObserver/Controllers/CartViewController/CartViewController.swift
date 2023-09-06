@@ -121,13 +121,11 @@ extension CartViewController: UITableViewDelegate, UITableViewDataSource {
         if editingStyle == .delete {
             navController?.networkConnected { isConnected in
                 if isConnected {
-                    print("isConnected = true")
                     let product = cartProducts[indexPath.row]
                     cartProducts.remove(at: indexPath.row)
                     tableView.deleteRows(at: [indexPath], with: .automatic)
                     managerFB.removeProduct(refProduct: product.refProduct)
                 } else {
-                    print("isConnected = false")
                     setupAlertNotConnected()
                 }
             }

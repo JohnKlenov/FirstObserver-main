@@ -1204,7 +1204,8 @@ class ShopProdutctsVC: PlaceholderNavigationController {
     }
 }
 
-class ProductVC: ParentNetworkViewController {
+// не обезательно делать его наследником от PlaceholderNavigationController если мы в контейнере то navController будет доступен
+class ProductVC: UIViewController {
     
     var shops:[Shop] = []
     var pinsMall: [PinMall] = []
@@ -1218,6 +1219,9 @@ class ProductVC: ParentNetworkViewController {
     
     let cloudFB = ManagerFB.shared
     
+    var navController: PlaceholderNavigationController? {
+            return self.navigationController as? PlaceholderNavigationController
+        }
     
     private func saveProductFB(completion: @escaping (StateCallback) -> Void) {
         
@@ -1256,18 +1260,31 @@ class ProductVC: ParentNetworkViewController {
     
     @objc func addToCardPressed(_ sender: UIButton) {
         
-        saveProductFB { state in
-            switch state {
-            case .success:
-//                self.setupAlertView(state: .success, frame: self.view.frame)
-                self.isAddedToCard = !self.isAddedToCard
-            case .failed:
-//                self.setupAlertView(state: .failed, frame: self.view.frame)
-                print("")
+        navController?.networkConnected(completion: { isConnected in
+            if isConnected {
+                saveProductFB { state in
+                    switch state {
+                    case .success:
+        //                self.setupAlertView(state: .success, frame: self.view.frame)
+                        self.isAddedToCard = !self.isAddedToCard
+                    case .failed:
+        //                self.setupAlertView(state: .failed, frame: self.view.frame)
+                        print("")
+                    }
+                }
+            } else {
+                setupAlertNotConnected()
             }
-        }
+        })
     }
     
+    func setupAlertNotConnected() {
+        let alert = UIAlertController(title: "Oops!", message: "No internet connection", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Cancel", style: .cancel)
+        alert.addAction(okAction)
+        present(alert, animated: true)
+    }
+
     
     // MARK: - DetailViewController for shop
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -1576,19 +1593,20 @@ extension CatalogVC: ProductCellDelegateForCloudF {
     }
 }
 
-
-class CartVC: ParentNetworkViewController {
+// так как этот vc будет корневым для PlaceholderNavigationController из кода мы можем не делать его явным наследником.
+class CartVC: UIViewController {
     
     // тут мы должны иметь все shops потому что в корзине может быть добавлен товар Man and Woman
     let defaults = UserDefaults.standard
     let cloudFB = ManagerFB.shared
+    let managerFB = FBManager.shared
     var timer: Timer?
-    private var isFirstGetData = true
-    private var emergencyCurrentGender: String?
-    private var currentGender = ""
+    var isUpdateCartProducts = false
+    
     var shops:[String:[Shop]] = [:]
     var pinsMall: [PinMall] = []
     var cartProducts: [ProductItem] = []
+    var isAnonymouslyUser = false
     
     var navController: PlaceholderNavigationController? {
             return self.navigationController as? PlaceholderNavigationController
@@ -1601,7 +1619,12 @@ class CartVC: ParentNetworkViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        updateData()
+        
+        if isUpdateCartProducts {
+            fetchCartProducts()
+        } else {
+            updateData()
+        }
         resetBadgeValue()
     }
     
@@ -1620,7 +1643,87 @@ class CartVC: ParentNetworkViewController {
 //            }
 //        }
     }
+    
+    func createUniqueMallArray(from shops: [Shop]) -> [String] {
+        
+        var mallSet = Set<String>()
+        for shop in shops {
+            mallSet.insert(shop.mall ?? "")
+        }
+        let uniqueMallArray = Array(mallSet)
+        
+        return uniqueMallArray
+    }
+    
+    private func startTimer() {
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
+            
+            self.cloudFB.removeListenerFetchCartProductsOnce()
+            self.navController?.stopSpinner()
+            if self.isUpdateCartProducts {
+                self.navController?.showPlaceholder()
+            }
+            self.setupAlertReloadData()
+        }
+    }
 
+    private func setupAlertReloadData() {
+        let alert = UIAlertController(title: "Error ", message: "Something went wrong!", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Try agayn", style: .default) { [weak self] _ in
+                self?.fetchCartProducts()
+        }
+        
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
+        alert.addAction(cancel)
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
+    }
+    
+    // можем разместить его на PlaceholderNavigationController и призентить оттуда
+    func setupAlertNotConnected() {
+        let alert = UIAlertController(title: "Oops!", message: "No internet connection", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Cancel", style: .cancel)
+        alert.addAction(okAction)
+        present(alert, animated: true)
+    }
+    
+    private func fetchCartProducts() {
+        
+        startTimer()
+        navController?.checkIfPlaceholderIsHidden(completion: { isHidden in
+            if isHidden {
+                navController?.startSpinner()
+            } else {
+                navController?.startSpinnerForPlaceholder()
+            }
+        })
+        
+        cloudFB.fetchCartProductsOnce { (cartProducts, error) in
+            if let cartProducts = cartProducts, error == nil {
+                    self.timer?.invalidate()
+                    self.cartProducts = cartProducts
+                // так как при вызове  func userIsPermanent() мы не можем быть Anonymously
+                    self.isAnonymouslyUser = false
+                    self.navController?.stopSpinner()
+                    self.cloudFB.removeListenerFetchCartProductsOnce()
+                    self.navController?.hiddenPlaceholder()
+                    self.isUpdateCartProducts = false
+    //                self.tableView.reloadData()
+                
+            } else {
+                self.timer?.invalidate()
+                self.cloudFB.removeListenerFetchCartProductsOnce()
+                self.navController?.stopSpinner()
+                if self.isUpdateCartProducts {
+                    self.navController?.showPlaceholder()
+                }
+                self.setupAlertReloadData()
+            }
+        }
+    }
+    
     private func getDataFromHVC(completionHandler: @escaping ([ProductItem]) -> Void) {
         guard let tabBarVCs = tabBarController?.viewControllers else {
             return }
@@ -1637,18 +1740,58 @@ class CartVC: ParentNetworkViewController {
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            let product = cartProducts[indexPath.row]
-            cartProducts.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .automatic)
-            cloudFB.deleteProductFB(modelProduct: product.model ?? "") { state in
-                switch state {
-                case .success:
-                    print("Успешно удален!")
-                case .failed:
-                    print("Не удален!")
+            navController?.networkConnected(completion: { isConnected in
+                if isConnected {
+                    let product = cartProducts[indexPath.row]
+                    cartProducts.remove(at: indexPath.row)
+                    tableView.deleteRows(at: [indexPath], with: .automatic)
+                    cloudFB.deleteProductFB(modelProduct: product.model ?? "")
+                } else {
+                    setupAlertNotConnected()
                 }
+            })
+            
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+
+        let productVC = ProductVC()
+        let product = cartProducts[indexPath.row]
+        let shopsProduct = product.shops ?? []
+        let currentGender = product.gender ?? "Man"
+        
+        var shopsList: [Shop] = []
+
+        shops[currentGender]?.forEach { shop in
+            if shopsProduct.contains(shop.name ?? "") {
+                shopsList.append(shop)
             }
         }
+
+        let mallList = createUniqueMallArray(from: shopsList)
+        var pinList: [PinMall] = []
+
+        pinsMall.forEach { pin in
+            if mallList.contains(pin.title ?? "") {
+                pinList.append(pin)
+            }
+        }
+
+        productVC.pinsMall = pinList
+        productVC.shops = shopsList
+        productVC.isAddedToCard = true
+        productVC.modelProduct = product
+        
+        self.navigationController?.pushViewController(productVC, animated: true)
+    }
+}
+
+extension CartVC: SignInViewControllerDelegate {
+    func userIsPermanent() {
+        
+        isUpdateCartProducts = true
+        fetchCartProducts()
     }
     
 }

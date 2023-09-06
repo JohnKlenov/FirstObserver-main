@@ -1406,6 +1406,7 @@ class ManagerFB {
     var listenerFetchPreviewMalls: ListenerRegistration?
     var listenerFetchPopularProducts: ListenerRegistration?
     var listenerFetchCartProducts: ListenerRegistration?
+    var listenerFetchCartProductsOnce: ListenerRegistration?
     var removeListenerForUserID: String?
     var listenerFetchPinMalls: ListenerRegistration?
     
@@ -1775,10 +1776,6 @@ class ManagerFB {
         }
     }
 
-    //            guard let documents = querySnapshot?.documents else {
-    //                completion([], error)
-    //                return
-    //            }
     func fetchCartProducts(completion: @escaping ([ProductItem]?, Error?) -> Void) {
         
         guard let currentUser = currentUser else {
@@ -1827,6 +1824,8 @@ class ManagerFB {
             completion(cartProducts, nil)
         }
     }
+    
+    
     
     func removeListenerFetchPinMalls() {
         if let listenerFetchPinMalls = listenerFetchPinMalls {
@@ -2074,24 +2073,64 @@ class ManagerFB {
     
     // MARK: - CartVC -
     
-    func deleteProductFB(modelProduct: String, completion: @escaping (StateCallback) -> Void) {
+    func deleteProductFB(modelProduct: String) {
+
+        let db = Firestore.firestore()
+        let productsRef = db.collection("usersAccount").document("\(String(describing: self.currentUser?.uid))").collection("addedProducts").document(modelProduct)
+        productsRef.delete()
+    }
+    
+    func removeListenerFetchCartProductsOnce() {
+        if let listenerFetchCartProductsOnce = listenerFetchCartProductsOnce {
+            listenerFetchCartProductsOnce.remove()
+        }
+    }
+
+    func fetchCartProductsOnce(completion: @escaping ([ProductItem]?, Error?) -> Void) {
         
         guard let currentUser = currentUser else {
-            completion(.failed)
+            completion(nil, nil)
             return
         }
+    
+        let firestore = Firestore.firestore()
+        let cartProductsCollection = firestore.collection("usersAccounts").document(currentUser.uid).collection("cartProducts")
         
-        let db = Firestore.firestore()
-        let productsRef = db.collection("usersAccount").document("\(currentUser.uid)").collection("addedProducts").document(modelProduct)
-        
-        productsRef.delete { error in
-            if let error = error {
-                print("Ошибка при удалении документа: \(error.localizedDescription)")
-                completion(.failed)
-            } else {
-                print("Документ успешно удален")
-                completion(.success)
+        listenerFetchCartProductsOnce = cartProductsCollection.addSnapshotListener { (querySnapshot, error) in
+            
+            guard error == nil else {
+                completion(nil, error)
+                return
             }
+            guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
+                completion([], error)
+                return
+            }
+
+            let documents = querySnapshot.documents
+            var cartProducts = [ProductItem]()
+            
+            for document in documents {
+                let documentData = document.data()
+                
+                let brand = documentData["brand"] as? String
+                let modelProduct = documentData["model"] as? String
+                let category = documentData["category"] as? String
+                let popularityIndex = documentData["popularityIndex"] as? Int
+                let strengthIndex = documentData["strengthIndex"] as? Int
+                let type = documentData["type"] as? String
+                let description = documentData["description"] as? String
+                let price = documentData["price"] as? Int
+                let refImage = documentData["refImage"] as? [String]
+                let shops = documentData["shops"] as? [String]
+                let originalContent = documentData["originalContent"] as? String
+                let shop = documentData["shop"] as? String
+                let gender = documentData["gender"] as? String
+                
+                let model = ProductItem(brand: brand, model: modelProduct, category: category, popularityIndex: popularityIndex, strengthIndex: strengthIndex, type: type, description: description, price: price, refImage: refImage, shops: shops, shop: shop, originalContent: originalContent, gender: gender)
+                cartProducts.append(model)
+            }
+            completion(cartProducts, nil)
         }
     }
 }
