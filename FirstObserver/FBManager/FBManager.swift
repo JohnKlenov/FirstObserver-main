@@ -236,13 +236,7 @@ final class FBManager {
     
     func removeProduct(refProduct: DatabaseReference) {
         refProduct.removeValue()
-//        refProduct.removeValue { (error, reference) in
-//            if error != nil {
-//                // ошибки которые пользоатель не может решить сам нужно репортить на Crashlytics
-//        //        print("Report Crashlytics service")
-//            }
-//        }
-    }
+        }
     
     // MARK: - AllProductViewController -
     
@@ -2058,8 +2052,14 @@ class ManagerFB {
     // MARK: - ProductVC -
     
     func addProductFB(documentID:String, product: [String:Any], completion:  @escaping (StateCallback) -> Void) {
+        
+        guard let currentUser = currentUser else {
+            completion(.failed)
+            return
+        }
+        
         let db = Firestore.firestore()
-        let productsRef = db.collection("usersAccount").document("currentUser?.uid").collection("addedProducts").document(documentID)
+        let productsRef = db.collection("usersAccount").document("\(currentUser.uid)").collection("addedProducts").document(documentID)
         productsRef.setData(product) { error in
             if let error = error {
                   print("Ошибка при добавлении документа: \(error.localizedDescription)")
@@ -2068,6 +2068,30 @@ class ManagerFB {
                   print("Документ успешно добавлен")
                   completion(.success)
               }
+        }
+    }
+    
+    
+    // MARK: - CartVC -
+    
+    func deleteProductFB(modelProduct: String, completion: @escaping (StateCallback) -> Void) {
+        
+        guard let currentUser = currentUser else {
+            completion(.failed)
+            return
+        }
+        
+        let db = Firestore.firestore()
+        let productsRef = db.collection("usersAccount").document("\(currentUser.uid)").collection("addedProducts").document(modelProduct)
+        
+        productsRef.delete { error in
+            if let error = error {
+                print("Ошибка при удалении документа: \(error.localizedDescription)")
+                completion(.failed)
+            } else {
+                print("Документ успешно удален")
+                completion(.success)
+            }
         }
     }
 }

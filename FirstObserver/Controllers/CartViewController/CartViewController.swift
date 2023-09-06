@@ -4,20 +4,24 @@
 //
 //  Created by Evgenyi on 8.08.22.
 //
-
+import Firebase
 import UIKit
-
-final class CartViewController: ParentNetworkViewController {
+//ParentNetworkViewController
+//PlaceholderNavigationController
+final class CartViewController: UIViewController  {
     
     private var managerFB = FBManager.shared
     @IBOutlet weak var tableView: UITableView!
     
-    private var model: [Product]!
+//    private var model: [Product]!
     private var arrayPlaces: [Places] = []
     private var isAnonymouslyUser = false
     private var cartProducts: [PopularProduct] = []
     private var cartViewIsEmpty: CartView?
     
+    var navController: PlaceholderNavigationController? {
+            return self.navigationController as? PlaceholderNavigationController
+        }
     
     // MARK: - Life cycle methods
     
@@ -80,6 +84,13 @@ final class CartViewController: ParentNetworkViewController {
             }
         }
     }
+    
+    func setupAlertNotConnected() {
+        let alert = UIAlertController(title: "Oops!", message: "No internet connection", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Cancel", style: .cancel)
+        alert.addAction(okAction)
+        present(alert, animated: true)
+    }
 }
 
 // MARK: - UITableViewDelegate, UITableViewDataSource
@@ -108,11 +119,18 @@ extension CartViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            let product = cartProducts[indexPath.row]
-//            isAnimateCartView = cartProducts.count == 1 ? true : false
-            cartProducts.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .automatic)
-            managerFB.removeProduct(refProduct: product.refProduct)
+            navController?.networkConnected { isConnected in
+                if isConnected {
+                    print("isConnected = true")
+                    let product = cartProducts[indexPath.row]
+                    cartProducts.remove(at: indexPath.row)
+                    tableView.deleteRows(at: [indexPath], with: .automatic)
+                    managerFB.removeProduct(refProduct: product.refProduct)
+                } else {
+                    print("isConnected = false")
+                    setupAlertNotConnected()
+                }
+            }
         }
     }
     
@@ -163,15 +181,17 @@ extension CartViewController: SignInViewControllerDelegate {
     func userIsPermanent() {
         // refactor getCartObservser
 //        managerFB.removeObserverForCartProductsUser()
-        configureActivityView()
+        
+//        configureActivityView() ?????
+        
 //        getData` без активного подключения к сети вернет error
         // ref.observe(.value) or think about it
         managerFB.getCartProductOnce { cartProducts in
             self.managerFB.userIsAnonymously { [weak self] (isAnonymously) in
                 self?.isAnonymouslyUser = isAnonymously
                 self?.cartProducts = cartProducts
-                self?.activityView.stopAnimating()
-                self?.activityView.removeFromSuperview()
+//                self?.activityView.stopAnimating() ?????
+//                self?.activityView.removeFromSuperview() ?????
                 self?.tableView.reloadData()
             }
         }

@@ -119,7 +119,7 @@ class HomeVC: PlaceholderNavigationController {
     
     var cartProducts: [ProductItem] = []
     var shops:[String:[Shop]] = [:]
-    private var currentGender = ""
+    var currentGender = ""
     var isBlockingFirstLoading = false
     var isBlockingSwitchGenderLoading = true
     var isBlockingModel = true
@@ -157,6 +157,7 @@ class HomeVC: PlaceholderNavigationController {
                 self.cloudFB.signInAnonymously()
             }
             self.cloudFB.removeListenerFetchCartProducts()
+            // что если при смене аккаунта мы не смогли получить cartProducts???
             self.fetchCartProducts()
         }
         fetchShopsMan()
@@ -1442,7 +1443,7 @@ class CatalogVC: PlaceholderNavigationController {
                 if let _ = nc.viewControllers.first as? HomeVC {
 //                    self.pinsMall = homeVC.pinsMall
 //                    self.cartProducts = homeVC.cartProducts
-//                    self.shops = homeVC.shops[currentGender] ?? []
+//                    self.shops = homeVC.shops
                 }
             }
         }
@@ -1575,10 +1576,81 @@ extension CatalogVC: ProductCellDelegateForCloudF {
     }
 }
 
+
 class CartVC: ParentNetworkViewController {
     
     // тут мы должны иметь все shops потому что в корзине может быть добавлен товар Man and Woman
+    let defaults = UserDefaults.standard
+    let cloudFB = ManagerFB.shared
+    var timer: Timer?
+    private var isFirstGetData = true
+    private var emergencyCurrentGender: String?
+    private var currentGender = ""
     var shops:[String:[Shop]] = [:]
+    var pinsMall: [PinMall] = []
+    var cartProducts: [ProductItem] = []
+    
+    var navController: PlaceholderNavigationController? {
+            return self.navigationController as? PlaceholderNavigationController
+        }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // configure tableView
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        updateData()
+        resetBadgeValue()
+    }
+    
+    private func resetBadgeValue() {
+//        if let items = self.tabBarController?.tabBar.items {
+//            items[3].badgeValue = nil
+//        }
+    }
+    
+    private func updateData() {
+//        managerFB.userIsAnonymously { [weak self] (isAnonymously) in
+//            self?.isAnonymouslyUser = isAnonymously
+//            self?.getDataFromHVC { products in
+//                self?.cartProducts = products
+//                self?.tableView.reloadData()
+//            }
+//        }
+    }
+
+    private func getDataFromHVC(completionHandler: @escaping ([ProductItem]) -> Void) {
+        guard let tabBarVCs = tabBarController?.viewControllers else {
+            return }
+        tabBarVCs.forEach { [weak self] (vc) in
+            if let nc = vc as? UINavigationController {
+                if let homeVC = nc.viewControllers.first as? HomeVC {
+                    self?.pinsMall = homeVC.pinsMall
+                    self?.shops = homeVC.shops
+                    completionHandler(homeVC.cartProducts)
+                }
+            }
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let product = cartProducts[indexPath.row]
+            cartProducts.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+            cloudFB.deleteProductFB(modelProduct: product.model ?? "") { state in
+                switch state {
+                case .success:
+                    print("Успешно удален!")
+                case .failed:
+                    print("Не удален!")
+                }
+            }
+        }
+    }
+    
 }
 
 class PlaceholderView: UIView {
@@ -1624,6 +1696,7 @@ class PlaceholderView: UIView {
 class PlaceholderNavigationController: UINavigationController {
     
     private var placeholderView: PlaceholderView?
+   
     private lazy var activityView: ActivityContainerView = {
         let view = ActivityContainerView()
         view.layer.cornerRadius = 8
@@ -1647,7 +1720,17 @@ class PlaceholderNavigationController: UINavigationController {
         
     }
     
+    
+    // MARK: - NetworkConnected -
 
+    
+    func networkConnected(completion: (Bool) -> Void) {
+        if NetworkMonitor.shared.isConnected {
+           completion(true)
+        } else {
+          completion(false)
+        }
+    }
     
     // MARK: PlaceholderView -
     
