@@ -59,7 +59,6 @@ class NewHomeViewController: UIViewController {
             }
         }
     }
-   
     
 
     var placesMap:[Places] = []
@@ -163,11 +162,9 @@ class NewHomeViewController: UIViewController {
     }
 
     
-    
-    
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
         // refactor getCartObservser
         //        managerFB.removeObserverForCartProductsUser()
         //        if !isFirstStart {
@@ -192,6 +189,8 @@ class NewHomeViewController: UIViewController {
         super.viewDidDisappear(animated)
     }
     
+    
+
 
     
     // MARK: - another methods

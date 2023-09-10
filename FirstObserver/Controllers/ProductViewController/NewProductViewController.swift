@@ -221,6 +221,9 @@ class NewProductViewController: ParentNetworkViewController {
     let managerFB = FBManager.shared
     private var isMapSelected = false
     
+//    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+//        return .portrait // Разрешить все ориентации для этого контроллера
+//    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -260,6 +263,7 @@ class NewProductViewController: ParentNetworkViewController {
         let heightTV:CGFloat = CGFloat(arrayPin.count)*50
         heightCnstrTableView.constant = heightTV
     }
+    
     
     
     

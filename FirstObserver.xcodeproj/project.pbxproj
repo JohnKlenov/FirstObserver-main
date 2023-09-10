@@ -94,6 +94,7 @@
 		5E92FDF629A9EE1C002CDE51 /* NewImageProductCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E92FDF529A9EE1C002CDE51 /* NewImageProductCell.swift */; };
 		5E92FDF829A9EFA7002CDE51 /* FooterViewCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E92FDF729A9EFA7002CDE51 /* FooterViewCollectionView.swift */; };
 		5E92FDFA29A9F16E002CDE51 /* TestModelProductVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E92FDF929A9F16E002CDE51 /* TestModelProductVC.swift */; };
+		5E989EF52AAB5CCA001D4C4B /* LockOrientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E989EF42AAB5CCA001D4C4B /* LockOrientation.swift */; };
 		5E9AFC3C2A625B640016A0E0 /* TestCustomAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9AFC3B2A625B640016A0E0 /* TestCustomAlertView.swift */; };
 		5E9AFC3E2A62C22E0016A0E0 /* CustomAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9AFC3D2A62C22D0016A0E0 /* CustomAlertView.swift */; };
 		5E9C8E04297A7EF1009855AE /* FBManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9C8E03297A7EF1009855AE /* FBManager.swift */; };
@@ -214,6 +215,7 @@
 		5E92FDF529A9EE1C002CDE51 /* NewImageProductCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewImageProductCell.swift; sourceTree = "<group>"; };
 		5E92FDF729A9EFA7002CDE51 /* FooterViewCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FooterViewCollectionView.swift; sourceTree = "<group>"; };
 		5E92FDF929A9F16E002CDE51 /* TestModelProductVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestModelProductVC.swift; sourceTree = "<group>"; };
+		5E989EF42AAB5CCA001D4C4B /* LockOrientation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockOrientation.swift; sourceTree = "<group>"; };
 		5E9AFC3B2A625B640016A0E0 /* TestCustomAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCustomAlertView.swift; sourceTree = "<group>"; };
 		5E9AFC3D2A62C22D0016A0E0 /* CustomAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlertView.swift; sourceTree = "<group>"; };
 		5E9C8E03297A7EF1009855AE /* FBManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FBManager.swift; sourceTree = "<group>"; };
@@ -412,6 +414,7 @@
 				5E8BCE3129CD707D00AEA41C /* UIColor+ext.swift */,
 				5E8BCE3329D0364D00AEA41C /* Resouces.swift */,
 				5E87237E29DC0CAC00AF46F1 /* UIViewController + extension.swift */,
+				5E989EF42AAB5CCA001D4C4B /* LockOrientation.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -981,6 +984,7 @@
 				5E8C62BE297534B30089F430 /* AlertControllers.swift in Sources */,
 				5E8BCE3429D0364D00AEA41C /* Resouces.swift in Sources */,
 				5E74BCC828EEEF9B0048D097 /* Validators.swift in Sources */,
+				5E989EF52AAB5CCA001D4C4B /* LockOrientation.swift in Sources */,
 				5E7EF58128A51B2A00814F4D /* BrandCell.swift in Sources */,
 				5E0BF47E2993B04100FB99BE /* HeaderMallsView.swift in Sources */,
 				5E890BBC290AB57E00147C5F /* ModelFB.swift in Sources */,

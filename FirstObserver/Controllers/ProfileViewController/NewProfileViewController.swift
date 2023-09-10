@@ -247,7 +247,10 @@ final class NewProfileViewController: ParentNetworkViewController {
     }
     
     
-    
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+            return .portrait // Здесь указываем ориентацию, которую вы хотите разрешить (например, только портретную)
+        }
+
     
     // MARK: - helper methods for func managerFB.updateProfileInfo()
 

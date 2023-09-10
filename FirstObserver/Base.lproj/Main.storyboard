@@ -673,7 +673,7 @@
                         <color key="selectedImageTintColor" systemColor="systemPurpleColor"/>
                     </tabBar>
                     <connections>
-                        <segue destination="QqX-pb-FVU" kind="relationship" relationship="viewControllers" id="bnP-v4-A12"/>
+                        <segue destination="rQJ-cv-wFP" kind="relationship" relationship="viewControllers" id="UHt-Na-pLT"/>
                         <segue destination="xSW-04-0ye" kind="relationship" relationship="viewControllers" id="vcm-05-cth"/>
                         <segue destination="MwW-j9-Mmy" kind="relationship" relationship="viewControllers" id="aXI-zb-TRx"/>
                         <segue destination="2d5-3U-xRK" kind="relationship" relationship="viewControllers" id="h2w-ni-ZGa"/>
@@ -1725,20 +1725,20 @@
             </objects>
             <point key="canvasLocation" x="300" y="1486"/>
         </scene>
-        <!--Home-->
-        <scene sceneID="iNp-8N-cij">
+        <!--Item-->
+        <scene sceneID="SrB-d4-HBA">
             <objects>
-                <navigationController id="QqX-pb-FVU" customClass="PlaceholderNavigationController" customModule="FirstObserver" customModuleProvider="target" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Home" id="Xwm-Dy-1bO"/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="xhT-aI-RTw">
+                <navigationController id="rQJ-cv-wFP" customClass="PlaceholderNavigationController" customModule="FirstObserver" customModuleProvider="target" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Item" image="house.fill" catalog="system" id="Mdu-bo-bOg"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="fYq-FH-4MH">
                         <rect key="frame" x="0.0" y="44" width="428" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
-                        <segue destination="km3-XG-3pY" kind="relationship" relationship="rootViewController" id="cU1-iu-Rdu"/>
+                        <segue destination="km3-XG-3pY" kind="relationship" relationship="rootViewController" id="qip-MA-JkV"/>
                     </connections>
                 </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="IR0-6L-uVa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="rb9-OB-kcX" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-2655" y="728"/>
         </scene>
@@ -1746,7 +1746,7 @@
         <scene sceneID="bV9-Bn-8DD">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="xSW-04-0ye" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Catalog" id="jrG-7V-cVg"/>
+                    <tabBarItem key="tabBarItem" title="Catalog" image="square.grid.2x2.fill" catalog="system" id="jrG-7V-cVg"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="RDR-kt-39e">
                         <rect key="frame" x="0.0" y="44" width="428" height="44"/>
@@ -1781,7 +1781,7 @@
         <scene sceneID="p3f-8y-vV0">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="MwW-j9-Mmy" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Mall" id="AMT-5C-WuV"/>
+                    <tabBarItem key="tabBarItem" title="Mall" image="m.square" catalog="system" id="AMT-5C-WuV"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="fyd-f4-T8j">
                         <rect key="frame" x="0.0" y="44" width="428" height="44"/>
@@ -1800,7 +1800,7 @@
         <scene sceneID="VZh-5M-37H">
             <objects>
                 <navigationController id="2d5-3U-xRK" customClass="PlaceholderNavigationController" customModule="FirstObserver" customModuleProvider="target" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Cart" id="Iyv-gD-FRN"/>
+                    <tabBarItem key="tabBarItem" title="Cart" image="cart.fill" catalog="system" id="Iyv-gD-FRN"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="mNC-tJ-G0B">
                         <rect key="frame" x="0.0" y="44" width="428" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -1817,7 +1817,7 @@
         <scene sceneID="lRO-BY-BEO">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="vgF-8d-844" customClass="NewProfileNavigationController" customModule="FirstObserver" customModuleProvider="target" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Profile" id="SkE-8c-nzs"/>
+                    <tabBarItem key="tabBarItem" title="Profile" image="person.crop.circle.fill" catalog="system" id="SkE-8c-nzs"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="ER6-Dl-t5c">
                         <rect key="frame" x="0.0" y="44" width="428" height="44"/>
@@ -1836,7 +1836,11 @@
     <resources>
         <image name="cart.fill" catalog="system" width="128" height="102"/>
         <image name="chevron.backward" catalog="system" width="96" height="128"/>
+        <image name="house.fill" catalog="system" width="128" height="106"/>
         <image name="icons8-удалить-50()" width="50" height="50"/>
+        <image name="m.square" catalog="system" width="128" height="114"/>
+        <image name="person.crop.circle.fill" catalog="system" width="128" height="121"/>
+        <image name="square.grid.2x2.fill" catalog="system" width="128" height="114"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

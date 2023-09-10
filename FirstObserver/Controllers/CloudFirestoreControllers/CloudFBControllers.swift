@@ -1847,6 +1847,8 @@ class PlaceholderNavigationController: UINavigationController {
         return view
     }()
 
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configurePlaceholderView()
@@ -1862,6 +1864,9 @@ class PlaceholderNavigationController: UINavigationController {
         super.viewWillDisappear(animated)
         
     }
+    
+   
+
     
     
     // MARK: - NetworkConnected -

@@ -16,7 +16,7 @@ import UIKit
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
+    var orientationLock = UIInterfaceOrientationMask.portrait
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 //        FirebaseApp.configure()
@@ -42,6 +42,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         print("!!!!!#############!!!!!!!!!!! приложение удалино из памяти системой или userом")
     }
+    
+    // Здесь указываем ориентацию, которую вы хотите разрешить (например, только портретную)
+    func application( _ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        return orientationLock
+    }
+
 
 }
 
