@@ -35,15 +35,16 @@ class FiltersViewController: UIViewController, UICollectionViewDataSource, UICol
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        view.backgroundColor = .white
         // Установка делегатов и источника данных UICollectionView
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.backgroundColor = .darkGray
+        collectionView.backgroundColor = .systemGray6
 
         // Регистрация класса ячейки UICollectionViewCell для использования в коллекции
         collectionView.register(MyCell.self, forCellWithReuseIdentifier: "cell")
         collectionView.register(HeaderFilterCollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderFilterCollectionReusableView.headerIdentifier)
+//        collectionView.register(FooterFilterCollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: FooterFilterCollectionReusableView.headerIdentifier)
         // Добавление UICollectionView на экран
         view.addSubview(collectionView)
 
@@ -99,10 +100,12 @@ class FiltersViewController: UIViewController, UICollectionViewDataSource, UICol
             cell.label.text = colors[indexPath.row]
             //             Определяем размеры метки с помощью метода sizeThatFits()
             labelSize = cell.label.sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude))
+            labelSize = CGSize(width: labelSize.width + 10, height: labelSize.height + 10)
         } else {
             cell.label.text = brands[indexPath.row]
             //             Определяем размеры метки с помощью метода sizeThatFits()
             labelSize = cell.label.sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude))
+            labelSize = CGSize(width: labelSize.width + 10, height: labelSize.height + 10)
         }
         
         return labelSize
@@ -110,38 +113,53 @@ class FiltersViewController: UIViewController, UICollectionViewDataSource, UICol
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
-//        if kind == UICollectionView.elementKindSectionHeader {
-//            let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: HeaderFilterCollectionReusableView.headerIdentifier, for: indexPath) as! HeaderFilterCollectionReusableView
-//
-//            // Customize your header view here based on the section index
-//            switch indexPath.section {
-//            case 0:
-//                headerView.configureCell(title: "Colors")
-//            case 1:
-//                headerView.configureCell(title: "Brands")
-//            default:
-//                break
+        if kind == UICollectionView.elementKindSectionHeader {
+            let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: HeaderFilterCollectionReusableView.headerIdentifier, for: indexPath) as! HeaderFilterCollectionReusableView
+
+            // Customize your header view here based on the section index
+            switch indexPath.section {
+            case 0:
+                headerView.configureCell(title: "Colors")
+            case 1:
+                headerView.configureCell(title: "Brands")
+            default:
+                break
+            }
+
+            return headerView
+        }
+        
+//        if kind == UICollectionView.elementKindSectionFooter {
+//            let footerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: FooterFilterCollectionReusableView.headerIdentifier, for: indexPath) as! FooterFilterCollectionReusableView
+//            if indexPath.section == 1 {
+//                footerView.configureCell(title: "Footer")
 //            }
-//
-//            return headerView
 //        }
         
-//        fatalError("Unexpected element kind")
-        
-        
-        
-//                var headerView = HeaderFilterCollectionReusableView()
-//                if indexPath.section == 0 {
-//                    headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: HeaderFilterCollectionReusableView.headerIdentifier, for: indexPath) as! HeaderFilterCollectionReusableView
-//                    headerView.configureCell(title: "Colors")
-//                } else {
-//                    headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: HeaderFilterCollectionReusableView.headerIdentifier, for: indexPath) as! HeaderFilterCollectionReusableView
-//                    headerView.configureCell(title: "Brands")
-//                }
-        let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: HeaderFilterCollectionReusableView.headerIdentifier, for: indexPath) as! HeaderFilterCollectionReusableView
-        headerView.configureCell(title: "Colors")
-        return headerView
+        fatalError("Unexpected element kind")
     }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        
+        let headerView = HeaderFilterCollectionReusableView()
+        headerView.configureCell(title: "Test")
+        let width = collectionView.bounds.width
+        let height = headerView.systemLayoutSizeFitting(CGSize(width: width, height: UIView.layoutFittingCompressedSize.height)).height
+        
+        return CGSize(width: width, height: height)
+        //            return CGSize(width: collectionView.bounds.width, height: 50)
+    }
+
+//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+//
+//        let footerView = FooterFilterCollectionReusableView()
+//        footerView.configureCell(title: "Test")
+//        let width = collectionView.bounds.width
+//        let height = footerView.systemLayoutSizeFitting(CGSize(width: width, height: UIView.layoutFittingCompressedSize.height)).height
+//
+//        return CGSize(width: width, height: height)
+//        //            return CGSize(width: collectionView.bounds.width, height: 50)
+//    }
 
 }
 
@@ -150,6 +168,7 @@ class MyCell: UICollectionViewCell {
     let label: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 20)
+        label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -158,7 +177,8 @@ class MyCell: UICollectionViewCell {
         super.init(frame: frame)
 
         // Добавление метки на ячейку и установка ограничений для ее размера
-        contentView.backgroundColor = .green
+//        contentView.backgroundColor = .green
+        contentView.backgroundColor = .systemGray
         contentView.addSubview(label)
         NSLayoutConstraint.activate([
             label.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
@@ -166,6 +186,9 @@ class MyCell: UICollectionViewCell {
             label.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 0),
             label.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0)
         ])
+        contentView.layer.borderWidth = 1
+        contentView.layer.borderColor = UIColor.black.cgColor
+        contentView.layer.cornerRadius = 5
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -225,7 +248,7 @@ class HeaderFilterCollectionReusableView: UICollectionReusableView {
         super.init(frame: frame)
         addSubview(label)
         setupConstraints()
-        backgroundColor = .blue
+        backgroundColor = .systemPurple
     }
    
     private func setupConstraints() {
@@ -245,6 +268,273 @@ class HeaderFilterCollectionReusableView: UICollectionReusableView {
     }
         
 }
+
+class FooterFilterCollectionReusableView: UICollectionReusableView {
+    
+    static let headerIdentifier = "FooterFilterVC"
+    
+    
+    let label:UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .left
+        label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
+        label.backgroundColor = .clear
+        label.tintColor = .black
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        addSubview(label)
+        setupConstraints()
+        backgroundColor = .systemPurple
+    }
+   
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([label.topAnchor.constraint(equalTo: topAnchor, constant: 5), label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5), label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0), label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0)])
+    }
+    
+    func configureCell(title: String) {
+        label.text = title
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        addSubview(label)
+        setupConstraints()
+        backgroundColor = .white
+//        fatalError("init(coder:) has not been implemented")
+    }
+        
+}
+
+
+
+
+class PriceRangeView: UIView {
+    private let slider = UISlider()
+    private let fromLabel = UILabel()
+    private let toLabel = UILabel()
+
+    var minimumPrice: Float {
+        return slider.value
+    }
+
+    var maximumPrice: Float {
+        return slider.value
+    }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        setupSlider()
+        setupLabels()
+
+        slider.addTarget(self, action: #selector(sliderValueChanged), for: .valueChanged)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func setupSlider() {
+        // Set the range of the slider
+        slider.minimumValue = 0.0
+        slider.maximumValue = 100.0
+
+        // Add lower and upper track tint colors to indicate the selected range
+        slider.tintColor = UIColor.blue.withAlphaComponent(0.5)
+
+        addSubview(slider)
+
+        // Add constraints to position the slider within the view
+        slider.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            slider.leadingAnchor.constraint(equalTo: leadingAnchor),
+            slider.trailingAnchor.constraint(equalTo: trailingAnchor),
+            slider.centerYAnchor.constraint(equalTo: centerYAnchor)
+        ])
+
+        // Adjust the appearance of the thumb and track for better usability
+        slider.setThumbImage(UIImage(named: "slider_thumb"), for: .normal)
+        slider.setThumbImage(UIImage(named: "slider_thumb_highlighted"), for: .highlighted)
+
+        // Customize the track colors if desired
+//         let trackRect = CGRect(x: 0, y: 0, width: 10, height: 2)
+//         let upperTrackColorView = UIView(frame: trackRect)
+//         upperTrackColorView.backgroundColor = UIColor.blue.withAlphaComponent(0.5)
+//         slider.addSubview(upperTrackColorView)
+//         slider.sendSubviewToBack(upperTrackColorView)
+
+    }
+
+    private func setupLabels() {
+        fromLabel.textAlignment = .left
+        toLabel.textAlignment = .right
+
+        addSubview(fromLabel)
+        addSubview(toLabel)
+
+        // Add constraints to position the labels above the slider
+        fromLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            fromLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            fromLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            fromLabel.bottomAnchor.constraint(equalTo: slider.topAnchor, constant: -8)
+        ])
+
+        toLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            toLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            toLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            toLabel.topAnchor.constraint(equalTo: slider.bottomAnchor, constant: 8)
+        ])
+
+        updateLabels()
+    }
+
+    @objc private func sliderValueChanged() {
+        updateLabels()
+    }
+
+    private func updateLabels() {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+
+      let minimumValueString = formatter.string(from: NSNumber(value: minimumPrice))
+      let maximumValueString = formatter.string(from: NSNumber(value: maximumPrice))
+
+      fromLabel.text = "From \(minimumValueString ?? "")"
+      toLabel.text = "To \(maximumValueString ?? "")"
+    }
+}
+
+//```
+//
+//You can then use this custom `PriceRangeView` in your view controller's code:
+//
+//```swift
+//let priceRangeView = PriceRangeView(frame: CGRect(x: 0, y: 0, width: 300, height: 150))
+//view.addSubview(priceRangeView)
+//
+//// Adjust constraints or frame as needed
+//
+//// Access selected price range values
+//let minimumPrice = priceRangeView.minimumPrice
+//let maximumPrice = priceRangeView.maximumPrice
+//
+//// Use the selected values as needed, such as filtering products based on the price range
+//```
+//
+//Make sure to customize the appearance and behavior according to your needs.
+
+
+
+//swift
+//import UIKit
+//
+//class PriceRangeView: UIView {
+//
+//    private let minimumLabel = UILabel()
+//    private let maximumLabel = UILabel()
+//    private let slider = UISlider()
+//
+//    var minimumPrice: Float {
+//        return round(slider.minimumValue * 100) / 100
+//    }
+//
+//    var maximumPrice: Float {
+//        return round(slider.maximumValue * 100) / 100
+//    }
+//
+//    override init(frame: CGRect) {
+//        super.init(frame: frame)
+//
+//        setupUI()
+//        addSubviews()
+//        setupConstraints()
+//
+//        slider.addTarget(self, action: #selector(sliderValueChanged), for: .valueChanged)
+//        updateLabels()
+//    }
+//
+//    required init?(coder aDecoder: NSCoder) {
+//        fatalError("init(coder:) has not been implemented")
+//    }
+//
+//    @objc private func sliderValueChanged() {
+//        updateLabels()
+//    }
+//
+//    private func setupUI() {
+//        // Customize the appearance of the labels and slider as needed
+//
+//        minimumLabel.textAlignment = .center
+//        maximumLabel.textAlignment = .center
+//
+//        slider.minimumValue = 0.0
+//        slider.maximumValue = 100.0
+//    }
+//
+//    private func addSubviews() {
+//        addSubview(minimumLabel)
+//        addSubview(maximumLabel)
+//        addSubview(slider)
+//    }
+//
+//    private func setupConstraints() {
+//      // Add constraints to position and size the labels and slider within the view
+//
+//      // For example:
+//      minimumLabel.translatesAutoresizingMaskIntoConstraints = false
+//      minimumLabel.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+//      minimumLabel.topAnchor.constraint(equalTo: topAnchor).isActive = true
+//
+//      maximumLabel.translatesAutoresizingMaskIntoConstraints = false
+//      maximumLabel.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+//      maximumLabel.topAnchor.constraint(equalTo: topAnchor).isActive = true
+//
+//      slider.translatesAutoresizingMaskIntoConstraints = false
+//      slider.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+//      slider.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+//      slider.topAnchor.constraint(equalTo: minimumLabel.bottomAnchor, constant: 8.0).isActive = true
+//    }
+//
+//    private func updateLabels() {
+//        let formatter = NumberFormatter()
+//        formatter.numberStyle = .currency
+//
+//        let minimumPriceString = formatter.string(from: NSNumber(value: minimumPrice))
+//        let maximumPriceString = formatter.string(from: NSNumber(value: maximumPrice))
+//
+//        minimumLabel.text = minimumPriceString
+//        maximumLabel.text = maximumPriceString
+//
+//        // Use the selected values as needed, such as filtering products based on the price range
+//
+//        // Update any other UI elements that display the selected price range
+//    }
+//}
+//
+//
+//Вы можете использовать данный пользовательский класс PriceRangeView в вашем контроллере:
+//
+//swift
+//let priceRangeView = PriceRangeView(frame: CGRect(x: 0, y: 0, width: 300, height: 150))
+//view.addSubview(priceRangeView)
+//
+//// Adjust constraints or frame as needed
+//
+//// Access selected price range values
+//let minimumPrice = priceRangeView.minimumPrice
+//let maximumPrice = priceRangeView.maximumPrice
+//
+//// Use the selected values as needed, such as filtering products based on the price range
+//
+//
+//Не забудьте настроить внешний вид и поведение слайдера в соответствии с вашими потребностями.
 
 
 
@@ -521,226 +811,3 @@ class HeaderFilterCollectionReusableView: UICollectionReusableView {
 //        dismiss(animated: true, completion: nil)
 //    }
 //}
-
-class PriceRangeView: UIView {
-    private let slider = UISlider()
-    private let fromLabel = UILabel()
-    private let toLabel = UILabel()
-
-    var minimumPrice: Float {
-        return slider.value
-    }
-
-    var maximumPrice: Float {
-        return slider.value
-    }
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-
-        setupSlider()
-        setupLabels()
-
-        slider.addTarget(self, action: #selector(sliderValueChanged), for: .valueChanged)
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    private func setupSlider() {
-        // Set the range of the slider
-        slider.minimumValue = 0.0
-        slider.maximumValue = 100.0
-
-        // Add lower and upper track tint colors to indicate the selected range
-        slider.tintColor = UIColor.blue.withAlphaComponent(0.5)
-
-        addSubview(slider)
-
-        // Add constraints to position the slider within the view
-        slider.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            slider.leadingAnchor.constraint(equalTo: leadingAnchor),
-            slider.trailingAnchor.constraint(equalTo: trailingAnchor),
-            slider.centerYAnchor.constraint(equalTo: centerYAnchor)
-        ])
-
-        // Adjust the appearance of the thumb and track for better usability
-        slider.setThumbImage(UIImage(named: "slider_thumb"), for: .normal)
-        slider.setThumbImage(UIImage(named: "slider_thumb_highlighted"), for: .highlighted)
-
-        // Customize the track colors if desired
-//         let trackRect = CGRect(x: 0, y: 0, width: 10, height: 2)
-//         let upperTrackColorView = UIView(frame: trackRect)
-//         upperTrackColorView.backgroundColor = UIColor.blue.withAlphaComponent(0.5)
-//         slider.addSubview(upperTrackColorView)
-//         slider.sendSubviewToBack(upperTrackColorView)
-
-    }
-
-    private func setupLabels() {
-        fromLabel.textAlignment = .left
-        toLabel.textAlignment = .right
-
-        addSubview(fromLabel)
-        addSubview(toLabel)
-
-        // Add constraints to position the labels above the slider
-        fromLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            fromLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            fromLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            fromLabel.bottomAnchor.constraint(equalTo: slider.topAnchor, constant: -8)
-        ])
-
-        toLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            toLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            toLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            toLabel.topAnchor.constraint(equalTo: slider.bottomAnchor, constant: 8)
-        ])
-
-        updateLabels()
-    }
-
-    @objc private func sliderValueChanged() {
-        updateLabels()
-    }
-
-    private func updateLabels() {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-
-      let minimumValueString = formatter.string(from: NSNumber(value: minimumPrice))
-      let maximumValueString = formatter.string(from: NSNumber(value: maximumPrice))
-
-      fromLabel.text = "From \(minimumValueString ?? "")"
-      toLabel.text = "To \(maximumValueString ?? "")"
-    }
-}
-
-//```
-//
-//You can then use this custom `PriceRangeView` in your view controller's code:
-//
-//```swift
-//let priceRangeView = PriceRangeView(frame: CGRect(x: 0, y: 0, width: 300, height: 150))
-//view.addSubview(priceRangeView)
-//
-//// Adjust constraints or frame as needed
-//
-//// Access selected price range values
-//let minimumPrice = priceRangeView.minimumPrice
-//let maximumPrice = priceRangeView.maximumPrice
-//
-//// Use the selected values as needed, such as filtering products based on the price range
-//```
-//
-//Make sure to customize the appearance and behavior according to your needs.
-
-
-
-//swift
-//import UIKit
-//
-//class PriceRangeView: UIView {
-//
-//    private let minimumLabel = UILabel()
-//    private let maximumLabel = UILabel()
-//    private let slider = UISlider()
-//
-//    var minimumPrice: Float {
-//        return round(slider.minimumValue * 100) / 100
-//    }
-//
-//    var maximumPrice: Float {
-//        return round(slider.maximumValue * 100) / 100
-//    }
-//
-//    override init(frame: CGRect) {
-//        super.init(frame: frame)
-//
-//        setupUI()
-//        addSubviews()
-//        setupConstraints()
-//
-//        slider.addTarget(self, action: #selector(sliderValueChanged), for: .valueChanged)
-//        updateLabels()
-//    }
-//
-//    required init?(coder aDecoder: NSCoder) {
-//        fatalError("init(coder:) has not been implemented")
-//    }
-//
-//    @objc private func sliderValueChanged() {
-//        updateLabels()
-//    }
-//
-//    private func setupUI() {
-//        // Customize the appearance of the labels and slider as needed
-//
-//        minimumLabel.textAlignment = .center
-//        maximumLabel.textAlignment = .center
-//
-//        slider.minimumValue = 0.0
-//        slider.maximumValue = 100.0
-//    }
-//
-//    private func addSubviews() {
-//        addSubview(minimumLabel)
-//        addSubview(maximumLabel)
-//        addSubview(slider)
-//    }
-//
-//    private func setupConstraints() {
-//      // Add constraints to position and size the labels and slider within the view
-//
-//      // For example:
-//      minimumLabel.translatesAutoresizingMaskIntoConstraints = false
-//      minimumLabel.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-//      minimumLabel.topAnchor.constraint(equalTo: topAnchor).isActive = true
-//
-//      maximumLabel.translatesAutoresizingMaskIntoConstraints = false
-//      maximumLabel.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-//      maximumLabel.topAnchor.constraint(equalTo: topAnchor).isActive = true
-//
-//      slider.translatesAutoresizingMaskIntoConstraints = false
-//      slider.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-//      slider.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-//      slider.topAnchor.constraint(equalTo: minimumLabel.bottomAnchor, constant: 8.0).isActive = true
-//    }
-//
-//    private func updateLabels() {
-//        let formatter = NumberFormatter()
-//        formatter.numberStyle = .currency
-//
-//        let minimumPriceString = formatter.string(from: NSNumber(value: minimumPrice))
-//        let maximumPriceString = formatter.string(from: NSNumber(value: maximumPrice))
-//
-//        minimumLabel.text = minimumPriceString
-//        maximumLabel.text = maximumPriceString
-//
-//        // Use the selected values as needed, such as filtering products based on the price range
-//
-//        // Update any other UI elements that display the selected price range
-//    }
-//}
-//
-//
-//Вы можете использовать данный пользовательский класс PriceRangeView в вашем контроллере:
-//
-//swift
-//let priceRangeView = PriceRangeView(frame: CGRect(x: 0, y: 0, width: 300, height: 150))
-//view.addSubview(priceRangeView)
-//
-//// Adjust constraints or frame as needed
-//
-//// Access selected price range values
-//let minimumPrice = priceRangeView.minimumPrice
-//let maximumPrice = priceRangeView.maximumPrice
-//
-//// Use the selected values as needed, such as filtering products based on the price range
-//
-//
-//Не забудьте настроить внешний вид и поведение слайдера в соответствии с вашими потребностями.
