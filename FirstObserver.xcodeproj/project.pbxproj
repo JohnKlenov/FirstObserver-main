@@ -107,6 +107,7 @@
 		5EA65C7A29A6546C00EA6FA2 /* MallCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA65C7929A6546C00EA6FA2 /* MallCell.swift */; };
 		5EA65C7C29A6548B00EA6FA2 /* BrandCellMallVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA65C7B29A6548B00EA6FA2 /* BrandCellMallVC.swift */; };
 		5EA65C7E29A654D300EA6FA2 /* MallSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA65C7D29A654D300EA6FA2 /* MallSection.swift */; };
+		5EA6CCFD2AADE27000DF6E62 /* PriceRangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA6CCFC2AADE27000DF6E62 /* PriceRangeView.swift */; };
 		5EA9446E294B0522007C2AB5 /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA9446D294B0522007C2AB5 /* Alerts.swift */; };
 		5EA94471294B5773007C2AB5 /* AlertTopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA94470294B5773007C2AB5 /* AlertTopView.swift */; };
 		5EAA598A29A8CD7B00AEFE45 /* NewProductViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EAA598929A8CD7B00AEFE45 /* NewProductViewController.swift */; };
@@ -228,6 +229,7 @@
 		5EA65C7929A6546C00EA6FA2 /* MallCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MallCell.swift; sourceTree = "<group>"; };
 		5EA65C7B29A6548B00EA6FA2 /* BrandCellMallVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandCellMallVC.swift; sourceTree = "<group>"; };
 		5EA65C7D29A654D300EA6FA2 /* MallSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MallSection.swift; sourceTree = "<group>"; };
+		5EA6CCFC2AADE27000DF6E62 /* PriceRangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceRangeView.swift; sourceTree = "<group>"; };
 		5EA9446D294B0522007C2AB5 /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
 		5EA94470294B5773007C2AB5 /* AlertTopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertTopView.swift; sourceTree = "<group>"; };
 		5EAA598929A8CD7B00AEFE45 /* NewProductViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewProductViewController.swift; sourceTree = "<group>"; };
@@ -495,6 +497,7 @@
 		5E7EF58428A53B0300814F4D /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				5EA6CCFB2AADE21700DF6E62 /* FiltersViewController */,
 				5E7EB0832AA0A5AD00D6D236 /* AllShopsViewController */,
 				5E359ACF2A8272240012DD8E /* CloudFirestoreControllers */,
 				5E9AFC3A2A625B3A0016A0E0 /* CustomAlertViewController */,
@@ -719,6 +722,14 @@
 				5EA65C7D29A654D300EA6FA2 /* MallSection.swift */,
 			);
 			path = MallViewController;
+			sourceTree = "<group>";
+		};
+		5EA6CCFB2AADE21700DF6E62 /* FiltersViewController */ = {
+			isa = PBXGroup;
+			children = (
+				5EA6CCFC2AADE27000DF6E62 /* PriceRangeView.swift */,
+			);
+			path = FiltersViewController;
 			sourceTree = "<group>";
 		};
 		5EA9446F294B5706007C2AB5 /* viewsSignInVC */ = {
@@ -979,6 +990,7 @@
 				5E7B462329BC566E005D2701 /* EyeButton.swift in Sources */,
 				5EA9446E294B0522007C2AB5 /* Alerts.swift in Sources */,
 				5E7EB0872AA0A68000D6D236 /* ShopCell.swift in Sources */,
+				5EA6CCFD2AADE27000DF6E62 /* PriceRangeView.swift in Sources */,
 				5E8BCE3229CD707D00AEA41C /* UIColor+ext.swift in Sources */,
 				5E731C9428E443F600AF3A21 /* SignInViewController.swift in Sources */,
 				5E8C62BE297534B30089F430 /* AlertControllers.swift in Sources */,
