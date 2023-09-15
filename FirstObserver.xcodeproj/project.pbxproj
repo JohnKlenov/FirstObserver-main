@@ -101,6 +101,8 @@
 		5E9DF45D2968A425006544F9 /* UIView + extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9DF45C2968A425006544F9 /* UIView + extension.swift */; };
 		5EA25D1229BB266B00EF06F6 /* NewSignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA25D1129BB266B00EF06F6 /* NewSignInViewController.swift */; };
 		5EA25D1429BB2ABF00EF06F6 /* AuthTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA25D1329BB2ABF00EF06F6 /* AuthTextField.swift */; };
+		5EA2981E2AB49B0A00F0FA24 /* CustomRangeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA2981D2AB49B0900F0FA24 /* CustomRangeViewController.swift */; };
+		5EA298202AB49B3D00F0FA24 /* CustomRangeSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA2981F2AB49B3D00F0FA24 /* CustomRangeSlider.swift */; };
 		5EA65C7429A653EA00EA6FA2 /* NewMallViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA65C7329A653EA00EA6FA2 /* NewMallViewController.swift */; };
 		5EA65C7629A6542600EA6FA2 /* PagingSectionFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA65C7529A6542600EA6FA2 /* PagingSectionFooterView.swift */; };
 		5EA65C7829A6544900EA6FA2 /* HeaderBrandsMallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA65C7729A6544900EA6FA2 /* HeaderBrandsMallView.swift */; };
@@ -223,6 +225,8 @@
 		5E9DF45C2968A425006544F9 /* UIView + extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView + extension.swift"; sourceTree = "<group>"; };
 		5EA25D1129BB266B00EF06F6 /* NewSignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewSignInViewController.swift; sourceTree = "<group>"; };
 		5EA25D1329BB2ABF00EF06F6 /* AuthTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthTextField.swift; sourceTree = "<group>"; };
+		5EA2981D2AB49B0900F0FA24 /* CustomRangeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRangeViewController.swift; sourceTree = "<group>"; };
+		5EA2981F2AB49B3D00F0FA24 /* CustomRangeSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRangeSlider.swift; sourceTree = "<group>"; };
 		5EA65C7329A653EA00EA6FA2 /* NewMallViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewMallViewController.swift; sourceTree = "<group>"; };
 		5EA65C7529A6542600EA6FA2 /* PagingSectionFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingSectionFooterView.swift; sourceTree = "<group>"; };
 		5EA65C7729A6544900EA6FA2 /* HeaderBrandsMallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderBrandsMallView.swift; sourceTree = "<group>"; };
@@ -645,6 +649,15 @@
 			path = AuthenticationVC;
 			sourceTree = "<group>";
 		};
+		5EA2981C2AB49ACE00F0FA24 /* CustomSliderFilter */ = {
+			isa = PBXGroup;
+			children = (
+				5EA2981D2AB49B0900F0FA24 /* CustomRangeViewController.swift */,
+				5EA2981F2AB49B3D00F0FA24 /* CustomRangeSlider.swift */,
+			);
+			path = CustomSliderFilter;
+			sourceTree = "<group>";
+		};
 		5EA4A3D529E93C3600913E3F /* OldVC */ = {
 			isa = PBXGroup;
 			children = (
@@ -727,6 +740,7 @@
 		5EA6CCFB2AADE21700DF6E62 /* FiltersViewController */ = {
 			isa = PBXGroup;
 			children = (
+				5EA2981C2AB49ACE00F0FA24 /* CustomSliderFilter */,
 				5EA6CCFC2AADE27000DF6E62 /* PriceRangeView.swift */,
 			);
 			path = FiltersViewController;
@@ -933,6 +947,7 @@
 				5E7EB0852AA0A5C500D6D236 /* AllShopsViewController.swift in Sources */,
 				5E759F0428BDF0E600D17F13 /* GroupCell.swift in Sources */,
 				5E7EF56328A12DBB00814F4D /* CartViewController.swift in Sources */,
+				5EA298202AB49B3D00F0FA24 /* CustomRangeSlider.swift in Sources */,
 				5E7EF58328A51B7E00814F4D /* PopularProductCell.swift in Sources */,
 				5E92FDFA29A9F16E002CDE51 /* TestModelProductVC.swift in Sources */,
 				5E7B462529BF2772005D2701 /* NewSignUpViewController.swift in Sources */,
@@ -999,6 +1014,7 @@
 				5E989EF52AAB5CCA001D4C4B /* LockOrientation.swift in Sources */,
 				5E7EF58128A51B2A00814F4D /* BrandCell.swift in Sources */,
 				5E0BF47E2993B04100FB99BE /* HeaderMallsView.swift in Sources */,
+				5EA2981E2AB49B0A00F0FA24 /* CustomRangeViewController.swift in Sources */,
 				5E890BBC290AB57E00147C5F /* ModelFB.swift in Sources */,
 				5EB02F8C2A2CCE2B00B08FDF /* NetworkManager.swift in Sources */,
 				5EC212E52A07FD3F00FFB216 /* OnboardPageViewController.swift in Sources */,
