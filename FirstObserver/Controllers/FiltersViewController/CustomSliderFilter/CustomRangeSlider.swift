@@ -42,7 +42,7 @@ import UIKit
 //        }
 //    }
 //
-//    var trackHighlightTintColor: UIColor = UIColor(red: 0.0, green: 0.45, blue: 0.94, alpha: 1.0) {
+//    var trackHighlightTintColor: UIColor = UIColor.systemPurple {
 //        didSet {
 //            trackLayer.setNeedsDisplay()
 //        }

@@ -1,17 +1,22 @@
+////
+////  CustomRangeViewController.swift
+////  FirstObserver
+////
+////  Created by Evgenyi on 15.09.23.
+////
 //
-//  CustomRangeViewController.swift
-//  FirstObserver
+//import Foundation
+//import UIKit
 //
-//  Created by Evgenyi on 15.09.23.
 //
-
-import Foundation
-import UIKit
-
-
 //protocol CustomTabBarViewDelegate: AnyObject {
 //    func customTabBarViewDidTapButton(_ tabBarView: CustomTabBarView)
 //}
+//
+//
+//// при первом переходе мы имеем все products - allProducts(следовательно нам доступны все возможные характеристики)
+//// при каждом нажатии на cell мы говорим отфильтруй нам только то что мы выбрали из allProducts и перемести в filterProducts.
+//// filterProducts передается в метод calculateDataSource(products: filterProducts) который создает новый dataSource для collectionView.
 //
 //class CustomRangeViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 //
@@ -20,13 +25,21 @@ import UIKit
 //            collectionView.reloadData()
 //        }
 //    }
+//    var allProducts:[Product] = [] {
+//        didSet {
+//            calculateDataSource(products: allProducts)
+//        }
+//    }
 //
-//    var dataSourceFetch = [String:[String]]()
+//    var filterProducts:[Product] = [] {
+//        didSet {
+//            calculateDataSource(products: filterProducts)
+//        }
+//    }
 //
-//    let colors2 = ["Red", "Blue", "Green", "Black", "White", "Purpure", "Yellow", "Pink"]
-//    let brands2 = ["Nike", "Adidas", "Puma", "Reebok", "QuikSilver", "Boss", "LCWKK", "Marko", "BMW", "Copertiller"]
-//    let material2 = ["leather", "artificial material","Nike", "Adidas", "Puma", "Reebok", "QuikSilver", "Boss", "LCWKK", "Marko", "BMW", "Copertiller","Nike", "Adidas", "Puma", "Reebok", "QuikSilver", "Boss", "LCWKK", "Marko", "BMW", "Copertiller"]
-//    let season2 = ["summer", "winter", "demi-season","Nike", "Adidas", "Puma", "Reebok", "QuikSilver", "Boss", "LCWKK", "Marko", "BMW", "Copertiller","Nike", "Adidas", "Puma", "Reebok", "QuikSilver", "Boss", "LCWKK", "Marko", "BMW", "Copertiller"]
+//    var selectedStates: [IndexPath: Bool] = [:]
+//
+//    var dataManager = FactoryProducts.shared
 //
 //    private let collectionView: UICollectionView = {
 //        let layout = UserProfileTagsFlowLayout()
@@ -99,7 +112,7 @@ import UIKit
 //        view.addSubview(customTabBarView)
 //        configureNavigationBar(largeTitleColor: UIColor.label, backgoundColor: UIColor.secondarySystemBackground, tintColor: UIColor.label, title: "Filters", preferredLargeTitle: false)
 //        configureNavigationItem()
-//        configureRangeView(minimumValue: 135, maximumValue: 745)
+////        configureRangeView(minimumValue: 135, maximumValue: 745)
 //        rangeSlider.addTarget(self, action: #selector(rangeSliderValueChanged(rangeSlider:)), for: .valueChanged)
 //
 //        // Установка ограничений для UICollectionView чтобы его размер был равен размеру его ячеек
@@ -116,7 +129,7 @@ import UIKit
 //            // Прилипание к нижнему краю экрана
 //            customTabBarView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
 //        ])
-//
+////        calculateDataSource()
 //    }
 //
 //
@@ -130,12 +143,13 @@ import UIKit
 //    }
 //
 //    @objc func rangeSliderValueChanged(rangeSlider: RangeSlider) {
-////        print("First Start")
+//        print("First Start")
 //        rangeView.updateLabels(lowerValue: rangeSlider.lowerValue, upperValue: rangeSlider.upperValue)
 ////        print("Range slider value changed: (\(rangeSlider.lowerValue) \(rangeSlider.upperValue))")
 //    }
 //
 //    @objc func didTapCloseButton() {
+//        self.dismiss(animated: true, completion: nil)
 //        print("didTapCloseButton")
 //    }
 //
@@ -152,21 +166,81 @@ import UIKit
 //    }
 //
 //    private func configureRangeView(minimumValue:Double, maximumValue:Double) {
-//
-////        rangeView.updateLabels(lowerValue: minimumValue, upperValue: maximumValue)
 //        rangeSlider.minimumValue = minimumValue
 //        rangeSlider.maximumValue = maximumValue
 //        rangeSlider.lowerValue = minimumValue
 //        rangeSlider.upperValue = maximumValue
 //    }
 //
-//    private func testFetchData() {
-//        dataSourceFetch["colors"] = colors2
-//        dataSourceFetch["brands"] = brands2
-//        dataSourceFetch["material"] = material2
-//        dataSourceFetch["season"] = season2
-//        dataSource = dataSourceFetch
+//    private func calculateDataSource(products: [Product]) {
+//
+//        var minPrice = Int.max
+//        var maxPrice = Int.min
+//        var dataSource = [String: [String]]()
+//        var counter = 0
+//        for product in products {
+//            counter+=1
+//            if let color = product.color {
+//                dataSource["color", default: []].append(color)
+//            }
+//            if let brand = product.brand {
+//                dataSource["brand", default: []].append(brand)
+//            }
+//            if let material = product.material {
+//                dataSource["material", default: []].append(material)
+//            }
+//            if let season = product.season {
+//                dataSource["season", default: []].append(season)
+//            }
+//            if let price = product.price {
+//
+//                   if price < minPrice {
+//                       minPrice = price
+//                   }
+//                   if price > maxPrice {
+//                       maxPrice = price
+//                   }
+//               }
+//        }
+//        if counter == products.count {
+//            for key in dataSource.keys {
+//                let values = Set(dataSource[key]!)
+//                dataSource[key] = Array(values)
+//                let sortValue = dataSource[key]?.sorted()
+//                dataSource[key] = sortValue
+//            }
+//            configureRangeView(minimumValue: Double(minPrice), maximumValue: Double(maxPrice))
+//            self.dataSource = dataSource
+//        }
 //    }
+//
+//    func filterProducts(products: [Product], color: String? = nil, brand: String? = nil, material: String? = nil, season: String? = nil) -> [Product] {
+//        let filteredProducts = products.filter { product in
+//            var isMatched = true
+//
+//            if let color = color {
+//                isMatched = isMatched && product.color == color
+//            }
+//
+//            if let brand = brand {
+//                isMatched = isMatched && product.brand == brand
+//            }
+//
+//            if let material = material {
+//                isMatched = isMatched && product.material == material
+//            }
+//
+//            if let season = season {
+//                isMatched = isMatched && product.season == season
+//            }
+//
+//            return isMatched
+//        }
+//
+//        return filteredProducts
+//    }
+//
+//
 //
 //    // MARK: - UICollectionViewDataSource
 //
@@ -178,10 +252,10 @@ import UIKit
 //
 //        switch section {
 //        case 0:
-//            return dataSource["colors"]?.count ?? 0
+//            return dataSource["color"]?.count ?? 0
 ////            return colors.count
 //        case 1:
-//            return dataSource["brands"]?.count ?? 0
+//            return dataSource["brand"]?.count ?? 0
 ////            return brands.count
 //        case 2:
 //            return dataSource["material"]?.count ?? 0
@@ -201,13 +275,20 @@ import UIKit
 //            return UICollectionViewCell()
 //        }
 //
+//        if let isSelected = selectedStates[indexPath], isSelected {
+//            cell.contentView.backgroundColor = UIColor.systemPurple
+//               } else {
+//                   cell.contentView.backgroundColor = UIColor.secondarySystemBackground
+//               }
+//
+//
 //        switch indexPath.section {
 //        case 0:
-//            let colors = dataSource["colors"]
+//            let colors = dataSource["color"]
 //            cell.label.text = colors?[indexPath.row]
 ////            cell.label.text = colors[indexPath.row]
 //        case 1:
-//            let brands = dataSource["brands"]
+//            let brands = dataSource["brand"]
 //            cell.label.text = brands?[indexPath.row]
 ////            cell.label.text = brands[indexPath.row]
 //        case 2:
@@ -225,9 +306,27 @@ import UIKit
 //    }
 //
 //    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-////        self.dismiss(animated: true, completion: nil)
-//        configureRangeView(minimumValue: 356, maximumValue: 934)
-//        testFetchData()
+//
+//        if selectedStates[indexPath] == true {
+//                    selectedStates[indexPath] = false
+//                } else {
+//                    selectedStates[indexPath] = true
+//                }
+//
+//                collectionView.reloadItems(at: [indexPath])
+////        collectionView.reloadData()
+//
+////        let cell = collectionView.cellForItem(at: indexPath) as? MyCell
+////
+////                if cell?.isSelected == true {
+////                    cell?.isSelected = false
+////                } else {
+////                    cell?.isSelected = true
+////                }
+//        print("didSelectItemAt")
+//        //        self.dismiss(animated: true, completion: nil)
+//        //        allProducts = dataManager.createRandomProduct()
+//        //        calculateDataSource()
 //    }
 //
 //    // MARK: - UICollectionViewDelegateFlowLayout
@@ -239,14 +338,14 @@ import UIKit
 //
 //        switch indexPath.section {
 //        case 0:
-//            let colors = dataSource["colors"]
+//            let colors = dataSource["color"]
 //            cell?.label.text = colors?[indexPath.row]
 ////            cell?.label.text = colors[indexPath.row]
 //            //             Определяем размеры метки с помощью метода sizeThatFits()
 //            labelSize = cell?.label.sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)) ?? .zero
 //            labelSize = CGSize(width: labelSize.width + 20, height: labelSize.height + 20)
 //        case 1:
-//            let brands = dataSource["brands"]
+//            let brands = dataSource["brand"]
 //            cell?.label.text = brands?[indexPath.row]
 ////            cell?.label.text = brands[indexPath.row]
 //            //             Определяем размеры метки с помощью метода sizeThatFits()
@@ -282,9 +381,9 @@ import UIKit
 //            // Customize your header view here based on the section index
 //            switch indexPath.section {
 //            case 0:
-//                headerView.configureCell(title: "Colors")
+//                headerView.configureCell(title: "Color")
 //            case 1:
-//                headerView.configureCell(title: "Brands")
+//                headerView.configureCell(title: "Brand")
 //            case 2:
 //                headerView.configureCell(title: "Material")
 //            case 3:
@@ -359,6 +458,16 @@ import UIKit
 //        label.translatesAutoresizingMaskIntoConstraints = false
 //        return label
 //    }()
+//
+////    override var isSelected: Bool {
+////        didSet {
+////            if isSelected {
+////                contentView.backgroundColor = UIColor.systemPurple // Изменение цвета при выделении
+////            } else {
+////                contentView.backgroundColor = UIColor.secondarySystemBackground // Исходный цвет
+////            }
+////        }
+////    }
 //
 //    override init(frame: CGRect) {
 //        super.init(frame: frame)
@@ -605,14 +714,15 @@ import UIKit
 //        setupUI()
 //    }
 //}
-//
+
+
+
 
 
 //class ViewController: UIViewController {
 //
 //    var dataSource = [String:[String]]()
 //    let customRangeButton: UIButton = {
-//
 //        var configuration = UIButton.Configuration.gray()
 //
 //        configuration.titleAlignment = .center
@@ -630,6 +740,8 @@ import UIKit
 //
 //        return grayButton
 //    }()
+//
+//    var dataManager = FactoryProducts.shared
 //
 //    let dependencyRangeButton: UIButton = {
 //
@@ -676,16 +788,16 @@ import UIKit
 //
 //    @objc func addCustomRangeButton(_ sender: UIButton) {
 //
-//        let colors = ["Red", "Blue", "Green", "Black", "White", "Purpure", "Yellow", "Pink"]
-//        let brands = ["Nike", "Adidas", "Puma", "Reebok", "QuikSilver", "Boss", "LCWKK", "Marko", "BMW", "Copertiller"]
-//        let material = ["leather", "artificial material"]
-//        let season = ["summer", "winter", "demi-season"]
-//        dataSource["colors"] = colors
-//        dataSource["brands"] = brands
-//        dataSource["material"] = material
-//        dataSource["season"] = season
+////        let color = ["Red", "Blue", "Green", "Black", "White", "Purpure", "Yellow", "Pink"]
+////        let brand = ["Nike", "Adidas", "Puma", "Reebok", "QuikSilver", "Boss", "LCWKK", "Marko", "BMW", "Copertiller"]
+////        let material = ["leather", "artificial material"]
+////        let season = ["summer", "winter", "demi-season"]
+////        dataSource["colors"] = color
+////        dataSource["brands"] = brand
+////        dataSource["material"] = material
+////        dataSource["season"] = season
 //        let customVC = CustomRangeViewController()
-//        customVC.dataSource = dataSource
+//        customVC.allProducts = dataManager.createRandomProduct()
 //        let navigationVC = CustomNavigationController(rootViewController: customVC)
 //        navigationVC.navigationBar.backgroundColor = UIColor.secondarySystemBackground
 //        navigationVC.modalPresentationStyle = .fullScreen
@@ -708,3 +820,52 @@ import UIKit
 //    }
 //}
 //
+//class Product {
+//    var color: String?
+//    var brand: String?
+//    var material: String?
+//    var season: String?
+//    var price: Int?
+//
+//    init(color: String?, brand: String?, material: String?, season: String?, price: Int?) {
+//        self.color = color
+//        self.brand = brand
+//        self.material = material
+//        self.season = season
+//        self.price = price
+//    }
+//}
+//
+//class FactoryProducts {
+//
+//    static let shared = FactoryProducts()
+//    let color = ["Dark", "Bright"]
+//    let brand = ["Nike", "Adidas", "Puma", "Reebok", "QuikSilver", "Boss", "LCWKK", "Marko", "Copertiller"]
+//    let material = ["Leather", "Artificial Material"]
+//    let season = ["Summer", "Winter", "Demi-Season"]
+//
+//    var products = [Product]()
+//
+//    func createRandomProduct() -> [Product] {
+//        products = []
+//        for _ in 1...20 {
+//            let randomBrandIndex = Int.random(in: 0..<brand.count)
+//            let randomColorIndex = Int.random(in: 0..<color.count)
+//            let randomMaterialIndex = Int.random(in: 0..<material.count)
+//            let randomSeasonIndex = Int.random(in: 0..<season.count)
+//            let randomPrice = Int.random(in: 0...999)
+//
+//            let product = Product(color: color[randomColorIndex],
+//                                  brand: brand[randomBrandIndex],
+//                                  material: material[randomMaterialIndex],
+//                                  season: season[randomSeasonIndex],
+//                                  price: randomPrice)
+//
+//            products.append(product)
+//        }
+//        print("createRandomProduct products.count - \(products.count)")
+//        return products
+//    }
+//
+//}
+
