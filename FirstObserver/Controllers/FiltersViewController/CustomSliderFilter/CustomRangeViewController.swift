@@ -14,10 +14,6 @@
 //}
 //
 //
-//// при первом переходе мы имеем все products - allProducts(следовательно нам доступны все возможные характеристики)
-//// при каждом нажатии на cell мы говорим отфильтруй нам только то что мы выбрали из allProducts и перемести в filterProducts.
-//// filterProducts передается в метод calculateDataSource(products: filterProducts) который создает новый dataSource для collectionView.
-//
 //class CustomRangeViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 //
 //    var dataSource = [String:[String]]() {
@@ -25,20 +21,24 @@
 //            collectionView.reloadData()
 //        }
 //    }
-//    var allProducts:[Product] = [] {
-//        didSet {
-//            calculateDataSource(products: allProducts)
-//        }
-//    }
-//
+//    var allProducts:[Product] = []
 //    var filterProducts:[Product] = [] {
 //        didSet {
-//            calculateDataSource(products: filterProducts)
+//            customTabBarView.setCounterButton(count: filterProducts.count)
+//            if filterProducts.isEmpty {
+//                print("filterProducts.isEmpty")
+//                isForcedPrice = true
+//                rangeView.updateLabels(lowerValue: 0, upperValue: 0)
+//            } else {
+//                calculatePriceForFilterProducts(products: filterProducts)
+//            }
 //        }
 //    }
 //
 //    var selectedStates: [IndexPath: Bool] = [:]
+//    var selectedCell: [Int: [String]] = [:]
 //
+//    var isForcedPrice: Bool = false
 //    var dataManager = FactoryProducts.shared
 //
 //    private let collectionView: UICollectionView = {
@@ -129,7 +129,9 @@
 //            // Прилипание к нижнему краю экрана
 //            customTabBarView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
 //        ])
-////        calculateDataSource()
+//
+//        calculateDataSource(products: allProducts)
+//        customTabBarView.setCounterButton(count: allProducts.count)
 //    }
 //
 //
@@ -144,8 +146,13 @@
 //
 //    @objc func rangeSliderValueChanged(rangeSlider: RangeSlider) {
 //        print("First Start")
-//        rangeView.updateLabels(lowerValue: rangeSlider.lowerValue, upperValue: rangeSlider.upperValue)
-////        print("Range slider value changed: (\(rangeSlider.lowerValue) \(rangeSlider.upperValue))")
+//        print("rangeSlider.lowerValue - \(rangeSlider.lowerValue)")
+//        print("rangeSlider.upperValue - \(rangeSlider.upperValue)")
+//        if !isForcedPrice {
+//            rangeView.updateLabels(lowerValue: rangeSlider.lowerValue, upperValue: rangeSlider.upperValue)
+//        } else {
+//
+//        }
 //    }
 //
 //    @objc func didTapCloseButton() {
@@ -154,6 +161,12 @@
 //    }
 //
 //    @objc func didTapResetButton() {
+//        isForcedPrice = false
+//        selectedCell = [:]
+//        selectedStates = [:]
+//        customTabBarView.setCounterButton(count: allProducts.count)
+//        calculatePriceForFilterProducts(products: allProducts)
+//        collectionView.reloadData()
 //        print("didTapResetButton")
 //    }
 //
@@ -210,28 +223,66 @@
 //                dataSource[key] = sortValue
 //            }
 //            configureRangeView(minimumValue: Double(minPrice), maximumValue: Double(maxPrice))
+////            rangeView.updateLabels(lowerValue: rangeSlider.lowerValue, upperValue: rangeSlider.upperValue)
 //            self.dataSource = dataSource
 //        }
 //    }
 //
-//    func filterProducts(products: [Product], color: String? = nil, brand: String? = nil, material: String? = nil, season: String? = nil) -> [Product] {
+//    private func calculatePriceForFilterProducts(products: [Product]) {
+//
+//        print("calculatePriceForFilterProducts(product.count) - \(products.count)")
+//        var minPrice = Int.max
+//        var maxPrice = Int.min
+//
+//        var counter = 0
+//        for product in products {
+//            counter+=1
+//
+//            if let price = product.price {
+//
+//                if price < minPrice {
+//                    minPrice = price
+//                }
+//                if price > maxPrice {
+//                    maxPrice = price
+//                }
+//            }
+//        }
+//
+//        if counter == products.count {
+//            print("minimumValue - \(minPrice)")
+//            print("maximumValue - \(maxPrice)")
+//            if minPrice != maxPrice {
+//                configureRangeView(minimumValue: Double(minPrice), maximumValue: Double(maxPrice))
+//            } else {
+//                print("minPrice == maxPrice")
+//                isForcedPrice = true
+//                rangeView.updateLabels(lowerValue: Double(minPrice), upperValue: Double(maxPrice))
+//            }
+//
+//        }
+//    }
+//
+//
+//
+//    func filterProductsUniversal(products: [Product], color: [String]? = nil, brand: [String]? = nil, material: [String]? = nil, season: [String]? = nil) -> [Product] {
 //        let filteredProducts = products.filter { product in
 //            var isMatched = true
 //
 //            if let color = color {
-//                isMatched = isMatched && product.color == color
+//                isMatched = isMatched && color.contains(product.color ?? "")
 //            }
 //
 //            if let brand = brand {
-//                isMatched = isMatched && product.brand == brand
+//                isMatched = isMatched && brand.contains(product.brand ?? "")
 //            }
 //
 //            if let material = material {
-//                isMatched = isMatched && product.material == material
+//                isMatched = isMatched && material.contains(product.material ?? "")
 //            }
 //
 //            if let season = season {
-//                isMatched = isMatched && product.season == season
+//                isMatched = isMatched && season.contains(product.season ?? "")
 //            }
 //
 //            return isMatched
@@ -239,8 +290,6 @@
 //
 //        return filteredProducts
 //    }
-//
-//
 //
 //    // MARK: - UICollectionViewDataSource
 //
@@ -307,26 +356,46 @@
 //
 //    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 //
+//        isForcedPrice = false
+//
 //        if selectedStates[indexPath] == true {
 //                    selectedStates[indexPath] = false
 //                } else {
 //                    selectedStates[indexPath] = true
 //                }
 //
-//                collectionView.reloadItems(at: [indexPath])
-////        collectionView.reloadData()
+//        guard let cell = collectionView.cellForItem(at: indexPath) as? MyCell else {
+//                return
+//            }
 //
-////        let cell = collectionView.cellForItem(at: indexPath) as? MyCell
-////
-////                if cell?.isSelected == true {
-////                    cell?.isSelected = false
-////                } else {
-////                    cell?.isSelected = true
-////                }
-//        print("didSelectItemAt")
-//        //        self.dismiss(animated: true, completion: nil)
-//        //        allProducts = dataManager.createRandomProduct()
-//        //        calculateDataSource()
+//            let section = indexPath.section
+//            let item = cell.label.text ?? ""
+//
+//            if var cellsInSection = selectedCell[section] {
+//                if let indexToRemove = cellsInSection.firstIndex(of: item) {
+//                    // Удаляем элемент из массива, если он уже был выбран
+//                    cellsInSection.remove(at: indexToRemove)
+//                } else {
+//                    // Добавляем элемент в массив, если он еще не был выбран
+//                    cellsInSection.append(item)
+//                }
+//                if cellsInSection.isEmpty {
+//                    selectedCell[section] = nil
+//                } else {
+//                    selectedCell[section] = cellsInSection
+//                }
+//            } else {
+//                // Если ключ секции отсутствует в словаре, создаем новый массив и добавляем элемент
+//                selectedCell[section] = [item]
+//            }
+//        filterProducts = filterProductsUniversal(products: allProducts, color: selectedCell[0], brand: selectedCell[1], material: selectedCell[2], season: selectedCell[3])
+//
+//        // уходим от анимированного изменения цвета
+//        UIView.performWithoutAnimation {
+//               collectionView.reloadItems(at: [indexPath])
+//           }
+//
+//        print("didSelectItemAt - \(selectedCell)")
 //    }
 //
 //    // MARK: - UICollectionViewDelegateFlowLayout
@@ -459,16 +528,6 @@
 //        return label
 //    }()
 //
-////    override var isSelected: Bool {
-////        didSet {
-////            if isSelected {
-////                contentView.backgroundColor = UIColor.systemPurple // Изменение цвета при выделении
-////            } else {
-////                contentView.backgroundColor = UIColor.secondarySystemBackground // Исходный цвет
-////            }
-////        }
-////    }
-//
 //    override init(frame: CGRect) {
 //        super.init(frame: frame)
 //
@@ -586,7 +645,7 @@
 //
 //    let button: UIButton = {
 //        var configButton = UIButton.Configuration.gray()
-//        configButton.title = "Done"
+//        configButton.title = "Show products"
 //        configButton.baseForegroundColor = UIColor.label
 //        configButton.buttonSize = .large
 //        configButton.baseBackgroundColor = UIColor.systemPurple
@@ -626,6 +685,10 @@
 //            // Установим отступ до зоны жестов
 //            button.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -10)
 //        ])
+//    }
+//
+//    func setCounterButton(count:Int) {
+//        button.configuration?.title = "Show products(\(count))"
 //    }
 //
 //    @objc func didTapDoneButton() {
@@ -714,9 +777,6 @@
 //        setupUI()
 //    }
 //}
-
-
-
 
 
 //class ViewController: UIViewController {
