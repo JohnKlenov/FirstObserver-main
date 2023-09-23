@@ -929,3 +929,708 @@
 //
 //}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// saved alert - logic filter -
+
+//class CustomRangeViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+//
+//    var dataSource = [String:[String]]() {
+//        didSet {
+//            collectionView.reloadData()
+//        }
+//    }
+//    var allProducts:[Product] = []
+//    var filterProducts:[Product] = [] {
+//        didSet {
+//            customTabBarView.setCounterButton(count: filterProducts.count)
+//            if filterProducts.isEmpty {
+//                print("filterProducts.isEmpty")
+////                isTouchUpInside = false
+//                isForcedPrice = true
+//                rangeSlider.isEnabled = false
+//                rangeView.updateLabels(lowerValue: 0, upperValue: 0)
+//            } else {
+//                    print("calculatePriceForFilterProducts did")
+//                    calculatePriceForFilterProducts(products: filterProducts)
+//            }
+//        }
+//    }
+//
+//
+//    // conserva
+////    var filterProducts:[Product] = [] {
+////        didSet {
+////            customTabBarView.setCounterButton(count: filterProducts.count)
+////            if filterProducts.isEmpty {
+////                print("filterProducts.isEmpty")
+////                isTouchUpInside = false
+////                isForcedPrice = true
+////                rangeView.updateLabels(lowerValue: 0, upperValue: 0)
+////            } else {
+////                if isTouchUpInside {
+////                    isTouchUpInside = false
+////                } else {
+////                    calculatePriceForFilterProducts(products: filterProducts)
+////                }
+////            }
+////        }
+////    }
+//
+//    var fixedPriceFilterProducts:[Product] = [] {
+//        didSet {
+//            customTabBarView.setCounterButton(count: fixedPriceFilterProducts.count)
+//        }
+//    }
+//
+//    var selectedStates: [IndexPath: Bool] = [:]
+//    var selectedCell: [Int: [String]] = [:]
+//
+//    var isForcedPrice: Bool = false
+//    var isTouchUpInside:Bool = false
+//    var isFixedProducts:Bool = false
+//
+//    var dataManager = FactoryProducts.shared
+//
+//    private let collectionView: UICollectionView = {
+//        let layout = UserProfileTagsFlowLayout()
+//        layout.scrollDirection = .vertical
+//        layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+//        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+//        collectionView.translatesAutoresizingMaskIntoConstraints = false
+//        return collectionView
+//    }()
+//
+//    let closeButton: UIButton = {
+//        var configButton = UIButton.Configuration.plain()
+//        configButton.title = "Close"
+//        configButton.baseForegroundColor = UIColor.systemPurple
+//        configButton.titleAlignment = .leading
+//        configButton.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incomig in
+//
+//            var outgoing = incomig
+//            outgoing.font = UIFont.systemFont(ofSize: 17, weight: .medium)
+//            return outgoing
+//        }
+//        var button = UIButton(configuration: configButton)
+//        button.translatesAutoresizingMaskIntoConstraints = false
+//        return button
+//    }()
+//
+//    let resetButton: UIButton = {
+//        var configButton = UIButton.Configuration.plain()
+//        configButton.title = "Reset"
+//        configButton.baseForegroundColor = UIColor.systemPurple
+//        configButton.titleAlignment = .trailing
+//        configButton.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incomig in
+//
+//            var outgoing = incomig
+//            outgoing.font = UIFont.systemFont(ofSize: 17, weight: .medium)
+//            return outgoing
+//        }
+//        var button = UIButton(configuration: configButton)
+//        button.translatesAutoresizingMaskIntoConstraints = false
+//        return button
+//    }()
+//
+//    let customTabBarView: CustomTabBarView = {
+//        let view = CustomTabBarView()
+//        view.translatesAutoresizingMaskIntoConstraints = false
+//        return view
+//    }()
+//
+//    private let rangeView = RangeView()
+//    let rangeSlider = RangeSlider(frame: .zero)
+//
+//    override func viewDidLoad() {
+//        super.viewDidLoad()
+//        view.backgroundColor = UIColor.systemBackground
+//
+//        // Установка делегатов и источника данных UICollectionView
+//        collectionView.dataSource = self
+//        collectionView.delegate = self
+//        customTabBarView.delegate = self
+//        collectionView.backgroundColor = .clear
+//
+//        // Регистрация класса ячейки UICollectionViewCell для использования в коллекции
+//        collectionView.register(MyCell.self, forCellWithReuseIdentifier: "cell")
+//        collectionView.register(HeaderFilterCollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderFilterCollectionReusableView.headerIdentifier)
+//
+//        // Добавление UICollectionView на экран
+//        view.addSubview(rangeView)
+//        view.addSubview(rangeSlider)
+//        view.addSubview(collectionView)
+//        view.addSubview(customTabBarView)
+//        configureNavigationBar(largeTitleColor: UIColor.label, backgoundColor: UIColor.secondarySystemBackground, tintColor: UIColor.label, title: "Filters", preferredLargeTitle: false)
+//        configureNavigationItem()
+////        configureRangeView(minimumValue: 135, maximumValue: 745)
+//        rangeSlider.addTarget(self, action: #selector(rangeSliderValueChanged(rangeSlider:)), for: .valueChanged)
+//        rangeSlider.addTarget(self, action: #selector(rangeSliderTouchUpInside(rangeSlider:)), for: .touchUpInside)
+//
+//        // Установка ограничений для UICollectionView чтобы его размер был равен размеру его ячеек
+//        NSLayoutConstraint.activate([
+//            collectionView.topAnchor.constraint(equalTo: rangeSlider.bottomAnchor, constant: 10),
+//            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+//            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+//            collectionView.bottomAnchor.constraint(equalTo: customTabBarView.topAnchor)
+//        ])
+//
+//        NSLayoutConstraint.activate([
+//            customTabBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+//            customTabBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+//            // Прилипание к нижнему краю экрана
+//            customTabBarView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+//        ])
+//
+//        calculateDataSource(products: allProducts)
+//        customTabBarView.setCounterButton(count: allProducts.count)
+//    }
+//
+//
+//    override func viewDidLayoutSubviews() {
+//        super.viewDidLayoutSubviews()
+////        navigationController?.navigationBar.frame.maxY ??
+////        rangeView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 90)
+//        rangeView.frame = CGRect(x: 0, y: 10, width: UIScreen.main.bounds.width, height: 90)
+//        rangeSlider.frame = CGRect(x: 10, y: rangeView.frame.maxY, width: UIScreen.main.bounds.width - 20, height: 30)
+//
+//    }
+//
+//    @objc func rangeSliderValueChanged(rangeSlider: RangeSlider) {
+//        print("rangeSliderValueChanged")
+////        print("rangeSlider.lowerValue - \(rangeSlider.lowerValue)")
+////        print("rangeSlider.upperValue - \(rangeSlider.upperValue)")
+//
+//        if !isForcedPrice {
+//            rangeView.updateLabels(lowerValue: rangeSlider.lowerValue, upperValue: rangeSlider.upperValue)
+//        }
+//    }
+//
+//    // conserva
+////    @objc func rangeSliderValueChanged(rangeSlider: RangeSlider) {
+////        print("rangeSliderValueChanged")
+//////        print("rangeSlider.lowerValue - \(rangeSlider.lowerValue)")
+//////        print("rangeSlider.upperValue - \(rangeSlider.upperValue)")
+////
+////        if !isForcedPrice {
+////            rangeView.updateLabels(lowerValue: rangeSlider.lowerValue, upperValue: rangeSlider.upperValue)
+////        }
+////    }
+//
+//    @objc func rangeSliderTouchUpInside(rangeSlider: RangeSlider) {
+//        print("rangeSliderTouchUpInside")
+//        //        print("rangeSliderTouchUpInside lowerValue - \(rangeSlider.lowerValue)")
+//        //        print("rangeSliderTouchUpInside upperValue - \(rangeSlider.upperValue)")
+//        isFixedProducts = true
+//        fixedPriceFilterProducts = filterProductsUniversal(products: allProducts, color: selectedCell[0], brand: selectedCell[1], material: selectedCell[2], season: selectedCell[3], minPrice: Int(rangeSlider.lowerValue), maxPrice: Int(rangeSlider.upperValue))
+//
+//    }
+//
+//    // conserva
+////    @objc func rangeSliderTouchUpInside(rangeSlider: RangeSlider) {
+////                print("rangeSliderTouchUpInside")
+////        isTouchUpInside = true
+//////        isFixedProducts = true
+////        //        isForcedPrice = false
+////        if !isForcedPrice {
+////            print("rangeSliderTouchUpInside lowerValue - \(rangeSlider.lowerValue)")
+////            print("rangeSliderTouchUpInside upperValue - \(rangeSlider.upperValue)")
+////            filterProducts = filterProductsUniversal(products: allProducts, color: selectedCell[0], brand: selectedCell[1], material: selectedCell[2], season: selectedCell[3], minPrice: Int(rangeSlider.lowerValue), maxPrice: Int(rangeSlider.upperValue))
+////        }
+////
+////    }
+//
+//
+//    @objc func didTapCloseButton() {
+//        self.dismiss(animated: true, completion: nil)
+//        print("didTapCloseButton")
+////        rangeSlider.isEnabled = false
+//    }
+//
+//    @objc func didTapResetButton() {
+//        rangeSlider.isEnabled = true
+//        isForcedPrice = false
+//        isFixedProducts = false
+//        selectedCell = [:]
+//        selectedStates = [:]
+//        customTabBarView.setCounterButton(count: allProducts.count)
+//        calculatePriceForFilterProducts(products: allProducts)
+//        collectionView.reloadData()
+//        print("didTapResetButton")
+//    }
+//
+//    // conserva
+////    @objc func didTapResetButton() {
+////        isForcedPrice = false
+////        isTouchUpInside = false
+////        selectedCell = [:]
+////        selectedStates = [:]
+////        customTabBarView.setCounterButton(count: allProducts.count)
+////        calculatePriceForFilterProducts(products: allProducts)
+////        collectionView.reloadData()
+////        print("didTapResetButton")
+////    }
+//
+//    private func configureNavigationItem() {
+//
+//        closeButton.addTarget(self, action: #selector(didTapCloseButton), for: .touchUpInside)
+//        resetButton.addTarget(self, action: #selector(didTapResetButton), for: .touchUpInside)
+//        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: closeButton)
+//        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: resetButton)
+//    }
+//
+//    private func configureRangeView(minimumValue:Double, maximumValue:Double) {
+//        rangeSlider.minimumValue = minimumValue
+//        rangeSlider.maximumValue = maximumValue
+//        rangeSlider.lowerValue = minimumValue
+//        rangeSlider.upperValue = maximumValue
+//    }
+//
+//    private func calculateDataSource(products: [Product]) {
+//
+//        var minPrice = Int.max
+//        var maxPrice = Int.min
+//        var dataSource = [String: [String]]()
+//        var counter = 0
+//        for product in products {
+//            counter+=1
+//            if let color = product.color {
+//                dataSource["color", default: []].append(color)
+//            }
+//            if let brand = product.brand {
+//                dataSource["brand", default: []].append(brand)
+//            }
+//            if let material = product.material {
+//                dataSource["material", default: []].append(material)
+//            }
+//            if let season = product.season {
+//                dataSource["season", default: []].append(season)
+//            }
+//            if let price = product.price {
+//
+//                   if price < minPrice {
+//                       minPrice = price
+//                   }
+//                   if price > maxPrice {
+//                       maxPrice = price
+//                   }
+//               }
+//        }
+//        if counter == products.count {
+//            for key in dataSource.keys {
+//                let values = Set(dataSource[key]!)
+//                dataSource[key] = Array(values)
+//                let sortValue = dataSource[key]?.sorted()
+//                dataSource[key] = sortValue
+//            }
+//            configureRangeView(minimumValue: Double(minPrice), maximumValue: Double(maxPrice))
+////            rangeView.updateLabels(lowerValue: rangeSlider.lowerValue, upperValue: rangeSlider.upperValue)
+//            self.dataSource = dataSource
+//        }
+//    }
+//
+//    private func calculatePriceForFilterProducts(products: [Product]) {
+//
+//        print("calculatePriceForFilterProducts(product.count) - \(products.count)")
+//        var minPrice = Int.max
+//        var maxPrice = Int.min
+//
+//        var counter = 0
+//        for product in products {
+//            counter+=1
+//
+//            if let price = product.price {
+//
+//                if price < minPrice {
+//                    minPrice = price
+//                }
+//                if price > maxPrice {
+//                    maxPrice = price
+//                }
+//            }
+//        }
+//
+//        if counter == products.count {
+//            print("minimumValue - \(minPrice)")
+//            print("maximumValue - \(maxPrice)")
+//            if minPrice != maxPrice {
+//                configureRangeView(minimumValue: Double(minPrice), maximumValue: Double(maxPrice))
+//            } else {
+//                print("minPrice == maxPrice")
+//                isForcedPrice = true
+//                rangeSlider.isEnabled = false
+//                rangeView.updateLabels(lowerValue: Double(minPrice), upperValue: Double(maxPrice))
+//            }
+//
+//        }
+//    }
+//
+//    // conserva
+////    private func calculatePriceForFilterProducts(products: [Product]) {
+////
+////        print("calculatePriceForFilterProducts(product.count) - \(products.count)")
+////        var minPrice = Int.max
+////        var maxPrice = Int.min
+////
+////        var counter = 0
+////        for product in products {
+////            counter+=1
+////
+////            if let price = product.price {
+////
+////                if price < minPrice {
+////                    minPrice = price
+////                }
+////                if price > maxPrice {
+////                    maxPrice = price
+////                }
+////            }
+////        }
+////
+////        if counter == products.count {
+////            print("minimumValue - \(minPrice)")
+////            print("maximumValue - \(maxPrice)")
+////            if minPrice != maxPrice {
+////                configureRangeView(minimumValue: Double(minPrice), maximumValue: Double(maxPrice))
+////            } else {
+////                print("minPrice == maxPrice")
+////                isForcedPrice = true
+////                rangeView.updateLabels(lowerValue: Double(minPrice), upperValue: Double(maxPrice))
+////            }
+////
+////        }
+////    }
+//
+//    func filterProductsUniversal(products: [Product], color: [String]? = nil, brand: [String]? = nil, material: [String]? = nil, season: [String]? = nil, minPrice: Int? = nil, maxPrice: Int? = nil) -> [Product] {
+//        let filteredProducts = products.filter { product in
+//            var isMatched = true
+//
+//            if let color = color {
+//                isMatched = isMatched && color.contains(product.color ?? "")
+//            }
+//
+//            if let brand = brand {
+//                isMatched = isMatched && brand.contains(product.brand ?? "")
+//            }
+//
+//            if let material = material {
+//                isMatched = isMatched && material.contains(product.material ?? "")
+//            }
+//
+//            if let season = season {
+//                isMatched = isMatched && season.contains(product.season ?? "")
+//            }
+//
+//            if let minPrice = minPrice {
+//                isMatched = isMatched && (product.price ?? -1 >= minPrice)
+//            }
+//
+//            if let maxPrice = maxPrice {
+//                isMatched = isMatched && (product.price ?? 1000 <= maxPrice)
+//            }
+//
+//            return isMatched
+//        }
+//
+//        return filteredProducts
+//    }
+//
+//
+////    func filterProductsUniversal(products: [Product], color: [String]? = nil, brand: [String]? = nil, material: [String]? = nil, season: [String]? = nil) -> [Product] {
+////        let filteredProducts = products.filter { product in
+////            var isMatched = true
+////
+////            if let color = color {
+////                isMatched = isMatched && color.contains(product.color ?? "")
+////            }
+////
+////            if let brand = brand {
+////                isMatched = isMatched && brand.contains(product.brand ?? "")
+////            }
+////
+////            if let material = material {
+////                isMatched = isMatched && material.contains(product.material ?? "")
+////            }
+////
+////            if let season = season {
+////                isMatched = isMatched && season.contains(product.season ?? "")
+////            }
+////
+////            return isMatched
+////        }
+////
+////        return filteredProducts
+////    }
+//
+//    // MARK: - UICollectionViewDataSource
+//
+//    func numberOfSections(in collectionView: UICollectionView) -> Int {
+//        return dataSource.count
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+//
+//        switch section {
+//        case 0:
+//            return dataSource["color"]?.count ?? 0
+////            return colors.count
+//        case 1:
+//            return dataSource["brand"]?.count ?? 0
+////            return brands.count
+//        case 2:
+//            return dataSource["material"]?.count ?? 0
+////            return material.count
+//        case 3:
+//            return dataSource["season"]?.count ?? 0
+////            return season.count
+//        default:
+//            print("Returned message for analytic FB Crashlytics error")
+//            return 0
+//        }
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+//
+//        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as? MyCell else {
+//            return UICollectionViewCell()
+//        }
+//
+//        if let isSelected = selectedStates[indexPath], isSelected {
+//            cell.contentView.backgroundColor = UIColor.systemPurple
+//               } else {
+//                   cell.contentView.backgroundColor = UIColor.secondarySystemBackground
+//               }
+//
+//
+//        switch indexPath.section {
+//        case 0:
+//            let colors = dataSource["color"]
+//            cell.label.text = colors?[indexPath.row]
+////            cell.label.text = colors[indexPath.row]
+//        case 1:
+//            let brands = dataSource["brand"]
+//            cell.label.text = brands?[indexPath.row]
+////            cell.label.text = brands[indexPath.row]
+//        case 2:
+//            let material = dataSource["material"]
+//            cell.label.text = material?[indexPath.row]
+////            cell.label.text = material[indexPath.row]
+//        case 3:
+//            let season = dataSource["season"]
+//            cell.label.text = season?[indexPath.row]
+////            cell.label.text = season[indexPath.row]
+//        default:
+//            print("Returned message for analytic FB Crashlytics error")
+//        }
+//        return cell
+//    }
+//
+//
+//    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+//
+//        isForcedPrice = false
+////        isTouchUpInside = false
+//
+//        if selectedStates[indexPath] == true {
+//                    selectedStates[indexPath] = false
+//                } else {
+//                    selectedStates[indexPath] = true
+//                }
+//
+//        guard let cell = collectionView.cellForItem(at: indexPath) as? MyCell else {
+//                return
+//            }
+//
+//            let section = indexPath.section
+//            let item = cell.label.text ?? ""
+//
+//            if var cellsInSection = selectedCell[section] {
+//                if let indexToRemove = cellsInSection.firstIndex(of: item) {
+//                    // Удаляем элемент из массива, если он уже был выбран
+//                    cellsInSection.remove(at: indexToRemove)
+//                } else {
+//                    // Добавляем элемент в массив, если он еще не был выбран
+//                    cellsInSection.append(item)
+//                }
+//                if cellsInSection.isEmpty {
+//                    selectedCell[section] = nil
+//                } else {
+//                    selectedCell[section] = cellsInSection
+//                }
+//            } else {
+//                // Если ключ секции отсутствует в словаре, создаем новый массив и добавляем элемент
+//                selectedCell[section] = [item]
+//            }
+//
+//        if !isFixedProducts {
+//            rangeSlider.isEnabled = true
+//            filterProducts = filterProductsUniversal(products: allProducts, color: selectedCell[0], brand: selectedCell[1], material: selectedCell[2], season: selectedCell[3])
+//        } else {
+//            fixedPriceFilterProducts = filterProductsUniversal(products: allProducts, color: selectedCell[0], brand: selectedCell[1], material: selectedCell[2], season: selectedCell[3], minPrice: Int(rangeSlider.lowerValue), maxPrice: Int(rangeSlider.upperValue))
+//        }
+//
+//        // уходим от анимированного изменения цвета
+//        UIView.performWithoutAnimation {
+//               collectionView.reloadItems(at: [indexPath])
+//           }
+//
+//        print("didSelectItemAt - \(selectedCell)")
+//    }
+//
+//    // conserva
+////    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+////
+////        isForcedPrice = false
+////        isTouchUpInside = false
+////
+////        if selectedStates[indexPath] == true {
+////                    selectedStates[indexPath] = false
+////                } else {
+////                    selectedStates[indexPath] = true
+////                }
+////
+////        guard let cell = collectionView.cellForItem(at: indexPath) as? MyCell else {
+////                return
+////            }
+////
+////            let section = indexPath.section
+////            let item = cell.label.text ?? ""
+////
+////            if var cellsInSection = selectedCell[section] {
+////                if let indexToRemove = cellsInSection.firstIndex(of: item) {
+////                    // Удаляем элемент из массива, если он уже был выбран
+////                    cellsInSection.remove(at: indexToRemove)
+////                } else {
+////                    // Добавляем элемент в массив, если он еще не был выбран
+////                    cellsInSection.append(item)
+////                }
+////                if cellsInSection.isEmpty {
+////                    selectedCell[section] = nil
+////                } else {
+////                    selectedCell[section] = cellsInSection
+////                }
+////            } else {
+////                // Если ключ секции отсутствует в словаре, создаем новый массив и добавляем элемент
+////                selectedCell[section] = [item]
+////            }
+//////        print("didSelectItemAt lowerValue - \(rangeSlider.lowerValue)")
+//////        print("didSelectItemAt upperValue - \(rangeSlider.upperValue)")
+//////        , minPrice: Int(rangeSlider.lowerValue), maxPrice: Int(rangeSlider.upperValue)
+////        filterProducts = filterProductsUniversal(products: allProducts, color: selectedCell[0], brand: selectedCell[1], material: selectedCell[2], season: selectedCell[3])
+////
+////        // уходим от анимированного изменения цвета
+////        UIView.performWithoutAnimation {
+////               collectionView.reloadItems(at: [indexPath])
+////           }
+////
+////        print("didSelectItemAt - \(selectedCell)")
+////    }
+//
+//    // MARK: - UICollectionViewDelegateFlowLayout
+//
+//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+//
+//        var labelSize = CGSize()
+//        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as? MyCell
+//
+//        switch indexPath.section {
+//        case 0:
+//            let colors = dataSource["color"]
+//            cell?.label.text = colors?[indexPath.row]
+////            cell?.label.text = colors[indexPath.row]
+//            //             Определяем размеры метки с помощью метода sizeThatFits()
+//            labelSize = cell?.label.sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)) ?? .zero
+//            labelSize = CGSize(width: labelSize.width + 20, height: labelSize.height + 20)
+//        case 1:
+//            let brands = dataSource["brand"]
+//            cell?.label.text = brands?[indexPath.row]
+////            cell?.label.text = brands[indexPath.row]
+//            //             Определяем размеры метки с помощью метода sizeThatFits()
+//            labelSize = cell?.label.sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)) ?? .zero
+//            labelSize = CGSize(width: labelSize.width + 20, height: labelSize.height + 20)
+//        case 2:
+//            let material = dataSource["material"]
+//            cell?.label.text = material?[indexPath.row]
+////            cell?.label.text = material[indexPath.row]
+//            //             Определяем размеры метки с помощью метода sizeThatFits()
+//            labelSize = cell?.label.sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)) ?? .zero
+//            labelSize = CGSize(width: labelSize.width + 20, height: labelSize.height + 20)
+//        case 3:
+//            let season = dataSource["season"]
+//            cell?.label.text = season?[indexPath.row]
+////            cell?.label.text = season[indexPath.row]
+//            //             Определяем размеры метки с помощью метода sizeThatFits()
+//            labelSize = cell?.label.sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)) ?? .zero
+//            labelSize = CGSize(width: labelSize.width + 20, height: labelSize.height + 20)
+//        default:
+//            print("Returned message for analytic FB Crashlytics error")
+//            labelSize = .zero
+//        }
+//        return labelSize
+//    }
+//
+//
+//    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+//
+//        if kind == UICollectionView.elementKindSectionHeader {
+//            let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: HeaderFilterCollectionReusableView.headerIdentifier, for: indexPath) as! HeaderFilterCollectionReusableView
+//
+//            // Customize your header view here based on the section index
+//            switch indexPath.section {
+//            case 0:
+//                headerView.configureCell(title: "Color")
+//            case 1:
+//                headerView.configureCell(title: "Brand")
+//            case 2:
+//                headerView.configureCell(title: "Material")
+//            case 3:
+//                headerView.configureCell(title: "Season")
+//            default:
+//                break
+//            }
+//
+//            return headerView
+//        }
+//        fatalError("Unexpected element kind")
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+//
+//        let headerView = HeaderFilterCollectionReusableView()
+//        headerView.configureCell(title: "Test")
+//        let width = collectionView.bounds.width
+//        let height = headerView.systemLayoutSizeFitting(CGSize(width: width, height: UIView.layoutFittingCompressedSize.height)).height
+//
+//        return CGSize(width: width, height: height)
+//    }
+//}
+//
+//extension CustomRangeViewController: CustomTabBarViewDelegate {
+//    func customTabBarViewDidTapButton(_ tabBarView: CustomTabBarView) {
+//        // Ваш код обработки нажатия на кнопку
+//        print("customTabBarViewDidTapButton")
+//    }
+//}
+//
+//
+//
+//
