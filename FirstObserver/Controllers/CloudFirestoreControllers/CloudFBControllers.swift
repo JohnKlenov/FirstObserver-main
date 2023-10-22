@@ -658,7 +658,7 @@ class HomeVC: PlaceholderNavigationController {
             } else {
 
                 var shopsList: [Shop] = []
-
+                // тут мы создаем список malls в котором есть данный Shop (мы заложили возможность что один товар может быть в разных Shop, то есть продукт может быть в двух shop в одном mall?) (но у нас правило один уникальный продукт для mall)?
                 shops[currentGender]?.forEach { shop in
                     if shopsProduct.contains(shop.name ?? "") {
                         shopsList.append(shop)
@@ -1298,6 +1298,7 @@ class ProductVC: UIViewController {
         vc.sheetPresentationController?.detents = [.medium()]
         vc.sheetPresentationController?.prefersGrabberVisible = true
         
+        // у нас может быть один продукт в разных shop и они даже могут оказаться в одном mall
         let mall = pinsMall[indexPath.row].title ?? ""
         var shopsMall:[Shop] = []
         shops.forEach { shop in
@@ -1593,6 +1594,8 @@ extension CatalogVC: ProductCellDelegateForCloudF {
     }
 }
 
+
+//                Возможный BUG в CartVC мы должны предусмотреть ситуацию при которой user может добавить в корзину как женские так и мужские товары (arrayShops должен быть к этому готов!!!)
 // так как этот vc будет корневым для PlaceholderNavigationController из кода мы можем не делать его явным наследником.
 class CartVC: UIViewController {
     

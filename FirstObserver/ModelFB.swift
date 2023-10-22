@@ -231,14 +231,21 @@ struct Shop {
 struct ProductItem: Hashable {
     let brand: String?
     let model: String?
+    // кросовки, кеды, ботинки ..
     let category: String?
+    // priorityIndex заменить
     let popularityIndex: Int?
     let strengthIndex: Int?
+    // type заменить на season: "Summer", "Winter", "Demi-Season"
     let type: String?
+    // let color: bright, dark
+    // let material: Leather, Artificial Material
+    // promotion?
     let description: String?
     let price: Int?
     let refImage: [String]?
     let shops: [String]?
+    // shop - ?
     let shop: String?
     let originalContent: String?
     let gender: String?
