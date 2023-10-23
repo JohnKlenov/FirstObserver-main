@@ -2225,6 +2225,12 @@ class ManagerFB {
         listeners.filter { $0.key == path }
         .forEach { $0.value.remove() }
     }
+    
+    
+    
+    // MARK: - AuthFirestoreService
+    
+    
 }
 
 // MARK: - System MVC
@@ -2459,7 +2465,7 @@ struct FetchProductsDataResponse {
     init(documents: Any) throws {
         // если мы не сможем получить array то мы выплюним ошибку throw
         guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
-        
+//        HomeScreenCloudFirestoreService.
         var items = [ProductItemNew]()
         for dictionary in array {
             // если у нас не получился comment то просто продолжаем - continue
@@ -2471,53 +2477,149 @@ struct FetchProductsDataResponse {
     }
 }
 
+//class UserListenerAuthService {
+//    // екземпляр не будем создавать
+//    private init() {}
+//
+//    static func addtateDidChangeListener(path: String, completion: @escaping ([ProductItemNew]?) -> Void) {
+//
+////        ManagerFB.shared.userListener(currentUser: <#T##(User?) -> Void#>)
+//    }
+//}
+
 // PreviewCloudFirestoreService
+
+class BunchData {
+    var model:[String:SectionModelNew]?
+    var shopsMan: ShopNew?
+    var shopsWoman: ShopNew?
+    var cartProducts: ProductItemNew?
+    var pinMall: PinMall?
+}
 
 class HomeScreenCloudFirestoreService {
     // екземпляр не будем создавать
     private init() {}
     
-    var homeModel = [SectionModelNew]()
-    var shops = [String:[ShopNew]]()
+    static var bunchData = BunchData()
     
-    static func fetchBunchData(gender: String, completion: @escaping ([SectionModelNew]?) -> Void) {
-//        var counter: [String] = [] {
-//            didSet {
-//                if counter.count == 7 {
-//
-//                }
-//            }
-//        }
-        PreviewCloudFirestoreService.fetchPreviewSection(path: "previewMalls\(gender)") { documents in
-            <#code#>
+//    static var isFirstMalls = true
+//    static var isFirstShops = true
+//    static var isFirstShopsMan = true
+//    static var isFirstShopsWoman = true
+//    static var isFirstPopularProducts = true
+    
+//    static var isFirstCartProducts = true
+
+    static func fetchBunchData(gender: String, completion: @escaping (BunchData?) -> Void) {
+        
+        let group = DispatchGroup()
+        
+        group.enter()
+        PreviewCloudFirestoreService.fetchPreviewSection(path: "previewMalls\(gender)") { malls in
+            
+            guard let malls = malls else {
+                return
+            }
+            
+            let items = createItem(malls: malls, shops: nil, products: nil)
+            let mallSection = SectionModelNew(section: "Malls", items: items)
+            
+            guard let _ = bunchData.model?["Malls"] else {
+                group.enter()
+                bunchData.model?["Malls"] = mallSection
+                group.leave()
+                return
+            }
+            
+            bunchData.model?["Malls"] = mallSection
+            group.leave()
         }
         
+        group.enter()
         PreviewCloudFirestoreService.fetchPreviewSection(path: "previewShops\(gender)") { documents in
-            <#code#>
+            
+            group.leave()
+            // ItemNew add homeModel
         }
         
+        group.enter()
         ShopsCloudFirestoreService.fetchShops(path: "shopsMan") { documents in
-            <#code#>
+            group.leave()
         }
         
+        group.enter()
         ShopsCloudFirestoreService.fetchShops(path: "shopsWoman") { documents in
-            <#code#>
+            group.leave()
         }
         
+        group.enter()
         ProductCloudFirestoreService.fetchProducts(path: "popularProducts\(gender)") { documents in
-            <#code#>
+            group.leave()
+            // ItemNew add homeModel
+        }
+        group.notify(queue: .main) {
+            completion(bunchData)
         }
         
     }
+    
     
     static func removeListeners(for path: String) {
 //        ManagerFB.shared.removeListeners(for: path)
     }
     
+    static func createItem(malls: [PreviewSectionNew]? = nil, shops: [PreviewSectionNew]? = nil, products: [ProductItemNew]? = nil) -> [ItemNew] {
+        
+        var items = [ItemNew]()
+        if let malls = malls {
+            items = malls.map {ItemNew(mall: $0, shop: nil, popularProduct: nil)}
+        } else if let shops = shops {
+            items = shops.map {ItemNew(mall: nil, shop: $0, popularProduct: nil)}
+        } else if let products = products {
+            items = products.map {ItemNew(mall: nil, shop: nil, popularProduct: $0)}
+        }
+        return items
+        
+        //func createItem(malls: [Mall]?, shops: [Shop]?, products: [Product]?) -> [ItemNew] {
+        //    var items = [ItemNew]()
+        //
+        //    switch (malls, shops, products) {
+        //    case let (.some(malls), _, _):
+        //        items = malls.map { ItemNew(mall: $0, shop: nil, popularProduct: nil) }
+        //
+        //    case let (_, .some(shops), _):
+        //        items = shops.map { ItemNew(mall: nil, shop: $0, popularProduct: nil) }
+        //
+        //    case let (_, _, .some(products)):
+        //        items = products.map { ItemNew(mall: nil, shop: nil, popularProduct: $0) }
+        //
+        //    default:
+        //        break
+        //    }
+        //
+        //    return items
+        //}
+    }
 }
 
 
 
+
+
+//    var shops = [String:[ShopNew]]()
+    
+
+//    private func createItem(malls: [PreviewSectionNew]? = nil, shops: [PreviewSectionNew]? = nil, products: [ProductItemNew]? = nil) {
+//        guard let malls == nil else {continue}
+//
+//    }
+//            var items = [ItemNew]()
+//            documents?.forEach({ item in
+//                let item = ItemNew(mall: item, shop: nil, popularProduct: nil)
+//                items.append(item)
+//            })
+            //  ItemNew add homeModel
 
 
 
