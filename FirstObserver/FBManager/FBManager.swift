@@ -2192,7 +2192,8 @@ class ManagerFB {
 
     private let db = Firestore.firestore()
     private var listeners: [String:ListenerRegistration] = [:]
-
+    
+    let authFirebaseService = AuthFirebase()
     // productsMan, productsWoman, mallsMan, mallsWoman, shopsMan, shopsWoman, pinMalls, popularProductMan, popularProductWoman, previewShopsMan, previewShopsWoman, previewMallMan, previewMallWoman
     func fetchStartCollection(for path: String, completion: @escaping (Any?, Error?) -> Void) {
         let collection = db.collection(path)
@@ -2227,12 +2228,63 @@ class ManagerFB {
         .forEach { $0.value.remove() }
     }
     
-    
-    
-    // MARK: - AuthFirestoreService
-    
-    
 }
+
+//protocol ManagerFirebase
+//extension ManagerFB:
+
+// MARK: - AuthFirestoreService
+
+class AuthFirebase {
+    
+    func userListener(currentUser: @escaping (User?) -> Void) {
+        Auth.auth().addStateDidChangeListener { (auth, user) in
+//            self.currentUser = user
+            currentUser(user)
+        }
+    }
+    
+    func signInAnonymously() {
+        
+        Auth.auth().signInAnonymously { (authResult, error) in
+            
+            guard error == nil, let authResult = authResult else {
+                print("Returne message for analitic FB Crashlystics")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    self.signInAnonymously()
+                }
+                return
+            }
+            self.addEmptyCartProducts(uid: authResult.user.uid)
+        }
+    }
+    
+    func addEmptyCartProducts(uid: String) {
+        
+        let usersCollection = Firestore.firestore().collection("usersAccounts")
+        let userDocument = usersCollection.document(uid)
+        userDocument.collection("cartProducts").addDocument(data: [:]) { error in
+            if error != nil {
+                print("Returne message for analitic FB Crashlystics")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    self.addEmptyCartProducts(uid: uid)
+                }
+            }
+        }
+    }
+    
+    func listenForUserChangesWithCompletion(completion: @escaping (String) -> Void) {
+        userListener { currentUser in
+            guard let currentUser = currentUser else {
+                self.signInAnonymously()
+                return
+            }
+            completion(currentUser.uid)
+        }
+    }
+   
+}
+
 
 // MARK: - System MVC
 
@@ -2548,6 +2600,8 @@ class ProductCloudFirestoreService {
     }
 }
 
+
+
 struct FetchProductsDataResponse {
     typealias JSON = [String : Any]
     let items:[ProductItemNew]
@@ -2569,15 +2623,29 @@ struct FetchProductsDataResponse {
     }
 }
 
-//class UserListenerAuthService {
-//    // екземпляр не будем создавать
-//    private init() {}
-//
-//    static func addtateDidChangeListener(path: String, completion: @escaping ([ProductItemNew]?) -> Void) {
-//
-////        ManagerFB.shared.userListener(currentUser: <#T##(User?) -> Void#>)
-//    }
-//}
+class HomeAuthFirebaseService {
+    
+    private init() {}
+    static var currentUserID:String?
+    
+    static func fetchCartProducts(completion: @escaping ([ProductItemNew]?) -> Void) {
+        
+        ProductCloudFirestoreService.fetchProducts(path: "usersAccount/\(String(describing: currentUserID))/cartProducts") { cartProducts in
+           completion(cartProducts)
+        }
+    }
+    
+    // if in HomeVC return nil мы можем попробывать руками вызвать-  HomeAuthFirebaseService.fetchCartProducts
+    static func listenForUserChangesWithCompletion(completion: @escaping ([ProductItemNew]?) -> Void) {
+        ManagerFB.shared.authFirebaseService.listenForUserChangesWithCompletion { userID in
+            self.currentUserID = userID
+            fetchCartProducts { cartProducts in
+                completion(cartProducts)
+            }
+        }
+    }
+}
+
 
 // PreviewCloudFirestoreService
 
@@ -2588,7 +2656,7 @@ class BunchData {
     var pinMall: [PinNew]?
 }
 
-class HomeScreenCloudFirestoreService {
+class HomeCloudFirestoreService {
     // екземпляр не будем создавать
     private init() {}
     
@@ -2596,7 +2664,6 @@ class HomeScreenCloudFirestoreService {
     static let group = DispatchGroup()
 
     static func fetchBunchData(gender: String, completion: @escaping (BunchData?) -> Void) {
-        
         
         group.enter()
         PreviewCloudFirestoreService.fetchPreviewSection(path: "previewMalls\(gender)") { malls in
@@ -2665,14 +2732,14 @@ class HomeScreenCloudFirestoreService {
             guard let shopsMan = shopsMan else {
                 return
             }
-            
+
             guard let _ = bunchData.shops?["Man"] else {
                 group.enter()
                 bunchData.shops?["Man"] = shopsMan
                 group.leave()
                 return
             }
-            
+
             bunchData.shops?["Man"] = shopsMan
             group.leave()
         }
@@ -2682,18 +2749,19 @@ class HomeScreenCloudFirestoreService {
             guard let shopsWoman = shopsWoman else {
                 return
             }
-            
+
             guard let _ = bunchData.shops?["Woman"] else {
                 group.enter()
                 bunchData.shops?["Woman"] = shopsWoman
                 group.leave()
                 return
             }
-            
+
             bunchData.shops?["Woman"] = shopsWoman
             group.leave()
         }
         
+        // в модель для MapView подготовим в VC
         group.enter()
         PinCloudFirestoreService.fetchPin(path: "pinMals") { pins in
             guard let pins = pins else {
@@ -2718,6 +2786,7 @@ class HomeScreenCloudFirestoreService {
     }
     
     
+    
     static func removeListeners(for path: String) {
 //        ManagerFB.shared.removeListeners(for: path)
     }
@@ -2736,6 +2805,9 @@ class HomeScreenCloudFirestoreService {
     }
 }
 
+
+
+// MARK: - Second version implemintation  -
 //func createItem(malls: [Mall]?, shops: [Shop]?, products: [Product]?) -> [ItemNew] {
 //    var items = [ItemNew]()
 //
@@ -2756,21 +2828,48 @@ class HomeScreenCloudFirestoreService {
 //    return items
 //}
 
+//handleShopsData(path: "shopsMan", key: "Man")
+//handleShopsData(path: "shopsWoman", key: "Woman")
 
-
-//    var shops = [String:[ShopNew]]()
-    
-
-//    private func createItem(malls: [PreviewSectionNew]? = nil, shops: [PreviewSectionNew]? = nil, products: [ProductItemNew]? = nil) {
-//        guard let malls == nil else {continue}
+//static func handleShopsData(path: String, key: String) {
+//    group.enter()
+//    ShopsCloudFirestoreService.fetchShops(path: path) { shops in
+//        guard let shops = shops else {
+//            return
+//        }
 //
+//        guard let _ = bunchData.shops?[key] else {
+//            group.enter()
+//            bunchData.shops?[key] = shops
+//            group.leave()
+//            return
+//        }
+//
+//        bunchData.shops?[key] = shops
+//        group.leave()
 //    }
-//            var items = [ItemNew]()
-//            documents?.forEach({ item in
-//                let item = ItemNew(mall: item, shop: nil, popularProduct: nil)
-//                items.append(item)
-//            })
-            //  ItemNew add homeModel
+//}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
