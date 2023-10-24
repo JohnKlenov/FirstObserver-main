@@ -12,6 +12,7 @@ import UIKit
 import Firebase
 import FirebaseStorage
 import FirebaseStorageUI
+//import MapKit
 //import FirebaseAnalytics
 
 
@@ -2379,6 +2380,97 @@ struct ProductItemNew: Hashable {
     }
 }
 
+struct PinNew {
+    
+    let mall:String?
+    let refImage:String?
+    let address:String?
+    let objectType:String?
+    let latitude:Double?
+    let longitude:Double?
+    init(dict: [String: Any]) {
+        mall = dict["mall"] as? String
+        refImage = dict["refImage"] as? String
+        address = dict["address"] as? String
+        objectType = dict["objectType"] as? String
+        latitude = dict["latitude"] as? Double
+        longitude = dict["longitude"] as? Double
+    }
+}
+
+//class PinMapNew: NSObject, MKAnnotation {
+//
+//    let title: String?
+//    let locationName: String?
+//    let discipline: String?
+//    let imageName: String?
+//    let coordinate: CLLocationCoordinate2D
+//
+//    init(title:String?, locationName:String?, discipline:String?, coordinate: CLLocationCoordinate2D, imageName: String?) {
+//
+//        self.title = title
+//        self.locationName = locationName
+//        self.discipline = discipline
+//        self.coordinate = coordinate
+//        self.imageName = imageName
+//        super.init()
+//    }
+//
+//    var subtitle: String? {
+//        return locationName
+//    }
+//
+//}
+
+class PinCloudFirestoreService {
+    // екземпляр не будем создавать
+    private init() {}
+    
+    static func fetchPin(path: String, completion: @escaping ([PinNew]?) -> Void) {
+        
+        ManagerFB.shared.fetchStartCollection(for: path) { documents, error in
+            guard let documents = documents else {
+                completion(nil)
+                return
+            }
+            
+            do {
+                let response = try FetchPinDataResponse(documents: documents)
+                completion(response.items)
+            } catch {
+//                ManagerFB.shared.CrashlyticsMethod
+                completion(nil)
+            }
+            
+        }
+    }
+    
+    static func removeListeners(for path: String) {
+        ManagerFB.shared.removeListeners(for: path)
+    }
+}
+
+struct FetchPinDataResponse {
+    typealias JSON = [String : Any]
+    let items:[PinNew]
+    
+    // мы можем сделать init не просто Failable а сделаем его throws
+    // throws что бы он выдавал какие то ошибки если что то не получается
+    init(documents: Any) throws {
+        // если мы не сможем получить array то мы выплюним ошибку throw
+        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
+        
+        var items = [PinNew]()
+        for dictionary in array {
+            // если у нас не получился comment то просто продолжаем - continue
+            // потому что тут целый массив и малали один не получился остальные получаться
+            let item = PinNew(dict: dictionary)
+            items.append(item)
+        }
+        self.items = items
+    }
+}
+
 class ShopsCloudFirestoreService {
     // екземпляр не будем создавать
     private init() {}
@@ -2491,10 +2583,9 @@ struct FetchProductsDataResponse {
 
 class BunchData {
     var model:[String:SectionModelNew]?
-    var shopsMan: ShopNew?
-    var shopsWoman: ShopNew?
-    var cartProducts: ProductItemNew?
-    var pinMall: PinMall?
+    var shops:[String:[ShopNew]]?
+    var cartProducts: [ProductItemNew]?
+    var pinMall: [PinNew]?
 }
 
 class HomeScreenCloudFirestoreService {
@@ -2502,18 +2593,10 @@ class HomeScreenCloudFirestoreService {
     private init() {}
     
     static var bunchData = BunchData()
-    
-//    static var isFirstMalls = true
-//    static var isFirstShops = true
-//    static var isFirstShopsMan = true
-//    static var isFirstShopsWoman = true
-//    static var isFirstPopularProducts = true
-    
-//    static var isFirstCartProducts = true
+    static let group = DispatchGroup()
 
     static func fetchBunchData(gender: String, completion: @escaping (BunchData?) -> Void) {
         
-        let group = DispatchGroup()
         
         group.enter()
         PreviewCloudFirestoreService.fetchPreviewSection(path: "previewMalls\(gender)") { malls in
@@ -2537,27 +2620,97 @@ class HomeScreenCloudFirestoreService {
         }
         
         group.enter()
-        PreviewCloudFirestoreService.fetchPreviewSection(path: "previewShops\(gender)") { documents in
+        PreviewCloudFirestoreService.fetchPreviewSection(path: "previewShops\(gender)") { shops in
             
+            guard let shops = shops else {
+                return
+            }
+            
+            let items = createItem(malls: nil, shops: shops, products: nil)
+            let shopSection = SectionModelNew(section: "Shops", items: items)
+            
+            guard let _ = bunchData.model?["Shops"] else {
+                group.enter()
+                bunchData.model?["Shops"] = shopSection
+                group.leave()
+                return
+            }
+            
+            bunchData.model?["Shops"] = shopSection
             group.leave()
-            // ItemNew add homeModel
         }
         
         group.enter()
-        ShopsCloudFirestoreService.fetchShops(path: "shopsMan") { documents in
+        ProductCloudFirestoreService.fetchProducts(path: "popularProducts\(gender)") { products in
+            guard let products = products else {
+                return
+            }
+            
+            let items = createItem(malls: nil, shops: nil, products: products)
+            let productsSection = SectionModelNew(section: "PopularProducts", items: items)
+            
+            guard let _ = bunchData.model?["PopularProducts"] else {
+                group.enter()
+                bunchData.model?["PopularProducts"] = productsSection
+                group.leave()
+                return
+            }
+            
+            bunchData.model?["PopularProducts"] = productsSection
             group.leave()
         }
         
         group.enter()
-        ShopsCloudFirestoreService.fetchShops(path: "shopsWoman") { documents in
+        ShopsCloudFirestoreService.fetchShops(path: "shopsMan") { shopsMan in
+            guard let shopsMan = shopsMan else {
+                return
+            }
+            
+            guard let _ = bunchData.shops?["Man"] else {
+                group.enter()
+                bunchData.shops?["Man"] = shopsMan
+                group.leave()
+                return
+            }
+            
+            bunchData.shops?["Man"] = shopsMan
             group.leave()
         }
         
         group.enter()
-        ProductCloudFirestoreService.fetchProducts(path: "popularProducts\(gender)") { documents in
+        ShopsCloudFirestoreService.fetchShops(path: "shopsWoman") { shopsWoman in
+            guard let shopsWoman = shopsWoman else {
+                return
+            }
+            
+            guard let _ = bunchData.shops?["Woman"] else {
+                group.enter()
+                bunchData.shops?["Woman"] = shopsWoman
+                group.leave()
+                return
+            }
+            
+            bunchData.shops?["Woman"] = shopsWoman
             group.leave()
-            // ItemNew add homeModel
         }
+        
+        group.enter()
+        PinCloudFirestoreService.fetchPin(path: "pinMals") { pins in
+            guard let pins = pins else {
+                return
+            }
+            
+            guard let _ = bunchData.pinMall else {
+                group.enter()
+                bunchData.pinMall = pins
+                group.leave()
+                return
+            }
+            
+            bunchData.pinMall = pins
+            group.leave()
+        }
+        
         group.notify(queue: .main) {
             completion(bunchData)
         }
@@ -2580,30 +2733,28 @@ class HomeScreenCloudFirestoreService {
             items = products.map {ItemNew(mall: nil, shop: nil, popularProduct: $0)}
         }
         return items
-        
-        //func createItem(malls: [Mall]?, shops: [Shop]?, products: [Product]?) -> [ItemNew] {
-        //    var items = [ItemNew]()
-        //
-        //    switch (malls, shops, products) {
-        //    case let (.some(malls), _, _):
-        //        items = malls.map { ItemNew(mall: $0, shop: nil, popularProduct: nil) }
-        //
-        //    case let (_, .some(shops), _):
-        //        items = shops.map { ItemNew(mall: nil, shop: $0, popularProduct: nil) }
-        //
-        //    case let (_, _, .some(products)):
-        //        items = products.map { ItemNew(mall: nil, shop: nil, popularProduct: $0) }
-        //
-        //    default:
-        //        break
-        //    }
-        //
-        //    return items
-        //}
     }
 }
 
-
+//func createItem(malls: [Mall]?, shops: [Shop]?, products: [Product]?) -> [ItemNew] {
+//    var items = [ItemNew]()
+//
+//    switch (malls, shops, products) {
+//    case let (.some(malls), _, _):
+//        items = malls.map { ItemNew(mall: $0, shop: nil, popularProduct: nil) }
+//
+//    case let (_, .some(shops), _):
+//        items = shops.map { ItemNew(mall: nil, shop: $0, popularProduct: nil) }
+//
+//    case let (_, _, .some(products)):
+//        items = products.map { ItemNew(mall: nil, shop: nil, popularProduct: $0) }
+//
+//    default:
+//        break
+//    }
+//
+//    return items
+//}
 
 
 
