@@ -12,7 +12,7 @@ import UIKit
 import Firebase
 import FirebaseStorage
 import FirebaseStorageUI
-//import MapKit
+import MapKit
 //import FirebaseAnalytics
 
 
@@ -2266,7 +2266,7 @@ class AuthFirebase {
         userDocument.collection("cartProducts").addDocument(data: [:]) { error in
             if error != nil {
                 print("Returne message for analitic FB Crashlystics")
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                     self.addEmptyCartProducts(uid: uid)
                 }
             }
@@ -2325,9 +2325,9 @@ class PreviewCloudFirestoreService {
         }
     }
     
-    static func removeListeners(for path: String) {
-        ManagerFB.shared.removeListeners(for: path)
-    }
+//    static func removeListeners(for path: String) {
+//        ManagerFB.shared.removeListeners(for: path)
+//    }
 }
 
 struct FetchPreviewDataResponse {
@@ -2450,29 +2450,29 @@ struct PinNew {
     }
 }
 
-//class PinMapNew: NSObject, MKAnnotation {
-//
-//    let title: String?
-//    let locationName: String?
-//    let discipline: String?
-//    let imageName: String?
-//    let coordinate: CLLocationCoordinate2D
-//
-//    init(title:String?, locationName:String?, discipline:String?, coordinate: CLLocationCoordinate2D, imageName: String?) {
-//
-//        self.title = title
-//        self.locationName = locationName
-//        self.discipline = discipline
-//        self.coordinate = coordinate
-//        self.imageName = imageName
-//        super.init()
-//    }
-//
-//    var subtitle: String? {
-//        return locationName
-//    }
-//
-//}
+class PinMapNew: NSObject, MKAnnotation {
+
+    let title: String?
+    let locationName: String?
+    let discipline: String?
+    let imageName: String?
+    let coordinate: CLLocationCoordinate2D
+
+    init(title:String?, locationName:String?, discipline:String?, coordinate: CLLocationCoordinate2D, imageName: String?) {
+
+        self.title = title
+        self.locationName = locationName
+        self.discipline = discipline
+        self.coordinate = coordinate
+        self.imageName = imageName
+        super.init()
+    }
+
+    var subtitle: String? {
+        return locationName
+    }
+
+}
 
 class PinCloudFirestoreService {
     // екземпляр не будем создавать
@@ -2497,9 +2497,9 @@ class PinCloudFirestoreService {
         }
     }
     
-    static func removeListeners(for path: String) {
-        ManagerFB.shared.removeListeners(for: path)
-    }
+//    static func removeListeners(for path: String) {
+//        ManagerFB.shared.removeListeners(for: path)
+//    }
 }
 
 struct FetchPinDataResponse {
@@ -2546,9 +2546,9 @@ class ShopsCloudFirestoreService {
         }
     }
     
-    static func removeListeners(for path: String) {
-        ManagerFB.shared.removeListeners(for: path)
-    }
+//    static func removeListeners(for path: String) {
+//        ManagerFB.shared.removeListeners(for: path)
+//    }
 }
 
 struct FetchShopDataResponse {
@@ -2595,9 +2595,9 @@ class ProductCloudFirestoreService {
         }
     }
     
-    static func removeListeners(for path: String) {
-        ManagerFB.shared.removeListeners(for: path)
-    }
+//    static func removeListeners(for path: String) {
+//        ManagerFB.shared.removeListeners(for: path)
+//    }
 }
 
 
@@ -2626,20 +2626,13 @@ struct FetchProductsDataResponse {
 class HomeAuthFirebaseService {
     
     private init() {}
-    static var currentUserID:String?
-    
-    static func fetchCartProducts(completion: @escaping ([ProductItemNew]?) -> Void) {
-        
-        ProductCloudFirestoreService.fetchProducts(path: "usersAccount/\(String(describing: currentUserID))/cartProducts") { cartProducts in
-           completion(cartProducts)
-        }
-    }
     
     // if in HomeVC return nil мы можем попробывать руками вызвать-  HomeAuthFirebaseService.fetchCartProducts
     static func listenForUserChangesWithCompletion(completion: @escaping ([ProductItemNew]?) -> Void) {
         ManagerFB.shared.authFirebaseService.listenForUserChangesWithCompletion { userID in
-            self.currentUserID = userID
-            fetchCartProducts { cartProducts in
+            HomeCloudFirestoreService.removeListenerForCardProducts()
+            HomeCloudFirestoreService.currentUserID = userID
+            HomeCloudFirestoreService.fetchCartProducts { cartProducts in
                 completion(cartProducts)
             }
         }
@@ -2662,8 +2655,16 @@ class HomeCloudFirestoreService {
     
     static var bunchData = BunchData()
     static let group = DispatchGroup()
+    static var currentUserID:String?
+    
+    static func fetchCartProducts(completion: @escaping ([ProductItemNew]?) -> Void) {
+        
+        ProductCloudFirestoreService.fetchProducts(path: "usersAccount/\(String(describing: currentUserID))/cartProducts") { cartProducts in
+           completion(cartProducts)
+        }
+    }
 
-    static func fetchBunchData(gender: String, completion: @escaping (BunchData?) -> Void) {
+    static func fetchBunchData(gender: String, completion: @escaping (BunchData) -> Void) {
         
         group.enter()
         PreviewCloudFirestoreService.fetchPreviewSection(path: "previewMalls\(gender)") { malls in
@@ -2675,14 +2676,14 @@ class HomeCloudFirestoreService {
             let items = createItem(malls: malls, shops: nil, products: nil)
             let mallSection = SectionModelNew(section: "Malls", items: items)
             
-            guard let _ = bunchData.model?["Malls"] else {
+            guard let _ = bunchData.model?["A"] else {
                 group.enter()
-                bunchData.model?["Malls"] = mallSection
+                bunchData.model?["A"] = mallSection
                 group.leave()
                 return
             }
             
-            bunchData.model?["Malls"] = mallSection
+            bunchData.model?["A"] = mallSection
             group.leave()
         }
         
@@ -2696,14 +2697,14 @@ class HomeCloudFirestoreService {
             let items = createItem(malls: nil, shops: shops, products: nil)
             let shopSection = SectionModelNew(section: "Shops", items: items)
             
-            guard let _ = bunchData.model?["Shops"] else {
+            guard let _ = bunchData.model?["B"] else {
                 group.enter()
-                bunchData.model?["Shops"] = shopSection
+                bunchData.model?["B"] = shopSection
                 group.leave()
                 return
             }
             
-            bunchData.model?["Shops"] = shopSection
+            bunchData.model?["B"] = shopSection
             group.leave()
         }
         
@@ -2716,14 +2717,14 @@ class HomeCloudFirestoreService {
             let items = createItem(malls: nil, shops: nil, products: products)
             let productsSection = SectionModelNew(section: "PopularProducts", items: items)
             
-            guard let _ = bunchData.model?["PopularProducts"] else {
+            guard let _ = bunchData.model?["C"] else {
                 group.enter()
-                bunchData.model?["PopularProducts"] = productsSection
+                bunchData.model?["C"] = productsSection
                 group.leave()
                 return
             }
             
-            bunchData.model?["PopularProducts"] = productsSection
+            bunchData.model?["C"] = productsSection
             group.leave()
         }
         
@@ -2788,7 +2789,12 @@ class HomeCloudFirestoreService {
     
     
     static func removeListeners(for path: String) {
-//        ManagerFB.shared.removeListeners(for: path)
+        ManagerFB.shared.removeListeners(for: path)
+    }
+    
+    static func removeListenerForCardProducts() {
+        let path = "usersAccount/\(String(describing: currentUserID))/cartProducts"
+        ManagerFB.shared.removeListeners(for: path)
     }
     
     static func createItem(malls: [PreviewSectionNew]? = nil, shops: [PreviewSectionNew]? = nil, products: [ProductItemNew]? = nil) -> [ItemNew] {
@@ -2805,6 +2811,52 @@ class HomeCloudFirestoreService {
     }
 }
 
+class ImplemintationHomeViewController: UIViewController {
+    
+    var currentGender:String!
+    let defaults = UserDefaults.standard
+    
+    var homeDataSource:[String : SectionModelNew] = [:] {
+        didSet {
+            
+        }
+    }
+    
+    var cartProducts: [ProductItemNew] = []
+    var shops:[String:[ShopNew]] = [:]
+    
+    var pinsMall: [PinMapNew] = []
+    private var pins: [PinNew] = [] {
+        didSet {
+            getPinsMall()
+        }
+    }
+    
+    //        let gender = defaults.string(forKey: "gender") ?? "Woman"
+    //        currentGender = gender
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // nil если ошибка HomeCloudFirestoreService.fetchCartProducts
+        // сработает timer если мы не получили id или долго ждем ответа от сервера
+        HomeAuthFirebaseService.listenForUserChangesWithCompletion { cartProducts in
+            <#code#>
+        }
+        // сработает timer если мы не получили данных в полном объеме
+        HomeCloudFirestoreService.fetchBunchData(gender: currentGender) { bunchData in
+            <#code#>
+        }
+    }
+    
+    func getPinsMall() {
+        self.pinsMall = []
+        pins.forEach { pin in
+            let pinMall = PinMapNew(title: pin.mall, locationName: pin.address, discipline: pin.objectType, coordinate: CLLocationCoordinate2D(latitude: pin.latitude ?? 1.0, longitude: pin.longitude ?? 1.0), imageName: pin.refImage)
+            self.pinsMall.append(pinMall)
+        }
+    }
+}
 
 
 // MARK: - Second version implemintation  -
