@@ -83,6 +83,7 @@
 		5E837CC12A54313900AFB2AF /* WrapperForUserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E837CC02A54313900AFB2AF /* WrapperForUserDefaults.swift */; };
 		5E86E80F29C891C900B26907 /* NewProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E86E80E29C891C900B26907 /* NewProfileViewController.swift */; };
 		5E87237F29DC0CAC00AF46F1 /* UIViewController + extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E87237E29DC0CAC00AF46F1 /* UIViewController + extension.swift */; };
+		5E88133F2AEBAD6C0044F299 /* ModelLayerMyProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E88133E2AEBAD6C0044F299 /* ModelLayerMyProject.swift */; };
 		5E890BBA290AA16D00147C5F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5E890BB9290AA16D00147C5F /* GoogleService-Info.plist */; };
 		5E890BBC290AB57E00147C5F /* ModelFB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E890BBB290AB57D00147C5F /* ModelFB.swift */; };
 		5E8BCE3229CD707D00AEA41C /* UIColor+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E8BCE3129CD707D00AEA41C /* UIColor+ext.swift */; };
@@ -207,6 +208,7 @@
 		5E837CC02A54313900AFB2AF /* WrapperForUserDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrapperForUserDefaults.swift; sourceTree = "<group>"; };
 		5E86E80E29C891C900B26907 /* NewProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewProfileViewController.swift; sourceTree = "<group>"; };
 		5E87237E29DC0CAC00AF46F1 /* UIViewController + extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController + extension.swift"; sourceTree = "<group>"; };
+		5E88133E2AEBAD6C0044F299 /* ModelLayerMyProject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelLayerMyProject.swift; sourceTree = "<group>"; };
 		5E890BB9290AA16D00147C5F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5E890BBB290AB57D00147C5F /* ModelFB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelFB.swift; sourceTree = "<group>"; };
 		5E8BCE3129CD707D00AEA41C /* UIColor+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+ext.swift"; sourceTree = "<group>"; };
@@ -633,6 +635,7 @@
 			children = (
 				5E9C8E03297A7EF1009855AE /* FBManager.swift */,
 				5E837CC02A54313900AFB2AF /* WrapperForUserDefaults.swift */,
+				5E88133E2AEBAD6C0044F299 /* ModelLayerMyProject.swift */,
 			);
 			path = FBManager;
 			sourceTree = "<group>";
@@ -999,6 +1002,7 @@
 				5E7EB0872AA0A68000D6D236 /* ShopCell.swift in Sources */,
 				5E8BCE3229CD707D00AEA41C /* UIColor+ext.swift in Sources */,
 				5E731C9428E443F600AF3A21 /* SignInViewController.swift in Sources */,
+				5E88133F2AEBAD6C0044F299 /* ModelLayerMyProject.swift in Sources */,
 				5E8C62BE297534B30089F430 /* AlertControllers.swift in Sources */,
 				5E8BCE3429D0364D00AEA41C /* Resouces.swift in Sources */,
 				5E74BCC828EEEF9B0048D097 /* Validators.swift in Sources */,

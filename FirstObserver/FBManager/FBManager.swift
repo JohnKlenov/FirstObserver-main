@@ -2909,13 +2909,59 @@ class ImplemintationHomeViewController: UIViewController {
 
 
 
+// MARK: - classic model MVC -
 
 
 
 
 
+// Протокол для модели данных
+protocol ModelInput: AnyObject {
+    func fetchData()
+}
+
+// Протокол для обработки полученных данных
+protocol ModelOutput:AnyObject {
+    func didFetchData(data: Any)
+}
 
 
+// Пример класса, реализующего протокол ModelInput
+class MyModel: ModelInput {
+    weak var output: ModelOutput?
+
+    init(output: ModelOutput) {
+        self.output = output
+    }
+
+    func fetchData() {
+        // Код для получения данных
+
+        let fetchedData: Any = "Полученные данные" // Предположим, что данные успешно получены
+
+        // Вызов метода делегата для передачи полученных данных
+        output?.didFetchData(data: fetchedData)
+    }
+}
+
+
+class MyViewController: ModelOutput {
+    
+    private var myModel: ModelInput?
+
+    init() {
+    myModel = MyModel(output: self)
+    }
+
+    func fetchDataButtonTapped() {
+        myModel?.fetchData()
+    }
+
+    // Реализация метода делегата из протокола ModelOutput
+    func didFetchData(data: Any) {
+        // Обработка полученных данных
+    }
+}
 
 
 
