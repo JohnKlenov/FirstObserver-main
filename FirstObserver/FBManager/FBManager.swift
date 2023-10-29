@@ -2207,6 +2207,7 @@ class ManagerFB {
                 return
             }
             
+            // если cartProducts пуст то как это может быть nil???
             guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
                 completion(nil, error)
                 return
@@ -2841,11 +2842,11 @@ class ImplemintationHomeViewController: UIViewController {
         // nil если ошибка HomeCloudFirestoreService.fetchCartProducts
         // сработает timer если мы не получили id или долго ждем ответа от сервера
         HomeAuthFirebaseService.listenForUserChangesWithCompletion { cartProducts in
-            <#code#>
+            print("")
         }
         // сработает timer если мы не получили данных в полном объеме
         HomeCloudFirestoreService.fetchBunchData(gender: currentGender) { bunchData in
-            <#code#>
+            print("")
         }
     }
     
