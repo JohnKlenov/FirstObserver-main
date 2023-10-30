@@ -292,7 +292,9 @@ final class FirebaseService {
 protocol HomeModelInput: AnyObject {
 //    func fetchData()
     func listenerCartProducts()
-    func fetchBunchData(gender: String, completion: @escaping ([String:SectionModelNew]) -> Void)
+    func fetchGenderData(gender: String)
+    func fetchTotalData()
+    func fetchDataSource(completion: @escaping ([String:SectionModelNew]?) -> Void)
 }
 
 // Протокол для обработки полученных данных
@@ -336,7 +338,8 @@ class HomeFirebaseService {
     let serviceFB = FirebaseService.shared
     let group = DispatchGroup()
     var timer: Timer?
-    var pathsListener = [String]()
+    var pathsGenderListener = [String]()
+    var pathsTotalListener = [String]()
     var bunchData:BunchData?
     
     let previewService = PreviewCloudFirestoreService()
@@ -365,27 +368,46 @@ class HomeFirebaseService {
         
         timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
             
-            self.pathsListener.forEach { path in
+            self.pathsGenderListener.forEach { path in
                 self.bunchData = nil
+                self.group.leave()
+                self.serviceFB.removeListeners(for: path)
+            }
+            
+            self.pathsTotalListener.forEach { path in
                 self.group.leave()
                 self.serviceFB.removeListeners(for: path)
             }
         }
     }
+    
+    func removeGenderListeners() {
+        pathsGenderListener.forEach { path in
+            self.serviceFB.removeListeners(for: path)
+        }
+    }
 }
 
 extension HomeFirebaseService: HomeModelInput {
+   
+    func fetchDataSource(completion: @escaping ([String : SectionModelNew]?) -> Void) {
+        group.notify(queue: .main) {
+            completion(self.bunchData?.model)
+            self.timer?.invalidate()
+        }
+    }
     
-    
-    
-    func fetchBunchData(gender: String, completion: @escaping ([String : SectionModelNew]) -> Void) {
+    func fetchGenderData(gender: String) {
         
+        pathsTotalListener = []
         bunchData = BunchData()
-        pathsListener = []
+        removeGenderListeners()
+        pathsGenderListener = []
+        
         startTimer()
         
         group.enter()
-        pathsListener.append("previewMalls\(gender)")
+        pathsGenderListener.append("previewMalls\(gender)")
         previewService.fetchPreviewSection(path: "previewMalls\(gender)") { malls in
             guard let malls = malls else {
                 return
@@ -406,7 +428,7 @@ extension HomeFirebaseService: HomeModelInput {
         }
         
         group.enter()
-        pathsListener.append("previewShops\(gender)")
+        pathsGenderListener.append("previewShops\(gender)")
         previewService.fetchPreviewSection(path: "previewShops\(gender)") { shops in
             
             guard let shops = shops else {
@@ -428,7 +450,7 @@ extension HomeFirebaseService: HomeModelInput {
         }
         
         group.enter()
-        pathsListener.append("popularProducts\(gender)")
+        pathsGenderListener.append("popularProducts\(gender)")
         productService.fetchProducts(path: "popularProducts\(gender)") { products in
             guard let products = products else {
                 return
@@ -447,9 +469,14 @@ extension HomeFirebaseService: HomeModelInput {
             self.bunchData?.model?["C"] = productsSection
             self.group.leave()
         }
+    }
+    
+    func fetchTotalData() {
+        
+        pathsTotalListener = []
         
         group.enter()
-        pathsListener.append("shopsMan")
+        pathsTotalListener.append("shopsMan")
         shopsService.fetchShops(path: "shopsMan") { shopsMan in
             guard let shopsMan = shopsMan else {
                 return
@@ -459,7 +486,7 @@ extension HomeFirebaseService: HomeModelInput {
         }
         
         group.enter()
-        pathsListener.append("shopsWoman")
+        pathsTotalListener.append("shopsWoman")
         shopsService.fetchShops(path: "shopsWoman") { shopsWoman in
             guard let shopsWoman = shopsWoman else {
                 return
@@ -470,7 +497,7 @@ extension HomeFirebaseService: HomeModelInput {
         
         // в модель для MapView подготовим в VC
         group.enter()
-        pathsListener.append("pinMals")
+        pathsTotalListener.append("pinMals")
         pinService.fetchPin(path: "pinMals") { pins in
             guard let pins = pins else {
                 return
@@ -478,15 +505,7 @@ extension HomeFirebaseService: HomeModelInput {
             self.serviceFB.pinMall = pins
             self.group.leave()
         }
-        
-        group.notify(queue: .main) {
-            completion(self.bunchData?.model ?? [:])
-            self.timer?.invalidate()
-        }
-        
-        
     }
-    
     
     // если на CartVC и ProductVC currentCartProducts == nil делаем getCartProducts
     func listenerCartProducts() {
