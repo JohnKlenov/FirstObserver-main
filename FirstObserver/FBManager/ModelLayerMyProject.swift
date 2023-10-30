@@ -19,19 +19,19 @@ import MapKit
 
 // Models
 
-enum NetworkError2: Error {
+enum NetworkError: Error {
     case failInternetError
     case noInternetConnection
 }
 
-struct ItemNew2: Hashable {
-    let mall: PreviewSectionNew2?
-    let shop: PreviewSectionNew2?
-    let popularProduct: ProductItemNew2?
+struct ItemNew: Hashable {
+    let mall: PreviewSectionNew?
+    let shop: PreviewSectionNew?
+    let popularProduct: ProductItemNew?
 //    let mallImage: String?
 }
 
-struct PreviewSectionNew2: Hashable {
+struct PreviewSectionNew: Hashable {
     let name: String?
     let refImage: String?
     let floor: Int?
@@ -44,13 +44,13 @@ struct PreviewSectionNew2: Hashable {
     }
 }
 
-struct SectionModelNew2: Hashable {
+struct SectionModelNew: Hashable {
     let section: String
-    var items: [ItemNew2]
+    var items: [ItemNew]
 }
 
 
-struct ShopNew2 {
+struct ShopNew {
     var name:String?
     var mall:String?
     var floor:String?
@@ -67,7 +67,7 @@ struct ShopNew2 {
     }
 }
 
-struct ProductItemNew2: Hashable {
+struct ProductItemNew: Hashable {
     let brand: String?
     let model: String?
     let category: String?
@@ -100,7 +100,7 @@ struct ProductItemNew2: Hashable {
     }
 }
 
-struct PinNew2 {
+struct PinNew {
     
     let mall:String?
     let refImage:String?
@@ -118,7 +118,7 @@ struct PinNew2 {
     }
 }
 
-class PinMapNew2: NSObject, MKAnnotation {
+class PinMapNew: NSObject, MKAnnotation {
 
     let title: String?
     let locationName: String?
@@ -142,11 +142,11 @@ class PinMapNew2: NSObject, MKAnnotation {
 
 }
 
-class BunchData2 {
-    var model:[String:SectionModelNew2]?
-    var shops:[String:[ShopNew2]]?
-    var cartProducts: [ProductItemNew2]?
-    var pinMall: [PinNew2]?
+class BunchData {
+    var model:[String:SectionModelNew]?
+//    var shops:[String:[ShopNew]]?
+//    var cartProducts: [ProductItemNew]?
+//    var pinMall: [PinNew]?
 }
 
 
@@ -161,6 +161,8 @@ final class FirebaseService {
     
     var currentUserID:String?
     var currentCartProducts:[ProductItemNew]?
+    var shops:[String:[ShopNew]]?
+    var pinMall: [PinNew]?
    
     
     
@@ -290,7 +292,7 @@ final class FirebaseService {
 protocol HomeModelInput: AnyObject {
 //    func fetchData()
     func listenerCartProducts()
-    func fetchBunchData(gender: String, completion: @escaping ([String:SectionModelNew2]) -> Void)
+    func fetchBunchData(gender: String, completion: @escaping ([String:SectionModelNew]) -> Void)
 }
 
 // Протокол для обработки полученных данных
@@ -333,28 +335,42 @@ class HomeFirebaseService {
     
     let serviceFB = FirebaseService.shared
     let group = DispatchGroup()
-    var bunchData = BunchData2()
+    var timer: Timer?
+    var pathsListener = [String]()
+    var bunchData:BunchData?
     
-    let previewService = PreviewCloudFirestoreService2()
-    let productService = ProductCloudFirestoreService2()
-    let shopsService = ShopsCloudFirestoreService2()
-    let pinService = PinCloudFirestoreService2()
+    let previewService = PreviewCloudFirestoreService()
+    let productService = ProductCloudFirestoreService()
+    let shopsService = ShopsCloudFirestoreService()
+    let pinService = PinCloudFirestoreService()
     
     init(output: HomeModelOutput) {
         self.output = output
     }
     
-    func createItem(malls: [PreviewSectionNew2]? = nil, shops: [PreviewSectionNew2]? = nil, products: [ProductItemNew2]? = nil) -> [ItemNew2] {
+    func createItem(malls: [PreviewSectionNew]? = nil, shops: [PreviewSectionNew]? = nil, products: [ProductItemNew]? = nil) -> [ItemNew] {
         
-        var items = [ItemNew2]()
+        var items = [ItemNew]()
         if let malls = malls {
-            items = malls.map {ItemNew2(mall: $0, shop: nil, popularProduct: nil)}
+            items = malls.map {ItemNew(mall: $0, shop: nil, popularProduct: nil)}
         } else if let shops = shops {
-            items = shops.map {ItemNew2(mall: nil, shop: $0, popularProduct: nil)}
+            items = shops.map {ItemNew(mall: nil, shop: $0, popularProduct: nil)}
         } else if let products = products {
-            items = products.map {ItemNew2(mall: nil, shop: nil, popularProduct: $0)}
+            items = products.map {ItemNew(mall: nil, shop: nil, popularProduct: $0)}
         }
         return items
+    }
+    
+    func startTimer() {
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
+            
+            self.pathsListener.forEach { path in
+                self.bunchData = nil
+                self.group.leave()
+                self.serviceFB.removeListeners(for: path)
+            }
+        }
     }
 }
 
@@ -362,29 +378,35 @@ extension HomeFirebaseService: HomeModelInput {
     
     
     
-    func fetchBunchData(gender: String, completion: @escaping ([String : SectionModelNew2]) -> Void) {
+    func fetchBunchData(gender: String, completion: @escaping ([String : SectionModelNew]) -> Void) {
+        
+        bunchData = BunchData()
+        pathsListener = []
+        startTimer()
         
         group.enter()
+        pathsListener.append("previewMalls\(gender)")
         previewService.fetchPreviewSection(path: "previewMalls\(gender)") { malls in
             guard let malls = malls else {
                 return
             }
             
             let items = self.createItem(malls: malls, shops: nil, products: nil)
-            let mallSection = SectionModelNew2(section: "Malls", items: items)
+            let mallSection = SectionModelNew(section: "Malls", items: items)
             
-            guard let _ = self.bunchData.model?["A"] else {
+            guard let _ = self.bunchData?.model?["A"] else {
                 self.group.enter()
-                self.bunchData.model?["A"] = mallSection
+                self.bunchData?.model?["A"] = mallSection
                 self.group.leave()
                 return
             }
             
-            self.bunchData.model?["A"] = mallSection
+            self.bunchData?.model?["A"] = mallSection
             self.group.leave()
         }
         
         group.enter()
+        pathsListener.append("previewShops\(gender)")
         previewService.fetchPreviewSection(path: "previewShops\(gender)") { shops in
             
             guard let shops = shops else {
@@ -392,93 +414,74 @@ extension HomeFirebaseService: HomeModelInput {
             }
             
             let items = self.createItem(malls: nil, shops: shops, products: nil)
-            let shopSection = SectionModelNew2(section: "Shops", items: items)
+            let shopSection = SectionModelNew(section: "Shops", items: items)
             
-            guard let _ = self.bunchData.model?["B"] else {
+            guard let _ = self.bunchData?.model?["B"] else {
                 self.group.enter()
-                self.bunchData.model?["B"] = shopSection
+                self.bunchData?.model?["B"] = shopSection
                 self.group.leave()
                 return
             }
             
-            self.bunchData.model?["B"] = shopSection
+            self.bunchData?.model?["B"] = shopSection
             self.group.leave()
         }
         
         group.enter()
+        pathsListener.append("popularProducts\(gender)")
         productService.fetchProducts(path: "popularProducts\(gender)") { products in
             guard let products = products else {
                 return
             }
             
             let items = self.createItem(malls: nil, shops: nil, products: products)
-            let productsSection = SectionModelNew2(section: "PopularProducts", items: items)
+            let productsSection = SectionModelNew(section: "PopularProducts", items: items)
             
-            guard let _ = self.bunchData.model?["C"] else {
+            guard let _ = self.bunchData?.model?["C"] else {
                 self.group.enter()
-                self.bunchData.model?["C"] = productsSection
+                self.bunchData?.model?["C"] = productsSection
                 self.group.leave()
                 return
             }
             
-            self.bunchData.model?["C"] = productsSection
+            self.bunchData?.model?["C"] = productsSection
             self.group.leave()
         }
         
         group.enter()
+        pathsListener.append("shopsMan")
         shopsService.fetchShops(path: "shopsMan") { shopsMan in
             guard let shopsMan = shopsMan else {
                 return
             }
-
-            guard let _ = self.bunchData.shops?["Man"] else {
-                self.group.enter()
-                self.bunchData.shops?["Man"] = shopsMan
-                self.group.leave()
-                return
-            }
-
-            self.bunchData.shops?["Man"] = shopsMan
+            self.serviceFB.shops?["Man"] = shopsMan
             self.group.leave()
         }
         
         group.enter()
+        pathsListener.append("shopsWoman")
         shopsService.fetchShops(path: "shopsWoman") { shopsWoman in
             guard let shopsWoman = shopsWoman else {
                 return
             }
-
-            guard let _ = self.bunchData.shops?["Woman"] else {
-                self.group.enter()
-                self.bunchData.shops?["Woman"] = shopsWoman
-                self.group.leave()
-                return
-            }
-
-            self.bunchData.shops?["Woman"] = shopsWoman
+            self.serviceFB.shops?["Woman"] = shopsWoman
             self.group.leave()
         }
         
         // в модель для MapView подготовим в VC
         group.enter()
+        pathsListener.append("pinMals")
         pinService.fetchPin(path: "pinMals") { pins in
             guard let pins = pins else {
                 return
             }
-            
-            guard let _ = self.bunchData.pinMall else {
-                self.group.enter()
-                self.bunchData.pinMall = pins
-                self.group.leave()
-                return
-            }
-            
-            self.bunchData.pinMall = pins
+            self.serviceFB.pinMall = pins
             self.group.leave()
         }
         
         group.notify(queue: .main) {
-            completion(self.bunchData.model ?? [:])
+            completion(self.bunchData?.model ?? [:])
+            self.timer?.invalidate()
         }
         
         
@@ -500,19 +503,19 @@ extension HomeFirebaseService: HomeModelInput {
     
 }
 
-class PreviewCloudFirestoreService2 {
+class PreviewCloudFirestoreService {
     
     
-    func fetchPreviewSection(path: String, completion: @escaping ([PreviewSectionNew2]?) -> Void) {
+    func fetchPreviewSection(path: String, completion: @escaping ([PreviewSectionNew]?) -> Void) {
         
-        ManagerFB.shared.fetchStartCollection(for: path) { documents, error in
+        FirebaseService.shared.fetchStartCollection(for: path) { documents, error in
             guard let documents = documents else {
                 completion(nil)
                 return
             }
             
             do {
-                let response = try FetchPreviewDataResponse2(documents: documents)
+                let response = try FetchPreviewDataResponse(documents: documents)
                 completion(response.items)
             } catch {
                 //                ManagerFB.shared.CrashlyticsMethod
@@ -527,9 +530,9 @@ class PreviewCloudFirestoreService2 {
     //    }
 }
 
-struct FetchPreviewDataResponse2 {
+struct FetchPreviewDataResponse {
     typealias JSON = [String : Any]
-    let items:[PreviewSectionNew2]
+    let items:[PreviewSectionNew]
     
     // мы можем сделать init не просто Failable а сделаем его throws
     // throws что бы он выдавал какие то ошибки если что то не получается
@@ -537,30 +540,30 @@ struct FetchPreviewDataResponse2 {
         // если мы не сможем получить array то мы выплюним ошибку throw
         guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
         
-        var items = [PreviewSectionNew2]()
+        var items = [PreviewSectionNew]()
         for dictionary in array {
             // если у нас не получился comment то просто продолжаем - continue
             // потому что тут целый массив и малали один не получился остальные получаться
-            let item = PreviewSectionNew2(dict: dictionary)
+            let item = PreviewSectionNew(dict: dictionary)
             items.append(item)
         }
         self.items = items
     }
 }
 
-class ProductCloudFirestoreService2 {
+class ProductCloudFirestoreService {
    
     
-    func fetchProducts(path: String, completion: @escaping ([ProductItemNew2]?) -> Void) {
+    func fetchProducts(path: String, completion: @escaping ([ProductItemNew]?) -> Void) {
         
-        ManagerFB.shared.fetchStartCollection(for: path) { documents, error in
+        FirebaseService.shared.fetchStartCollection(for: path) { documents, error in
             guard let documents = documents else {
                 completion(nil)
                 return
             }
             
             do {
-                let response = try FetchProductsDataResponse2(documents: documents)
+                let response = try FetchProductsDataResponse(documents: documents)
                 completion(response.items)
             } catch {
 //                ManagerFB.shared.CrashlyticsMethod
@@ -577,9 +580,9 @@ class ProductCloudFirestoreService2 {
 
 
 
-struct FetchProductsDataResponse2 {
+struct FetchProductsDataResponse {
     typealias JSON = [String : Any]
-    let items:[ProductItemNew2]
+    let items:[ProductItemNew]
     
     // мы можем сделать init не просто Failable а сделаем его throws
     // throws что бы он выдавал какие то ошибки если что то не получается
@@ -587,29 +590,29 @@ struct FetchProductsDataResponse2 {
         // если мы не сможем получить array то мы выплюним ошибку throw
         guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
 //        HomeScreenCloudFirestoreService.
-        var items = [ProductItemNew2]()
+        var items = [ProductItemNew]()
         for dictionary in array {
             // если у нас не получился comment то просто продолжаем - continue
             // потому что тут целый массив и малали один не получился остальные получаться
-            let item = ProductItemNew2(dict: dictionary)
+            let item = ProductItemNew(dict: dictionary)
             items.append(item)
         }
         self.items = items
     }
 }
 
-class ShopsCloudFirestoreService2 {
+class ShopsCloudFirestoreService {
     
-    func fetchShops(path: String, completion: @escaping ([ShopNew2]?) -> Void) {
+    func fetchShops(path: String, completion: @escaping ([ShopNew]?) -> Void) {
         
-        ManagerFB.shared.fetchStartCollection(for: path) { documents, error in
+        FirebaseService.shared.fetchStartCollection(for: path) { documents, error in
             guard let documents = documents else {
                 completion(nil)
                 return
             }
             
             do {
-                let response = try FetchShopDataResponse2(documents: documents)
+                let response = try FetchShopDataResponse(documents: documents)
                 completion(response.items)
             } catch {
 //                ManagerFB.shared.CrashlyticsMethod
@@ -624,9 +627,9 @@ class ShopsCloudFirestoreService2 {
 //    }
 }
 
-struct FetchShopDataResponse2 {
+struct FetchShopDataResponse {
     typealias JSON = [String : Any]
-    let items:[ShopNew2]
+    let items:[ShopNew]
     
     // мы можем сделать init не просто Failable а сделаем его throws
     // throws что бы он выдавал какие то ошибки если что то не получается
@@ -634,29 +637,29 @@ struct FetchShopDataResponse2 {
         // если мы не сможем получить array то мы выплюним ошибку throw
         guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
         
-        var items = [ShopNew2]()
+        var items = [ShopNew]()
         for dictionary in array {
             // если у нас не получился comment то просто продолжаем - continue
             // потому что тут целый массив и малали один не получился остальные получаться
-            let item = ShopNew2(dict: dictionary)
+            let item = ShopNew(dict: dictionary)
             items.append(item)
         }
         self.items = items
     }
 }
 
-class PinCloudFirestoreService2 {
+class PinCloudFirestoreService {
     
-    func fetchPin(path: String, completion: @escaping ([PinNew2]?) -> Void) {
+    func fetchPin(path: String, completion: @escaping ([PinNew]?) -> Void) {
         
-        ManagerFB.shared.fetchStartCollection(for: path) { documents, error in
+        FirebaseService.shared.fetchStartCollection(for: path) { documents, error in
             guard let documents = documents else {
                 completion(nil)
                 return
             }
             
             do {
-                let response = try FetchPinDataResponse2(documents: documents)
+                let response = try FetchPinDataResponse(documents: documents)
                 completion(response.items)
             } catch {
 //                ManagerFB.shared.CrashlyticsMethod
@@ -671,9 +674,9 @@ class PinCloudFirestoreService2 {
 //    }
 }
 
-struct FetchPinDataResponse2 {
+struct FetchPinDataResponse {
     typealias JSON = [String : Any]
-    let items:[PinNew2]
+    let items:[PinNew]
     
     // мы можем сделать init не просто Failable а сделаем его throws
     // throws что бы он выдавал какие то ошибки если что то не получается
@@ -681,11 +684,11 @@ struct FetchPinDataResponse2 {
         // если мы не сможем получить array то мы выплюним ошибку throw
         guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
         
-        var items = [PinNew2]()
+        var items = [PinNew]()
         for dictionary in array {
             // если у нас не получился comment то просто продолжаем - continue
             // потому что тут целый массив и малали один не получился остальные получаться
-            let item = PinNew2(dict: dictionary)
+            let item = PinNew(dict: dictionary)
             items.append(item)
         }
         self.items = items

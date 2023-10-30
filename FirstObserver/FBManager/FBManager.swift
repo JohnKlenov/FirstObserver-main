@@ -2145,7 +2145,7 @@ class ManagerFB {
     
     
     
-    
+}
     
     
     
@@ -2190,674 +2190,674 @@ class ManagerFB {
 
     // MARK: - CloudFirestoreService
 
-    private let db = Firestore.firestore()
-    private var listeners: [String:ListenerRegistration] = [:]
-    
-    let authFirebaseService = AuthFirebase()
-    // productsMan, productsWoman, mallsMan, mallsWoman, shopsMan, shopsWoman, pinMalls, popularProductMan, popularProductWoman, previewShopsMan, previewShopsWoman, previewMallMan, previewMallWoman
-    func fetchStartCollection(for path: String, completion: @escaping (Any?, Error?) -> Void) {
-        let collection = db.collection(path)
-        let quary = collection.order(by: "priorityIndex", descending: false)
-        
-        let listener = quary.addSnapshotListener { (querySnapshot, error) in
-            
-            if let error = error {
-                completion(nil, error)
-                print("Returned message for analytic FB Crashlytics error")
-                return
-            }
-            
-            // если cartProducts пуст то как это может быть nil???
-            guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
-                completion(nil, error)
-                return
-            }
-            var documents = [[String : Any]]()
-            
-            for document in querySnapshot.documents {
-                let documentData = document.data()
-                documents.append(documentData)
-            }
-            completion(documents, nil)
-        }
-        listeners[path] = listener
-    }
-    
-    
-    func removeListeners(for path: String) {
-        listeners.filter { $0.key == path }
-        .forEach { $0.value.remove() }
-    }
-    
-}
+//    private let db = Firestore.firestore()
+//    private var listeners: [String:ListenerRegistration] = [:]
+//
+//    let authFirebaseService = AuthFirebase()
+//    // productsMan, productsWoman, mallsMan, mallsWoman, shopsMan, shopsWoman, pinMalls, popularProductMan, popularProductWoman, previewShopsMan, previewShopsWoman, previewMallMan, previewMallWoman
+//    func fetchStartCollection(for path: String, completion: @escaping (Any?, Error?) -> Void) {
+//        let collection = db.collection(path)
+//        let quary = collection.order(by: "priorityIndex", descending: false)
+//
+//        let listener = quary.addSnapshotListener { (querySnapshot, error) in
+//
+//            if let error = error {
+//                completion(nil, error)
+//                print("Returned message for analytic FB Crashlytics error")
+//                return
+//            }
+//
+//            // если cartProducts пуст то как это может быть nil???
+//            guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
+//                completion(nil, error)
+//                return
+//            }
+//            var documents = [[String : Any]]()
+//
+//            for document in querySnapshot.documents {
+//                let documentData = document.data()
+//                documents.append(documentData)
+//            }
+//            completion(documents, nil)
+//        }
+//        listeners[path] = listener
+//    }
+//
+//
+//    func removeListeners(for path: String) {
+//        listeners.filter { $0.key == path }
+//        .forEach { $0.value.remove() }
+//    }
+//
+//}
 
 //protocol ManagerFirebase
 //extension ManagerFB:
 
 // MARK: - AuthFirestoreService
 
-class AuthFirebase {
-    
-    func userListener(currentUser: @escaping (User?) -> Void) {
-        Auth.auth().addStateDidChangeListener { (auth, user) in
-//            self.currentUser = user
-            currentUser(user)
-        }
-    }
-    
-    func signInAnonymously() {
-        
-        Auth.auth().signInAnonymously { (authResult, error) in
-            
-            guard error == nil, let authResult = authResult else {
-                print("Returne message for analitic FB Crashlystics")
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    self.signInAnonymously()
-                }
-                return
-            }
-            self.addEmptyCartProducts(uid: authResult.user.uid)
-        }
-    }
-    
-    func addEmptyCartProducts(uid: String) {
-        
-        let usersCollection = Firestore.firestore().collection("usersAccounts")
-        let userDocument = usersCollection.document(uid)
-        userDocument.collection("cartProducts").addDocument(data: [:]) { error in
-            if error != nil {
-                print("Returne message for analitic FB Crashlystics")
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    self.addEmptyCartProducts(uid: uid)
-                }
-            }
-        }
-    }
-    
-    func listenForUserChangesWithCompletion(completion: @escaping (String) -> Void) {
-        userListener { currentUser in
-            guard let currentUser = currentUser else {
-                self.signInAnonymously()
-                return
-            }
-            completion(currentUser.uid)
-        }
-    }
-   
-}
-
-
-// MARK: - System MVC
-
-// model
-
-enum NetworkError: Error {
-    case failInternetError
-    case noInternetConnection
-}
-
-
-// MARK: - MallsVC + CatalogVC
-
-// PreviewCloudFirestoreService
-
-// previewMalls, previewShops, previewCatalog
-// передаем path from VC -> MallsVC and CatalogVC можно переиспользовать!
-class PreviewCloudFirestoreService {
-    // екземпляр не будем создавать
-    private init() {}
-    
-    static func fetchPreviewSection(path: String, completion: @escaping ([PreviewSectionNew]?) -> Void) {
-        
-        ManagerFB.shared.fetchStartCollection(for: path) { documents, error in
-            guard let documents = documents else {
-                completion(nil)
-                return
-            }
-            
-            do {
-                let response = try FetchPreviewDataResponse(documents: documents)
-                completion(response.items)
-            } catch {
-//                ManagerFB.shared.CrashlyticsMethod
-                completion(nil)
-            }
-            
-        }
-    }
-    
+//class AuthFirebase {
+//
+//    func userListener(currentUser: @escaping (User?) -> Void) {
+//        Auth.auth().addStateDidChangeListener { (auth, user) in
+////            self.currentUser = user
+//            currentUser(user)
+//        }
+//    }
+//
+//    func signInAnonymously() {
+//
+//        Auth.auth().signInAnonymously { (authResult, error) in
+//
+//            guard error == nil, let authResult = authResult else {
+//                print("Returne message for analitic FB Crashlystics")
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+//                    self.signInAnonymously()
+//                }
+//                return
+//            }
+//            self.addEmptyCartProducts(uid: authResult.user.uid)
+//        }
+//    }
+//
+//    func addEmptyCartProducts(uid: String) {
+//
+//        let usersCollection = Firestore.firestore().collection("usersAccounts")
+//        let userDocument = usersCollection.document(uid)
+//        userDocument.collection("cartProducts").addDocument(data: [:]) { error in
+//            if error != nil {
+//                print("Returne message for analitic FB Crashlystics")
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+//                    self.addEmptyCartProducts(uid: uid)
+//                }
+//            }
+//        }
+//    }
+//
+//    func listenForUserChangesWithCompletion(completion: @escaping (String) -> Void) {
+//        userListener { currentUser in
+//            guard let currentUser = currentUser else {
+//                self.signInAnonymously()
+//                return
+//            }
+//            completion(currentUser.uid)
+//        }
+//    }
+//
+//}
+//
+//
+//// MARK: - System MVC
+//
+//// model
+//
+//enum NetworkError: Error {
+//    case failInternetError
+//    case noInternetConnection
+//}
+//
+//
+//// MARK: - MallsVC + CatalogVC
+//
+//// PreviewCloudFirestoreService
+//
+//// previewMalls, previewShops, previewCatalog
+//// передаем path from VC -> MallsVC and CatalogVC можно переиспользовать!
+//class PreviewCloudFirestoreService {
+//    // екземпляр не будем создавать
+//    private init() {}
+//
+//    static func fetchPreviewSection(path: String, completion: @escaping ([PreviewSectionNew]?) -> Void) {
+//
+//        ManagerFB.shared.fetchStartCollection(for: path) { documents, error in
+//            guard let documents = documents else {
+//                completion(nil)
+//                return
+//            }
+//
+//            do {
+//                let response = try FetchPreviewDataResponse(documents: documents)
+//                completion(response.items)
+//            } catch {
+////                ManagerFB.shared.CrashlyticsMethod
+//                completion(nil)
+//            }
+//
+//        }
+//    }
+//
+////    static func removeListeners(for path: String) {
+////        ManagerFB.shared.removeListeners(for: path)
+////    }
+//}
+//
+//struct FetchPreviewDataResponse {
+//    typealias JSON = [String : Any]
+//    let items:[PreviewSectionNew]
+//
+//    // мы можем сделать init не просто Failable а сделаем его throws
+//    // throws что бы он выдавал какие то ошибки если что то не получается
+//    init(documents: Any) throws {
+//        // если мы не сможем получить array то мы выплюним ошибку throw
+//        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
+//
+//        var items = [PreviewSectionNew]()
+//        for dictionary in array {
+//            // если у нас не получился comment то просто продолжаем - continue
+//            // потому что тут целый массив и малали один не получился остальные получаться
+//            let item = PreviewSectionNew(dict: dictionary)
+//            items.append(item)
+//        }
+//        self.items = items
+//    }
+//}
+//
+//struct ItemNew: Hashable {
+//    let mall: PreviewSectionNew?
+//    let shop: PreviewSectionNew?
+//    let popularProduct: ProductItemNew?
+////    let mallImage: String?
+//}
+//
+//struct PreviewSectionNew: Hashable {
+//    let name: String?
+//    let refImage: String?
+//    let floor: Int?
+//    let priorityIndex:Int?
+//    init(dict: [String: Any]) {
+//        name = dict["name"] as? String
+//        refImage = dict["refImage"] as? String
+//        floor = dict["refImage"] as? Int
+//        priorityIndex = dict["priorityIndex"] as? Int
+//    }
+//}
+//
+//struct SectionModelNew: Hashable {
+//    let section: String
+//    var items: [ItemNew]
+//}
+//
+//
+//// MARK: - HomeVC
+//
+//
+//// model
+//
+//struct ShopNew {
+//    var name:String?
+//    var mall:String?
+//    var floor:String?
+//    var refImage:String?
+//    var telefon:String?
+//    var webSite:String?
+//    init(dict: [String: Any]) {
+//        name = dict["name"] as? String
+//        mall = dict["mall"] as? String
+//        floor = dict["refImage"] as? String
+//        refImage = dict["refImage"] as? String
+//        telefon = dict["telefon"] as? String
+//        webSite = dict["webSite"] as? String
+//    }
+//}
+//
+//struct ProductItemNew: Hashable {
+//    let brand: String?
+//    let model: String?
+//    let category: String?
+//    let priorityIndex: Int?
+//    let strengthIndex: Int?
+//    let season: String?
+//    let color: String?
+//    let material: String?
+//    let description: String?
+//    let price: Int?
+//    let refImage: [String]?
+//    let shops: [String]?
+//    let originalContent: String?
+//    let gender: String?
+//    init(dict: [String: Any]) {
+//        brand = dict["brand"] as? String
+//        model = dict["model"] as? String
+//        category = dict["category"] as? String
+//        priorityIndex = dict["priorityIndex"] as? Int
+//        strengthIndex = dict["strengthIndex"] as? Int
+//        season = dict["season"] as? String
+//        color = dict["color"] as? String
+//        material = dict["material"] as? String
+//        description = dict["description"] as? String
+//        price = dict["price"] as? Int
+//        refImage = dict["refImage"] as? [String]
+//        shops = dict["shops"] as? [String]
+//        originalContent = dict["originalContent"] as? String
+//        gender = dict["gender"] as? String
+//    }
+//}
+//
+//struct PinNew {
+//
+//    let mall:String?
+//    let refImage:String?
+//    let address:String?
+//    let objectType:String?
+//    let latitude:Double?
+//    let longitude:Double?
+//    init(dict: [String: Any]) {
+//        mall = dict["mall"] as? String
+//        refImage = dict["refImage"] as? String
+//        address = dict["address"] as? String
+//        objectType = dict["objectType"] as? String
+//        latitude = dict["latitude"] as? Double
+//        longitude = dict["longitude"] as? Double
+//    }
+//}
+//
+//class PinMapNew: NSObject, MKAnnotation {
+//
+//    let title: String?
+//    let locationName: String?
+//    let discipline: String?
+//    let imageName: String?
+//    let coordinate: CLLocationCoordinate2D
+//
+//    init(title:String?, locationName:String?, discipline:String?, coordinate: CLLocationCoordinate2D, imageName: String?) {
+//
+//        self.title = title
+//        self.locationName = locationName
+//        self.discipline = discipline
+//        self.coordinate = coordinate
+//        self.imageName = imageName
+//        super.init()
+//    }
+//
+//    var subtitle: String? {
+//        return locationName
+//    }
+//
+//}
+//
+//class PinCloudFirestoreService {
+//    // екземпляр не будем создавать
+//    private init() {}
+//
+//    static func fetchPin(path: String, completion: @escaping ([PinNew]?) -> Void) {
+//
+//        ManagerFB.shared.fetchStartCollection(for: path) { documents, error in
+//            guard let documents = documents else {
+//                completion(nil)
+//                return
+//            }
+//
+//            do {
+//                let response = try FetchPinDataResponse(documents: documents)
+//                completion(response.items)
+//            } catch {
+////                ManagerFB.shared.CrashlyticsMethod
+//                completion(nil)
+//            }
+//
+//        }
+//    }
+//
+////    static func removeListeners(for path: String) {
+////        ManagerFB.shared.removeListeners(for: path)
+////    }
+//}
+//
+//struct FetchPinDataResponse {
+//    typealias JSON = [String : Any]
+//    let items:[PinNew]
+//
+//    // мы можем сделать init не просто Failable а сделаем его throws
+//    // throws что бы он выдавал какие то ошибки если что то не получается
+//    init(documents: Any) throws {
+//        // если мы не сможем получить array то мы выплюним ошибку throw
+//        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
+//
+//        var items = [PinNew]()
+//        for dictionary in array {
+//            // если у нас не получился comment то просто продолжаем - continue
+//            // потому что тут целый массив и малали один не получился остальные получаться
+//            let item = PinNew(dict: dictionary)
+//            items.append(item)
+//        }
+//        self.items = items
+//    }
+//}
+//
+//class ShopsCloudFirestoreService {
+//    // екземпляр не будем создавать
+//    private init() {}
+//
+//    static func fetchShops(path: String, completion: @escaping ([ShopNew]?) -> Void) {
+//
+//        ManagerFB.shared.fetchStartCollection(for: path) { documents, error in
+//            guard let documents = documents else {
+//                completion(nil)
+//                return
+//            }
+//
+//            do {
+//                let response = try FetchShopDataResponse(documents: documents)
+//                completion(response.items)
+//            } catch {
+////                ManagerFB.shared.CrashlyticsMethod
+//                completion(nil)
+//            }
+//
+//        }
+//    }
+//
+////    static func removeListeners(for path: String) {
+////        ManagerFB.shared.removeListeners(for: path)
+////    }
+//}
+//
+//struct FetchShopDataResponse {
+//    typealias JSON = [String : Any]
+//    let items:[ShopNew]
+//
+//    // мы можем сделать init не просто Failable а сделаем его throws
+//    // throws что бы он выдавал какие то ошибки если что то не получается
+//    init(documents: Any) throws {
+//        // если мы не сможем получить array то мы выплюним ошибку throw
+//        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
+//
+//        var items = [ShopNew]()
+//        for dictionary in array {
+//            // если у нас не получился comment то просто продолжаем - continue
+//            // потому что тут целый массив и малали один не получился остальные получаться
+//            let item = ShopNew(dict: dictionary)
+//            items.append(item)
+//        }
+//        self.items = items
+//    }
+//}
+//
+//class ProductCloudFirestoreService {
+//    // екземпляр не будем создавать
+//    private init() {}
+//
+//    static func fetchProducts(path: String, completion: @escaping ([ProductItemNew]?) -> Void) {
+//
+//        ManagerFB.shared.fetchStartCollection(for: path) { documents, error in
+//            guard let documents = documents else {
+//                completion(nil)
+//                return
+//            }
+//
+//            do {
+//                let response = try FetchProductsDataResponse(documents: documents)
+//                completion(response.items)
+//            } catch {
+////                ManagerFB.shared.CrashlyticsMethod
+//                completion(nil)
+//            }
+//
+//        }
+//    }
+//
+////    static func removeListeners(for path: String) {
+////        ManagerFB.shared.removeListeners(for: path)
+////    }
+//}
+//
+//
+//
+//struct FetchProductsDataResponse {
+//    typealias JSON = [String : Any]
+//    let items:[ProductItemNew]
+//
+//    // мы можем сделать init не просто Failable а сделаем его throws
+//    // throws что бы он выдавал какие то ошибки если что то не получается
+//    init(documents: Any) throws {
+//        // если мы не сможем получить array то мы выплюним ошибку throw
+//        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
+////        HomeScreenCloudFirestoreService.
+//        var items = [ProductItemNew]()
+//        for dictionary in array {
+//            // если у нас не получился comment то просто продолжаем - continue
+//            // потому что тут целый массив и малали один не получился остальные получаться
+//            let item = ProductItemNew(dict: dictionary)
+//            items.append(item)
+//        }
+//        self.items = items
+//    }
+//}
+//
+//class HomeAuthFirebaseService {
+//
+//    private init() {}
+//
+//    // if in HomeVC return nil мы можем попробывать руками вызвать-  HomeAuthFirebaseService.fetchCartProducts
+//    static func listenForUserChangesWithCompletion(completion: @escaping ([ProductItemNew]?) -> Void) {
+//        ManagerFB.shared.authFirebaseService.listenForUserChangesWithCompletion { userID in
+//            HomeCloudFirestoreService.removeListenerForCardProducts()
+//            HomeCloudFirestoreService.currentUserID = userID
+//            HomeCloudFirestoreService.fetchCartProducts { cartProducts in
+//                completion(cartProducts)
+//            }
+//        }
+//    }
+//}
+//
+//
+//// PreviewCloudFirestoreService
+//
+//class BunchData {
+//    var model:[String:SectionModelNew]?
+//    var shops:[String:[ShopNew]]?
+//    var cartProducts: [ProductItemNew]?
+//    var pinMall: [PinNew]?
+//}
+//
+//class HomeCloudFirestoreService {
+//    // екземпляр не будем создавать
+//    private init() {}
+//
+//    static var bunchData = BunchData()
+//    static let group = DispatchGroup()
+//    static var currentUserID:String?
+//
+//    static func fetchCartProducts(completion: @escaping ([ProductItemNew]?) -> Void) {
+//
+//        ProductCloudFirestoreService.fetchProducts(path: "usersAccount/\(String(describing: currentUserID))/cartProducts") { cartProducts in
+//           completion(cartProducts)
+//        }
+//    }
+//
+//    static func fetchBunchData(gender: String, completion: @escaping (BunchData) -> Void) {
+//
+//        group.enter()
+//        PreviewCloudFirestoreService.fetchPreviewSection(path: "previewMalls\(gender)") { malls in
+//
+//            guard let malls = malls else {
+//                return
+//            }
+//
+//            let items = createItem(malls: malls, shops: nil, products: nil)
+//            let mallSection = SectionModelNew(section: "Malls", items: items)
+//
+//            guard let _ = bunchData.model?["A"] else {
+//                group.enter()
+//                bunchData.model?["A"] = mallSection
+//                group.leave()
+//                return
+//            }
+//
+//            bunchData.model?["A"] = mallSection
+//            group.leave()
+//        }
+//
+//        group.enter()
+//        PreviewCloudFirestoreService.fetchPreviewSection(path: "previewShops\(gender)") { shops in
+//
+//            guard let shops = shops else {
+//                return
+//            }
+//
+//            let items = createItem(malls: nil, shops: shops, products: nil)
+//            let shopSection = SectionModelNew(section: "Shops", items: items)
+//
+//            guard let _ = bunchData.model?["B"] else {
+//                group.enter()
+//                bunchData.model?["B"] = shopSection
+//                group.leave()
+//                return
+//            }
+//
+//            bunchData.model?["B"] = shopSection
+//            group.leave()
+//        }
+//
+//        group.enter()
+//        ProductCloudFirestoreService.fetchProducts(path: "popularProducts\(gender)") { products in
+//            guard let products = products else {
+//                return
+//            }
+//
+//            let items = createItem(malls: nil, shops: nil, products: products)
+//            let productsSection = SectionModelNew(section: "PopularProducts", items: items)
+//
+//            guard let _ = bunchData.model?["C"] else {
+//                group.enter()
+//                bunchData.model?["C"] = productsSection
+//                group.leave()
+//                return
+//            }
+//
+//            bunchData.model?["C"] = productsSection
+//            group.leave()
+//        }
+//
+//        group.enter()
+//        ShopsCloudFirestoreService.fetchShops(path: "shopsMan") { shopsMan in
+//            guard let shopsMan = shopsMan else {
+//                return
+//            }
+//
+//            guard let _ = bunchData.shops?["Man"] else {
+//                group.enter()
+//                bunchData.shops?["Man"] = shopsMan
+//                group.leave()
+//                return
+//            }
+//
+//            bunchData.shops?["Man"] = shopsMan
+//            group.leave()
+//        }
+//
+//        group.enter()
+//        ShopsCloudFirestoreService.fetchShops(path: "shopsWoman") { shopsWoman in
+//            guard let shopsWoman = shopsWoman else {
+//                return
+//            }
+//
+//            guard let _ = bunchData.shops?["Woman"] else {
+//                group.enter()
+//                bunchData.shops?["Woman"] = shopsWoman
+//                group.leave()
+//                return
+//            }
+//
+//            bunchData.shops?["Woman"] = shopsWoman
+//            group.leave()
+//        }
+//
+//        // в модель для MapView подготовим в VC
+//        group.enter()
+//        PinCloudFirestoreService.fetchPin(path: "pinMals") { pins in
+//            guard let pins = pins else {
+//                return
+//            }
+//
+//            guard let _ = bunchData.pinMall else {
+//                group.enter()
+//                bunchData.pinMall = pins
+//                group.leave()
+//                return
+//            }
+//
+//            bunchData.pinMall = pins
+//            group.leave()
+//        }
+//
+//        group.notify(queue: .main) {
+//            completion(bunchData)
+//        }
+//
+//    }
+//
+//
+//
 //    static func removeListeners(for path: String) {
 //        ManagerFB.shared.removeListeners(for: path)
 //    }
-}
-
-struct FetchPreviewDataResponse {
-    typealias JSON = [String : Any]
-    let items:[PreviewSectionNew]
-    
-    // мы можем сделать init не просто Failable а сделаем его throws
-    // throws что бы он выдавал какие то ошибки если что то не получается
-    init(documents: Any) throws {
-        // если мы не сможем получить array то мы выплюним ошибку throw
-        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
-        
-        var items = [PreviewSectionNew]()
-        for dictionary in array {
-            // если у нас не получился comment то просто продолжаем - continue
-            // потому что тут целый массив и малали один не получился остальные получаться
-            let item = PreviewSectionNew(dict: dictionary)
-            items.append(item)
-        }
-        self.items = items
-    }
-}
-
-struct ItemNew: Hashable {
-    let mall: PreviewSectionNew?
-    let shop: PreviewSectionNew?
-    let popularProduct: ProductItemNew?
-//    let mallImage: String?
-}
-
-struct PreviewSectionNew: Hashable {
-    let name: String?
-    let refImage: String?
-    let floor: Int?
-    let priorityIndex:Int?
-    init(dict: [String: Any]) {
-        name = dict["name"] as? String
-        refImage = dict["refImage"] as? String
-        floor = dict["refImage"] as? Int
-        priorityIndex = dict["priorityIndex"] as? Int
-    }
-}
-
-struct SectionModelNew: Hashable {
-    let section: String
-    var items: [ItemNew]
-}
-
-
-// MARK: - HomeVC
-
-
-// model
-
-struct ShopNew {
-    var name:String?
-    var mall:String?
-    var floor:String?
-    var refImage:String?
-    var telefon:String?
-    var webSite:String?
-    init(dict: [String: Any]) {
-        name = dict["name"] as? String
-        mall = dict["mall"] as? String
-        floor = dict["refImage"] as? String
-        refImage = dict["refImage"] as? String
-        telefon = dict["telefon"] as? String
-        webSite = dict["webSite"] as? String
-    }
-}
-
-struct ProductItemNew: Hashable {
-    let brand: String?
-    let model: String?
-    let category: String?
-    let priorityIndex: Int?
-    let strengthIndex: Int?
-    let season: String?
-    let color: String?
-    let material: String?
-    let description: String?
-    let price: Int?
-    let refImage: [String]?
-    let shops: [String]?
-    let originalContent: String?
-    let gender: String?
-    init(dict: [String: Any]) {
-        brand = dict["brand"] as? String
-        model = dict["model"] as? String
-        category = dict["category"] as? String
-        priorityIndex = dict["priorityIndex"] as? Int
-        strengthIndex = dict["strengthIndex"] as? Int
-        season = dict["season"] as? String
-        color = dict["color"] as? String
-        material = dict["material"] as? String
-        description = dict["description"] as? String
-        price = dict["price"] as? Int
-        refImage = dict["refImage"] as? [String]
-        shops = dict["shops"] as? [String]
-        originalContent = dict["originalContent"] as? String
-        gender = dict["gender"] as? String
-    }
-}
-
-struct PinNew {
-    
-    let mall:String?
-    let refImage:String?
-    let address:String?
-    let objectType:String?
-    let latitude:Double?
-    let longitude:Double?
-    init(dict: [String: Any]) {
-        mall = dict["mall"] as? String
-        refImage = dict["refImage"] as? String
-        address = dict["address"] as? String
-        objectType = dict["objectType"] as? String
-        latitude = dict["latitude"] as? Double
-        longitude = dict["longitude"] as? Double
-    }
-}
-
-class PinMapNew: NSObject, MKAnnotation {
-
-    let title: String?
-    let locationName: String?
-    let discipline: String?
-    let imageName: String?
-    let coordinate: CLLocationCoordinate2D
-
-    init(title:String?, locationName:String?, discipline:String?, coordinate: CLLocationCoordinate2D, imageName: String?) {
-
-        self.title = title
-        self.locationName = locationName
-        self.discipline = discipline
-        self.coordinate = coordinate
-        self.imageName = imageName
-        super.init()
-    }
-
-    var subtitle: String? {
-        return locationName
-    }
-
-}
-
-class PinCloudFirestoreService {
-    // екземпляр не будем создавать
-    private init() {}
-    
-    static func fetchPin(path: String, completion: @escaping ([PinNew]?) -> Void) {
-        
-        ManagerFB.shared.fetchStartCollection(for: path) { documents, error in
-            guard let documents = documents else {
-                completion(nil)
-                return
-            }
-            
-            do {
-                let response = try FetchPinDataResponse(documents: documents)
-                completion(response.items)
-            } catch {
-//                ManagerFB.shared.CrashlyticsMethod
-                completion(nil)
-            }
-            
-        }
-    }
-    
-//    static func removeListeners(for path: String) {
+//
+//    static func removeListenerForCardProducts() {
+//        let path = "usersAccount/\(String(describing: currentUserID))/cartProducts"
 //        ManagerFB.shared.removeListeners(for: path)
 //    }
-}
-
-struct FetchPinDataResponse {
-    typealias JSON = [String : Any]
-    let items:[PinNew]
-    
-    // мы можем сделать init не просто Failable а сделаем его throws
-    // throws что бы он выдавал какие то ошибки если что то не получается
-    init(documents: Any) throws {
-        // если мы не сможем получить array то мы выплюним ошибку throw
-        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
-        
-        var items = [PinNew]()
-        for dictionary in array {
-            // если у нас не получился comment то просто продолжаем - continue
-            // потому что тут целый массив и малали один не получился остальные получаться
-            let item = PinNew(dict: dictionary)
-            items.append(item)
-        }
-        self.items = items
-    }
-}
-
-class ShopsCloudFirestoreService {
-    // екземпляр не будем создавать
-    private init() {}
-    
-    static func fetchShops(path: String, completion: @escaping ([ShopNew]?) -> Void) {
-        
-        ManagerFB.shared.fetchStartCollection(for: path) { documents, error in
-            guard let documents = documents else {
-                completion(nil)
-                return
-            }
-            
-            do {
-                let response = try FetchShopDataResponse(documents: documents)
-                completion(response.items)
-            } catch {
-//                ManagerFB.shared.CrashlyticsMethod
-                completion(nil)
-            }
-            
-        }
-    }
-    
-//    static func removeListeners(for path: String) {
-//        ManagerFB.shared.removeListeners(for: path)
+//
+//    static func createItem(malls: [PreviewSectionNew]? = nil, shops: [PreviewSectionNew]? = nil, products: [ProductItemNew]? = nil) -> [ItemNew] {
+//
+//        var items = [ItemNew]()
+//        if let malls = malls {
+//            items = malls.map {ItemNew(mall: $0, shop: nil, popularProduct: nil)}
+//        } else if let shops = shops {
+//            items = shops.map {ItemNew(mall: nil, shop: $0, popularProduct: nil)}
+//        } else if let products = products {
+//            items = products.map {ItemNew(mall: nil, shop: nil, popularProduct: $0)}
+//        }
+//        return items
 //    }
-}
-
-struct FetchShopDataResponse {
-    typealias JSON = [String : Any]
-    let items:[ShopNew]
-    
-    // мы можем сделать init не просто Failable а сделаем его throws
-    // throws что бы он выдавал какие то ошибки если что то не получается
-    init(documents: Any) throws {
-        // если мы не сможем получить array то мы выплюним ошибку throw
-        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
-        
-        var items = [ShopNew]()
-        for dictionary in array {
-            // если у нас не получился comment то просто продолжаем - continue
-            // потому что тут целый массив и малали один не получился остальные получаться
-            let item = ShopNew(dict: dictionary)
-            items.append(item)
-        }
-        self.items = items
-    }
-}
-
-class ProductCloudFirestoreService {
-    // екземпляр не будем создавать
-    private init() {}
-    
-    static func fetchProducts(path: String, completion: @escaping ([ProductItemNew]?) -> Void) {
-        
-        ManagerFB.shared.fetchStartCollection(for: path) { documents, error in
-            guard let documents = documents else {
-                completion(nil)
-                return
-            }
-            
-            do {
-                let response = try FetchProductsDataResponse(documents: documents)
-                completion(response.items)
-            } catch {
-//                ManagerFB.shared.CrashlyticsMethod
-                completion(nil)
-            }
-            
-        }
-    }
-    
-//    static func removeListeners(for path: String) {
-//        ManagerFB.shared.removeListeners(for: path)
+//}
+//
+//class ImplemintationHomeViewController: UIViewController {
+//
+//    var currentGender:String!
+//    let defaults = UserDefaults.standard
+//
+//    var homeDataSource:[String : SectionModelNew] = [:] {
+//        didSet {
+//
+//        }
 //    }
-}
-
-
-
-struct FetchProductsDataResponse {
-    typealias JSON = [String : Any]
-    let items:[ProductItemNew]
-    
-    // мы можем сделать init не просто Failable а сделаем его throws
-    // throws что бы он выдавал какие то ошибки если что то не получается
-    init(documents: Any) throws {
-        // если мы не сможем получить array то мы выплюним ошибку throw
-        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
-//        HomeScreenCloudFirestoreService.
-        var items = [ProductItemNew]()
-        for dictionary in array {
-            // если у нас не получился comment то просто продолжаем - continue
-            // потому что тут целый массив и малали один не получился остальные получаться
-            let item = ProductItemNew(dict: dictionary)
-            items.append(item)
-        }
-        self.items = items
-    }
-}
-
-class HomeAuthFirebaseService {
-    
-    private init() {}
-    
-    // if in HomeVC return nil мы можем попробывать руками вызвать-  HomeAuthFirebaseService.fetchCartProducts
-    static func listenForUserChangesWithCompletion(completion: @escaping ([ProductItemNew]?) -> Void) {
-        ManagerFB.shared.authFirebaseService.listenForUserChangesWithCompletion { userID in
-            HomeCloudFirestoreService.removeListenerForCardProducts()
-            HomeCloudFirestoreService.currentUserID = userID
-            HomeCloudFirestoreService.fetchCartProducts { cartProducts in
-                completion(cartProducts)
-            }
-        }
-    }
-}
-
-
-// PreviewCloudFirestoreService
-
-class BunchData {
-    var model:[String:SectionModelNew]?
-    var shops:[String:[ShopNew]]?
-    var cartProducts: [ProductItemNew]?
-    var pinMall: [PinNew]?
-}
-
-class HomeCloudFirestoreService {
-    // екземпляр не будем создавать
-    private init() {}
-    
-    static var bunchData = BunchData()
-    static let group = DispatchGroup()
-    static var currentUserID:String?
-    
-    static func fetchCartProducts(completion: @escaping ([ProductItemNew]?) -> Void) {
-        
-        ProductCloudFirestoreService.fetchProducts(path: "usersAccount/\(String(describing: currentUserID))/cartProducts") { cartProducts in
-           completion(cartProducts)
-        }
-    }
-
-    static func fetchBunchData(gender: String, completion: @escaping (BunchData) -> Void) {
-        
-        group.enter()
-        PreviewCloudFirestoreService.fetchPreviewSection(path: "previewMalls\(gender)") { malls in
-            
-            guard let malls = malls else {
-                return
-            }
-            
-            let items = createItem(malls: malls, shops: nil, products: nil)
-            let mallSection = SectionModelNew(section: "Malls", items: items)
-            
-            guard let _ = bunchData.model?["A"] else {
-                group.enter()
-                bunchData.model?["A"] = mallSection
-                group.leave()
-                return
-            }
-            
-            bunchData.model?["A"] = mallSection
-            group.leave()
-        }
-        
-        group.enter()
-        PreviewCloudFirestoreService.fetchPreviewSection(path: "previewShops\(gender)") { shops in
-            
-            guard let shops = shops else {
-                return
-            }
-            
-            let items = createItem(malls: nil, shops: shops, products: nil)
-            let shopSection = SectionModelNew(section: "Shops", items: items)
-            
-            guard let _ = bunchData.model?["B"] else {
-                group.enter()
-                bunchData.model?["B"] = shopSection
-                group.leave()
-                return
-            }
-            
-            bunchData.model?["B"] = shopSection
-            group.leave()
-        }
-        
-        group.enter()
-        ProductCloudFirestoreService.fetchProducts(path: "popularProducts\(gender)") { products in
-            guard let products = products else {
-                return
-            }
-            
-            let items = createItem(malls: nil, shops: nil, products: products)
-            let productsSection = SectionModelNew(section: "PopularProducts", items: items)
-            
-            guard let _ = bunchData.model?["C"] else {
-                group.enter()
-                bunchData.model?["C"] = productsSection
-                group.leave()
-                return
-            }
-            
-            bunchData.model?["C"] = productsSection
-            group.leave()
-        }
-        
-        group.enter()
-        ShopsCloudFirestoreService.fetchShops(path: "shopsMan") { shopsMan in
-            guard let shopsMan = shopsMan else {
-                return
-            }
-
-            guard let _ = bunchData.shops?["Man"] else {
-                group.enter()
-                bunchData.shops?["Man"] = shopsMan
-                group.leave()
-                return
-            }
-
-            bunchData.shops?["Man"] = shopsMan
-            group.leave()
-        }
-        
-        group.enter()
-        ShopsCloudFirestoreService.fetchShops(path: "shopsWoman") { shopsWoman in
-            guard let shopsWoman = shopsWoman else {
-                return
-            }
-
-            guard let _ = bunchData.shops?["Woman"] else {
-                group.enter()
-                bunchData.shops?["Woman"] = shopsWoman
-                group.leave()
-                return
-            }
-
-            bunchData.shops?["Woman"] = shopsWoman
-            group.leave()
-        }
-        
-        // в модель для MapView подготовим в VC
-        group.enter()
-        PinCloudFirestoreService.fetchPin(path: "pinMals") { pins in
-            guard let pins = pins else {
-                return
-            }
-            
-            guard let _ = bunchData.pinMall else {
-                group.enter()
-                bunchData.pinMall = pins
-                group.leave()
-                return
-            }
-            
-            bunchData.pinMall = pins
-            group.leave()
-        }
-        
-        group.notify(queue: .main) {
-            completion(bunchData)
-        }
-        
-    }
-    
-    
-    
-    static func removeListeners(for path: String) {
-        ManagerFB.shared.removeListeners(for: path)
-    }
-    
-    static func removeListenerForCardProducts() {
-        let path = "usersAccount/\(String(describing: currentUserID))/cartProducts"
-        ManagerFB.shared.removeListeners(for: path)
-    }
-    
-    static func createItem(malls: [PreviewSectionNew]? = nil, shops: [PreviewSectionNew]? = nil, products: [ProductItemNew]? = nil) -> [ItemNew] {
-        
-        var items = [ItemNew]()
-        if let malls = malls {
-            items = malls.map {ItemNew(mall: $0, shop: nil, popularProduct: nil)}
-        } else if let shops = shops {
-            items = shops.map {ItemNew(mall: nil, shop: $0, popularProduct: nil)}
-        } else if let products = products {
-            items = products.map {ItemNew(mall: nil, shop: nil, popularProduct: $0)}
-        }
-        return items
-    }
-}
-
-class ImplemintationHomeViewController: UIViewController {
-    
-    var currentGender:String!
-    let defaults = UserDefaults.standard
-    
-    var homeDataSource:[String : SectionModelNew] = [:] {
-        didSet {
-            
-        }
-    }
-    
-    var cartProducts: [ProductItemNew] = []
-    var shops:[String:[ShopNew]] = [:]
-    
-    var pinsMall: [PinMapNew] = []
-    private var pins: [PinNew] = [] {
-        didSet {
-            getPinsMall()
-        }
-    }
-    
-    //        let gender = defaults.string(forKey: "gender") ?? "Woman"
-    //        currentGender = gender
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        // nil если ошибка HomeCloudFirestoreService.fetchCartProducts
-        // сработает timer если мы не получили id или долго ждем ответа от сервера
-        HomeAuthFirebaseService.listenForUserChangesWithCompletion { cartProducts in
-            print("")
-        }
-        // сработает timer если мы не получили данных в полном объеме
-        HomeCloudFirestoreService.fetchBunchData(gender: currentGender) { bunchData in
-            print("")
-        }
-    }
-    
-    func getPinsMall() {
-        self.pinsMall = []
-        pins.forEach { pin in
-            let pinMall = PinMapNew(title: pin.mall, locationName: pin.address, discipline: pin.objectType, coordinate: CLLocationCoordinate2D(latitude: pin.latitude ?? 1.0, longitude: pin.longitude ?? 1.0), imageName: pin.refImage)
-            self.pinsMall.append(pinMall)
-        }
-    }
-}
+//
+//    var cartProducts: [ProductItemNew] = []
+//    var shops:[String:[ShopNew]] = [:]
+//
+//    var pinsMall: [PinMapNew] = []
+//    private var pins: [PinNew] = [] {
+//        didSet {
+//            getPinsMall()
+//        }
+//    }
+//
+//    //        let gender = defaults.string(forKey: "gender") ?? "Woman"
+//    //        currentGender = gender
+//
+//    override func viewDidLoad() {
+//        super.viewDidLoad()
+//
+//        // nil если ошибка HomeCloudFirestoreService.fetchCartProducts
+//        // сработает timer если мы не получили id или долго ждем ответа от сервера
+//        HomeAuthFirebaseService.listenForUserChangesWithCompletion { cartProducts in
+//            print("")
+//        }
+//        // сработает timer если мы не получили данных в полном объеме
+//        HomeCloudFirestoreService.fetchBunchData(gender: currentGender) { bunchData in
+//            print("")
+//        }
+//    }
+//
+//    func getPinsMall() {
+//        self.pinsMall = []
+//        pins.forEach { pin in
+//            let pinMall = PinMapNew(title: pin.mall, locationName: pin.address, discipline: pin.objectType, coordinate: CLLocationCoordinate2D(latitude: pin.latitude ?? 1.0, longitude: pin.longitude ?? 1.0), imageName: pin.refImage)
+//            self.pinsMall.append(pinMall)
+//        }
+//    }
+//}
 
 
 // MARK: - Second version implemintation  -
@@ -2917,52 +2917,52 @@ class ImplemintationHomeViewController: UIViewController {
 
 
 // Протокол для модели данных
-protocol ModelInput: AnyObject {
-    func fetchData()
-}
-
-// Протокол для обработки полученных данных
-protocol ModelOutput:AnyObject {
-    func didFetchData(data: Any)
-}
-
-
-// Пример класса, реализующего протокол ModelInput
-class MyModel: ModelInput {
-    weak var output: ModelOutput?
-
-    init(output: ModelOutput) {
-        self.output = output
-    }
-
-    func fetchData() {
-        // Код для получения данных
-
-        let fetchedData: Any = "Полученные данные" // Предположим, что данные успешно получены
-
-        // Вызов метода делегата для передачи полученных данных
-        output?.didFetchData(data: fetchedData)
-    }
-}
-
-
-class MyViewController: ModelOutput {
-    
-    private var myModel: ModelInput?
-
-    init() {
-    myModel = MyModel(output: self)
-    }
-
-    func fetchDataButtonTapped() {
-        myModel?.fetchData()
-    }
-
-    // Реализация метода делегата из протокола ModelOutput
-    func didFetchData(data: Any) {
-        // Обработка полученных данных
-    }
-}
+//protocol ModelInput: AnyObject {
+//    func fetchData()
+//}
+//
+//// Протокол для обработки полученных данных
+//protocol ModelOutput:AnyObject {
+//    func didFetchData(data: Any)
+//}
+//
+//
+//// Пример класса, реализующего протокол ModelInput
+//class MyModel: ModelInput {
+//    weak var output: ModelOutput?
+//
+//    init(output: ModelOutput) {
+//        self.output = output
+//    }
+//
+//    func fetchData() {
+//        // Код для получения данных
+//
+//        let fetchedData: Any = "Полученные данные" // Предположим, что данные успешно получены
+//
+//        // Вызов метода делегата для передачи полученных данных
+//        output?.didFetchData(data: fetchedData)
+//    }
+//}
+//
+//
+//class MyViewController: ModelOutput {
+//
+//    private var myModel: ModelInput?
+//
+//    init() {
+//    myModel = MyModel(output: self)
+//    }
+//
+//    func fetchDataButtonTapped() {
+//        myModel?.fetchData()
+//    }
+//
+//    // Реализация метода делегата из протокола ModelOutput
+//    func didFetchData(data: Any) {
+//        // Обработка полученных данных
+//    }
+//}
 
 
 
