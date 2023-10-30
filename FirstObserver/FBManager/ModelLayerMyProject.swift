@@ -302,6 +302,11 @@ protocol HomeModelOutput:AnyObject {
 //    func didFetchData(data: Any)
 }
 
+enum StateDataSource {
+    case firstStart
+    case fetchGender
+}
+
 // Controller
 
 class AbstractHomeViewController: UIViewController {
@@ -310,6 +315,7 @@ class AbstractHomeViewController: UIViewController {
     
     var currentGender:String!
     let defaults = UserDefaults.standard
+    var stateDataSource: StateDataSource = .firstStart
     
     var homeDataSource:[String : SectionModelNew] = [:] {
         didSet {
@@ -320,6 +326,27 @@ class AbstractHomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         homeModel = HomeFirebaseService(output: self)
+        homeModel?.listenerCartProducts()
+        firstFetchData()
+        homeModel?.fetchDataSource(completion: { homeDataSource in
+            guard let homeDataSource = homeDataSource else {
+               
+                switch self.stateDataSource {
+                case .firstStart:
+                    self.firstFetchData()
+                case .fetchGender:
+                    self.homeModel?.fetchGenderData(gender: self.currentGender)
+                }
+                return
+            }
+            self.homeDataSource = homeDataSource
+        })
+        
+    }
+    
+    private func firstFetchData() {
+        homeModel?.fetchGenderData(gender: currentGender)
+        homeModel?.fetchTotalData()
     }
     
 }
