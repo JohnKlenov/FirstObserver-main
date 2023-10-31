@@ -310,7 +310,8 @@ protocol HomeModelInput: AnyObject {
 
 // Протокол для обработки полученных данных
 protocol HomeModelOutput:AnyObject {
-//    func didFetchData(data: Any)
+    func startSpiner()
+    func stopSpiner()
 }
 
 enum StateDataSource {
@@ -331,6 +332,7 @@ class AbstractHomeViewController: PlaceholderNavigationController {
         }
     }
     
+    // нужно попробывать startSpiner как на placeholder так и на view
     var navController: PlaceholderNavigationController? {
             return self.navigationController as? PlaceholderNavigationController
         }
@@ -339,17 +341,19 @@ class AbstractHomeViewController: PlaceholderNavigationController {
         super.viewDidLoad()
         
         homeModel = HomeFirebaseService(output: self)
-        navController?.startSpinner()
-        
         homeModel?.fetchDataSource(completion: { homeDataSource in
             guard let homeDataSource = homeDataSource else {
-                self.navController?.stopSpinner()
-                if self.stateDataSource == .firstStart {
+                
+                switch self.stateDataSource {
+                case .firstStart:
                     self.navController?.showPlaceholder()
+                    self.alertFailedFetchData()
+                case .fetchGender:
+                    self.alertFailedFetchData()
                 }
-                self.alertFetchFirstData()
                 return
             }
+            self.navController?.hiddenPlaceholder()
             self.stateDataSource = .fetchGender
             self.homeDataSource = homeDataSource
         })
@@ -379,19 +383,39 @@ class AbstractHomeViewController: PlaceholderNavigationController {
 
 extension AbstractHomeViewController {
    
-    func alertFetchFirstData() {
+    // alert в котором нет cancel при первом старте только HomeVC
+    func alertFailedFetchData() {
         let alert = UIAlertController(title: "Oops!", message: "Something went wrong!", preferredStyle: .alert)
         
-        let action = UIAlertAction(title: "Try agayn", style: .cancel) { _ in
+        let tryAgayn = UIAlertAction(title: "Try agayn", style: .cancel) { _ in
             self.repeatedFetchData()
         }
         
-        alert.addAction(action)
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            //
+        }
+        
+        switch stateDataSource {
+            
+        case .firstStart:
+            alert.addAction(tryAgayn)
+        case .fetchGender:
+            alert.addAction(tryAgayn)
+            alert.addAction(cancel)
+        }
         present(alert, animated: true, completion: nil)
     }
 }
 
 extension AbstractHomeViewController:HomeModelOutput {
+    func startSpiner() {
+        navController?.startSpinner()
+    }
+    
+    func stopSpiner() {
+        navController?.stopSpinner()
+    }
+    
    
 }
 
@@ -519,10 +543,13 @@ extension HomeFirebaseService: HomeModelInput {
         group.notify(queue: .main) {
             completion(self.bunchData?.model)
             self.timer?.invalidate()
+            self.output?.stopSpiner()
         }
     }
     
     func fetchGenderData() {
+        
+        output?.startSpiner()
         
         pathsTotalListener = []
         bunchData = BunchData()
