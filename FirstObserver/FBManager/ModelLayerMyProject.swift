@@ -301,11 +301,11 @@ final class FirebaseService {
 
 // Протокол для модели данных
 protocol HomeModelInput: AnyObject {
-//    var serviceFB: <# Type #> { set }
     func fetchGenderData()
     func fetchDataSource(completion: @escaping ([String:SectionModelNew]?) -> Void)
     func firstFetchData()
     func isSwitchGender(completion: @escaping () -> Void)
+    func setGender(gender:String)
 }
 
 // Протокол для обработки полученных данных
@@ -320,7 +320,7 @@ enum StateDataSource {
 
 // Controller
 
-class AbstractHomeViewController: UIViewController {
+class AbstractHomeViewController: PlaceholderNavigationController {
     
     private var homeModel: HomeModelInput?
     
@@ -331,33 +331,64 @@ class AbstractHomeViewController: UIViewController {
         }
     }
     
+    var navController: PlaceholderNavigationController? {
+            return self.navigationController as? PlaceholderNavigationController
+        }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         homeModel = HomeFirebaseService(output: self)
+        navController?.startSpinner()
         
         homeModel?.fetchDataSource(completion: { homeDataSource in
             guard let homeDataSource = homeDataSource else {
-               
-                switch self.stateDataSource {
-                case .firstStart:
-                    self.homeModel?.firstFetchData()
-                case .fetchGender:
-                    self.homeModel?.fetchGenderData()
+                self.navController?.stopSpinner()
+                if self.stateDataSource == .firstStart {
+                    self.navController?.showPlaceholder()
                 }
+                self.alertFetchFirstData()
                 return
             }
+            self.stateDataSource = .fetchGender
             self.homeDataSource = homeDataSource
         })
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        switchGender()
+    }
+    
+    func switchGender() {
         homeModel?.isSwitchGender(completion: {
-            //
+            self.homeModel?.fetchGenderData()
         })
     }
     
+    func repeatedFetchData() {
+        switch stateDataSource {
+        case .firstStart:
+            homeModel?.firstFetchData()
+        case .fetchGender:
+            homeModel?.fetchGenderData()
+        }
+    }
+    
+}
+
+extension AbstractHomeViewController {
+   
+    func alertFetchFirstData() {
+        let alert = UIAlertController(title: "Oops!", message: "Something went wrong!", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Try agayn", style: .cancel) { _ in
+            self.repeatedFetchData()
+        }
+        
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
+    }
 }
 
 extension AbstractHomeViewController:HomeModelOutput {
@@ -366,7 +397,8 @@ extension AbstractHomeViewController:HomeModelOutput {
 
 extension AbstractHomeViewController:HeaderSegmentedControlViewDelegate {
     func didSelectSegmentControl(gender: String) {
-//        homeModel.
+        homeModel?.setGender(gender: gender)
+        switchGender()
     }
 }
 
@@ -410,10 +442,6 @@ class HomeFirebaseService {
     var pathsGenderListener = [String]()
     var pathsTotalListener = [String]()
     var bunchData:BunchData?
-    
-//    var currentGender:String = {
-//        return UserDefaults.standard.string(forKey: "gender") ?? "Woman"
-//    }()
     
     var gender:String = ""
     
@@ -466,6 +494,11 @@ class HomeFirebaseService {
 }
 
 extension HomeFirebaseService: HomeModelInput {
+    
+    func setGender(gender: String) {
+        serviceFB.setGender(gender: gender)
+    }
+    
     
     func isSwitchGender(completion: @escaping () -> Void) {
         if gender != serviceFB.currentGender {
