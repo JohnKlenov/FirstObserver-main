@@ -165,6 +165,17 @@ final class FirebaseService {
     var pinMall: [PinNew]?
    
     
+    var currentGender:String = {
+        return UserDefaults.standard.string(forKey: "gender") ?? "Woman"
+    }()
+    
+    
+    // MARK: - UserDefaults
+    
+    func setGender(gender:String) {
+        UserDefaults.standard.set(gender, forKey: "gender")
+    }
+    
     
     // MARK: - CloudFirestore
     // если cartProducts пуст то как это может быть nil???
@@ -290,11 +301,11 @@ final class FirebaseService {
 
 // Протокол для модели данных
 protocol HomeModelInput: AnyObject {
-//    func fetchData()
-    func listenerCartProducts()
-    func fetchGenderData(gender: String)
-    func fetchTotalData()
+//    var serviceFB: <# Type #> { set }
+    func fetchGenderData()
     func fetchDataSource(completion: @escaping ([String:SectionModelNew]?) -> Void)
+    func firstFetchData()
+    func isSwitchGender(completion: @escaping () -> Void)
 }
 
 // Протокол для обработки полученных данных
@@ -313,10 +324,7 @@ class AbstractHomeViewController: UIViewController {
     
     private var homeModel: HomeModelInput?
     
-    var currentGender:String!
-    let defaults = UserDefaults.standard
     var stateDataSource: StateDataSource = .firstStart
-    
     var homeDataSource:[String : SectionModelNew] = [:] {
         didSet {
             
@@ -326,16 +334,15 @@ class AbstractHomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         homeModel = HomeFirebaseService(output: self)
-        homeModel?.listenerCartProducts()
-        firstFetchData()
+        
         homeModel?.fetchDataSource(completion: { homeDataSource in
             guard let homeDataSource = homeDataSource else {
                
                 switch self.stateDataSource {
                 case .firstStart:
-                    self.firstFetchData()
+                    self.homeModel?.firstFetchData()
                 case .fetchGender:
-                    self.homeModel?.fetchGenderData(gender: self.currentGender)
+                    self.homeModel?.fetchGenderData()
                 }
                 return
             }
@@ -344,15 +351,50 @@ class AbstractHomeViewController: UIViewController {
         
     }
     
-    private func firstFetchData() {
-        homeModel?.fetchGenderData(gender: currentGender)
-        homeModel?.fetchTotalData()
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        homeModel?.isSwitchGender(completion: {
+            //
+        })
     }
     
 }
 
 extension AbstractHomeViewController:HomeModelOutput {
    
+}
+
+extension AbstractHomeViewController:HeaderSegmentedControlViewDelegate {
+    func didSelectSegmentControl(gender: String) {
+//        homeModel.
+    }
+}
+
+// view
+
+protocol HeaderSegmentedControlViewDelegate: AnyObject {
+    func didSelectSegmentControl(gender:String)
+}
+
+class HeaderSegmentedControlView: UICollectionReusableView {
+    weak var delegate: HeaderSegmentedControlViewDelegate?
+    
+    func configureCell(title: String, gender:String) {
+        //        segmentedControl.selectedSegmentIndex = gender == "Woman" ? 0 : 1
+        //        label.text = title
+    }
+    
+    @objc func didTapSegmentedControl(_ segmentControl: UISegmentedControl) {
+        switch segmentControl.selectedSegmentIndex {
+        case 0:
+            delegate?.didSelectSegmentControl(gender: "Woman")
+        case 1:
+            delegate?.didSelectSegmentControl(gender: "Man")
+        default:
+            break
+        }
+    }
+
 }
 
 
@@ -369,6 +411,13 @@ class HomeFirebaseService {
     var pathsTotalListener = [String]()
     var bunchData:BunchData?
     
+//    var currentGender:String = {
+//        return UserDefaults.standard.string(forKey: "gender") ?? "Woman"
+//    }()
+    
+    var gender:String = ""
+    
+    
     let previewService = PreviewCloudFirestoreService()
     let productService = ProductCloudFirestoreService()
     let shopsService = ShopsCloudFirestoreService()
@@ -376,6 +425,7 @@ class HomeFirebaseService {
     
     init(output: HomeModelOutput) {
         self.output = output
+        gender = serviceFB.currentGender
     }
     
     func createItem(malls: [PreviewSectionNew]? = nil, shops: [PreviewSectionNew]? = nil, products: [ProductItemNew]? = nil) -> [ItemNew] {
@@ -416,15 +466,30 @@ class HomeFirebaseService {
 }
 
 extension HomeFirebaseService: HomeModelInput {
+    
+    func isSwitchGender(completion: @escaping () -> Void) {
+        if gender != serviceFB.currentGender {
+            gender = serviceFB.currentGender
+            completion()
+        }
+    }
+    
+    func firstFetchData() {
+        fetchGenderData()
+        fetchTotalData()
+    }
+    
    
     func fetchDataSource(completion: @escaping ([String : SectionModelNew]?) -> Void) {
+        listenerCartProducts()
+        firstFetchData()
         group.notify(queue: .main) {
             completion(self.bunchData?.model)
             self.timer?.invalidate()
         }
     }
     
-    func fetchGenderData(gender: String) {
+    func fetchGenderData() {
         
         pathsTotalListener = []
         bunchData = BunchData()
