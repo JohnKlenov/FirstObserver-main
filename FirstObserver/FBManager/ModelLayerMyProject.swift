@@ -170,6 +170,21 @@ final class FirebaseService {
     }()
     
     
+    // MARK: - helper methods
+    
+    func createItem(malls: [PreviewSectionNew]? = nil, shops: [PreviewSectionNew]? = nil, products: [ProductItemNew]? = nil) -> [ItemNew] {
+
+        var items = [ItemNew]()
+        if let malls = malls {
+            items = malls.map {ItemNew(mall: $0, shop: nil, popularProduct: nil)}
+        } else if let shops = shops {
+            items = shops.map {ItemNew(mall: nil, shop: $0, popularProduct: nil)}
+        } else if let products = products {
+            items = products.map {ItemNew(mall: nil, shop: nil, popularProduct: $0)}
+        }
+        return items
+    }
+    
     // MARK: - UserDefaults
     
     func setGender(gender:String) {
@@ -500,9 +515,13 @@ class AbstractHomeViewController: PlaceholderNavigationController {
                 switch self.stateDataSource {
                 case .firstStart:
                     self.navController?.showPlaceholder()
-                    self.alertFailedFetchData()
+                    self.alertFailedFetchData(state: self.stateDataSource) {
+                        self.repeatedFetchData()
+                    }
                 case .fetchGender:
-                    self.alertFailedFetchData()
+                    self.alertFailedFetchData(state: self.stateDataSource) {
+                        self.repeatedFetchData()
+                    }
                 }
                 return
             }
@@ -536,21 +555,21 @@ class AbstractHomeViewController: PlaceholderNavigationController {
     
 }
 
-extension AbstractHomeViewController {
+extension UIViewController {
    
     // alert в котором нет cancel при первом старте только HomeVC
-    func alertFailedFetchData() {
+    func alertFailedFetchData(state: StateDataSource, retryHandler: @escaping () -> Void) {
         let alert = UIAlertController(title: "Oops!", message: "Something went wrong!", preferredStyle: .alert)
         
         let tryAgayn = UIAlertAction(title: "Try agayn", style: .cancel) { _ in
-            self.repeatedFetchData()
+            retryHandler()
         }
         
         let cancel = UIAlertAction(title: "Cancel", style: .cancel) { _ in
             //
         }
         
-        switch stateDataSource {
+        switch state {
             
         case .firstStart:
             alert.addAction(tryAgayn)
@@ -1028,13 +1047,12 @@ struct FetchPinDataResponse {
 
 // MARK: - Malls
 
-//SA_NOCLDSTOP
+
 
 // Протокол для модели данных
 protocol MallsModelInput: AnyObject {
     func fetchGenderData()
     func fetchDataSource(completion: @escaping ([PreviewSectionNew]?) -> Void)
-//    func firstFetchData()
     func isSwitchGender(completion: @escaping () -> Void)
     func setGender(gender:String)
     func updateModelGender()
@@ -1051,11 +1069,11 @@ protocol MallsModelOutput:AnyObject {
 extension AbstractMsllsViewController: MallsModelOutput {
     
     func startSpiner() {
-        print("")
+        navController?.startSpinner()
     }
     
     func stopSpiner() {
-        print("")
+        navController?.stopSpinner()
     }
     
 }
@@ -1086,9 +1104,13 @@ class AbstractMsllsViewController: PlaceholderNavigationController {
                 switch self.stateDataSource {
                 case .firstStart:
                     self.navController?.showPlaceholder()
-//                    self.alertFailedFetchData()
-                case .fetchGender: break
-//                    self.alertFailedFetchData()
+                    self.alertFailedFetchData(state: self.stateDataSource) {
+                        self.mallsModel?.fetchGenderData()
+                    }
+                case .fetchGender:
+                    self.alertFailedFetchData(state: self.stateDataSource) {
+                        self.mallsModel?.fetchGenderData()
+                    }
                 }
                 return
             }
@@ -1110,16 +1132,6 @@ class AbstractMsllsViewController: PlaceholderNavigationController {
             self.mallsModel?.fetchGenderData()
         })
     }
-    
-    func repeatedFetchData() {
-        switch stateDataSource {
-        case .firstStart:
-            mallsModel?.fetchGenderData()
-        case .fetchGender:
-            mallsModel?.fetchGenderData()
-        }
-    }
-    
 }
 
 
@@ -1132,64 +1144,66 @@ class MallsFirebaseService {
     let serviceFB = FirebaseService.shared
     let group = DispatchGroup()
     var timer: Timer?
-//    var pathsGenderListener = [String]()
-//    var pathsTotalListener = [String]()
+    var pathsGenderListener = [String]()
     
     var gender:String = ""
-    
-    
-//    let previewService = PreviewCloudFirestoreService()
-//    let productService = ProductCloudFirestoreService()
-//    let shopsService = ShopsCloudFirestoreService()
-//    let pinService = PinCloudFirestoreService()
+    var mallsDataSource:[PreviewSectionNew]?
+    let previewService = PreviewCloudFirestoreService()
     
     init(output: MallsModelOutput) {
         self.output = output
         gender = serviceFB.currentGender
     }
     
-//    func createItem(malls: [PreviewSectionNew]? = nil, shops: [PreviewSectionNew]? = nil, products: [ProductItemNew]? = nil) -> [ItemNew] {
-//
-//        var items = [ItemNew]()
-//        if let malls = malls {
-//            items = malls.map {ItemNew(mall: $0, shop: nil, popularProduct: nil)}
-//        } else if let shops = shops {
-//            items = shops.map {ItemNew(mall: nil, shop: $0, popularProduct: nil)}
-//        } else if let products = products {
-//            items = products.map {ItemNew(mall: nil, shop: nil, popularProduct: $0)}
-//        }
-//        return items
-//    }
-    
     func startTimer() {
         
         timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
             
-//            self.pathsGenderListener.forEach { path in
-//                self.bunchData = nil
-//                self.group.leave()
-//                self.serviceFB.removeListeners(for: path)
-//            }
+            self.pathsGenderListener.forEach { path in
+                self.mallsDataSource = nil
+                self.group.leave()
+                self.serviceFB.removeListeners(for: path)
+            }
         }
     }
     
     func removeGenderListeners() {
-//        pathsGenderListener.forEach { path in
-//            self.serviceFB.removeListeners(for: path)
-//        }
+        pathsGenderListener.forEach { path in
+            self.serviceFB.removeListeners(for: path)
+        }
     }
 }
 
 extension MallsFirebaseService: MallsModelInput {
     
     func fetchGenderData() {
-        print("")
+       
+        output?.startSpiner()
+        mallsDataSource = []
+        removeGenderListeners()
+        pathsGenderListener = []
+        startTimer()
+        pathsGenderListener.append("catalogMalls\(gender)")
+        
+        group.enter()
+        // так мы перезаписывем previeMall(добавляем catalogMalls в cloudFirestore) а вдруг у нас будет банер рекламный на previewMall? :) на HomeVC + gender под вопросом
+        previewService.fetchPreviewSection(path: "catalogMalls\(gender)") { malls in
+            guard let malls = malls else {
+                return
+            }
+            self.mallsDataSource = malls
+            self.group.leave()
+        }
     }
     
     
     func fetchDataSource(completion: @escaping ([PreviewSectionNew]?) -> Void) {
-        print("")
-        completion(nil)
+        fetchGenderData()
+        group.notify(queue: .main) {
+            self.timer?.invalidate()
+            self.output?.stopSpiner()
+            completion(self.mallsDataSource)
+        }
     }
     
     
