@@ -410,6 +410,37 @@ final class FirebaseService {
 //    }
 //}
 
+//class FirebaseManager {
+//    static let shared = FirebaseManager()
+//
+//    func createUser(completion: @escaping (Error?) -> Void) {
+//        Auth.auth().createUser(withEmail: "email@example.com", password: "password") { (authResult, error) in
+//            if let error = error {
+//                if let viewController = UIApplication.shared.windows.first?.rootViewController {
+//                    viewController.showErrorAlert(message: error.localizedDescription)
+//                }
+//                completion(error)
+//            } else {
+//                completion(nil)
+//            }
+//        }
+//    }
+//}
+//
+//extension UIViewController {
+//    func showErrorAlert(message: String) {
+//        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+//        alert.addAction(UIAlertAction(title: "OK", style: .default))
+//        self.present(alert, animated: true)
+//    }
+
+//if #available(iOS 15.0, *) {
+//    // Используйте UIWindowScene.windows.first?.rootViewController
+//} else {
+//    // Используйте UIApplication.shared.windows.first?.rootViewController
+//}
+//}
+
 
 
 
@@ -477,6 +508,7 @@ class AbstractHomeViewController: PlaceholderNavigationController {
             }
             self.navController?.hiddenPlaceholder()
             self.stateDataSource = .fetchGender
+            // при переходе на mallVC, shopVC
             self.homeModel?.updateModelGender()
             self.homeDataSource = homeDataSource
         })
@@ -996,5 +1028,181 @@ struct FetchPinDataResponse {
 
 // MARK: - Malls
 
+// Протокол для модели данных
+protocol MallsModelInput: AnyObject {
+    func fetchGenderData()
+    func fetchDataSource(completion: @escaping ([PreviewSectionNew]?) -> Void)
+//    func firstFetchData()
+    func isSwitchGender(completion: @escaping () -> Void)
+    func setGender(gender:String)
+    func updateModelGender()
+}
+
+// Протокол для обработки полученных данных
+protocol MallsModelOutput:AnyObject {
+    func startSpiner()
+    func stopSpiner()
+}
+
+// Controller
+
+extension AbstractMsllsViewController: MallsModelOutput {
+    
+    func startSpiner() {
+        print("")
+    }
+    
+    func stopSpiner() {
+        print("")
+    }
+    
+}
+
+class AbstractMsllsViewController: PlaceholderNavigationController {
+    
+    private var mallsModel: MallsModelInput?
+    
+    var stateDataSource: StateDataSource = .firstStart
+    var mallsDataSource:[PreviewSectionNew] = [] {
+        didSet {
+            
+        }
+    }
+    
+    // нужно попробывать startSpiner как на placeholder так и на view
+    var navController: PlaceholderNavigationController? {
+            return self.navigationController as? PlaceholderNavigationController
+        }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        mallsModel = MallsFirebaseService(output: self)
+        mallsModel?.fetchDataSource(completion: { homeDataSource in
+            guard let homeDataSource = homeDataSource else {
+                
+                switch self.stateDataSource {
+                case .firstStart:
+                    self.navController?.showPlaceholder()
+//                    self.alertFailedFetchData()
+                case .fetchGender: break
+//                    self.alertFailedFetchData()
+                }
+                return
+            }
+            self.navController?.hiddenPlaceholder()
+            self.stateDataSource = .fetchGender
+            // при переходе на mallVC, shopVC
+            self.mallsModel?.updateModelGender()
+            self.mallsDataSource = homeDataSource
+        })
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        switchGender()
+    }
+    
+    func switchGender() {
+        mallsModel?.isSwitchGender(completion: {
+            self.mallsModel?.fetchGenderData()
+        })
+    }
+    
+    func repeatedFetchData() {
+        switch stateDataSource {
+        case .firstStart:
+            mallsModel?.fetchGenderData()
+        case .fetchGender:
+            mallsModel?.fetchGenderData()
+        }
+    }
+    
+}
 
 
+// Model
+
+class MallsFirebaseService {
+    
+    weak var output: MallsModelOutput?
+    
+    let serviceFB = FirebaseService.shared
+    let group = DispatchGroup()
+    var timer: Timer?
+//    var pathsGenderListener = [String]()
+//    var pathsTotalListener = [String]()
+    
+    var gender:String = ""
+    
+    
+//    let previewService = PreviewCloudFirestoreService()
+//    let productService = ProductCloudFirestoreService()
+//    let shopsService = ShopsCloudFirestoreService()
+//    let pinService = PinCloudFirestoreService()
+    
+    init(output: MallsModelOutput) {
+        self.output = output
+        gender = serviceFB.currentGender
+    }
+    
+//    func createItem(malls: [PreviewSectionNew]? = nil, shops: [PreviewSectionNew]? = nil, products: [ProductItemNew]? = nil) -> [ItemNew] {
+//
+//        var items = [ItemNew]()
+//        if let malls = malls {
+//            items = malls.map {ItemNew(mall: $0, shop: nil, popularProduct: nil)}
+//        } else if let shops = shops {
+//            items = shops.map {ItemNew(mall: nil, shop: $0, popularProduct: nil)}
+//        } else if let products = products {
+//            items = products.map {ItemNew(mall: nil, shop: nil, popularProduct: $0)}
+//        }
+//        return items
+//    }
+    
+    func startTimer() {
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
+            
+//            self.pathsGenderListener.forEach { path in
+//                self.bunchData = nil
+//                self.group.leave()
+//                self.serviceFB.removeListeners(for: path)
+//            }
+        }
+    }
+    
+    func removeGenderListeners() {
+//        pathsGenderListener.forEach { path in
+//            self.serviceFB.removeListeners(for: path)
+//        }
+    }
+}
+
+extension MallsFirebaseService: MallsModelInput {
+    
+    func fetchGenderData() {
+        print("")
+    }
+    
+    
+    func fetchDataSource(completion: @escaping ([PreviewSectionNew]?) -> Void) {
+        print("")
+        completion(nil)
+    }
+    
+    
+    func setGender(gender: String) {
+        serviceFB.setGender(gender: gender)
+    }
+    
+    func updateModelGender() {
+        gender = serviceFB.currentGender
+    }
+    
+    func isSwitchGender(completion: @escaping () -> Void) {
+        if gender != serviceFB.currentGender {
+            completion()
+        }
+    }
+    
+}
