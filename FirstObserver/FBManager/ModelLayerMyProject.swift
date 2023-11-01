@@ -290,6 +290,127 @@ final class FirebaseService {
     
 }
 
+//  Listener user
+
+//class ViewController: UIViewController {
+//
+//    override func viewDidLoad() {
+//        super.viewDidLoad()
+//
+//        // Прослушивание изменений состояния пользователя
+//        Auth.auth().addStateDidChangeListener { (auth, user) in
+//            if let user = user {
+//                // Если пользователь уже вошел в систему, используйте его uid
+//                self.setupCartProducts(for: user.uid)
+//            } else {
+//                // Если пользователь еще не вошел в систему, создайте анонимного пользователя
+//                Auth.auth().signInAnonymously { (authResult, error) in
+//                    if let error = error {
+//                        self.showErrorAlert(message: "Ошибка создания анонимного пользователя: \(error.localizedDescription)")
+//                    } else if let user = authResult?.user {
+//                        self.setupCartProducts(for: user.uid)
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    func setupCartProducts(for uid: String) {
+//        let db = Firestore.firestore()
+//        let usersCollection = db.collection("usersAccount")
+//        let userDocument = usersCollection.document(uid)
+//
+//        // Проверьте, существует ли уже документ для этого пользователя
+//        userDocument.getDocument { (document, error) in
+//            if let error = error {
+//                self.showErrorAlert(message: "Ошибка получения документа пользователя: \(error.localizedDescription)")
+//            } else if let document = document, document.exists {
+//                // Документ уже существует, поэтому ничего не делайте
+//            } else {
+//                // Документ не существует, поэтому создайте новый документ и коллекцию cartProducts
+//                userDocument.setData([:]) { error in
+//                    if let error = error {
+//                        self.showErrorAlert(message: "Ошибка создания документа пользователя: \(error.localizedDescription)")
+//                    } else {
+//                        userDocument.collection("cartProducts").addDocument(data: [:]) { error in
+//                            if let error = error {
+//                                self.showErrorAlert(message: "Ошибка создания cartProducts: \(error.localizedDescription)")
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    func showErrorAlert(message: String) {
+//        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+//        alert.addAction(UIAlertAction(title: "OK", style: .default))
+//        self.present(alert, animated: true)
+//    }
+//
+//}
+//
+//class Test: ViewController {
+//
+//
+//    func showErrorAlert(message: String, retryHandler: @escaping () -> Void) {
+//        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+//        alert.addAction(UIAlertAction(title: "OK", style: .default))
+//        alert.addAction(UIAlertAction(title: "Повторить", style: .default) { _ in
+//            retryHandler()
+//        })
+//        self.present(alert, animated: true)
+//    }
+//
+//    func setupCartProducts2(for uid: String) {
+//        let db = Firestore.firestore()
+//        let usersCollection = db.collection("usersAccount")
+//        let userDocument = usersCollection.document(uid)
+//
+//        // Проверьте, существует ли уже документ для этого пользователя
+//        userDocument.getDocument { (document, error) in
+//            if let error = error {
+//                self.showErrorAlert(message: "Ошибка получения документа пользователя: \(error.localizedDescription)") {
+//                    self.setupCartProducts(for: uid)
+//                }
+//            } else if let document = document, document.exists {
+//                // Документ уже существует, поэтому ничего не делайте
+//            } else {
+//                // Документ не существует, поэтому создайте новый документ и коллекцию cartProducts
+//                userDocument.setData([:]) { error in
+//                    if let error = error {
+//                        self.showErrorAlert(message: "Ошибка создания документа пользователя: \(error.localizedDescription)") {
+//                            self.setupCartProducts(for: uid)
+//                        }
+//                    } else {
+//                        userDocument.collection("cartProducts").addDocument(data: [:]) { error in
+//                            if let error = error {
+//                                self.showErrorAlert(message: "Ошибка создания cartProducts: \(error.localizedDescription)") {
+//                                    self.setupCartProducts(for: uid)
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    Auth.auth().signInAnonymously { (authResult, error) in
+//        guard let user = authResult?.user, error == nil else {
+//            print("Ошибка создания анонимного пользователя: \(error?.localizedDescription ?? "")")
+//            // Повторите попытку через некоторое время
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+//                self.signInAnonymously()
+//            }
+//            return
+//        }
+//        self.setupCartProducts(for: user.uid)
+//    }
+//}
+
+
 
 
 // MARK: - Screens -
@@ -306,6 +427,7 @@ protocol HomeModelInput: AnyObject {
     func firstFetchData()
     func isSwitchGender(completion: @escaping () -> Void)
     func setGender(gender:String)
+    func updateModelGender()
 }
 
 // Протокол для обработки полученных данных
@@ -355,6 +477,7 @@ class AbstractHomeViewController: PlaceholderNavigationController {
             }
             self.navController?.hiddenPlaceholder()
             self.stateDataSource = .fetchGender
+            self.homeModel?.updateModelGender()
             self.homeDataSource = homeDataSource
         })
     }
@@ -523,10 +646,12 @@ extension HomeFirebaseService: HomeModelInput {
         serviceFB.setGender(gender: gender)
     }
     
+    func updateModelGender() {
+        gender = serviceFB.currentGender
+    }
     
     func isSwitchGender(completion: @escaping () -> Void) {
         if gender != serviceFB.currentGender {
-            gender = serviceFB.currentGender
             completion()
         }
     }
@@ -865,4 +990,11 @@ struct FetchPinDataResponse {
         self.items = items
     }
 }
+
+
+
+
+// MARK: - Malls
+
+
 
