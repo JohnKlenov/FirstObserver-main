@@ -1028,6 +1028,8 @@ struct FetchPinDataResponse {
 
 // MARK: - Malls
 
+//SA_NOCLDSTOP
+
 // Протокол для модели данных
 protocol MallsModelInput: AnyObject {
     func fetchGenderData()
