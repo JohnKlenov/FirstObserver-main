@@ -480,6 +480,8 @@ protocol HomeModelInput: AnyObject {
 protocol HomeModelOutput:AnyObject {
     func startSpiner()
     func stopSpiner()
+    func disableControls()
+    func enableControls()
 }
 
 enum StateDataSource {
@@ -590,7 +592,17 @@ extension AbstractHomeViewController:HomeModelOutput {
         navController?.stopSpinner()
     }
     
-   
+    func disableControls() {
+        // Отключите все элементы управления
+        // Например, если у вас есть кнопка:
+        // myButton.isEnabled = false
+    }
+
+    func enableControls() {
+        // Включите все элементы управления
+        // Например, если у вас есть кнопка:
+        // myButton.isEnabled = true
+    }
 }
 
 extension AbstractHomeViewController:HeaderSegmentedControlViewDelegate {
@@ -717,14 +729,16 @@ extension HomeFirebaseService: HomeModelInput {
         listenerCartProducts()
         firstFetchData()
         group.notify(queue: .main) {
-            completion(self.bunchData?.model)
             self.timer?.invalidate()
             self.output?.stopSpiner()
+            self.output?.enableControls()
+            completion(self.bunchData?.model)
         }
     }
     
     func fetchGenderData() {
         
+        output?.disableControls()
         output?.startSpiner()
         
         pathsTotalListener = []
@@ -1062,11 +1076,13 @@ protocol MallsModelInput: AnyObject {
 protocol MallsModelOutput:AnyObject {
     func startSpiner()
     func stopSpiner()
+    func disableControls()
+    func enableControls()
 }
 
 // Controller
 
-extension AbstractMsllsViewController: MallsModelOutput {
+extension AbstractMallsViewController: MallsModelOutput {
     
     func startSpiner() {
         navController?.startSpinner()
@@ -1076,16 +1092,27 @@ extension AbstractMsllsViewController: MallsModelOutput {
         navController?.stopSpinner()
     }
     
+    func disableControls() {
+        // Отключите все элементы управления
+        // Например, если у вас есть кнопка:
+        // myButton.isEnabled = false
+    }
+
+    func enableControls() {
+        // Включите все элементы управления
+        // Например, если у вас есть кнопка:
+        // myButton.isEnabled = true
+    }
+    
 }
 
-class AbstractMsllsViewController: PlaceholderNavigationController {
+class AbstractMallsViewController: PlaceholderNavigationController {
     
     private var mallsModel: MallsModelInput?
     
     var stateDataSource: StateDataSource = .firstStart
     var mallsDataSource:[PreviewSectionNew] = [] {
         didSet {
-            
         }
     }
     
@@ -1108,6 +1135,7 @@ class AbstractMsllsViewController: PlaceholderNavigationController {
                         self.mallsModel?.fetchGenderData()
                     }
                 case .fetchGender:
+                    // можем возвращать из этого места segmentControl на актуальное значение во view
                     self.alertFailedFetchData(state: self.stateDataSource) {
                         self.mallsModel?.fetchGenderData()
                     }
@@ -1131,6 +1159,13 @@ class AbstractMsllsViewController: PlaceholderNavigationController {
         mallsModel?.isSwitchGender(completion: {
             self.mallsModel?.fetchGenderData()
         })
+    }
+}
+
+extension AbstractMallsViewController:HeaderSegmentedControlViewDelegate {
+    func didSelectSegmentControl(gender: String) {
+        mallsModel?.setGender(gender: gender)
+        switchGender()
     }
 }
 
@@ -1177,7 +1212,7 @@ class MallsFirebaseService {
 extension MallsFirebaseService: MallsModelInput {
     
     func fetchGenderData() {
-       
+        output?.disableControls()
         output?.startSpiner()
         mallsDataSource = []
         removeGenderListeners()
@@ -1202,6 +1237,7 @@ extension MallsFirebaseService: MallsModelInput {
         group.notify(queue: .main) {
             self.timer?.invalidate()
             self.output?.stopSpiner()
+            self.output?.enableControls()
             completion(self.mallsDataSource)
         }
     }
