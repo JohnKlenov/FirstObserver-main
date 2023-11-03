@@ -1082,7 +1082,7 @@ protocol MallsModelOutput:AnyObject {
 
 // Controller
 
-extension AbstractMallsViewController: MallsModelOutput {
+extension AbstractCatalogViewController: MallsModelOutput {
     
     func startSpiner() {
         navController?.startSpinner()
@@ -1106,12 +1106,13 @@ extension AbstractMallsViewController: MallsModelOutput {
     
 }
 
-class AbstractMallsViewController: PlaceholderNavigationController {
+class AbstractCatalogViewController: PlaceholderNavigationController {
     
-    private var mallsModel: MallsModelInput?
+    private var catalogModel: MallsModelInput?
     
+    var collectionPath:String
     var stateDataSource: StateDataSource = .firstStart
-    var mallsDataSource:[PreviewSectionNew] = [] {
+    var dataSource:[PreviewSectionNew] = [] {
         didSet {
         }
     }
@@ -1121,23 +1122,33 @@ class AbstractMallsViewController: PlaceholderNavigationController {
             return self.navigationController as? PlaceholderNavigationController
         }
     
+    init(collectionPath: String) {
+            self.collectionPath = collectionPath
+            super.init(nibName: nil, bundle: nil)
+        }
+    
+    required init?(coder aDecoder: NSCoder) {
+        collectionPath = ""
+        super.init(coder: aDecoder)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        mallsModel = MallsFirebaseService(output: self)
-        mallsModel?.fetchDataSource(completion: { homeDataSource in
-            guard let homeDataSource = homeDataSource else {
+        catalogModel = CatalogFirebaseService(output: self, collectionPath: collectionPath)
+        catalogModel?.fetchDataSource(completion: { dataSource in
+            guard let dataSource = dataSource else {
                 
                 switch self.stateDataSource {
                 case .firstStart:
                     self.navController?.showPlaceholder()
                     self.alertFailedFetchData(state: self.stateDataSource) {
-                        self.mallsModel?.fetchGenderData()
+                        self.catalogModel?.fetchGenderData()
                     }
                 case .fetchGender:
                     // можем возвращать из этого места segmentControl на актуальное значение во view
                     self.alertFailedFetchData(state: self.stateDataSource) {
-                        self.mallsModel?.fetchGenderData()
+                        self.catalogModel?.fetchGenderData()
                     }
                 }
                 return
@@ -1145,8 +1156,8 @@ class AbstractMallsViewController: PlaceholderNavigationController {
             self.navController?.hiddenPlaceholder()
             self.stateDataSource = .fetchGender
             // при переходе на mallVC, shopVC
-            self.mallsModel?.updateModelGender()
-            self.mallsDataSource = homeDataSource
+            self.catalogModel?.updateModelGender()
+            self.dataSource = dataSource
         })
     }
     
@@ -1156,15 +1167,15 @@ class AbstractMallsViewController: PlaceholderNavigationController {
     }
     
     func switchGender() {
-        mallsModel?.isSwitchGender(completion: {
-            self.mallsModel?.fetchGenderData()
+        catalogModel?.isSwitchGender(completion: {
+            self.catalogModel?.fetchGenderData()
         })
     }
 }
 
-extension AbstractMallsViewController:HeaderSegmentedControlViewDelegate {
+extension AbstractCatalogViewController:HeaderSegmentedControlViewDelegate {
     func didSelectSegmentControl(gender: String) {
-        mallsModel?.setGender(gender: gender)
+        catalogModel?.setGender(gender: gender)
         switchGender()
     }
 }
@@ -1172,7 +1183,7 @@ extension AbstractMallsViewController:HeaderSegmentedControlViewDelegate {
 
 // Model
 
-class MallsFirebaseService {
+class CatalogFirebaseService {
     
     weak var output: MallsModelOutput?
     
@@ -1181,13 +1192,15 @@ class MallsFirebaseService {
     var timer: Timer?
     var pathsGenderListener = [String]()
     
-    var gender:String = ""
-    var mallsDataSource:[PreviewSectionNew]?
+    var gender:String
+    var collectionPath:String
+    var dataSource:[PreviewSectionNew]?
     let previewService = PreviewCloudFirestoreService()
     
-    init(output: MallsModelOutput) {
+    init(output: MallsModelOutput, collectionPath:String) {
         self.output = output
         gender = serviceFB.currentGender
+        self.collectionPath = collectionPath
     }
     
     func startTimer() {
@@ -1195,7 +1208,7 @@ class MallsFirebaseService {
         timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
             
             self.pathsGenderListener.forEach { path in
-                self.mallsDataSource = nil
+                self.dataSource = nil
                 self.group.leave()
                 self.serviceFB.removeListeners(for: path)
             }
@@ -1209,24 +1222,24 @@ class MallsFirebaseService {
     }
 }
 
-extension MallsFirebaseService: MallsModelInput {
+extension CatalogFirebaseService: MallsModelInput {
     
     func fetchGenderData() {
         output?.disableControls()
         output?.startSpiner()
-        mallsDataSource = []
+        dataSource = []
         removeGenderListeners()
         pathsGenderListener = []
         startTimer()
-        pathsGenderListener.append("catalogMalls\(gender)")
+        pathsGenderListener.append("\(collectionPath)\(gender)")
         
         group.enter()
         // так мы перезаписывем previeMall(добавляем catalogMalls в cloudFirestore) а вдруг у нас будет банер рекламный на previewMall? :) на HomeVC + gender под вопросом
-        previewService.fetchPreviewSection(path: "catalogMalls\(gender)") { malls in
-            guard let malls = malls else {
+        previewService.fetchPreviewSection(path: "\(collectionPath)\(gender)") { items in
+            guard let items = items else {
                 return
             }
-            self.mallsDataSource = malls
+            self.dataSource = items
             self.group.leave()
         }
     }
@@ -1238,7 +1251,7 @@ extension MallsFirebaseService: MallsModelInput {
             self.timer?.invalidate()
             self.output?.stopSpiner()
             self.output?.enableControls()
-            completion(self.mallsDataSource)
+            completion(self.dataSource)
         }
     }
     
