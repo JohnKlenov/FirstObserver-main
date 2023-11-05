@@ -160,7 +160,11 @@ final class FirebaseService {
     private var listeners: [String:ListenerRegistration] = [:]
     
     var currentUserID:String?
-    var currentCartProducts:[ProductItemNew]?
+    var currentCartProducts:[ProductItemNew]? {
+        didSet {
+            updateCartProducts()
+        }
+    }
     var shops:[String:[ShopNew]]?
     var pinMall: [PinNew]?
    
@@ -183,6 +187,10 @@ final class FirebaseService {
             items = products.map {ItemNew(mall: nil, shop: nil, popularProduct: $0)}
         }
         return items
+    }
+    
+    func updateCartProducts() {
+        NotificationCenter.default.post(name: Notification.Name("UpdateCartProducts"), object: nil)
     }
     
     // MARK: - UserDefaults
@@ -262,6 +270,19 @@ final class FirebaseService {
             currentUser(user)
         }
     }
+    
+    func userIsAnonymously(completionHandler: @escaping (Bool?) -> Void) {
+        if let user = Auth.auth().currentUser {
+            if user.isAnonymous {
+                completionHandler(true)
+            } else {
+                completionHandler(false)
+            }
+        } else {
+            completionHandler(nil)
+        }
+    }
+
     
     func signInAnonymously() {
         
@@ -1064,7 +1085,7 @@ struct FetchPinDataResponse {
 
 
 // Протокол для модели данных
-protocol MallsModelInput: AnyObject {
+protocol CatalogModelInput: AnyObject {
     func fetchGenderData()
     func fetchDataSource(completion: @escaping ([PreviewSectionNew]?) -> Void)
     func isSwitchGender(completion: @escaping () -> Void)
@@ -1073,7 +1094,7 @@ protocol MallsModelInput: AnyObject {
 }
 
 // Протокол для обработки полученных данных
-protocol MallsModelOutput:AnyObject {
+protocol CatalogModelOutput:AnyObject {
     func startSpiner()
     func stopSpiner()
     func disableControls()
@@ -1082,7 +1103,7 @@ protocol MallsModelOutput:AnyObject {
 
 // Controller
 
-extension AbstractCatalogViewController: MallsModelOutput {
+extension AbstractCatalogViewController: CatalogModelOutput {
     
     func startSpiner() {
         navController?.startSpinner()
@@ -1108,7 +1129,7 @@ extension AbstractCatalogViewController: MallsModelOutput {
 
 class AbstractCatalogViewController: PlaceholderNavigationController {
     
-    private var catalogModel: MallsModelInput?
+    private var catalogModel: CatalogModelInput?
     
     var collectionPath:String
     var stateDataSource: StateDataSource = .firstStart
@@ -1185,7 +1206,7 @@ extension AbstractCatalogViewController:HeaderSegmentedControlViewDelegate {
 
 class CatalogFirebaseService {
     
-    weak var output: MallsModelOutput?
+    weak var output: CatalogModelOutput?
     
     let serviceFB = FirebaseService.shared
     let group = DispatchGroup()
@@ -1197,7 +1218,7 @@ class CatalogFirebaseService {
     var dataSource:[PreviewSectionNew]?
     let previewService = PreviewCloudFirestoreService()
     
-    init(output: MallsModelOutput, collectionPath:String) {
+    init(output: CatalogModelOutput, collectionPath:String) {
         self.output = output
         gender = serviceFB.currentGender
         self.collectionPath = collectionPath
@@ -1222,7 +1243,7 @@ class CatalogFirebaseService {
     }
 }
 
-extension CatalogFirebaseService: MallsModelInput {
+extension CatalogFirebaseService: CatalogModelInput {
     
     func fetchGenderData() {
         output?.disableControls()
@@ -1268,6 +1289,126 @@ extension CatalogFirebaseService: MallsModelInput {
         if gender != serviceFB.currentGender {
             completion()
         }
+    }
+    
+}
+
+
+
+// MARK: - CartVC
+
+
+// Протокол для модели данных
+protocol CartModelInput: AnyObject {
+    func fetchDataSource(completion: @escaping ([ProductItemNew]?) -> Void)
+    func userIsAnonymously(completion: @escaping (Bool?) -> Void)
+}
+
+
+// Протокол для обработки полученных данных
+protocol CartModelOutput:AnyObject {
+    func startSpiner()
+    func stopSpiner()
+    func disableControls()
+    func enableControls()
+}
+
+// Controller
+
+extension AbstractCartViewController: CartModelOutput {
+    
+    func startSpiner() {
+        navController?.startSpinner()
+    }
+    
+    func stopSpiner() {
+        navController?.stopSpinner()
+    }
+    
+    func disableControls() {
+        // Отключите все элементы управления
+        // Например, если у вас есть кнопка:
+        // myButton.isEnabled = false
+    }
+
+    func enableControls() {
+        // Включите все элементы управления
+        // Например, если у вас есть кнопка:
+        // myButton.isEnabled = true
+    }
+    
+}
+
+class AbstractCartViewController: PlaceholderNavigationController {
+    
+    private var cartModel: CartModelInput?
+    
+    var dataSource:[ProductItemNew]? {
+        didSet {
+//            self?.tableView.reloadData()
+        }
+    }
+    private var isAnonymouslyUser = false
+
+    
+    // нужно попробывать startSpiner как на placeholder так и на view
+    var navController: PlaceholderNavigationController? {
+            return self.navigationController as? PlaceholderNavigationController
+        }
+    
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+    }
+    
+    private func updateData() {
+        cartModel?.userIsAnonymously{ isAnonymously in
+            guard let isAnonymously = isAnonymously else {
+                self.isAnonymouslyUser = false
+                self.dataSource = []
+                return
+            }
+            self.isAnonymouslyUser = isAnonymously
+            self.cartModel?.fetchDataSource{ cartProducts in
+                guard let cartProducts = cartProducts else {
+                    self.dataSource = []
+                    return
+                }
+                self.dataSource = cartProducts
+            }
+        }
+    }
+    
+}
+
+// Model
+
+class CartFirebaseService {
+    
+    weak var output: CartModelOutput?
+    
+    let serviceFB = FirebaseService.shared
+    
+    init(output: CartModelOutput) {
+        self.output = output
+    }
+}
+
+extension CartFirebaseService: CartModelInput {
+    
+    func userIsAnonymously(completion: @escaping (Bool?) -> Void) {
+        serviceFB.userIsAnonymously { isAnonymously in
+            completion(isAnonymously)
+        }
+    }
+    
+    func fetchDataSource(completion: @escaping ([ProductItemNew]?) -> Void) {
+        completion(serviceFB.currentCartProducts)
     }
     
 }
