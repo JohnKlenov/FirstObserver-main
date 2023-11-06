@@ -17,6 +17,29 @@ import MapKit
 
 // MARK: - Application Model -
 
+// Controller
+
+extension UIViewController {
+    func showErrorAlert2(message: String, retryHandler: @escaping () -> Void) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        alert.addAction(UIAlertAction(title: "Повторить", style: .default) { _ in
+            retryHandler()
+        })
+        self.present(alert, animated: true)
+    }
+
+//if #available(iOS 15.0, *) {
+//    // Используйте UIWindowScene.windows.first?.rootViewController
+//} else {
+//    // Используйте UIApplication.shared.windows.first?.rootViewController
+//}
+//    if let error = error {
+    //                if let viewController = UIApplication.shared.windows.first?.rootViewController {
+    //                    viewController.showErrorAlert(message: error.localizedDescription)
+    //                }
+}
+
 // Models
 
 enum NetworkError: Error {
@@ -173,6 +196,27 @@ final class FirebaseService {
         return UserDefaults.standard.string(forKey: "gender") ?? "Woman"
     }()
     
+    lazy var onFetchCartPRoducts: (() -> Void) = {
+        self.fetchCartProducts { cartProducts in
+            self.currentCartProducts = cartProducts
+//         инициализируем вызов второй порции данных
+            switch self.stateStart {
+                
+            case .firstStart:
+                print("")
+            case .secondStart:
+                print("")
+            }
+        }
+    }
+    
+    var stateStart: StateFirstStart = .firstStart
+    
+    enum StateFirstStart {
+        case firstStart
+        case secondStart
+    }
+    
     
     // MARK: - helper methods
     
@@ -213,7 +257,7 @@ final class FirebaseService {
                 print("Returned message for analytic FB Crashlytics error")
                 return
             }
-            
+            // !querySnapshot.isEmpty ??????????
             guard let querySnapshot = querySnapshot, !querySnapshot.isEmpty else {
                 completion(nil, error)
                 return
@@ -299,6 +343,8 @@ final class FirebaseService {
         }
     }
     
+    
+    
     func addEmptyCartProducts(uid: String) {
         
         let usersCollection = Firestore.firestore().collection("usersAccount")
@@ -309,6 +355,9 @@ final class FirebaseService {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                     self.addEmptyCartProducts(uid: uid)
                 }
+            } else {
+                // for second version
+                self.onFetchCartPRoducts()
             }
         }
     }
@@ -324,69 +373,119 @@ final class FirebaseService {
         }
     }
     
+    // my version 2
+    
+//    func listenerCartProducts() {
+//        serviceFB.listenForUserID { userID in
+//            self.serviceFB.removeListenerForCardProducts()
+//            self.serviceFB.currentUserID = userID
+//            self.serviceFB.fetchCartProducts { cartProducts in
+//                self.serviceFB.currentCartProducts = cartProducts
+//            }
+//        }
+//    }
+
+    
+    // userListener имеет наблюдателя и если мы при первом старте во viewDidLoad в течении 20 секунд не получаем ответа от сервера , отключаем наблюдателя и выкидываем alert
+    // таймер не более 10 секунд
+    func listenerUser() {
+        userListener { user in
+            if let user = user {
+                self.setupCartProducts(for: user.uid)
+            } else {
+                self.signInAnonymously()
+            }
+        }
+    }
+    
+    // точка входа для второй порции данных - addEmptyCartProducts
+    // fetchCartProducts вызывается тогда когда есть user и путь до него
+    func setupCartProducts(for uid: String) {
+        // а можем ли мы перенести эти строки в onFetchCartPRoducts?
+        removeListenerForCardProducts()
+        currentUserID = uid
+        let path = "usersAccount/\(String(describing: currentUserID))"
+        let docRef = Firestore.firestore().document(path)
+        
+        // нужно обработать ошибку
+        docRef.getDocument { (document, error) in
+            if let document = document, document.exists {
+                print("Document exists!")
+                self.onFetchCartPRoducts()
+            } else {
+                print("Document does not exist!")
+                // если все ок то self.fetchCartProducts
+                self.addEmptyCartProducts(uid: self.currentUserID ?? "" )
+            }
+        }
+    }
 }
 
 //  Listener user
 
-//class ViewController: UIViewController {
-//
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//
-//        // Прослушивание изменений состояния пользователя
-//        Auth.auth().addStateDidChangeListener { (auth, user) in
-//            if let user = user {
-//                // Если пользователь уже вошел в систему, используйте его uid
-//                self.setupCartProducts(for: user.uid)
-//            } else {
-//                // Если пользователь еще не вошел в систему, создайте анонимного пользователя
-//                Auth.auth().signInAnonymously { (authResult, error) in
-//                    if let error = error {
-//                        self.showErrorAlert(message: "Ошибка создания анонимного пользователя: \(error.localizedDescription)")
-//                    } else if let user = authResult?.user {
-//                        self.setupCartProducts(for: user.uid)
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    func setupCartProducts(for uid: String) {
-//        let db = Firestore.firestore()
-//        let usersCollection = db.collection("usersAccount")
-//        let userDocument = usersCollection.document(uid)
-//
-//        // Проверьте, существует ли уже документ для этого пользователя
-//        userDocument.getDocument { (document, error) in
-//            if let error = error {
-//                self.showErrorAlert(message: "Ошибка получения документа пользователя: \(error.localizedDescription)")
-//            } else if let document = document, document.exists {
-//                // Документ уже существует, поэтому ничего не делайте
-//            } else {
-//                // Документ не существует, поэтому создайте новый документ и коллекцию cartProducts
-//                userDocument.setData([:]) { error in
-//                    if let error = error {
-//                        self.showErrorAlert(message: "Ошибка создания документа пользователя: \(error.localizedDescription)")
-//                    } else {
-//                        userDocument.collection("cartProducts").addDocument(data: [:]) { error in
-//                            if let error = error {
-//                                self.showErrorAlert(message: "Ошибка создания cartProducts: \(error.localizedDescription)")
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    func showErrorAlert(message: String) {
-//        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
-//        alert.addAction(UIAlertAction(title: "OK", style: .default))
-//        self.present(alert, animated: true)
-//    }
-//
-//}
-//
+class ViewController: UIViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // my version
+        
+        
+
+        // Прослушивание изменений состояния пользователя
+        Auth.auth().addStateDidChangeListener { (auth, user) in
+            if let user = user {
+                // Если пользователь уже вошел в систему, используйте его uid
+                self.setupCartProducts(for: user.uid)
+            } else {
+                // Если пользователь еще не вошел в систему, создайте анонимного пользователя
+                Auth.auth().signInAnonymously { (authResult, error) in
+                    if let error = error {
+                        self.showErrorAlert(message: "Ошибка создания анонимного пользователя: \(error.localizedDescription)")
+                    } else if let user = authResult?.user {
+                        self.setupCartProducts(for: user.uid)
+                    }
+                }
+            }
+        }
+    }
+
+    func setupCartProducts(for uid: String) {
+        let db = Firestore.firestore()
+        let usersCollection = db.collection("usersAccount")
+        let userDocument = usersCollection.document(uid)
+
+        // Проверьте, существует ли уже документ для этого пользователя
+        userDocument.getDocument { (document, error) in
+            if let error = error {
+                self.showErrorAlert(message: "Ошибка получения документа пользователя: \(error.localizedDescription)")
+            } else if let document = document, document.exists {
+                // Документ уже существует, поэтому ничего не делайте
+            } else {
+                // Документ не существует, поэтому создайте новый документ и коллекцию cartProducts
+                userDocument.setData([:]) { error in
+                    if let error = error {
+                        self.showErrorAlert(message: "Ошибка создания документа пользователя: \(error.localizedDescription)")
+                    } else {
+                        userDocument.collection("cartProducts").addDocument(data: [:]) { error in
+                            if let error = error {
+                                self.showErrorAlert(message: "Ошибка создания cartProducts: \(error.localizedDescription)")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    func showErrorAlert(message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        self.present(alert, animated: true)
+    }
+
+}
+
 //class Test: ViewController {
 //
 //
@@ -469,7 +568,7 @@ final class FirebaseService {
 //        alert.addAction(UIAlertAction(title: "OK", style: .default))
 //        self.present(alert, animated: true)
 //    }
-
+//
 //if #available(iOS 15.0, *) {
 //    // Используйте UIWindowScene.windows.first?.rootViewController
 //} else {
@@ -495,6 +594,7 @@ protocol HomeModelInput: AnyObject {
     func isSwitchGender(completion: @escaping () -> Void)
     func setGender(gender:String)
     func updateModelGender()
+    func listenerCartProducts2()
 }
 
 // Протокол для обработки полученных данных
@@ -726,6 +826,8 @@ class HomeFirebaseService {
 
 extension HomeFirebaseService: HomeModelInput {
     
+    
+    
     func setGender(gender: String) {
         serviceFB.setGender(gender: gender)
     }
@@ -881,7 +983,9 @@ extension HomeFirebaseService: HomeModelInput {
         }
     }
     
-    
+    func listenerCartProducts2() {
+//        serviceFB
+    }
     
 }
 
