@@ -5,6 +5,39 @@
 //  Created by Evgenyi on 27.10.23.
 //
 
+
+
+// MARK: Trash
+
+//    func listenForUserID(completion: @escaping (String) -> Void) {
+//        userListener { currentUser in
+//            guard let currentUser = currentUser else {
+//                self.currentCartProducts = nil
+//                self.signInAnonymously()
+//                return
+//            }
+//            completion(currentUser.uid)
+//        }
+//    }
+
+//    func signInAnonymously() {
+//
+//        Auth.auth().signInAnonymously { (authResult, error) in
+//
+//            guard error == nil, let authResult = authResult else {
+//                print("Returne message for analitic FB Crashlystics")
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+//                    self.signInAnonymously()
+//                }
+//                return
+//            }
+//            self.addEmptyCartProducts(uid: authResult.user.uid)
+//        }
+//    }
+    
+    
+
+
 import Foundation
 import UIKit
 import Firebase
@@ -180,6 +213,7 @@ final class FirebaseService {
     static let shared = FirebaseService()
     
     private let db = Firestore.firestore()
+    private var handle: AuthStateDidChangeListenerHandle?
     private var listeners: [String:ListenerRegistration] = [:]
     
     var currentUserID:String?
@@ -196,21 +230,6 @@ final class FirebaseService {
         return UserDefaults.standard.string(forKey: "gender") ?? "Woman"
     }()
     
-//    lazy var onFetchCartPRoducts: (() -> Void) = {
-//        self.fetchCartProducts { cartProducts in
-//            self.currentCartProducts = cartProducts
-////         инициализируем вызов второй порции данных
-//            switch self.stateStart {
-//
-//            case .firstStart:
-//                // может быть через NSNotification.Name
-//                // и при удачной загрузки первого цикла отключаем наблюдателя
-//                print("инициализируем вызов второй порции данных")
-//            case .secondStart:
-//                print("")
-//            }
-//        }
-//    }
     
     var stateStart: StateFirstStart = .firstStart
     
@@ -309,14 +328,6 @@ final class FirebaseService {
     
     // MARK: - Auth
     
-    
-    func userListener(currentUser: @escaping (User?) -> Void) {
-        Auth.auth().addStateDidChangeListener { (auth, user) in
-//            self.currentUser = user
-            currentUser(user)
-        }
-    }
-    
     func userIsAnonymously(completionHandler: @escaping (Bool?) -> Void) {
         if let user = Auth.auth().currentUser {
             if user.isAnonymous {
@@ -328,67 +339,8 @@ final class FirebaseService {
             completionHandler(nil)
         }
     }
-
     
-    func signInAnonymously() {
-        
-        Auth.auth().signInAnonymously { (authResult, error) in
-            
-            guard error == nil, let authResult = authResult else {
-                print("Returne message for analitic FB Crashlystics")
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    self.signInAnonymously()
-                }
-                return
-            }
-            self.addEmptyCartProducts(uid: authResult.user.uid)
-        }
-    }
-    
-    
-    
-    func addEmptyCartProducts(uid: String) {
-        
-        let usersCollection = Firestore.firestore().collection("usersAccount")
-        let userDocument = usersCollection.document(uid)
-        userDocument.collection("cartProducts").addDocument(data: [:]) { error in
-            if error != nil {
-                print("Returne message for analitic FB Crashlystics")
-                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
-                // if failad create addEmptyCartProducts -> call addEmptyCartProducts()
-            } else {
-                // for second version
-                self.fetchCartProducts2()
-            }
-        }
-    }
-    
-    func listenForUserID(completion: @escaping (String) -> Void) {
-        userListener { currentUser in
-            guard let currentUser = currentUser else {
-                self.currentCartProducts = nil
-                self.signInAnonymously()
-                return
-            }
-            completion(currentUser.uid)
-        }
-    }
-    
-    // my version 2
-    
-//    func listenerCartProducts() {
-//        serviceFB.listenForUserID { userID in
-//            self.serviceFB.removeListenerForCardProducts()
-//            self.serviceFB.currentUserID = userID
-//            self.serviceFB.fetchCartProducts { cartProducts in
-//                self.serviceFB.currentCartProducts = cartProducts
-//            }
-//        }
-//    }
-
-    var handle: AuthStateDidChangeListenerHandle?
-    
-    func userListenerHandle(currentUser: @escaping (User?) -> Void) {
+    func userListener(currentUser: @escaping (User?) -> Void) {
         handle = Auth.auth().addStateDidChangeListener { (auth, user) in
             currentUser(user)
         }
@@ -401,7 +353,22 @@ final class FirebaseService {
                 }
     }
     
-    func signInAnonymouslyUser() {
+    
+    // MARK: UserListener + FetchCartProducts
+    
+    // userListener имеет наблюдателя и если мы при первом старте во viewDidLoad в течении 15 секунд не получаем ответа от сервера , отключаем наблюдателя и выкидываем alert
+    func listenerUser() {
+        userListener { user in
+            if let _ = user {
+                self.currentCartProducts = nil
+                self.setupCartProducts()
+            } else {
+                self.signInAnonymously()
+            }
+        }
+    }
+    
+    func signInAnonymously() {
         
         Auth.auth().signInAnonymously { (authResult, error) in
             guard let _ = error else {return}
@@ -411,22 +378,24 @@ final class FirebaseService {
         }
     }
     
-    // userListener имеет наблюдателя и если мы при первом старте во viewDidLoad в течении 15 секунд не получаем ответа от сервера , отключаем наблюдателя и выкидываем alert
-    func listenerUser() {
-        userListenerHandle { user in
-            if let _ = user {
-                self.currentCartProducts = nil
-                self.setupCartProducts()
+    func addEmptyCartProducts(uid: String) {
+        
+        let usersCollection = Firestore.firestore().collection("usersAccount")
+        let userDocument = usersCollection.document(uid)
+        userDocument.collection("cartProducts").addDocument(data: [:]) { error in
+            if error != nil {
+                print("Returne message for analitic FB Crashlystics")
+                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
+                // if failad create addEmptyCartProducts -> call addEmptyCartProducts()
             } else {
-                self.signInAnonymouslyUser()
+                // for second version
+                self.fetchCartProducts()
             }
         }
     }
     
     // точка входа для второй порции данных - addEmptyCartProducts
-    // fetchCartProducts вызывается тогда когда есть user и путь до него
     func setupCartProducts() {
-        // а можем ли мы перенести эти строки в onFetchCartPRoducts?
         guard let user = Auth.auth().currentUser else {
             // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: nil)
             // if user == nil -> signIn,
@@ -441,7 +410,7 @@ final class FirebaseService {
         docRef.getDocument { (document, error) in
             if let document = document, document.exists {
                 print("Document exists!")
-                self.fetchCartProducts2()
+                self.fetchCartProducts()
             } else {
                 print("Document does not exist!")
                 // если все ок то self.fetchCartProducts
@@ -450,7 +419,7 @@ final class FirebaseService {
         }
     }
     
-    func fetchCartProducts2() {
+    func fetchCartProducts() {
         fetchData { cartProducts in
             self.currentCartProducts = cartProducts
 //         инициализируем вызов второй порции данных
@@ -679,7 +648,7 @@ protocol HomeModelInput: AnyObject {
     func isSwitchGender(completion: @escaping () -> Void)
     func setGender(gender:String)
     func updateModelGender()
-    func listenerCartProducts2()
+    func listenerCartProducts()
 }
 
 // Протокол для обработки полученных данных
@@ -846,6 +815,38 @@ class HeaderSegmentedControlView: UICollectionReusableView {
 }
 
 
+
+//// В модели
+//func fetchData() {
+//    // Попытка получить данные...
+//    if let error = error {
+//        NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
+//    }
+//}
+//
+//// В контроллере
+//override func viewDidLoad() {
+//    super.viewDidLoad()
+//    NotificationCenter.default.addObserver(self, selector: #selector(handleErrorNotification), name: NSNotification.Name("ErrorNotification"), object: nil)
+//}
+//
+//@objc func handleErrorNotification(_ notification: NSNotification) {
+//    if let error = notification.object as? Error {
+//        // Обработать ошибку и передать ее в представление
+//    }
+//}
+
+//override func viewWillDisappear(_ animated: Bool) {
+//    super.viewWillDisappear(animated)
+//    NotificationCenter.default.removeObserver(self, name: NSNotification.Name("ErrorNotification"), object: nil)
+//}
+
+//@objc func handleErrorNotification(_ notification: NSNotification) {
+//    if self.isViewLoaded && self.view.window != nil {
+//        // Контроллер видимый, выполняем код
+//    }
+//}
+
 // Model
 
 class HomeFirebaseService {
@@ -934,7 +935,12 @@ extension HomeFirebaseService: HomeModelInput {
     
    
     func fetchDataSource(completion: @escaping ([String : SectionModelNew]?) -> Void) {
+        
+        // работаем над отключением при первом запуске после 10 сек.
+        // NotificationCenter model -> controller + alert
+        // draw entitys
         listenerCartProducts()
+        // firstFetchData() должен быть вызван из методов listenerCartProducts()
         firstFetchData()
         group.notify(queue: .main) {
             self.timer?.invalidate()
@@ -1057,19 +1063,8 @@ extension HomeFirebaseService: HomeModelInput {
         }
     }
     
-    // если на CartVC и ProductVC currentCartProducts == nil делаем getCartProducts
     func listenerCartProducts() {
-        serviceFB.listenForUserID { userID in
-            self.serviceFB.removeListenerForCardProducts()
-            self.serviceFB.currentUserID = userID
-            self.serviceFB.fetchCartProducts { cartProducts in
-                self.serviceFB.currentCartProducts = cartProducts
-            }
-        }
-    }
-    
-    func listenerCartProducts2() {
-//        serviceFB
+        serviceFB.listenerUser()
     }
     
 }
