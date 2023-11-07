@@ -196,19 +196,21 @@ final class FirebaseService {
         return UserDefaults.standard.string(forKey: "gender") ?? "Woman"
     }()
     
-    lazy var onFetchCartPRoducts: (() -> Void) = {
-        self.fetchCartProducts { cartProducts in
-            self.currentCartProducts = cartProducts
-//         инициализируем вызов второй порции данных
-            switch self.stateStart {
-                
-            case .firstStart:
-                print("")
-            case .secondStart:
-                print("")
-            }
-        }
-    }
+//    lazy var onFetchCartPRoducts: (() -> Void) = {
+//        self.fetchCartProducts { cartProducts in
+//            self.currentCartProducts = cartProducts
+////         инициализируем вызов второй порции данных
+//            switch self.stateStart {
+//
+//            case .firstStart:
+//                // может быть через NSNotification.Name
+//                // и при удачной загрузки первого цикла отключаем наблюдателя
+//                print("инициализируем вызов второй порции данных")
+//            case .secondStart:
+//                print("")
+//            }
+//        }
+//    }
     
     var stateStart: StateFirstStart = .firstStart
     
@@ -352,12 +354,11 @@ final class FirebaseService {
         userDocument.collection("cartProducts").addDocument(data: [:]) { error in
             if error != nil {
                 print("Returne message for analitic FB Crashlystics")
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    self.addEmptyCartProducts(uid: uid)
-                }
+                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
+                // if failad create addEmptyCartProducts -> call addEmptyCartProducts()
             } else {
                 // for second version
-                self.onFetchCartPRoducts()
+                self.fetchCartProducts2()
             }
         }
     }
@@ -385,25 +386,54 @@ final class FirebaseService {
 //        }
 //    }
 
+    var handle: AuthStateDidChangeListenerHandle?
     
-    // userListener имеет наблюдателя и если мы при первом старте во viewDidLoad в течении 20 секунд не получаем ответа от сервера , отключаем наблюдателя и выкидываем alert
-    // таймер не более 10 секунд
+    func userListenerHandle(currentUser: @escaping (User?) -> Void) {
+        handle = Auth.auth().addStateDidChangeListener { (auth, user) in
+            currentUser(user)
+        }
+
+    }
+    
+    func removeStateDidChangeListener() {
+                if let handle = handle {
+                    Auth.auth().removeStateDidChangeListener(handle)
+                }
+    }
+    
+    func signInAnonymouslyUser() {
+        
+        Auth.auth().signInAnonymously { (authResult, error) in
+            guard let _ = error else {return}
+            print("Returne message for analitic FB Crashlystics")
+            // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
+            // if failad create AnonymouslyUser -> call signInAnonymouslyUser()
+        }
+    }
+    
+    // userListener имеет наблюдателя и если мы при первом старте во viewDidLoad в течении 15 секунд не получаем ответа от сервера , отключаем наблюдателя и выкидываем alert
     func listenerUser() {
-        userListener { user in
-            if let user = user {
-                self.setupCartProducts(for: user.uid)
+        userListenerHandle { user in
+            if let _ = user {
+                self.currentCartProducts = nil
+                self.setupCartProducts()
             } else {
-                self.signInAnonymously()
+                self.signInAnonymouslyUser()
             }
         }
     }
     
     // точка входа для второй порции данных - addEmptyCartProducts
     // fetchCartProducts вызывается тогда когда есть user и путь до него
-    func setupCartProducts(for uid: String) {
+    func setupCartProducts() {
         // а можем ли мы перенести эти строки в onFetchCartPRoducts?
+        guard let user = Auth.auth().currentUser else {
+            // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: nil)
+            // if user == nil -> signIn,
+            return
+        }
         removeListenerForCardProducts()
-        currentUserID = uid
+        currentUserID = user.uid
         let path = "usersAccount/\(String(describing: currentUserID))"
         let docRef = Firestore.firestore().document(path)
         
@@ -411,7 +441,7 @@ final class FirebaseService {
         docRef.getDocument { (document, error) in
             if let document = document, document.exists {
                 print("Document exists!")
-                self.onFetchCartPRoducts()
+                self.fetchCartProducts2()
             } else {
                 print("Document does not exist!")
                 // если все ок то self.fetchCartProducts
@@ -419,7 +449,62 @@ final class FirebaseService {
             }
         }
     }
+    
+    func fetchCartProducts2() {
+        fetchData { cartProducts in
+            self.currentCartProducts = cartProducts
+//         инициализируем вызов второй порции данных
+            switch self.stateStart {
+                
+            case .firstStart:
+                // может быть через NSNotification.Name
+                // и при удачной загрузки первого цикла отключаем наблюдателя
+                print("инициализируем вызов второй порции данных")
+            case .secondStart:
+                print("")
+            }
+        }
+    }
+    
+    func fetchData(completion: @escaping ([ProductItemNew]) -> Void) {
+        
+        let path = "usersAccount/\(String(describing: currentUserID))/cartProducts"
+        
+        let collection = db.collection(path)
+        let quary = collection.order(by: "priorityIndex", descending: false)
+        
+        let listener = quary.addSnapshotListener { (querySnapshot, error) in
+            
+            if let _ = error {
+                print("Returned message for analytic FB Crashlytics error")
+                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
+                // if failad fetchCartProducts2() -> call setupCartProducts()
+                return
+            }
+            guard let querySnapshot = querySnapshot else {
+                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
+                // if failad fetchCartProducts2() -> call setupCartProducts()
+                return
+            }
+            var documents = [[String : Any]]()
+            
+            for document in querySnapshot.documents {
+                let documentData = document.data()
+                documents.append(documentData)
+            }
+            do {
+                let response = try FetchProductsDataResponse(documents: documents)
+                completion(response.items)
+            } catch {
+                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
+                // if failad fetchCartProducts2() -> call setupCartProducts()
+            }
+        }
+        listeners[path] = listener
+    }
 }
+
+
 
 //  Listener user
 
