@@ -34,7 +34,136 @@
 //            self.addEmptyCartProducts(uid: authResult.user.uid)
 //        }
 //    }
-    
+// переделали
+//    // userListener имеет наблюдателя и если мы при первом старте во viewDidLoad в течении 15
+////    секунд не получаем ответа от сервера , отключаем наблюдателя и выкидываем alert
+//    func listenerUser() {
+//        userListener { user in
+//            if let _ = user {
+//                self.currentCartProducts = nil
+//                self.setupCartProducts()
+//            } else {
+//                self.signInAnonymously()
+//            }
+//        }
+//    }
+//
+//    // переделали
+//    func signInAnonymously() {
+//
+//        Auth.auth().signInAnonymously { (authResult, error) in
+//            guard let _ = error else {return}
+//            print("Returne message for analitic FB Crashlystics")
+//            // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
+//            // if failad create AnonymouslyUser -> call signInAnonymouslyUser()
+//        }
+//    }
+//
+////    self.signInAnonymously2 { erorr in
+////        guard let error = error else {return}
+////        // completion(error)
+////    }
+////    func signInAnonymously2(completion: @escaping (Error?) -> Void) {
+////
+////        Auth.auth().signInAnonymously {  (authResult, error) in
+////            completion(error)
+////        }
+////    }
+//    // переделали
+//    func addEmptyCartProducts(uid: String) {
+//
+//        let usersCollection = Firestore.firestore().collection("usersAccount")
+//        let userDocument = usersCollection.document(uid)
+//        userDocument.collection("cartProducts").addDocument(data: [:]) { error in
+//            if error != nil {
+//                print("Returne message for analitic FB Crashlystics")
+//                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
+//                // if failad create addEmptyCartProducts -> call addEmptyCartProducts()
+//            } else {
+//                // for second version
+//                self.fetchCartProducts()
+//            }
+//        }
+//    }
+//
+//    // переделали
+//    // точка входа для второй порции данных - addEmptyCartProducts
+//    func setupCartProducts() {
+//        guard let user = Auth.auth().currentUser else {
+//            // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: nil)
+//            // if user == nil -> signIn,
+//            return
+//        }
+//        removeListenerForCardProducts()
+//        currentUserID = user.uid
+//        let path = "usersAccount/\(String(describing: currentUserID))"
+//        let docRef = Firestore.firestore().document(path)
+//
+//        // нужно обработать ошибку
+//        docRef.getDocument { (document, error) in
+//            if let document = document, document.exists {
+//                print("Document exists!")
+//                self.fetchCartProducts()
+//            } else {
+//                print("Document does not exist!")
+//                // если все ок то self.fetchCartProducts
+//                self.addEmptyCartProducts(uid: self.currentUserID ?? "" )
+//            }
+//        }
+//    }
+//    // переделали
+//    func fetchCartProducts() {
+//        fetchData { cartProducts in
+//            self.currentCartProducts = cartProducts
+////         инициализируем вызов второй порции данных
+//            switch self.stateStart {
+//
+//            case .firstStart:
+//                // может быть через NSNotification.Name
+//                // и при удачной загрузки первого цикла отключаем наблюдателя
+//                print("инициализируем вызов второй порции данных")
+//            case .secondStart:
+//                print("")
+//            }
+//        }
+//    }
+//    // передеали
+//    func fetchData(completion: @escaping ([ProductItemNew]) -> Void) {
+//
+//        let path = "usersAccount/\(String(describing: currentUserID))/cartProducts"
+//
+//        let collection = db.collection(path)
+//        let quary = collection.order(by: "priorityIndex", descending: false)
+//
+//        let listener = quary.addSnapshotListener { (querySnapshot, error) in
+//
+//            if let _ = error {
+//                print("Returned message for analytic FB Crashlytics error")
+//                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
+//                // if failad fetchCartProducts2() -> call setupCartProducts()
+//                return
+//            }
+//            guard let querySnapshot = querySnapshot else {
+//                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
+//                // if failad fetchCartProducts2() -> call setupCartProducts()
+//                return
+//            }
+//            var documents = [[String : Any]]()
+//
+//            for document in querySnapshot.documents {
+//                let documentData = document.data()
+//                documents.append(documentData)
+//            }
+//            do {
+//                let response = try FetchProductsDataResponse(documents: documents)
+//                completion(response.items)
+//            } catch {
+//                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
+//                // if failad fetchCartProducts2() -> call setupCartProducts()
+//            }
+//        }
+//        listeners[path] = listener
+//    }
     
 
 
@@ -53,7 +182,7 @@ import MapKit
 // Controller
 
 extension UIViewController {
-    func showErrorAlert2(message: String, retryHandler: @escaping () -> Void) {
+    func showErrorAlert(message: String, retryHandler: @escaping () -> Void) {
         let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         alert.addAction(UIAlertAction(title: "Повторить", style: .default) { _ in
@@ -76,8 +205,14 @@ extension UIViewController {
 // Models
 
 enum NetworkError: Error {
-    case failInternetError(String)
-    case noInternetConnection
+    case failParsingJSON(String)
+}
+
+enum ListenerErrorState {
+    case addEmptyCart
+    case logIn
+    case signInAnonymously
+    case setupCartProducts
 }
 
 struct ItemNew: Hashable {
@@ -355,155 +490,18 @@ final class FirebaseService {
     
     
     // MARK: UserListener + FetchCartProducts
+
     
-    // userListener имеет наблюдателя и если мы при первом старте во viewDidLoad в течении 15 секунд не получаем ответа от сервера , отключаем наблюдателя и выкидываем alert
-    func listenerUser() {
+    
+    func listenerUser(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
         userListener { user in
             if let _ = user {
                 self.currentCartProducts = nil
-                self.setupCartProducts()
-            } else {
-                self.signInAnonymously()
-            }
-        }
-    }
-    
-    // переделали
-    func signInAnonymously() {
-        
-        Auth.auth().signInAnonymously { (authResult, error) in
-            guard let _ = error else {return}
-            print("Returne message for analitic FB Crashlystics")
-            // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
-            // if failad create AnonymouslyUser -> call signInAnonymouslyUser()
-        }
-    }
-    
-//    self.signInAnonymously2 { erorr in
-//        guard let error = error else {return}
-//        // completion(error)
-//    }
-//    func signInAnonymously2(completion: @escaping (Error?) -> Void) {
-//
-//        Auth.auth().signInAnonymously {  (authResult, error) in
-//            completion(error)
-//        }
-//    }
-    
-    func addEmptyCartProducts(uid: String) {
-        
-        let usersCollection = Firestore.firestore().collection("usersAccount")
-        let userDocument = usersCollection.document(uid)
-        userDocument.collection("cartProducts").addDocument(data: [:]) { error in
-            if error != nil {
-                print("Returne message for analitic FB Crashlystics")
-                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
-                // if failad create addEmptyCartProducts -> call addEmptyCartProducts()
-            } else {
-                // for second version
-                self.fetchCartProducts()
-            }
-        }
-    }
-    
-    // переделали
-    // точка входа для второй порции данных - addEmptyCartProducts
-    func setupCartProducts() {
-        guard let user = Auth.auth().currentUser else {
-            // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: nil)
-            // if user == nil -> signIn,
-            return
-        }
-        removeListenerForCardProducts()
-        currentUserID = user.uid
-        let path = "usersAccount/\(String(describing: currentUserID))"
-        let docRef = Firestore.firestore().document(path)
-        
-        // нужно обработать ошибку
-        docRef.getDocument { (document, error) in
-            if let document = document, document.exists {
-                print("Document exists!")
-                self.fetchCartProducts()
-            } else {
-                print("Document does not exist!")
-                // если все ок то self.fetchCartProducts
-                self.addEmptyCartProducts(uid: self.currentUserID ?? "" )
-            }
-        }
-    }
-    // переделали
-    func fetchCartProducts() {
-        fetchData { cartProducts in
-            self.currentCartProducts = cartProducts
-//         инициализируем вызов второй порции данных
-            switch self.stateStart {
-                
-            case .firstStart:
-                // может быть через NSNotification.Name
-                // и при удачной загрузки первого цикла отключаем наблюдателя
-                print("инициализируем вызов второй порции данных")
-            case .secondStart:
-                print("")
-            }
-        }
-    }
-    // передеали
-    func fetchData(completion: @escaping ([ProductItemNew]) -> Void) {
-        
-        let path = "usersAccount/\(String(describing: currentUserID))/cartProducts"
-        
-        let collection = db.collection(path)
-        let quary = collection.order(by: "priorityIndex", descending: false)
-        
-        let listener = quary.addSnapshotListener { (querySnapshot, error) in
-            
-            if let _ = error {
-                print("Returned message for analytic FB Crashlytics error")
-                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
-                // if failad fetchCartProducts2() -> call setupCartProducts()
-                return
-            }
-            guard let querySnapshot = querySnapshot else {
-                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
-                // if failad fetchCartProducts2() -> call setupCartProducts()
-                return
-            }
-            var documents = [[String : Any]]()
-            
-            for document in querySnapshot.documents {
-                let documentData = document.data()
-                documents.append(documentData)
-            }
-            do {
-                let response = try FetchProductsDataResponse(documents: documents)
-                completion(response.items)
-            } catch {
-                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
-                // if failad fetchCartProducts2() -> call setupCartProducts()
-            }
-        }
-        listeners[path] = listener
-    }
-    
-    // call back version
-    
-    enum ListenerErrorState {
-        case addEmptyCart
-        case logIn
-        case signInAnonymously
-        case setupCartProducts
-    }
-    
-    
-    func listenerUser2(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
-        userListener { user in
-            if let _ = user {
-                self.currentCartProducts = nil
-                self.setupCartProducts2 { error, state in
+                self.setupCartProducts { error, state in
                     completion(error, state)
                 }
             } else {
-                self.signInAnonymously2 { error, state in
+                self.signInAnonymously { error, state in
                     guard let error = error else { return }
                     completion(error,state)
                 }
@@ -511,7 +509,7 @@ final class FirebaseService {
         }
     }
     
-    func signInAnonymously2(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
+    func signInAnonymously(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
         
         Auth.auth().signInAnonymously { (authResult, error) in
             guard let error = error else { return }
@@ -519,7 +517,7 @@ final class FirebaseService {
         }
     }
     
-    func setupCartProducts2(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
+    func setupCartProducts(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
         guard let user = Auth.auth().currentUser else {
             let error = NSError(domain: "com.yourapp.error", code: 401, userInfo: [NSLocalizedDescriptionKey: "User is not authorized."])
             completion(error, .logIn)
@@ -533,28 +531,25 @@ final class FirebaseService {
         // нужно обработать ошибку
         docRef.getDocument { (document, error) in
             if let document = document, document.exists {
-                print("Document exists!")
-                self.fetchCartProducts2 { error, state in
+                self.fetchCartProducts { error, state in
                     completion(error,state)
                 }
             } else {
-                print("Document does not exist!")
-                // если все ок то self.fetchCartProducts
-                self.addEmptyCartProducts2 { error, state in
+                self.addEmptyCartProducts { error, state in
                     completion(error,state)
                 }
             }
         }
     }
     
-    func fetchCartProducts2(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
-        fetchData2 { cartProducts, error, state in
+    func fetchCartProducts(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
+        fetchData { cartProducts, error, state in
             self.currentCartProducts = cartProducts
             completion(error,state)
         }
     }
     
-    func fetchData2(completion: @escaping ([ProductItemNew]?, Error?, ListenerErrorState?) -> Void) {
+    func fetchData(completion: @escaping ([ProductItemNew]?, Error?, ListenerErrorState?) -> Void) {
         
         let path = "usersAccount/\(String(describing: currentUserID))/cartProducts"
         
@@ -592,8 +587,7 @@ final class FirebaseService {
         listeners[path] = listener
     }
     
-    func addEmptyCartProducts2(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
-        
+    func addEmptyCartProducts(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
         guard let user = Auth.auth().currentUser else {
             let error = NSError(domain: "com.yourapp.error", code: 401, userInfo: [NSLocalizedDescriptionKey: "User is not authorized."])
             completion(error, .logIn)
@@ -605,173 +599,13 @@ final class FirebaseService {
             if error != nil {
                 completion(error, .addEmptyCart)
             } else {
-                self.fetchCartProducts2 { error, state in
+                self.fetchCartProducts { error, state in
                     completion(error, state)
                 }
             }
         }
     }
-   
 }
-
-
-
-//  Listener user
-
-class ViewController: UIViewController {
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        // my version
-        
-        
-
-        // Прослушивание изменений состояния пользователя
-        Auth.auth().addStateDidChangeListener { (auth, user) in
-            if let user = user {
-                // Если пользователь уже вошел в систему, используйте его uid
-                self.setupCartProducts(for: user.uid)
-            } else {
-                // Если пользователь еще не вошел в систему, создайте анонимного пользователя
-                Auth.auth().signInAnonymously { (authResult, error) in
-                    if let error = error {
-                        self.showErrorAlert(message: "Ошибка создания анонимного пользователя: \(error.localizedDescription)")
-                    } else if let user = authResult?.user {
-                        self.setupCartProducts(for: user.uid)
-                    }
-                }
-            }
-        }
-    }
-
-    func setupCartProducts(for uid: String) {
-        let db = Firestore.firestore()
-        let usersCollection = db.collection("usersAccount")
-        let userDocument = usersCollection.document(uid)
-
-        // Проверьте, существует ли уже документ для этого пользователя
-        userDocument.getDocument { (document, error) in
-            if let error = error {
-                self.showErrorAlert(message: "Ошибка получения документа пользователя: \(error.localizedDescription)")
-            } else if let document = document, document.exists {
-                // Документ уже существует, поэтому ничего не делайте
-            } else {
-                // Документ не существует, поэтому создайте новый документ и коллекцию cartProducts
-                userDocument.setData([:]) { error in
-                    if let error = error {
-                        self.showErrorAlert(message: "Ошибка создания документа пользователя: \(error.localizedDescription)")
-                    } else {
-                        userDocument.collection("cartProducts").addDocument(data: [:]) { error in
-                            if let error = error {
-                                self.showErrorAlert(message: "Ошибка создания cartProducts: \(error.localizedDescription)")
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    func showErrorAlert(message: String) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        self.present(alert, animated: true)
-    }
-
-}
-
-//class Test: ViewController {
-//
-//
-//    func showErrorAlert(message: String, retryHandler: @escaping () -> Void) {
-//        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
-//        alert.addAction(UIAlertAction(title: "OK", style: .default))
-//        alert.addAction(UIAlertAction(title: "Повторить", style: .default) { _ in
-//            retryHandler()
-//        })
-//        self.present(alert, animated: true)
-//    }
-//
-//    func setupCartProducts2(for uid: String) {
-//        let db = Firestore.firestore()
-//        let usersCollection = db.collection("usersAccount")
-//        let userDocument = usersCollection.document(uid)
-//
-//        // Проверьте, существует ли уже документ для этого пользователя
-//        userDocument.getDocument { (document, error) in
-//            if let error = error {
-//                self.showErrorAlert(message: "Ошибка получения документа пользователя: \(error.localizedDescription)") {
-//                    self.setupCartProducts(for: uid)
-//                }
-//            } else if let document = document, document.exists {
-//                // Документ уже существует, поэтому ничего не делайте
-//            } else {
-//                // Документ не существует, поэтому создайте новый документ и коллекцию cartProducts
-//                userDocument.setData([:]) { error in
-//                    if let error = error {
-//                        self.showErrorAlert(message: "Ошибка создания документа пользователя: \(error.localizedDescription)") {
-//                            self.setupCartProducts(for: uid)
-//                        }
-//                    } else {
-//                        userDocument.collection("cartProducts").addDocument(data: [:]) { error in
-//                            if let error = error {
-//                                self.showErrorAlert(message: "Ошибка создания cartProducts: \(error.localizedDescription)") {
-//                                    self.setupCartProducts(for: uid)
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    Auth.auth().signInAnonymously { (authResult, error) in
-//        guard let user = authResult?.user, error == nil else {
-//            print("Ошибка создания анонимного пользователя: \(error?.localizedDescription ?? "")")
-//            // Повторите попытку через некоторое время
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-//                self.signInAnonymously()
-//            }
-//            return
-//        }
-//        self.setupCartProducts(for: user.uid)
-//    }
-//}
-
-//class FirebaseManager {
-//    static let shared = FirebaseManager()
-//
-//    func createUser(completion: @escaping (Error?) -> Void) {
-//        Auth.auth().createUser(withEmail: "email@example.com", password: "password") { (authResult, error) in
-//            if let error = error {
-//                if let viewController = UIApplication.shared.windows.first?.rootViewController {
-//                    viewController.showErrorAlert(message: error.localizedDescription)
-//                }
-//                completion(error)
-//            } else {
-//                completion(nil)
-//            }
-//        }
-//    }
-//}
-//
-//extension UIViewController {
-//    func showErrorAlert(message: String) {
-//        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
-//        alert.addAction(UIAlertAction(title: "OK", style: .default))
-//        self.present(alert, animated: true)
-//    }
-//
-//if #available(iOS 15.0, *) {
-//    // Используйте UIWindowScene.windows.first?.rootViewController
-//} else {
-//    // Используйте UIApplication.shared.windows.first?.rootViewController
-//}
-//}
-
-
 
 
 // MARK: - Screens -
@@ -790,6 +624,10 @@ protocol HomeModelInput: AnyObject {
     func setGender(gender:String)
     func updateModelGender()
     func listenerCartProducts()
+    func repeatSignInAnonymously()
+    func repeatSetupCartProducts()
+    func repeatAddEmptyCartProducts()
+    
 }
 
 // Протокол для обработки полученных данных
@@ -823,8 +661,12 @@ class AbstractHomeViewController: PlaceholderNavigationController {
             return self.navigationController as? PlaceholderNavigationController
         }
     
+
+ 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(handleErrorNotification(_:)), name: NSNotification.Name("ErrorNotification"), object: nil)
         
         homeModel = HomeFirebaseService(output: self)
         homeModel?.fetchDataSource(completion: { homeDataSource in
@@ -854,6 +696,26 @@ class AbstractHomeViewController: PlaceholderNavigationController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         switchGender()
+    }
+    
+    @objc func handleErrorNotification(_ notification: NSNotification) {
+        if let userInfo = notification.userInfo,
+           let error = userInfo["error"] as? NSError,
+           let enumValue = userInfo["enumValue"] as? ListenerErrorState {
+            showErrorAlert(message: error.localizedDescription) {
+                switch enumValue {
+                    
+                case .addEmptyCart:
+                    <#code#>
+                case .logIn:
+                    <#code#>
+                case .signInAnonymously:
+                    <#code#>
+                case .setupCartProducts:
+                    <#code#>
+                }
+            }
+        }
     }
     
     func switchGender() {
@@ -1071,6 +933,20 @@ class HomeFirebaseService {
 
 extension HomeFirebaseService: HomeModelInput {
     
+    func repeatSignInAnonymously() {
+        serviceFB.signInAnonymously { <#Error?#>, <#ListenerErrorState?#> in
+            <#code#>
+        }
+    }
+    
+    func repeatSetupCartProducts() {
+        <#code#>
+    }
+    
+    func repeatAddEmptyCartProducts() {
+        <#code#>
+    }
+    
     
     
     func setGender(gender: String) {
@@ -1097,13 +973,8 @@ extension HomeFirebaseService: HomeModelInput {
         
         // работаем над отключением при первом запуске после 10 сек.
         // NotificationCenter model -> controller + alert
-        // draw entitys
         listenerCartProducts()
-        // { если  error == nil -> firstFetchData() при первом старте, далее при успешном выполнении completion(self.bunchData?.model) firstFetchData() больше не вызываем  }
-        // если error != nil
         
-        // firstFetchData() должен быть вызван из методов listenerCartProducts()
-        firstFetchData()
         group.notify(queue: .main) {
             self.timer?.invalidate()
             self.output?.stopSpiner()
@@ -1226,7 +1097,16 @@ extension HomeFirebaseService: HomeModelInput {
     }
     
     func listenerCartProducts() {
-        serviceFB.listenerUser()
+        serviceFB.listenerUser { error, state in
+            if let error = error, let state = state {
+                let userInfo: [String: Any] = ["error": error, "enumValue": state]
+                NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: nil, userInfo: userInfo)
+            } else {
+                // { если  error == nil -> firstFetchData() при первом старте, далее при успешном выполнении completion(self.bunchData?.model) firstFetchData() больше не вызываем  }
+                self.firstFetchData()
+            }
+
+        }
     }
     
 }
@@ -1266,7 +1146,8 @@ struct FetchPreviewDataResponse {
     // throws что бы он выдавал какие то ошибки если что то не получается
     init(documents: Any) throws {
         // если мы не сможем получить array то мы выплюним ошибку throw
-        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError("Failed to parse JSON") }
+        guard let array = documents as? [JSON] else { throw NetworkError.failParsingJSON("Failed to parse JSON")
+        }
         
         var items = [PreviewSectionNew]()
         for dictionary in array {
@@ -1316,7 +1197,8 @@ struct FetchProductsDataResponse {
     // throws что бы он выдавал какие то ошибки если что то не получается
     init(documents: Any) throws {
         // если мы не сможем получить array то мы выплюним ошибку throw
-        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError("Failed to parse JSON") }
+        guard let array = documents as? [JSON] else { throw NetworkError.failParsingJSON("Failed to parse JSON")
+        }
 //        HomeScreenCloudFirestoreService.
         var items = [ProductItemNew]()
         for dictionary in array {
@@ -1363,7 +1245,8 @@ struct FetchShopDataResponse {
     // throws что бы он выдавал какие то ошибки если что то не получается
     init(documents: Any) throws {
         // если мы не сможем получить array то мы выплюним ошибку throw
-        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError("Failed to parse JSON") }
+        guard let array = documents as? [JSON] else { throw NetworkError.failParsingJSON("Failed to parse JSON")
+        }
         
         var items = [ShopNew]()
         for dictionary in array {
@@ -1410,7 +1293,8 @@ struct FetchPinDataResponse {
     // throws что бы он выдавал какие то ошибки если что то не получается
     init(documents: Any) throws {
         // если мы не сможем получить array то мы выплюним ошибку throw
-        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError("Failed to parse JSON") }
+        guard let array = documents as? [JSON] else { throw NetworkError.failParsingJSON("Failed to parse JSON")
+        }
         
         var items = [PinNew]()
         for dictionary in array {
