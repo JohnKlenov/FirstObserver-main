@@ -492,7 +492,7 @@ final class FirebaseService {
     // MARK: UserListener + FetchCartProducts
 
     
-    
+    // можно вынести вызов fetchCartProducts из блока userListener
     func listenerUser(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
         userListener { user in
             if let _ = user {
@@ -579,6 +579,7 @@ final class FirebaseService {
             }
             do {
                 let response = try FetchProductsDataResponse(documents: documents)
+//                self.currentCartProducts = cartProducts
                 completion(response.items, nil, nil)
             } catch {
                 completion(nil, error, .setupCartProducts)
