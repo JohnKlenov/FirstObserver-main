@@ -76,7 +76,7 @@ extension UIViewController {
 // Models
 
 enum NetworkError: Error {
-    case failInternetError
+    case failInternetError(String)
     case noInternetConnection
 }
 
@@ -368,6 +368,7 @@ final class FirebaseService {
         }
     }
     
+    // переделали
     func signInAnonymously() {
         
         Auth.auth().signInAnonymously { (authResult, error) in
@@ -377,6 +378,17 @@ final class FirebaseService {
             // if failad create AnonymouslyUser -> call signInAnonymouslyUser()
         }
     }
+    
+//    self.signInAnonymously2 { erorr in
+//        guard let error = error else {return}
+//        // completion(error)
+//    }
+//    func signInAnonymously2(completion: @escaping (Error?) -> Void) {
+//
+//        Auth.auth().signInAnonymously {  (authResult, error) in
+//            completion(error)
+//        }
+//    }
     
     func addEmptyCartProducts(uid: String) {
         
@@ -394,6 +406,7 @@ final class FirebaseService {
         }
     }
     
+    // переделали
     // точка входа для второй порции данных - addEmptyCartProducts
     func setupCartProducts() {
         guard let user = Auth.auth().currentUser else {
@@ -418,7 +431,7 @@ final class FirebaseService {
             }
         }
     }
-    
+    // переделали
     func fetchCartProducts() {
         fetchData { cartProducts in
             self.currentCartProducts = cartProducts
@@ -434,7 +447,7 @@ final class FirebaseService {
             }
         }
     }
-    
+    // передеали
     func fetchData(completion: @escaping ([ProductItemNew]) -> Void) {
         
         let path = "usersAccount/\(String(describing: currentUserID))/cartProducts"
@@ -471,6 +484,134 @@ final class FirebaseService {
         }
         listeners[path] = listener
     }
+    
+    // call back version
+    
+    enum ListenerErrorState {
+        case addEmptyCart
+        case logIn
+        case signInAnonymously
+        case setupCartProducts
+    }
+    
+    
+    func listenerUser2(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
+        userListener { user in
+            if let _ = user {
+                self.currentCartProducts = nil
+                self.setupCartProducts2 { error, state in
+                    completion(error, state)
+                }
+            } else {
+                self.signInAnonymously2 { error, state in
+                    guard let error = error else { return }
+                    completion(error,state)
+                }
+            }
+        }
+    }
+    
+    func signInAnonymously2(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
+        
+        Auth.auth().signInAnonymously { (authResult, error) in
+            guard let error = error else { return }
+            completion(error, .signInAnonymously)
+        }
+    }
+    
+    func setupCartProducts2(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
+        guard let user = Auth.auth().currentUser else {
+            let error = NSError(domain: "com.yourapp.error", code: 401, userInfo: [NSLocalizedDescriptionKey: "User is not authorized."])
+            completion(error, .logIn)
+            return
+        }
+        removeListenerForCardProducts()
+        currentUserID = user.uid
+        let path = "usersAccount/\(String(describing: currentUserID))"
+        let docRef = Firestore.firestore().document(path)
+        
+        // нужно обработать ошибку
+        docRef.getDocument { (document, error) in
+            if let document = document, document.exists {
+                print("Document exists!")
+                self.fetchCartProducts2 { error, state in
+                    completion(error,state)
+                }
+            } else {
+                print("Document does not exist!")
+                // если все ок то self.fetchCartProducts
+                self.addEmptyCartProducts2 { error, state in
+                    completion(error,state)
+                }
+            }
+        }
+    }
+    
+    func fetchCartProducts2(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
+        fetchData2 { cartProducts, error, state in
+            self.currentCartProducts = cartProducts
+            completion(error,state)
+        }
+    }
+    
+    func fetchData2(completion: @escaping ([ProductItemNew]?, Error?, ListenerErrorState?) -> Void) {
+        
+        let path = "usersAccount/\(String(describing: currentUserID))/cartProducts"
+        
+        let collection = db.collection(path)
+        let quary = collection.order(by: "priorityIndex", descending: false)
+        
+        let listener = quary.addSnapshotListener { (querySnapshot, error) in
+            
+            if let error = error {
+                completion(nil, error, .setupCartProducts)
+                return
+            }
+            guard let querySnapshot = querySnapshot else {
+                completion(nil, error, .setupCartProducts)
+                return
+            }
+            
+            if querySnapshot.isEmpty {
+                completion([], nil, nil)
+                return
+            }
+            var documents = [[String : Any]]()
+            
+            for document in querySnapshot.documents {
+                let documentData = document.data()
+                documents.append(documentData)
+            }
+            do {
+                let response = try FetchProductsDataResponse(documents: documents)
+                completion(response.items, nil, nil)
+            } catch {
+                completion(nil, error, .setupCartProducts)
+            }
+        }
+        listeners[path] = listener
+    }
+    
+    func addEmptyCartProducts2(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
+        
+        guard let user = Auth.auth().currentUser else {
+            let error = NSError(domain: "com.yourapp.error", code: 401, userInfo: [NSLocalizedDescriptionKey: "User is not authorized."])
+            completion(error, .logIn)
+            return
+        }
+        let usersCollection = Firestore.firestore().collection("usersAccount")
+        let userDocument = usersCollection.document(user.uid)
+        userDocument.collection("cartProducts").addDocument(data: [:]) { error in
+            if error != nil {
+                completion(error, .addEmptyCart)
+            } else {
+                self.fetchCartProducts2 { error, state in
+                    completion(error, state)
+                }
+            }
+        }
+    }
+   
 }
 
 
@@ -847,6 +988,24 @@ class HeaderSegmentedControlView: UICollectionReusableView {
 //    }
 //}
 
+// all implemintation
+
+//let error = NSError(domain: "domain", code: 123, userInfo: nil)
+//let enumValue = YourEnum.someCase
+//
+//let userInfo: [String: Any] = ["error": error, "enumValue": enumValue]
+//NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: nil, userInfo: userInfo)
+
+//NotificationCenter.default.addObserver(self, selector: #selector(handleErrorNotification(_:)), name: NSNotification.Name("ErrorNotification"), object: nil)
+//
+//@objc func handleErrorNotification(_ notification: NSNotification) {
+//    if let userInfo = notification.userInfo,
+//       let error = userInfo["error"] as? NSError,
+//       let enumValue = userInfo["enumValue"] as? YourEnum {
+//        // Обработать ошибку и значение перечисления
+//    }
+//}
+
 // Model
 
 class HomeFirebaseService {
@@ -940,6 +1099,9 @@ extension HomeFirebaseService: HomeModelInput {
         // NotificationCenter model -> controller + alert
         // draw entitys
         listenerCartProducts()
+        // { если  error == nil -> firstFetchData() при первом старте, далее при успешном выполнении completion(self.bunchData?.model) firstFetchData() больше не вызываем  }
+        // если error != nil
+        
         // firstFetchData() должен быть вызван из методов listenerCartProducts()
         firstFetchData()
         group.notify(queue: .main) {
@@ -1104,7 +1266,7 @@ struct FetchPreviewDataResponse {
     // throws что бы он выдавал какие то ошибки если что то не получается
     init(documents: Any) throws {
         // если мы не сможем получить array то мы выплюним ошибку throw
-        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
+        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError("Failed to parse JSON") }
         
         var items = [PreviewSectionNew]()
         for dictionary in array {
@@ -1154,7 +1316,7 @@ struct FetchProductsDataResponse {
     // throws что бы он выдавал какие то ошибки если что то не получается
     init(documents: Any) throws {
         // если мы не сможем получить array то мы выплюним ошибку throw
-        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
+        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError("Failed to parse JSON") }
 //        HomeScreenCloudFirestoreService.
         var items = [ProductItemNew]()
         for dictionary in array {
@@ -1201,7 +1363,7 @@ struct FetchShopDataResponse {
     // throws что бы он выдавал какие то ошибки если что то не получается
     init(documents: Any) throws {
         // если мы не сможем получить array то мы выплюним ошибку throw
-        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
+        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError("Failed to parse JSON") }
         
         var items = [ShopNew]()
         for dictionary in array {
@@ -1248,7 +1410,7 @@ struct FetchPinDataResponse {
     // throws что бы он выдавал какие то ошибки если что то не получается
     init(documents: Any) throws {
         // если мы не сможем получить array то мы выплюним ошибку throw
-        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError }
+        guard let array = documents as? [JSON] else { throw NetworkError.failInternetError("Failed to parse JSON") }
         
         var items = [PinNew]()
         for dictionary in array {
