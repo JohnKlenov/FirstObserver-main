@@ -491,9 +491,22 @@ final class FirebaseService {
     
     // MARK: UserListener + FetchCartProducts
 
+    func listenerCartProducts() {
+        updateUser { error, state in
+            
+            if error != nil {
+                // могли не получить user, не получить дериктории, User is not authorized
+                // отправляем Notification на все подписанные VC + если контроллер isVisible
+                // call alert -> при первом старте только try доступно и по нажатию через модель удаляем handle и вызываем listenerCartProducts() заново.
+                // удаляем handle и вызываем listenerCartProducts() заново.
+            } else {
+                
+            }
+        }
+    }
     
     // можно вынести вызов fetchCartProducts из блока userListener
-    func listenerUser(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
+    func updateUser(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
         userListener { user in
             if let _ = user {
                 self.currentCartProducts = nil
@@ -531,9 +544,7 @@ final class FirebaseService {
         // нужно обработать ошибку
         docRef.getDocument { (document, error) in
             if let document = document, document.exists {
-                self.fetchCartProducts { error, state in
-                    completion(error,state)
-                }
+                completion(nil, nil)
             } else {
                 self.addEmptyCartProducts { error, state in
                     completion(error,state)
@@ -600,9 +611,7 @@ final class FirebaseService {
             if error != nil {
                 completion(error, .addEmptyCart)
             } else {
-                self.fetchCartProducts { error, state in
-                    completion(error, state)
-                }
+                completion(nil, nil)
             }
         }
     }
@@ -1098,16 +1107,16 @@ extension HomeFirebaseService: HomeModelInput {
     }
     
     func listenerCartProducts() {
-        serviceFB.listenerUser { error, state in
-            if let error = error, let state = state {
-                let userInfo: [String: Any] = ["error": error, "enumValue": state]
-                NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: nil, userInfo: userInfo)
-            } else {
-                // { если  error == nil -> firstFetchData() при первом старте, далее при успешном выполнении completion(self.bunchData?.model) firstFetchData() больше не вызываем  }
-                self.firstFetchData()
-            }
-
-        }
+//        serviceFB.listenerUser { error, state in
+//            if let error = error, let state = state {
+//                let userInfo: [String: Any] = ["error": error, "enumValue": state]
+//                NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: nil, userInfo: userInfo)
+//            } else {
+//                // { если  error == nil -> firstFetchData() при первом старте, далее при успешном выполнении completion(self.bunchData?.model) firstFetchData() больше не вызываем  }
+//                self.firstFetchData()
+//            }
+//
+//        }
     }
     
 }
