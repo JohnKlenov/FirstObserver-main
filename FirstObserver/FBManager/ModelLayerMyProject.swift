@@ -209,10 +209,8 @@ enum NetworkError: Error {
 }
 
 enum ListenerErrorState {
-    case addEmptyCart
-    case logIn
-    case signInAnonymously
-    case setupCartProducts
+    case restartFetchCartProducts
+    case restartObserveUser
 }
 
 struct ItemNew: Hashable {
@@ -366,7 +364,7 @@ final class FirebaseService {
     }()
     
     
-    var stateStart: StateFirstStart = .firstStart
+    var stateDataSource: StateFirstStart = .firstStart
     
     enum StateFirstStart {
         case firstStart
@@ -491,7 +489,7 @@ final class FirebaseService {
     
     // MARK: UserListener + FetchCartProducts
 
-    func listenerCartProducts() {
+    func observeUserAndCardProducts() {
         updateUser { error, state in
             
             if error != nil {
@@ -499,16 +497,28 @@ final class FirebaseService {
                 // отправляем Notification на все подписанные VC + если контроллер isVisible
                 // call alert -> при первом старте только try доступно и по нажатию через модель удаляем handle и вызываем listenerCartProducts() заново.
                 // удаляем handle и вызываем listenerCartProducts() заново.
-            } else {
                 
+                //        serviceFB.listenerUser { error, state in
+                //            if let error = error, let state = state {
+                //                let userInfo: [String: Any] = ["error": error, "enumValue": state]
+                //                NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: nil, userInfo: userInfo)
+                //            } else {
+                //                // { если  error == nil -> firstFetchData() при первом старте, далее при успешном выполнении completion(self.bunchData?.model) firstFetchData() больше не вызываем  }
+                //                self.firstFetchData()
+                //            }
+                //
+                //        }
+            } else {
+                self.fetchCartProducts()
             }
         }
     }
     
-    // можно вынести вызов fetchCartProducts из блока userListener
     func updateUser(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
         userListener { user in
             if let _ = user {
+                // можем делать его пустым currentCartProducts = []
+                // потому что его состояние контролируется.
                 self.currentCartProducts = nil
                 self.setupCartProducts { error, state in
                     completion(error, state)
@@ -526,14 +536,14 @@ final class FirebaseService {
         
         Auth.auth().signInAnonymously { (authResult, error) in
             guard let error = error else { return }
-            completion(error, .signInAnonymously)
+            completion(error, .restartObserveUser)
         }
     }
     
     func setupCartProducts(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
         guard let user = Auth.auth().currentUser else {
             let error = NSError(domain: "com.yourapp.error", code: 401, userInfo: [NSLocalizedDescriptionKey: "User is not authorized."])
-            completion(error, .logIn)
+            completion(error, .restartObserveUser)
             return
         }
         removeListenerForCardProducts()
@@ -541,7 +551,7 @@ final class FirebaseService {
         let path = "usersAccount/\(String(describing: currentUserID))"
         let docRef = Firestore.firestore().document(path)
         
-        // нужно обработать ошибку
+        /// нужно обработать ошибку
         docRef.getDocument { (document, error) in
             if let document = document, document.exists {
                 completion(nil, nil)
@@ -553,10 +563,19 @@ final class FirebaseService {
         }
     }
     
-    func fetchCartProducts(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
+    func fetchCartProducts() {
         fetchData { cartProducts, error, state in
-            self.currentCartProducts = cartProducts
-            completion(error,state)
+            guard let _ = error else {
+                
+                if self.stateDataSource == .firstStart {
+                    self.stateDataSource = .secondStart
+                    NotificationCenter.default.post(name: NSNotification.Name("FetchFirstDataNotification"), object: nil)
+                }
+                self.currentCartProducts = cartProducts
+                return
+            }
+            // отправляем Notification на все подписанные VC + если контроллер isVisible
+            // call alert -> при первом старте только try доступно и по нажатию через модель удаляем listener и вызываем fetchCartProducts() заново.
         }
     }
     
@@ -570,11 +589,11 @@ final class FirebaseService {
         let listener = quary.addSnapshotListener { (querySnapshot, error) in
             
             if let error = error {
-                completion(nil, error, .setupCartProducts)
+                completion(nil, error, .restartFetchCartProducts)
                 return
             }
             guard let querySnapshot = querySnapshot else {
-                completion(nil, error, .setupCartProducts)
+                completion(nil, error, .restartFetchCartProducts)
                 return
             }
             
@@ -590,10 +609,9 @@ final class FirebaseService {
             }
             do {
                 let response = try FetchProductsDataResponse(documents: documents)
-//                self.currentCartProducts = cartProducts
                 completion(response.items, nil, nil)
             } catch {
-                completion(nil, error, .setupCartProducts)
+                completion(nil, error, .restartFetchCartProducts)
             }
         }
         listeners[path] = listener
@@ -602,14 +620,14 @@ final class FirebaseService {
     func addEmptyCartProducts(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
         guard let user = Auth.auth().currentUser else {
             let error = NSError(domain: "com.yourapp.error", code: 401, userInfo: [NSLocalizedDescriptionKey: "User is not authorized."])
-            completion(error, .logIn)
+            completion(error, .restartObserveUser)
             return
         }
         let usersCollection = Firestore.firestore().collection("usersAccount")
         let userDocument = usersCollection.document(user.uid)
         userDocument.collection("cartProducts").addDocument(data: [:]) { error in
             if error != nil {
-                completion(error, .addEmptyCart)
+                completion(error, .restartObserveUser)
             } else {
                 completion(nil, nil)
             }
@@ -633,10 +651,10 @@ protocol HomeModelInput: AnyObject {
     func isSwitchGender(completion: @escaping () -> Void)
     func setGender(gender:String)
     func updateModelGender()
-    func listenerCartProducts()
-    func repeatSignInAnonymously()
-    func repeatSetupCartProducts()
-    func repeatAddEmptyCartProducts()
+    func observeUserAndCardProducts()
+//    func repeatSignInAnonymously()
+//    func repeatSetupCartProducts()
+//    func repeatAddEmptyCartProducts()
     
 }
 
@@ -715,13 +733,9 @@ class AbstractHomeViewController: PlaceholderNavigationController {
             showErrorAlert(message: error.localizedDescription) {
                 switch enumValue {
                     
-                case .addEmptyCart:
+                case .restartFetchCartProducts:
                     <#code#>
-                case .logIn:
-                    <#code#>
-                case .signInAnonymously:
-                    <#code#>
-                case .setupCartProducts:
+                case .restartObserveUser:
                     <#code#>
                 }
             }
@@ -892,6 +906,7 @@ class HomeFirebaseService {
     var bunchData:BunchData?
     
     var gender:String = ""
+    private var  isFirstGroupEnter = true
     
     
     let previewService = PreviewCloudFirestoreService()
@@ -902,6 +917,7 @@ class HomeFirebaseService {
     init(output: HomeModelOutput) {
         self.output = output
         gender = serviceFB.currentGender
+        NotificationCenter.default.addObserver(self, selector: #selector(handleFetchFirstDataNotification), name: NSNotification.Name("FetchFirstDataNotification"), object: nil)
     }
     
     func createItem(malls: [PreviewSectionNew]? = nil, shops: [PreviewSectionNew]? = nil, products: [ProductItemNew]? = nil) -> [ItemNew] {
@@ -943,22 +959,6 @@ class HomeFirebaseService {
 
 extension HomeFirebaseService: HomeModelInput {
     
-    func repeatSignInAnonymously() {
-        serviceFB.signInAnonymously { <#Error?#>, <#ListenerErrorState?#> in
-            <#code#>
-        }
-    }
-    
-    func repeatSetupCartProducts() {
-        <#code#>
-    }
-    
-    func repeatAddEmptyCartProducts() {
-        <#code#>
-    }
-    
-    
-    
     func setGender(gender: String) {
         serviceFB.setGender(gender: gender)
     }
@@ -973,6 +973,10 @@ extension HomeFirebaseService: HomeModelInput {
         }
     }
     
+    @objc func handleFetchFirstDataNotification(_ notification: NSNotification) {
+        firstFetchData()
+    }
+    
     func firstFetchData() {
         fetchGenderData()
         fetchTotalData()
@@ -980,11 +984,12 @@ extension HomeFirebaseService: HomeModelInput {
     
    
     func fetchDataSource(completion: @escaping ([String : SectionModelNew]?) -> Void) {
+        group.enter()
         
-        // работаем над отключением при первом запуске после 10 сек.
-        // NotificationCenter model -> controller + alert
-        listenerCartProducts()
+        /// работаем над отключением при первом запуске после 10 сек.
+        observeUserAndCardProducts()
         
+        /// notify без group.enter() блок будет выполнен немедленно
         group.notify(queue: .main) {
             self.timer?.invalidate()
             self.output?.stopSpiner()
@@ -1094,7 +1099,7 @@ extension HomeFirebaseService: HomeModelInput {
             self.group.leave()
         }
         
-        // в модель для MapView подготовим в VC
+        /// в модель для MapView подготовим в VC
         group.enter()
         pathsTotalListener.append("pinMals")
         pinService.fetchPin(path: "pinMals") { pins in
@@ -1104,19 +1109,16 @@ extension HomeFirebaseService: HomeModelInput {
             self.serviceFB.pinMall = pins
             self.group.leave()
         }
+        
+        /// что бы не сработал сразу group.notify
+        if isFirstGroupEnter {
+            group.leave()
+            isFirstGroupEnter.toggle()
+        }
     }
     
-    func listenerCartProducts() {
-//        serviceFB.listenerUser { error, state in
-//            if let error = error, let state = state {
-//                let userInfo: [String: Any] = ["error": error, "enumValue": state]
-//                NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: nil, userInfo: userInfo)
-//            } else {
-//                // { если  error == nil -> firstFetchData() при первом старте, далее при успешном выполнении completion(self.bunchData?.model) firstFetchData() больше не вызываем  }
-//                self.firstFetchData()
-//            }
-//
-//        }
+    func observeUserAndCardProducts() {
+        serviceFB.observeUserAndCardProducts()
     }
     
 }
