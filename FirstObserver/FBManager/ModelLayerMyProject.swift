@@ -492,7 +492,11 @@ final class FirebaseService {
     
     // MARK: UserListener + FetchCartProducts
 
+    /// оповещаем  VCs(Home, Cart, Profile) (через NotificationCenter) об ощибках при получении user и cartProducts
+    /// оповещаем  model homeVC(через NotificationCenter) о том что мы получили user и его cartProducts и инициализируем получение следующих данных
+    
     func observeUserAndCardProducts() {
+        /// .tooManyRequests(anonimus) + .logIn
         updateUser { error, state in
             
             if let error = error, let state = state  {
@@ -538,13 +542,16 @@ final class FirebaseService {
             return
         }
         
-//        removeListenerForCardProducts()
-//        currentUserID = user.uid
         let path = "usersAccount/\(user.uid)"
         let docRef = Firestore.firestore().document(path)
         
-        /// нужно обработать ошибку
         docRef.getDocument { (document, error) in
+            
+            guard error == nil else {
+                completion(error, .restartObserveUser)
+                return
+            }
+            
             if let document = document, document.exists {
                 completion(nil, nil)
             } else {
@@ -561,7 +568,7 @@ final class FirebaseService {
                 
                 if self.stateDataSource == .firstStart {
                     self.stateDataSource = .secondStart
-                    NotificationCenter.default.post(name: NSNotification.Name("FetchFirstDataNotification"), object: nil)
+                    NotificationCenter.default.post(name: NSNotification.Name("FetchUserAndCartProductDataNotification"), object: nil)
                 }
                 self.currentCartProducts = cartProducts
                 return
@@ -590,6 +597,9 @@ final class FirebaseService {
         let collection = db.collection(path)
         let quary = collection.order(by: "priorityIndex", descending: false)
         
+        /// если в момент прослушивание пропадет инет придет error и те данные которые мы пропусти
+        /// после подключения инета мы не получим
+        /// получим только те данные которые придут после нового прослушивание
         let listener = quary.addSnapshotListener { (querySnapshot, error) in
             
             if let error = error {
@@ -727,8 +737,12 @@ class AbstractHomeViewController: PlaceholderNavigationController {
         switchGender()
     }
     
+    ///  work at errors ! and implemintation scenry
     @objc func handleErrorNotification(_ notification: NSNotification) {
         // срабатывает когда мы visible
+//        if self.isViewLoaded && self.view.window != nil {
+//               // Контроллер видимый, выполняем код
+//           }
         if let userInfo = notification.userInfo,
            let error = userInfo["error"] as? NSError,
            let enumValue = userInfo["enumValue"] as? ListenerErrorState {
@@ -919,8 +933,10 @@ class HomeFirebaseService {
     init(output: HomeModelOutput) {
         self.output = output
         gender = serviceFB.currentGender
-        NotificationCenter.default.addObserver(self, selector: #selector(handleFetchFirstDataNotification), name: NSNotification.Name("FetchFirstDataNotification"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleFetchFirstDataNotification), name: NSNotification.Name("FetchUserAndCartProductDataNotification"), object: nil)
     }
+    
+    // help methods
     
     func createItem(malls: [PreviewSectionNew]? = nil, shops: [PreviewSectionNew]? = nil, products: [ProductItemNew]? = nil) -> [ItemNew] {
         
@@ -964,12 +980,6 @@ extension HomeFirebaseService: HomeModelInput {
     func restartFetchCartProducts() {
         serviceFB.fetchCartProducts()
     }
-    
-    func restartObserveUser() {
-        serviceFB.observeUserAndCardProducts()
-    }
-    
-    
     
     func setGender(gender: String) {
         serviceFB.setGender(gender: gender)
