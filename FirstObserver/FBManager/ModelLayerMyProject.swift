@@ -182,24 +182,26 @@ import MapKit
 // Controller
 
 extension UIViewController {
-    func showErrorAlert(message: String, retryHandler: @escaping () -> Void) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        alert.addAction(UIAlertAction(title: "Повторить", style: .default) { _ in
+    
+    func showErrorAlert(message: String, state: StateDataSource, retryHandler: @escaping () -> Void) {
+        
+        let alert = UIAlertController(title: "Oops!", message: message, preferredStyle: .alert)
+        let tryAction = UIAlertAction(title: "Try agayn", style: .cancel) { _ in
             retryHandler()
-        })
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            //
+        }
+        switch state {
+            
+        case .firstStart:
+            alert.addAction(tryAction)
+        case .fetchGender:
+            alert.addAction(tryAction)
+            alert.addAction(cancelAction)
+        }
         self.present(alert, animated: true)
     }
-
-//if #available(iOS 15.0, *) {
-//    // Используйте UIWindowScene.windows.first?.rootViewController
-//} else {
-//    // Используйте UIApplication.shared.windows.first?.rootViewController
-//}
-//    if let error = error {
-    //                if let viewController = UIApplication.shared.windows.first?.rootViewController {
-    //                    viewController.showErrorAlert(message: error.localizedDescription)
-    //                }
 }
 
 // Models
@@ -509,7 +511,14 @@ final class FirebaseService {
         }
     }
     
+    func someFunction(completion: ((Bool) -> Void)? = nil) {
+        // Ваш код здесь
+        completion?(true)
+    }
+    
     func updateUser(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
+    
+        someFunction()
         userListener { user in
             if let _ = user {
                 // можем делать его пустым currentCartProducts = []
@@ -575,9 +584,13 @@ final class FirebaseService {
             }
             // не получилось получить cartProducts при первом старте
             // а если ошибка произошла в момент наблюдения за карзиной?
-            let userInfo: [String: Any] = ["error": error, "enumValue": state]
-            NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: nil, userInfo: userInfo)
-            // отправляем Notification на все подписанные VC + если контроллер isVisible
+            // нужно отключать оповещение об error после успешного fetchCartProducts
+            // ставить флаг open на получении users и clouse когда мы получаем currentCartProducts или так если currentCartProducts == nil то отправляем ошибки иначе нет!
+            guard let _ = self.currentCartProducts else {
+                let userInfo: [String: Any] = ["error": error, "enumValue": state]
+                NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: nil, userInfo: userInfo)
+                return
+            }
         }
     }
     
@@ -667,14 +680,16 @@ protocol HomeModelInput: AnyObject {
     func updateModelGender()
     func observeUserAndCardProducts()
     func restartFetchCartProducts()
+    func startTimer()
+    func stopTimer()
 }
 
 // Протокол для обработки полученных данных
 protocol HomeModelOutput:AnyObject {
-    func startSpiner()
-    func stopSpiner()
-    func disableControls()
-    func enableControls()
+//    func startSpiner()
+//    func stopSpiner()
+//    func disableControls()
+//    func enableControls()
 }
 
 enum StateDataSource {
@@ -701,24 +716,36 @@ class AbstractHomeViewController: PlaceholderNavigationController {
         }
     
 
+    private func startLoad() {
+        startSpiner()
+        disableControls()
+        homeModel?.startTimer()
+    }
+    
+    private func stopLoad() {
+        stopSpiner()
+        enableControls()
+        homeModel?.stopTimer()
+    }
  
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(handleErrorNotification(_:)), name: NSNotification.Name("ErrorNotification"), object: nil)
-        
+        startLoad()
         homeModel = HomeFirebaseService(output: self)
+        
         homeModel?.fetchDataSource(completion: { homeDataSource in
+            self.stopLoad()
             guard let homeDataSource = homeDataSource else {
                 
                 switch self.stateDataSource {
                 case .firstStart:
                     self.navController?.showPlaceholder()
-                    self.alertFailedFetchData(state: self.stateDataSource) {
+                    self.showErrorAlert(message: "", state: self.stateDataSource) {
                         self.repeatedFetchData()
                     }
                 case .fetchGender:
-                    self.alertFailedFetchData(state: self.stateDataSource) {
+                    self.showErrorAlert(message: "", state: self.stateDataSource) {
                         self.repeatedFetchData()
                     }
                 }
@@ -735,6 +762,7 @@ class AbstractHomeViewController: PlaceholderNavigationController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         switchGender()
+        NotificationCenter.default.addObserver(self, selector: #selector(handleErrorNotification(_:)), name: NSNotification.Name("ErrorNotification"), object: nil)
     }
     
     ///  work at errors ! and implemintation scenry
@@ -743,10 +771,11 @@ class AbstractHomeViewController: PlaceholderNavigationController {
 //        if self.isViewLoaded && self.view.window != nil {
 //               // Контроллер видимый, выполняем код
 //           }
+        stopLoad()
         if let userInfo = notification.userInfo,
            let error = userInfo["error"] as? NSError,
            let enumValue = userInfo["enumValue"] as? ListenerErrorState {
-            showErrorAlert(message: error.localizedDescription) {
+            showErrorAlert(message: error.localizedDescription, state: self.stateDataSource) {
                 switch enumValue {
                     
                 case .restartFetchCartProducts:
@@ -773,35 +802,6 @@ class AbstractHomeViewController: PlaceholderNavigationController {
         }
     }
     
-}
-
-extension UIViewController {
-   
-    // alert в котором нет cancel при первом старте только HomeVC
-    func alertFailedFetchData(state: StateDataSource, retryHandler: @escaping () -> Void) {
-        let alert = UIAlertController(title: "Oops!", message: "Something went wrong!", preferredStyle: .alert)
-        
-        let tryAgayn = UIAlertAction(title: "Try agayn", style: .cancel) { _ in
-            retryHandler()
-        }
-        
-        let cancel = UIAlertAction(title: "Cancel", style: .cancel) { _ in
-            //
-        }
-        
-        switch state {
-            
-        case .firstStart:
-            alert.addAction(tryAgayn)
-        case .fetchGender:
-            alert.addAction(tryAgayn)
-            alert.addAction(cancel)
-        }
-        present(alert, animated: true, completion: nil)
-    }
-}
-
-extension AbstractHomeViewController:HomeModelOutput {
     func startSpiner() {
         navController?.startSpinner()
     }
@@ -821,6 +821,13 @@ extension AbstractHomeViewController:HomeModelOutput {
         // Например, если у вас есть кнопка:
         // myButton.isEnabled = true
     }
+    
+}
+
+
+
+extension AbstractHomeViewController:HomeModelOutput {
+ 
 }
 
 extension AbstractHomeViewController:HeaderSegmentedControlViewDelegate {
@@ -951,10 +958,26 @@ class HomeFirebaseService {
         return items
     }
     
+
+    
+    func removeGenderListeners() {
+        pathsGenderListener.forEach { path in
+            self.serviceFB.removeListeners(for: path)
+        }
+    }
+}
+
+extension HomeFirebaseService: HomeModelInput {
+    
+    
     func startTimer() {
+        
         
         timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
             
+            if self.isFirstGroupEnter {
+                
+            }
             self.pathsGenderListener.forEach { path in
                 self.bunchData = nil
                 self.group.leave()
@@ -968,14 +991,9 @@ class HomeFirebaseService {
         }
     }
     
-    func removeGenderListeners() {
-        pathsGenderListener.forEach { path in
-            self.serviceFB.removeListeners(for: path)
-        }
+    func stopTimer() {
+        timer?.invalidate()
     }
-}
-
-extension HomeFirebaseService: HomeModelInput {
     
     func restartFetchCartProducts() {
         serviceFB.fetchCartProducts()
@@ -1000,37 +1018,42 @@ extension HomeFirebaseService: HomeModelInput {
     }
     
     func firstFetchData() {
-        fetchGenderData()
+        fetchGender()
         fetchTotalData()
     }
     
    
     func fetchDataSource(completion: @escaping ([String : SectionModelNew]?) -> Void) {
-        group.enter()
-        
-        /// работаем над отключением при первом запуске после 10 сек.
+
+       performIterations(6)
         observeUserAndCardProducts()
         
         /// notify без group.enter() блок будет выполнен немедленно
         group.notify(queue: .main) {
-            self.timer?.invalidate()
-            self.output?.stopSpiner()
-            self.output?.enableControls()
+//            self.timer?.invalidate()
+//            self.output?.stopSpiner()
+//            self.output?.enableControls()
             completion(self.bunchData?.model)
         }
     }
     
+    func performIterations(_ count: Int) {
+        for _ in 1...count {
+            group.enter()
+        }
+    }
+    
     func fetchGenderData() {
-        
-        output?.disableControls()
-        output?.startSpiner()
+        performIterations(3)
+         fetchGender()
+    }
+    
+    func fetchGender() {
         
         pathsTotalListener = []
         bunchData = BunchData()
         removeGenderListeners()
         pathsGenderListener = []
-        
-        startTimer()
         
         group.enter()
         pathsGenderListener.append("previewMalls\(gender)")
@@ -1428,12 +1451,12 @@ class AbstractCatalogViewController: PlaceholderNavigationController {
                 switch self.stateDataSource {
                 case .firstStart:
                     self.navController?.showPlaceholder()
-                    self.alertFailedFetchData(state: self.stateDataSource) {
+                    self.showErrorAlert(message: "", state: self.stateDataSource) {
                         self.catalogModel?.fetchGenderData()
                     }
                 case .fetchGender:
                     // можем возвращать из этого места segmentControl на актуальное значение во view
-                    self.alertFailedFetchData(state: self.stateDataSource) {
+                    self.showErrorAlert(message: "", state: self.stateDataSource) {
                         self.catalogModel?.fetchGenderData()
                     }
                 }
