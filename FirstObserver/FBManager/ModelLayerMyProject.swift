@@ -680,8 +680,8 @@ protocol HomeModelInput: AnyObject {
     func updateModelGender()
     func observeUserAndCardProducts()
     func restartFetchCartProducts()
-    func startTimer()
-    func stopTimer()
+//    func startTimer()
+//    func stopTimer()
 }
 
 // Протокол для обработки полученных данных
@@ -719,13 +719,13 @@ class AbstractHomeViewController: PlaceholderNavigationController {
     private func startLoad() {
         startSpiner()
         disableControls()
-        homeModel?.startTimer()
+//        homeModel?.startTimer()
     }
     
     private func stopLoad() {
         stopSpiner()
         enableControls()
-        homeModel?.stopTimer()
+//        homeModel?.stopTimer()
     }
  
     override func viewDidLoad() {
@@ -923,12 +923,13 @@ class HomeFirebaseService {
     
     let serviceFB = FirebaseService.shared
     let group = DispatchGroup()
-    var timer: Timer?
+//    var timer: Timer?
     var pathsGenderListener = [String]()
     var pathsTotalListener = [String]()
     var bunchData:BunchData?
     
     var gender:String = ""
+    var caughtError:Error?
     
     
     let previewService = PreviewCloudFirestoreService()
@@ -964,32 +965,39 @@ class HomeFirebaseService {
             self.serviceFB.removeListeners(for: path)
         }
     }
+    
+    func removeTotalListener() {
+        pathsTotalListener.forEach { path in
+            self.serviceFB.removeListeners(for: path)
+        }
+    }
+    
 }
 
 extension HomeFirebaseService: HomeModelInput {
     
-    
-    func startTimer() {
-        
-        
-        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
-            
-            self.pathsGenderListener.forEach { path in
-                self.bunchData = nil
-                self.group.leave()
-                self.serviceFB.removeListeners(for: path)
-            }
-            
-            self.pathsTotalListener.forEach { path in
-                self.group.leave()
-                self.serviceFB.removeListeners(for: path)
-            }
-        }
-    }
-    
-    func stopTimer() {
-        timer?.invalidate()
-    }
+
+//    func startTimer() {
+//
+//
+//        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
+//
+//            self.pathsGenderListener.forEach { path in
+//                self.bunchData = nil
+//                self.group.leave()
+//                self.serviceFB.removeListeners(for: path)
+//            }
+//
+//            self.pathsTotalListener.forEach { path in
+//                self.group.leave()
+//                self.serviceFB.removeListeners(for: path)
+//            }
+//        }
+//    }
+//
+//    func stopTimer() {
+//        timer?.invalidate()
+//    }
     
     func restartFetchCartProducts() {
         serviceFB.fetchCartProducts()
@@ -1027,8 +1035,6 @@ extension HomeFirebaseService: HomeModelInput {
         
         /// notify без group.enter() блок будет выполнен немедленно
         group.notify(queue: .main) {
-            self.pathsTotalListener = []
-            self.pathsGenderListener = []
             completion(self.bunchData?.model)
         }
     }
@@ -1049,10 +1055,12 @@ extension HomeFirebaseService: HomeModelInput {
         
         bunchData = BunchData()
         removeGenderListeners()
+        pathsGenderListener = []
         
         pathsGenderListener.append("previewMalls\(gender)")
-        previewService.fetchPreviewSection(path: "previewMalls\(gender)") { malls in
-            guard let malls = malls else {
+        previewService.fetchPreviewSection(path: "previewMalls\(gender)") { malls, error in
+            guard let malls = malls, error == nil else {
+                self.caughtError = error
                 return
             }
             
@@ -1060,20 +1068,21 @@ extension HomeFirebaseService: HomeModelInput {
             let mallSection = SectionModelNew(section: "Malls", items: items)
             
             guard let _ = self.bunchData?.model?["A"] else {
-                self.group.enter()
                 self.bunchData?.model?["A"] = mallSection
                 self.group.leave()
                 return
             }
             
+            self.group.enter()
             self.bunchData?.model?["A"] = mallSection
             self.group.leave()
         }
         
         pathsGenderListener.append("previewShops\(gender)")
-        previewService.fetchPreviewSection(path: "previewShops\(gender)") { shops in
+        previewService.fetchPreviewSection(path: "previewShops\(gender)") { shops, error in
             
-            guard let shops = shops else {
+            guard let shops = shops, error == nil else {
+                self.caughtError = error
                 return
             }
             
@@ -1081,19 +1090,20 @@ extension HomeFirebaseService: HomeModelInput {
             let shopSection = SectionModelNew(section: "Shops", items: items)
             
             guard let _ = self.bunchData?.model?["B"] else {
-                self.group.enter()
                 self.bunchData?.model?["B"] = shopSection
                 self.group.leave()
                 return
             }
             
+            self.group.enter()
             self.bunchData?.model?["B"] = shopSection
             self.group.leave()
         }
         
         pathsGenderListener.append("popularProducts\(gender)")
-        productService.fetchProducts(path: "popularProducts\(gender)") { products in
-            guard let products = products else {
+        productService.fetchProducts(path: "popularProducts\(gender)") { products, error in
+            guard let products = products, error == nil else {
+                self.caughtError = error
                 return
             }
             
@@ -1101,22 +1111,26 @@ extension HomeFirebaseService: HomeModelInput {
             let productsSection = SectionModelNew(section: "PopularProducts", items: items)
             
             guard let _ = self.bunchData?.model?["C"] else {
-                self.group.enter()
                 self.bunchData?.model?["C"] = productsSection
                 self.group.leave()
                 return
             }
-            
+            self.group.enter()
             self.bunchData?.model?["C"] = productsSection
             self.group.leave()
         }
     }
     
+    // а что если в момент fetchGenderData() (нажмем segmentControlVC) сработает наблюдатель в fetchTotalData()
     func fetchTotalData() {
         
+        removeTotalListener()
+        pathsTotalListener = []
+        
         pathsTotalListener.append("shopsMan")
-        shopsService.fetchShops(path: "shopsMan") { shopsMan in
-            guard let shopsMan = shopsMan else {
+        shopsService.fetchShops(path: "shopsMan") { shopsMan, error in
+            guard let shopsMan = shopsMan, error == nil else {
+                self.caughtError = error
                 return
             }
             self.serviceFB.shops?["Man"] = shopsMan
@@ -1124,8 +1138,9 @@ extension HomeFirebaseService: HomeModelInput {
         }
         
         pathsTotalListener.append("shopsWoman")
-        shopsService.fetchShops(path: "shopsWoman") { shopsWoman in
-            guard let shopsWoman = shopsWoman else {
+        shopsService.fetchShops(path: "shopsWoman") { shopsWoman, error in
+            guard let shopsWoman = shopsWoman, error == nil else {
+                self.caughtError = error
                 return
             }
             self.serviceFB.shops?["Woman"] = shopsWoman
@@ -1134,8 +1149,9 @@ extension HomeFirebaseService: HomeModelInput {
         
         /// в модель для MapView подготовим в VC
         pathsTotalListener.append("pinMals")
-        pinService.fetchPin(path: "pinMals") { pins in
-            guard let pins = pins else {
+        pinService.fetchPin(path: "pinMals") { pins, error in
+            guard let pins = pins, error == nil else {
+                self.caughtError = error
                 return
             }
             self.serviceFB.pinMall = pins
@@ -1153,20 +1169,20 @@ extension HomeFirebaseService: HomeModelInput {
 class PreviewCloudFirestoreService {
     
     
-    func fetchPreviewSection(path: String, completion: @escaping ([PreviewSectionNew]?) -> Void) {
+    func fetchPreviewSection(path: String, completion: @escaping ([PreviewSectionNew]?, Error?) -> Void) {
         
         FirebaseService.shared.fetchStartCollection(for: path) { documents, error in
-            guard let documents = documents else {
-                completion(nil)
+            guard let documents = documents, error == nil else {
+                completion(nil, error)
                 return
             }
             
             do {
                 let response = try FetchPreviewDataResponse(documents: documents)
-                completion(response.items)
+                completion(response.items, nil)
             } catch {
                 //                ManagerFB.shared.CrashlyticsMethod
-                completion(nil)
+                completion(nil, error)
             }
             
         }
@@ -1202,20 +1218,20 @@ struct FetchPreviewDataResponse {
 class ProductCloudFirestoreService {
    
     
-    func fetchProducts(path: String, completion: @escaping ([ProductItemNew]?) -> Void) {
+    func fetchProducts(path: String, completion: @escaping ([ProductItemNew]?, Error?) -> Void) {
         
         FirebaseService.shared.fetchStartCollection(for: path) { documents, error in
-            guard let documents = documents else {
-                completion(nil)
+            guard let documents = documents, error == nil else {
+                completion(nil, error)
                 return
             }
             
             do {
                 let response = try FetchProductsDataResponse(documents: documents)
-                completion(response.items)
+                completion(response.items, nil)
             } catch {
 //                ManagerFB.shared.CrashlyticsMethod
-                completion(nil)
+                completion(nil, error)
             }
             
         }
@@ -1252,20 +1268,20 @@ struct FetchProductsDataResponse {
 
 class ShopsCloudFirestoreService {
     
-    func fetchShops(path: String, completion: @escaping ([ShopNew]?) -> Void) {
+    func fetchShops(path: String, completion: @escaping ([ShopNew]?, Error?) -> Void) {
         
         FirebaseService.shared.fetchStartCollection(for: path) { documents, error in
-            guard let documents = documents else {
-                completion(nil)
+            guard let documents = documents, error == nil else {
+                completion(nil, error)
                 return
             }
             
             do {
                 let response = try FetchShopDataResponse(documents: documents)
-                completion(response.items)
+                completion(response.items, nil)
             } catch {
 //                ManagerFB.shared.CrashlyticsMethod
-                completion(nil)
+                completion(nil, error)
             }
             
         }
@@ -1300,20 +1316,20 @@ struct FetchShopDataResponse {
 
 class PinCloudFirestoreService {
     
-    func fetchPin(path: String, completion: @escaping ([PinNew]?) -> Void) {
+    func fetchPin(path: String, completion: @escaping ([PinNew]?, Error?) -> Void) {
         
         FirebaseService.shared.fetchStartCollection(for: path) { documents, error in
-            guard let documents = documents else {
-                completion(nil)
+            guard let documents = documents, error == nil else {
+                completion(nil, error)
                 return
             }
             
             do {
                 let response = try FetchPinDataResponse(documents: documents)
-                completion(response.items)
+                completion(response.items, nil)
             } catch {
 //                ManagerFB.shared.CrashlyticsMethod
-                completion(nil)
+                completion(nil, error)
             }
             
         }
@@ -1525,7 +1541,7 @@ extension CatalogFirebaseService: CatalogModelInput {
         
         group.enter()
         // так мы перезаписывем previeMall(добавляем catalogMalls в cloudFirestore) а вдруг у нас будет банер рекламный на previewMall? :) на HomeVC + gender под вопросом
-        previewService.fetchPreviewSection(path: "\(collectionPath)\(gender)") { items in
+        previewService.fetchPreviewSection(path: "\(collectionPath)\(gender)") { items, error in
             guard let items = items else {
                 return
             }
