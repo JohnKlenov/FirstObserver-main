@@ -972,6 +972,112 @@ class HomeFirebaseService {
         }
     }
     
+    //            let items = self.createItem(malls: malls, shops: nil, products: nil)
+    //            let mallSection = SectionModelNew(section: "Malls", items: items)
+    //
+    //            guard let _ = self.data?.model?["A"] else {
+    //                if error == nil, let _ = malls {
+    //                    self.data?.model?["A"] = mallSection
+    //                    self.semaphore.signal()
+    //                } else {
+    //                    self.caughtError = error
+    //                    self.semaphore.signal()
+    //                }
+    //                return
+    //            }
+    //
+    //            guard let _ = malls, error == nil else {
+    //                return
+    //            }
+    //
+    //            self.data?.model?["A"] = mallSection
+    
+    //    func handleErrorAndSignal(_ error: Error) {
+    //        caughtError = error
+    //        semaphore.signal()
+    //    }
+    //    func handleErrorAndSignal(_ error: Error?) {
+    //        errors.append(error)
+    //        semaphore.signal()
+    //    }
+    
+    
+    // MARK: Semaphore
+    
+    
+    let semaphore = DispatchSemaphore(value: 0)
+    var data:BunchData?
+    var errors: [Error?] = []
+    
+
+    func firstError(in errors: [Error?]) -> Error? {
+        return errors.compactMap { $0 }.first
+    }
+    
+    
+    func semaphoreMethods() {
+        data = BunchData()
+        
+        DispatchQueue.global().async {
+            self.getOtherData()
+            self.getGenderData()
+        }
+    }
+    
+    func getGenderData() {
+        
+        previewService.fetchPreviewSection(path: "previewMalls\(gender)") { malls, error in
+            
+            let items = self.createItem(malls: malls, shops: nil, products: nil)
+            let mallSection = SectionModelNew(section: "Malls", items: items)
+            self.errors.append(error)
+            
+            guard let _ = self.data?.model?["A"] else {
+                self.data?.model?["A"] = mallSection
+                self.semaphore.signal()
+                return
+            }
+            
+            self.data?.model?["A"] = mallSection
+        }
+        semaphore.wait()
+        
+        previewService.fetchPreviewSection(path: "previewShops\(gender)") { shops, error in
+            self.semaphore.signal()
+        }
+        semaphore.wait()
+        
+        productService.fetchProducts(path: "popularProducts\(gender)") { products, error in
+            self.semaphore.signal()
+        }
+        semaphore.wait()
+        
+        DispatchQueue.main.async {
+               // Обновите UI здесь...
+            let firstError = self.firstError(in: self.errors)
+            // output.updateData(self.bunchData?.model, firstError)
+           }
+    }
+    
+    func getOtherData() {
+        
+        shopsService.fetchShops(path: "shopsMan") { shopsMan, error in
+            self.semaphore.signal()
+        }
+        semaphore.wait()
+        
+        shopsService.fetchShops(path: "shopsWoman") { shopsWoman, error in
+            self.semaphore.signal()
+        }
+        semaphore.wait()
+        
+        pinService.fetchPin(path: "pinMals") { pins, error in
+            self.semaphore.signal()
+        }
+        semaphore.wait()
+    }
+    
+    
 }
 
 extension HomeFirebaseService: HomeModelInput {
@@ -1023,6 +1129,12 @@ extension HomeFirebaseService: HomeModelInput {
         }
     }
     
+    func handleErrorAndLeaveGroup(_ error: Error) {
+        caughtError = error
+        group.leave()
+    }
+    
+    
     @objc func handleFetchFirstDataNotification(_ notification: NSNotification) {
         fetchGender()
         fetchTotalData()
@@ -1050,17 +1162,20 @@ extension HomeFirebaseService: HomeModelInput {
          fetchGender()
     }
     
-    func fetchGender() {
+    
+     func fetchGender() {
         
-        
+         
+        caughtError = nil
         bunchData = BunchData()
         removeGenderListeners()
         pathsGenderListener = []
         
+        
         pathsGenderListener.append("previewMalls\(gender)")
         previewService.fetchPreviewSection(path: "previewMalls\(gender)") { malls, error in
             guard let malls = malls, error == nil else {
-                self.caughtError = error
+                self.handleErrorAndLeaveGroup(error!)
                 return
             }
             
@@ -1082,7 +1197,7 @@ extension HomeFirebaseService: HomeModelInput {
         previewService.fetchPreviewSection(path: "previewShops\(gender)") { shops, error in
             
             guard let shops = shops, error == nil else {
-                self.caughtError = error
+                self.handleErrorAndLeaveGroup(error!)
                 return
             }
             
@@ -1103,7 +1218,7 @@ extension HomeFirebaseService: HomeModelInput {
         pathsGenderListener.append("popularProducts\(gender)")
         productService.fetchProducts(path: "popularProducts\(gender)") { products, error in
             guard let products = products, error == nil else {
-                self.caughtError = error
+                self.handleErrorAndLeaveGroup(error!)
                 return
             }
             
@@ -1126,11 +1241,10 @@ extension HomeFirebaseService: HomeModelInput {
         
         removeTotalListener()
         pathsTotalListener = []
-        
         pathsTotalListener.append("shopsMan")
         shopsService.fetchShops(path: "shopsMan") { shopsMan, error in
             guard let shopsMan = shopsMan, error == nil else {
-                self.caughtError = error
+                self.handleErrorAndLeaveGroup(error!)
                 return
             }
             self.serviceFB.shops?["Man"] = shopsMan
@@ -1140,7 +1254,7 @@ extension HomeFirebaseService: HomeModelInput {
         pathsTotalListener.append("shopsWoman")
         shopsService.fetchShops(path: "shopsWoman") { shopsWoman, error in
             guard let shopsWoman = shopsWoman, error == nil else {
-                self.caughtError = error
+                self.handleErrorAndLeaveGroup(error!)
                 return
             }
             self.serviceFB.shops?["Woman"] = shopsWoman
@@ -1151,7 +1265,7 @@ extension HomeFirebaseService: HomeModelInput {
         pathsTotalListener.append("pinMals")
         pinService.fetchPin(path: "pinMals") { pins, error in
             guard let pins = pins, error == nil else {
-                self.caughtError = error
+                self.handleErrorAndLeaveGroup(error!)
                 return
             }
             self.serviceFB.pinMall = pins
@@ -1163,6 +1277,12 @@ extension HomeFirebaseService: HomeModelInput {
         serviceFB.removeStateDidChangeListener()
         serviceFB.observeUserAndCardProducts()
     }
+    
+    
+    
+    
+    
+    
     
 }
 
@@ -1188,9 +1308,7 @@ class PreviewCloudFirestoreService {
         }
     }
     
-    //    static func removeListeners(for path: String) {
-    //        ManagerFB.shared.removeListeners(for: path)
-    //    }
+    
 }
 
 struct FetchPreviewDataResponse {
