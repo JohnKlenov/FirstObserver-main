@@ -673,7 +673,7 @@ final class FirebaseService {
 // Протокол для модели данных
 protocol HomeModelInput: AnyObject {
     func fetchGenderData()
-    func fetchDataSource(completion: @escaping ([String:SectionModelNew]?) -> Void)
+    func fetchDataSource()
     func firstFetchData()
     func isSwitchGender(completion: @escaping () -> Void)
     func setGender(gender:String)
@@ -686,6 +686,7 @@ protocol HomeModelInput: AnyObject {
 
 // Протокол для обработки полученных данных
 protocol HomeModelOutput:AnyObject {
+    func updateData(data: [String:SectionModelNew]?, error: Error?)
 //    func startSpiner()
 //    func stopSpiner()
 //    func disableControls()
@@ -734,29 +735,29 @@ class AbstractHomeViewController: PlaceholderNavigationController {
         startLoad()
         homeModel = HomeFirebaseService(output: self)
         
-        homeModel?.fetchDataSource(completion: { homeDataSource in
-            self.stopLoad()
-            guard let homeDataSource = homeDataSource else {
-                
-                switch self.stateDataSource {
-                case .firstStart:
-                    self.navController?.showPlaceholder()
-                    self.showErrorAlert(message: "", state: self.stateDataSource) {
-                        self.repeatedFetchData()
-                    }
-                case .fetchGender:
-                    self.showErrorAlert(message: "", state: self.stateDataSource) {
-                        self.repeatedFetchData()
-                    }
-                }
-                return
-            }
-            self.navController?.hiddenPlaceholder()
-            self.stateDataSource = .fetchGender
-            // при переходе на mallVC, shopVC
-            self.homeModel?.updateModelGender()
-            self.homeDataSource = homeDataSource
-        })
+//        homeModel?.fetchDataSource(completion: { homeDataSource in
+//            self.stopLoad()
+//            guard let homeDataSource = homeDataSource else {
+//
+//                switch self.stateDataSource {
+//                case .firstStart:
+//                    self.navController?.showPlaceholder()
+//                    self.showErrorAlert(message: "", state: self.stateDataSource) {
+//                        self.repeatedFetchData()
+//                    }
+//                case .fetchGender:
+//                    self.showErrorAlert(message: "", state: self.stateDataSource) {
+//                        self.repeatedFetchData()
+//                    }
+//                }
+//                return
+//            }
+//            self.navController?.hiddenPlaceholder()
+//            self.stateDataSource = .fetchGender
+//            // при переходе на mallVC, shopVC
+//            self.homeModel?.updateModelGender()
+//            self.homeDataSource = homeDataSource
+//        })
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -827,6 +828,11 @@ class AbstractHomeViewController: PlaceholderNavigationController {
 
 
 extension AbstractHomeViewController:HomeModelOutput {
+    
+    func updateData(data: [String:SectionModelNew]?, error: Error?) {
+        stopLoad()
+    }
+    
  
 }
 
@@ -914,6 +920,58 @@ class HeaderSegmentedControlView: UICollectionReusableView {
 //        // Обработать ошибку и значение перечисления
 //    }
 //}
+//            let items = self.createItem(malls: malls, shops: nil, products: nil)
+//            let mallSection = SectionModelNew(section: "Malls", items: items)
+//
+//            guard let _ = self.data?.model?["A"] else {
+//                if error == nil, let _ = malls {
+//                    self.data?.model?["A"] = mallSection
+//                    self.semaphore.signal()
+//                } else {
+//                    self.caughtError = error
+//                    self.semaphore.signal()
+//                }
+//                return
+//            }
+//
+//            guard let _ = malls, error == nil else {
+//                return
+//            }
+//
+//            self.data?.model?["A"] = mallSection
+
+//    func handleErrorAndSignal(_ error: Error) {
+//        caughtError = error
+//        semaphore.signal()
+//    }
+//    func handleErrorAndSignal(_ error: Error?) {
+//        errors.append(error)
+//        semaphore.signal()
+//    }
+
+//    func startTimer() {
+//
+//
+//        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
+//
+//            self.pathsGenderListener.forEach { path in
+//                self.bunchData = nil
+//                self.group.leave()
+//                self.serviceFB.removeListeners(for: path)
+//            }
+//
+//            self.pathsTotalListener.forEach { path in
+//                self.group.leave()
+//                self.serviceFB.removeListeners(for: path)
+//            }
+//        }
+//    }
+//
+//    func stopTimer() {
+//        timer?.invalidate()
+//    }
+
+
 
 // Model
 
@@ -923,14 +981,12 @@ class HomeFirebaseService {
     
     let serviceFB = FirebaseService.shared
     let group = DispatchGroup()
-//    var timer: Timer?
+    
     var pathsGenderListener = [String]()
     var pathsTotalListener = [String]()
     var bunchData:BunchData?
     
     var gender:String = ""
-    var caughtError:Error?
-    
     
     let previewService = PreviewCloudFirestoreService()
     let productService = ProductCloudFirestoreService()
@@ -958,7 +1014,6 @@ class HomeFirebaseService {
         return items
     }
     
-
     
     func removeGenderListeners() {
         pathsGenderListener.forEach { path in
@@ -972,41 +1027,12 @@ class HomeFirebaseService {
         }
     }
     
-    //            let items = self.createItem(malls: malls, shops: nil, products: nil)
-    //            let mallSection = SectionModelNew(section: "Malls", items: items)
-    //
-    //            guard let _ = self.data?.model?["A"] else {
-    //                if error == nil, let _ = malls {
-    //                    self.data?.model?["A"] = mallSection
-    //                    self.semaphore.signal()
-    //                } else {
-    //                    self.caughtError = error
-    //                    self.semaphore.signal()
-    //                }
-    //                return
-    //            }
-    //
-    //            guard let _ = malls, error == nil else {
-    //                return
-    //            }
-    //
-    //            self.data?.model?["A"] = mallSection
-    
-    //    func handleErrorAndSignal(_ error: Error) {
-    //        caughtError = error
-    //        semaphore.signal()
-    //    }
-    //    func handleErrorAndSignal(_ error: Error?) {
-    //        errors.append(error)
-    //        semaphore.signal()
-    //    }
-    
     
     // MARK: Semaphore
     
     
     let semaphore = DispatchSemaphore(value: 0)
-    var data:BunchData? {
+    var dataHome:[String:SectionModelNew]? {
         didSet {
             
         }
@@ -1020,23 +1046,28 @@ class HomeFirebaseService {
     
     
     func semaphoreMethods() {
-        data = BunchData()
+        
         
         DispatchQueue.global().async {
-            self.getOtherData()
+            self.fetchRelatedData()
             self.getGenderData()
         }
     }
     
     func getGenderData() {
         
+        dataHome = [:]
+        removeGenderListeners()
+        pathsGenderListener = []
+        
+        pathsGenderListener.append("previewMalls\(gender)")
         previewService.fetchPreviewSection(path: "previewMalls\(gender)") { malls, error in
             
             let items = self.createItem(malls: malls, shops: nil, products: nil)
             let mallSection = SectionModelNew(section: "Malls", items: items)
             
-            guard let _ = self.data?.model?["A"] else {
-                self.data?.model?["A"] = mallSection
+            guard let _ = self.dataHome?["A"] else {
+                self.dataHome?["A"] = mallSection
                 self.errors.append(error)
                 self.semaphore.signal()
                 return
@@ -1045,18 +1076,19 @@ class HomeFirebaseService {
             guard let _ = malls, error == nil else {
                 return
             }
-            self.data?.model?["A"] = mallSection
+            self.dataHome?["A"] = mallSection
         }
         semaphore.wait()
         
+        pathsGenderListener.append("previewShops\(gender)")
         previewService.fetchPreviewSection(path: "previewShops\(gender)") { shops, error in
             
             let items = self.createItem(malls: nil, shops: shops, products: nil)
             let shopSection = SectionModelNew(section: "Shops", items: items)
             
             
-            guard let _ = self.data?.model?["B"] else {
-                self.data?.model?["B"] = shopSection
+            guard let _ = self.dataHome?["B"] else {
+                self.dataHome?["B"] = shopSection
                 self.errors.append(error)
                 self.semaphore.signal()
                 return
@@ -1064,18 +1096,19 @@ class HomeFirebaseService {
             guard let _ = shops, error == nil else {
                 return
             }
-            self.data?.model?["B"] = shopSection
+            self.dataHome?["B"] = shopSection
         }
         semaphore.wait()
         
+        pathsGenderListener.append("popularProducts\(gender)")
         productService.fetchProducts(path: "popularProducts\(gender)") { products, error in
             
             let items = self.createItem(malls: nil, shops: nil, products: products)
             let productsSection = SectionModelNew(section: "PopularProducts", items: items)
             
             
-            guard let _ = self.data?.model?["C"] else {
-                self.data?.model?["C"] = productsSection
+            guard let _ = self.dataHome?["C"] else {
+                self.dataHome?["C"] = productsSection
                 self.errors.append(error)
                 self.semaphore.signal()
                 return
@@ -1085,7 +1118,7 @@ class HomeFirebaseService {
                 return
             }
 
-            self.data?.model?["C"] = productsSection
+            self.dataHome?["C"] = productsSection
         }
         semaphore.wait()
         
@@ -1093,16 +1126,20 @@ class HomeFirebaseService {
             
             let firstError = self.firstError(in: self.errors)
             self.errors.removeAll()
-            // output.updateData(self.bunchData?.model, firstError)
+            self.output?.updateData(data: self.dataHome, error: firstError)
             guard let _ = firstError else {
                 return
             }
-            self.data = nil
+            self.dataHome = nil
         }
     }
     
-    func getOtherData() {
+    func fetchRelatedData() {
         
+        removeTotalListener()
+        pathsTotalListener = []
+        
+        pathsTotalListener.append("shopsMan")
         shopsService.fetchShops(path: "shopsMan") { shopsMan, error in
             
             guard let _ = self.serviceFB.shops?["Man"] else {
@@ -1119,6 +1156,7 @@ class HomeFirebaseService {
         }
         semaphore.wait()
         
+        pathsTotalListener.append("shopsWoman")
         shopsService.fetchShops(path: "shopsWoman") { shopsWoman, error in
             
             guard let _ = self.serviceFB.shops?["Woman"] else {
@@ -1135,6 +1173,7 @@ class HomeFirebaseService {
         }
         semaphore.wait()
         
+        pathsTotalListener.append("pinMals")
         pinService.fetchPin(path: "pinMals") { pins, error in
             
             guard let _ = self.serviceFB.pinMall else {
@@ -1156,30 +1195,7 @@ class HomeFirebaseService {
 }
 
 extension HomeFirebaseService: HomeModelInput {
-    
-
-//    func startTimer() {
-//
-//
-//        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
-//
-//            self.pathsGenderListener.forEach { path in
-//                self.bunchData = nil
-//                self.group.leave()
-//                self.serviceFB.removeListeners(for: path)
-//            }
-//
-//            self.pathsTotalListener.forEach { path in
-//                self.group.leave()
-//                self.serviceFB.removeListeners(for: path)
-//            }
-//        }
-//    }
-//
-//    func stopTimer() {
-//        timer?.invalidate()
-//    }
-    
+  
     func restartFetchCartProducts() {
         serviceFB.fetchCartProducts()
     }
@@ -1198,42 +1214,23 @@ extension HomeFirebaseService: HomeModelInput {
         }
     }
     
-    func performIterations(_ count: Int) {
-        for _ in 1...count {
-            group.enter()
-        }
-    }
-    
-    func handleErrorAndLeaveGroup(_ error: Error) {
-        caughtError = error
-        group.leave()
-    }
-    
-    
     @objc func handleFetchFirstDataNotification(_ notification: NSNotification) {
-        fetchGender()
-        fetchTotalData()
+//        fetchGender()
+//        fetchTotalData()
     }
    
-    func fetchDataSource(completion: @escaping ([String : SectionModelNew]?) -> Void) {
-        
-        performIterations(6)
+    func fetchDataSource() {
         observeUserAndCardProducts()
-        
-        /// notify без group.enter() блок будет выполнен немедленно
-        group.notify(queue: .main) {
-            completion(self.bunchData?.model)
-        }
     }
     
     func firstFetchData() {
-        performIterations(6)
+//        performIterations(6)
         fetchGender()
         fetchTotalData()
     }
     
     func fetchGenderData() {
-        performIterations(3)
+//        performIterations(3)
          fetchGender()
     }
     
@@ -1241,16 +1238,18 @@ extension HomeFirebaseService: HomeModelInput {
      func fetchGender() {
         
          
-        caughtError = nil
+//        caughtError = nil
         bunchData = BunchData()
         removeGenderListeners()
         pathsGenderListener = []
         
+         
+         
         
         pathsGenderListener.append("previewMalls\(gender)")
         previewService.fetchPreviewSection(path: "previewMalls\(gender)") { malls, error in
             guard let malls = malls, error == nil else {
-                self.handleErrorAndLeaveGroup(error!)
+//                self.handleErrorAndLeaveGroup(error!)
                 return
             }
             
@@ -1272,7 +1271,7 @@ extension HomeFirebaseService: HomeModelInput {
         previewService.fetchPreviewSection(path: "previewShops\(gender)") { shops, error in
             
             guard let shops = shops, error == nil else {
-                self.handleErrorAndLeaveGroup(error!)
+//                self.handleErrorAndLeaveGroup(error!)
                 return
             }
             
@@ -1293,7 +1292,7 @@ extension HomeFirebaseService: HomeModelInput {
         pathsGenderListener.append("popularProducts\(gender)")
         productService.fetchProducts(path: "popularProducts\(gender)") { products, error in
             guard let products = products, error == nil else {
-                self.handleErrorAndLeaveGroup(error!)
+//                self.handleErrorAndLeaveGroup(error!)
                 return
             }
             
@@ -1316,10 +1315,11 @@ extension HomeFirebaseService: HomeModelInput {
         
         removeTotalListener()
         pathsTotalListener = []
+        
         pathsTotalListener.append("shopsMan")
         shopsService.fetchShops(path: "shopsMan") { shopsMan, error in
             guard let shopsMan = shopsMan, error == nil else {
-                self.handleErrorAndLeaveGroup(error!)
+//                self.handleErrorAndLeaveGroup(error!)
                 return
             }
             self.serviceFB.shops?["Man"] = shopsMan
@@ -1329,7 +1329,7 @@ extension HomeFirebaseService: HomeModelInput {
         pathsTotalListener.append("shopsWoman")
         shopsService.fetchShops(path: "shopsWoman") { shopsWoman, error in
             guard let shopsWoman = shopsWoman, error == nil else {
-                self.handleErrorAndLeaveGroup(error!)
+//                self.handleErrorAndLeaveGroup(error!)
                 return
             }
             self.serviceFB.shops?["Woman"] = shopsWoman
@@ -1340,7 +1340,7 @@ extension HomeFirebaseService: HomeModelInput {
         pathsTotalListener.append("pinMals")
         pinService.fetchPin(path: "pinMals") { pins, error in
             guard let pins = pins, error == nil else {
-                self.handleErrorAndLeaveGroup(error!)
+//                self.handleErrorAndLeaveGroup(error!)
                 return
             }
             self.serviceFB.pinMall = pins
