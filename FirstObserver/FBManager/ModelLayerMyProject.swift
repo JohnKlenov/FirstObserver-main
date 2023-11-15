@@ -1006,7 +1006,11 @@ class HomeFirebaseService {
     
     
     let semaphore = DispatchSemaphore(value: 0)
-    var data:BunchData?
+    var data:BunchData? {
+        didSet {
+            
+        }
+    }
     var errors: [Error?] = []
     
 
@@ -1030,49 +1034,120 @@ class HomeFirebaseService {
             
             let items = self.createItem(malls: malls, shops: nil, products: nil)
             let mallSection = SectionModelNew(section: "Malls", items: items)
-            self.errors.append(error)
             
             guard let _ = self.data?.model?["A"] else {
                 self.data?.model?["A"] = mallSection
+                self.errors.append(error)
                 self.semaphore.signal()
                 return
             }
             
+            guard let _ = malls, error == nil else {
+                return
+            }
             self.data?.model?["A"] = mallSection
         }
         semaphore.wait()
         
         previewService.fetchPreviewSection(path: "previewShops\(gender)") { shops, error in
-            self.semaphore.signal()
+            
+            let items = self.createItem(malls: nil, shops: shops, products: nil)
+            let shopSection = SectionModelNew(section: "Shops", items: items)
+            
+            
+            guard let _ = self.data?.model?["B"] else {
+                self.data?.model?["B"] = shopSection
+                self.errors.append(error)
+                self.semaphore.signal()
+                return
+            }
+            guard let _ = shops, error == nil else {
+                return
+            }
+            self.data?.model?["B"] = shopSection
         }
         semaphore.wait()
         
         productService.fetchProducts(path: "popularProducts\(gender)") { products, error in
-            self.semaphore.signal()
+            
+            let items = self.createItem(malls: nil, shops: nil, products: products)
+            let productsSection = SectionModelNew(section: "PopularProducts", items: items)
+            
+            
+            guard let _ = self.data?.model?["C"] else {
+                self.data?.model?["C"] = productsSection
+                self.errors.append(error)
+                self.semaphore.signal()
+                return
+            }
+            
+            guard let _ = products, error == nil else {
+                return
+            }
+
+            self.data?.model?["C"] = productsSection
         }
         semaphore.wait()
         
         DispatchQueue.main.async {
-               // Обновите UI здесь...
+            
             let firstError = self.firstError(in: self.errors)
+            self.errors.removeAll()
             // output.updateData(self.bunchData?.model, firstError)
-           }
+            guard let _ = firstError else {
+                return
+            }
+            self.data = nil
+        }
     }
     
     func getOtherData() {
         
         shopsService.fetchShops(path: "shopsMan") { shopsMan, error in
-            self.semaphore.signal()
+            
+            guard let _ = self.serviceFB.shops?["Man"] else {
+                self.serviceFB.shops?["Man"] = shopsMan
+                self.errors.append(error)
+                self.semaphore.signal()
+                return
+            }
+            guard let shopsMan = shopsMan, error == nil else {
+                return
+            }
+            
+            self.serviceFB.shops?["Man"] = shopsMan
         }
         semaphore.wait()
         
         shopsService.fetchShops(path: "shopsWoman") { shopsWoman, error in
-            self.semaphore.signal()
+            
+            guard let _ = self.serviceFB.shops?["Woman"] else {
+                self.serviceFB.shops?["Woman"] = shopsWoman
+                self.errors.append(error)
+                self.semaphore.signal()
+                return
+            }
+            guard let shopsWoman = shopsWoman, error == nil else {
+                return
+            }
+            
+            self.serviceFB.shops?["Woman"] = shopsWoman
         }
         semaphore.wait()
         
         pinService.fetchPin(path: "pinMals") { pins, error in
-            self.semaphore.signal()
+            
+            guard let _ = self.serviceFB.pinMall else {
+                self.serviceFB.pinMall = pins
+                self.errors.append(error)
+                self.semaphore.signal()
+                return
+            }
+            
+            guard let pins = pins, error == nil else {
+                return
+            }
+            self.serviceFB.pinMall = pins
         }
         semaphore.wait()
     }
