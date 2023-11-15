@@ -735,29 +735,6 @@ class AbstractHomeViewController: PlaceholderNavigationController {
         startLoad()
         homeModel = HomeFirebaseService(output: self)
         
-//        homeModel?.fetchDataSource(completion: { homeDataSource in
-//            self.stopLoad()
-//            guard let homeDataSource = homeDataSource else {
-//
-//                switch self.stateDataSource {
-//                case .firstStart:
-//                    self.navController?.showPlaceholder()
-//                    self.showErrorAlert(message: "", state: self.stateDataSource) {
-//                        self.repeatedFetchData()
-//                    }
-//                case .fetchGender:
-//                    self.showErrorAlert(message: "", state: self.stateDataSource) {
-//                        self.repeatedFetchData()
-//                    }
-//                }
-//                return
-//            }
-//            self.navController?.hiddenPlaceholder()
-//            self.stateDataSource = .fetchGender
-//            // при переходе на mallVC, shopVC
-//            self.homeModel?.updateModelGender()
-//            self.homeDataSource = homeDataSource
-//        })
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -831,6 +808,49 @@ extension AbstractHomeViewController:HomeModelOutput {
     
     func updateData(data: [String:SectionModelNew]?, error: Error?) {
         stopLoad()
+        
+        switch self.stateDataSource {
+            
+        case .firstStart:
+            guard let error = error else {
+                self.navController?.hiddenPlaceholder()
+                self.stateDataSource = .fetchGender
+//                self.homeDataSource = data
+                return
+            }
+            self.navController?.showPlaceholder()
+            self.showErrorAlert(message: error.localizedDescription, state: self.stateDataSource) {
+                self.homeModel?.firstFetchData()
+            }
+        case .fetchGender:
+            <#code#>
+        }
+       
+        
+ 
+//                homeModel?.fetchDataSource(completion: { homeDataSource in
+//                    self.stopLoad()
+//                    guard let homeDataSource = homeDataSource else {
+//
+//                        switch self.stateDataSource {
+//                        case .firstStart:
+//                            self.navController?.showPlaceholder()
+//                            self.showErrorAlert(message: "", state: self.stateDataSource) {
+//                                self.repeatedFetchData()
+//                            }
+//                        case .fetchGender:
+//                            self.showErrorAlert(message: "", state: self.stateDataSource) {
+//                                self.repeatedFetchData()
+//                            }
+//                        }
+//                        return
+//                    }
+//                    self.navController?.hiddenPlaceholder()
+//                    self.stateDataSource = .fetchGender
+//                    // при переходе на mallVC, shopVC
+//                    self.homeModel?.updateModelGender()
+//                    self.homeDataSource = homeDataSource
+//                })
     }
     
  
@@ -1094,14 +1114,14 @@ class HomeFirebaseService {
     let semaphore = DispatchSemaphore(value: 0)
     
     var pathsGenderListener = [String]()
-    var pathsTotalListener = [String]()
+    var pathsRelatedListener = [String]()
     
     var dataHome:[String:SectionModelNew]? {
         didSet {
             
         }
     }
-    var errors: [Error?] = []
+    var firstErrors: [Error?] = []
     
     var gender:String = ""
     
@@ -1137,10 +1157,25 @@ class HomeFirebaseService {
         }
     }
     
-    func removeTotalListener() {
-        pathsTotalListener.forEach { path in
+    func removeRelatedListeners() {
+        pathsRelatedListener.forEach { path in
             self.serviceFB.removeListeners(for: path)
         }
+    }
+    
+    func deleteGenderListeners() {
+        removeGenderListeners()
+        pathsGenderListener = []
+    }
+    
+    func deleteRelatedListeners() {
+        removeRelatedListeners()
+        pathsRelatedListener = []
+    }
+    
+    func deleteAllListeners() {
+        deleteGenderListeners()
+        deleteRelatedListeners()
     }
     
     func firstError(in errors: [Error?]) -> Error? {
@@ -1187,8 +1222,7 @@ extension HomeFirebaseService: HomeModelInput {
     func fetchGenderData() {
         
         dataHome = [:]
-        removeGenderListeners()
-        pathsGenderListener = []
+        deleteGenderListeners()
         
         pathsGenderListener.append("previewMalls\(gender)")
         previewService.fetchPreviewSection(path: "previewMalls\(gender)") { malls, error in
@@ -1198,7 +1232,7 @@ extension HomeFirebaseService: HomeModelInput {
             
             guard let _ = self.dataHome?["A"] else {
                 self.dataHome?["A"] = mallSection
-                self.errors.append(error)
+                self.firstErrors.append(error)
                 self.semaphore.signal()
                 return
             }
@@ -1219,7 +1253,7 @@ extension HomeFirebaseService: HomeModelInput {
             
             guard let _ = self.dataHome?["B"] else {
                 self.dataHome?["B"] = shopSection
-                self.errors.append(error)
+                self.firstErrors.append(error)
                 self.semaphore.signal()
                 return
             }
@@ -1239,7 +1273,7 @@ extension HomeFirebaseService: HomeModelInput {
             
             guard let _ = self.dataHome?["C"] else {
                 self.dataHome?["C"] = productsSection
-                self.errors.append(error)
+                self.firstErrors.append(error)
                 self.semaphore.signal()
                 return
             }
@@ -1254,27 +1288,27 @@ extension HomeFirebaseService: HomeModelInput {
         
         DispatchQueue.main.async {
             
-            let firstError = self.firstError(in: self.errors)
-            self.errors.removeAll()
+            let firstError = self.firstError(in: self.firstErrors)
+            self.firstErrors.removeAll()
             self.output?.updateData(data: self.dataHome, error: firstError)
             guard let _ = firstError else {
                 return
             }
+            self.deleteAllListeners()
             self.dataHome = nil
         }
     }
     
     func fetchRelatedData() {
         
-        removeTotalListener()
-        pathsTotalListener = []
+        deleteRelatedListeners()
         
-        pathsTotalListener.append("shopsMan")
+        pathsRelatedListener.append("shopsMan")
         shopsService.fetchShops(path: "shopsMan") { shopsMan, error in
             
             guard let _ = self.serviceFB.shops?["Man"] else {
                 self.serviceFB.shops?["Man"] = shopsMan
-                self.errors.append(error)
+                self.firstErrors.append(error)
                 self.semaphore.signal()
                 return
             }
@@ -1286,12 +1320,12 @@ extension HomeFirebaseService: HomeModelInput {
         }
         semaphore.wait()
         
-        pathsTotalListener.append("shopsWoman")
+        pathsRelatedListener.append("shopsWoman")
         shopsService.fetchShops(path: "shopsWoman") { shopsWoman, error in
             
             guard let _ = self.serviceFB.shops?["Woman"] else {
                 self.serviceFB.shops?["Woman"] = shopsWoman
-                self.errors.append(error)
+                self.firstErrors.append(error)
                 self.semaphore.signal()
                 return
             }
@@ -1303,12 +1337,12 @@ extension HomeFirebaseService: HomeModelInput {
         }
         semaphore.wait()
         
-        pathsTotalListener.append("pinMals")
+        pathsRelatedListener.append("pinMals")
         pinService.fetchPin(path: "pinMals") { pins, error in
             
             guard let _ = self.serviceFB.pinMall else {
                 self.serviceFB.pinMall = pins
-                self.errors.append(error)
+                self.firstErrors.append(error)
                 self.semaphore.signal()
                 return
             }
