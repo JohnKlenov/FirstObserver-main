@@ -970,7 +970,118 @@ class HeaderSegmentedControlView: UICollectionReusableView {
 //    func stopTimer() {
 //        timer?.invalidate()
 //    }
-
+//func fetchGender() {
+//
+//
+////        caughtError = nil
+//        bunchData = BunchData()
+//        removeGenderListeners()
+//        pathsGenderListener = []
+//
+//
+//
+//
+//        pathsGenderListener.append("previewMalls\(gender)")
+//        previewService.fetchPreviewSection(path: "previewMalls\(gender)") { malls, error in
+//            guard let malls = malls, error == nil else {
+////                self.handleErrorAndLeaveGroup(error!)
+//                return
+//            }
+//
+//            let items = self.createItem(malls: malls, shops: nil, products: nil)
+//            let mallSection = SectionModelNew(section: "Malls", items: items)
+//
+//            guard let _ = self.bunchData?.model?["A"] else {
+//                self.bunchData?.model?["A"] = mallSection
+//                self.group.leave()
+//                return
+//            }
+//
+//            self.group.enter()
+//            self.bunchData?.model?["A"] = mallSection
+//            self.group.leave()
+//        }
+//
+//        pathsGenderListener.append("previewShops\(gender)")
+//        previewService.fetchPreviewSection(path: "previewShops\(gender)") { shops, error in
+//
+//            guard let shops = shops, error == nil else {
+////                self.handleErrorAndLeaveGroup(error!)
+//                return
+//            }
+//
+//            let items = self.createItem(malls: nil, shops: shops, products: nil)
+//            let shopSection = SectionModelNew(section: "Shops", items: items)
+//
+//            guard let _ = self.bunchData?.model?["B"] else {
+//                self.bunchData?.model?["B"] = shopSection
+//                self.group.leave()
+//                return
+//            }
+//
+//            self.group.enter()
+//            self.bunchData?.model?["B"] = shopSection
+//            self.group.leave()
+//        }
+//
+//        pathsGenderListener.append("popularProducts\(gender)")
+//        productService.fetchProducts(path: "popularProducts\(gender)") { products, error in
+//            guard let products = products, error == nil else {
+////                self.handleErrorAndLeaveGroup(error!)
+//                return
+//            }
+//
+//            let items = self.createItem(malls: nil, shops: nil, products: products)
+//            let productsSection = SectionModelNew(section: "PopularProducts", items: items)
+//
+//            guard let _ = self.bunchData?.model?["C"] else {
+//                self.bunchData?.model?["C"] = productsSection
+//                self.group.leave()
+//                return
+//            }
+//            self.group.enter()
+//            self.bunchData?.model?["C"] = productsSection
+//            self.group.leave()
+//        }
+//    }
+//
+//    // а что если в момент fetchGenderData() (нажмем segmentControlVC) сработает наблюдатель в fetchTotalData()
+//    func fetchTotalData() {
+//
+//        removeTotalListener()
+//        pathsTotalListener = []
+//
+//        pathsTotalListener.append("shopsMan")
+//        shopsService.fetchShops(path: "shopsMan") { shopsMan, error in
+//            guard let shopsMan = shopsMan, error == nil else {
+////                self.handleErrorAndLeaveGroup(error!)
+//                return
+//            }
+//            self.serviceFB.shops?["Man"] = shopsMan
+//            self.group.leave()
+//        }
+//
+//        pathsTotalListener.append("shopsWoman")
+//        shopsService.fetchShops(path: "shopsWoman") { shopsWoman, error in
+//            guard let shopsWoman = shopsWoman, error == nil else {
+////                self.handleErrorAndLeaveGroup(error!)
+//                return
+//            }
+//            self.serviceFB.shops?["Woman"] = shopsWoman
+//            self.group.leave()
+//        }
+//
+//        /// в модель для MapView подготовим в VC
+//        pathsTotalListener.append("pinMals")
+//        pinService.fetchPin(path: "pinMals") { pins, error in
+//            guard let pins = pins, error == nil else {
+////                self.handleErrorAndLeaveGroup(error!)
+//                return
+//            }
+//            self.serviceFB.pinMall = pins
+//            self.group.leave()
+//        }
+//    }
 
 
 // Model
@@ -980,11 +1091,17 @@ class HomeFirebaseService {
     weak var output: HomeModelOutput?
     
     let serviceFB = FirebaseService.shared
-    let group = DispatchGroup()
+    let semaphore = DispatchSemaphore(value: 0)
     
     var pathsGenderListener = [String]()
     var pathsTotalListener = [String]()
-    var bunchData:BunchData?
+    
+    var dataHome:[String:SectionModelNew]? {
+        didSet {
+            
+        }
+    }
+    var errors: [Error?] = []
     
     var gender:String = ""
     
@@ -1014,7 +1131,6 @@ class HomeFirebaseService {
         return items
     }
     
-    
     func removeGenderListeners() {
         pathsGenderListener.forEach { path in
             self.serviceFB.removeListeners(for: path)
@@ -1027,34 +1143,48 @@ class HomeFirebaseService {
         }
     }
     
-    
-    // MARK: Semaphore
-    
-    
-    let semaphore = DispatchSemaphore(value: 0)
-    var dataHome:[String:SectionModelNew]? {
-        didSet {
-            
-        }
-    }
-    var errors: [Error?] = []
-    
-
     func firstError(in errors: [Error?]) -> Error? {
         return errors.compactMap { $0 }.first
     }
+}
+
+extension HomeFirebaseService: HomeModelInput {
+  
+    func restartFetchCartProducts() {
+        serviceFB.fetchCartProducts()
+    }
     
+    func setGender(gender: String) {
+        serviceFB.setGender(gender: gender)
+    }
     
-    func semaphoreMethods() {
-        
-        
-        DispatchQueue.global().async {
-            self.fetchRelatedData()
-            self.getGenderData()
+    func updateModelGender() {
+        gender = serviceFB.currentGender
+    }
+    
+    func isSwitchGender(completion: @escaping () -> Void) {
+        if gender != serviceFB.currentGender {
+            completion()
         }
     }
     
-    func getGenderData() {
+    @objc func handleFetchFirstDataNotification(_ notification: NSNotification) {
+        firstFetchData()
+    }
+   
+    func fetchDataSource() {
+        observeUserAndCardProducts()
+    }
+    
+    func firstFetchData() {
+        
+        DispatchQueue.global().async {
+            self.fetchRelatedData()
+            self.fetchGenderData()
+        }
+    }
+    
+    func fetchGenderData() {
         
         dataHome = [:]
         removeGenderListeners()
@@ -1189,163 +1319,6 @@ class HomeFirebaseService {
             self.serviceFB.pinMall = pins
         }
         semaphore.wait()
-    }
-    
-    
-}
-
-extension HomeFirebaseService: HomeModelInput {
-  
-    func restartFetchCartProducts() {
-        serviceFB.fetchCartProducts()
-    }
-    
-    func setGender(gender: String) {
-        serviceFB.setGender(gender: gender)
-    }
-    
-    func updateModelGender() {
-        gender = serviceFB.currentGender
-    }
-    
-    func isSwitchGender(completion: @escaping () -> Void) {
-        if gender != serviceFB.currentGender {
-            completion()
-        }
-    }
-    
-    @objc func handleFetchFirstDataNotification(_ notification: NSNotification) {
-//        fetchGender()
-//        fetchTotalData()
-    }
-   
-    func fetchDataSource() {
-        observeUserAndCardProducts()
-    }
-    
-    func firstFetchData() {
-//        performIterations(6)
-        fetchGender()
-        fetchTotalData()
-    }
-    
-    func fetchGenderData() {
-//        performIterations(3)
-         fetchGender()
-    }
-    
-    
-     func fetchGender() {
-        
-         
-//        caughtError = nil
-        bunchData = BunchData()
-        removeGenderListeners()
-        pathsGenderListener = []
-        
-         
-         
-        
-        pathsGenderListener.append("previewMalls\(gender)")
-        previewService.fetchPreviewSection(path: "previewMalls\(gender)") { malls, error in
-            guard let malls = malls, error == nil else {
-//                self.handleErrorAndLeaveGroup(error!)
-                return
-            }
-            
-            let items = self.createItem(malls: malls, shops: nil, products: nil)
-            let mallSection = SectionModelNew(section: "Malls", items: items)
-            
-            guard let _ = self.bunchData?.model?["A"] else {
-                self.bunchData?.model?["A"] = mallSection
-                self.group.leave()
-                return
-            }
-            
-            self.group.enter()
-            self.bunchData?.model?["A"] = mallSection
-            self.group.leave()
-        }
-        
-        pathsGenderListener.append("previewShops\(gender)")
-        previewService.fetchPreviewSection(path: "previewShops\(gender)") { shops, error in
-            
-            guard let shops = shops, error == nil else {
-//                self.handleErrorAndLeaveGroup(error!)
-                return
-            }
-            
-            let items = self.createItem(malls: nil, shops: shops, products: nil)
-            let shopSection = SectionModelNew(section: "Shops", items: items)
-            
-            guard let _ = self.bunchData?.model?["B"] else {
-                self.bunchData?.model?["B"] = shopSection
-                self.group.leave()
-                return
-            }
-            
-            self.group.enter()
-            self.bunchData?.model?["B"] = shopSection
-            self.group.leave()
-        }
-        
-        pathsGenderListener.append("popularProducts\(gender)")
-        productService.fetchProducts(path: "popularProducts\(gender)") { products, error in
-            guard let products = products, error == nil else {
-//                self.handleErrorAndLeaveGroup(error!)
-                return
-            }
-            
-            let items = self.createItem(malls: nil, shops: nil, products: products)
-            let productsSection = SectionModelNew(section: "PopularProducts", items: items)
-            
-            guard let _ = self.bunchData?.model?["C"] else {
-                self.bunchData?.model?["C"] = productsSection
-                self.group.leave()
-                return
-            }
-            self.group.enter()
-            self.bunchData?.model?["C"] = productsSection
-            self.group.leave()
-        }
-    }
-    
-    // а что если в момент fetchGenderData() (нажмем segmentControlVC) сработает наблюдатель в fetchTotalData()
-    func fetchTotalData() {
-        
-        removeTotalListener()
-        pathsTotalListener = []
-        
-        pathsTotalListener.append("shopsMan")
-        shopsService.fetchShops(path: "shopsMan") { shopsMan, error in
-            guard let shopsMan = shopsMan, error == nil else {
-//                self.handleErrorAndLeaveGroup(error!)
-                return
-            }
-            self.serviceFB.shops?["Man"] = shopsMan
-            self.group.leave()
-        }
-        
-        pathsTotalListener.append("shopsWoman")
-        shopsService.fetchShops(path: "shopsWoman") { shopsWoman, error in
-            guard let shopsWoman = shopsWoman, error == nil else {
-//                self.handleErrorAndLeaveGroup(error!)
-                return
-            }
-            self.serviceFB.shops?["Woman"] = shopsWoman
-            self.group.leave()
-        }
-        
-        /// в модель для MapView подготовим в VC
-        pathsTotalListener.append("pinMals")
-        pinService.fetchPin(path: "pinMals") { pins, error in
-            guard let pins = pins, error == nil else {
-//                self.handleErrorAndLeaveGroup(error!)
-                return
-            }
-            self.serviceFB.pinMall = pins
-            self.group.leave()
-        }
     }
     
     func observeUserAndCardProducts() {
