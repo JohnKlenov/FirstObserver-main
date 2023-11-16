@@ -771,14 +771,14 @@ class AbstractHomeViewController: PlaceholderNavigationController {
         })
     }
     
-    func repeatedFetchData() {
-        switch stateDataSource {
-        case .firstStart:
-            homeModel?.firstFetchData()
-        case .fetchGender:
-            homeModel?.fetchGenderData()
-        }
-    }
+//    func repeatedFetchData() {
+//        switch stateDataSource {
+//        case .firstStart:
+//            homeModel?.firstFetchData()
+//        case .fetchGender:
+//            homeModel?.fetchGenderData()
+//        }
+//    }
     
     func startSpiner() {
         navController?.startSpinner()
@@ -825,34 +825,15 @@ extension AbstractHomeViewController:HomeModelOutput {
             self.homeDataSource = data
            
         case .fetchGender:
-            <#code#>
+            guard let data = data, error == nil else {
+                self.showErrorAlert(message: error?.localizedDescription ?? "Something went wrong!", state: self.stateDataSource) {
+                    self.homeModel?.fetchGenderData()
+                }
+                return
+            }
+            self.homeDataSource = data
+            self.homeModel?.updateModelGender()
         }
-       
-        
- 
-//                homeModel?.fetchDataSource(completion: { homeDataSource in
-//                    self.stopLoad()
-//                    guard let homeDataSource = homeDataSource else {
-//
-//                        switch self.stateDataSource {
-//                        case .firstStart:
-//                            self.navController?.showPlaceholder()
-//                            self.showErrorAlert(message: "", state: self.stateDataSource) {
-//                                self.repeatedFetchData()
-//                            }
-//                        case .fetchGender:
-//                            self.showErrorAlert(message: "", state: self.stateDataSource) {
-//                                self.repeatedFetchData()
-//                            }
-//                        }
-//                        return
-//                    }
-//                    self.navController?.hiddenPlaceholder()
-//                    self.stateDataSource = .fetchGender
-//                    // при переходе на mallVC, shopVC
-//                    self.homeModel?.updateModelGender()
-//                    self.homeDataSource = homeDataSource
-//                })
     }
     
  
@@ -1113,7 +1094,8 @@ class HomeFirebaseService {
     weak var output: HomeModelOutput?
     
     let serviceFB = FirebaseService.shared
-    let semaphore = DispatchSemaphore(value: 0)
+    let semaphoreGender = DispatchSemaphore(value: 0)
+    let semaphoreRelate = DispatchSemaphore(value: 0)
     
     var pathsGenderListener = [String]()
     var pathsRelatedListener = [String]()
@@ -1217,12 +1199,18 @@ extension HomeFirebaseService: HomeModelInput {
         
         DispatchQueue.global().async {
             self.fetchRelatedData()
-            self.fetchGenderData()
+            self.fetchGender()
         }
     }
     
     func fetchGenderData() {
-        
+        DispatchQueue.global().async {
+            self.fetchGender()
+        }
+    }
+    
+    func fetchGender() {
+            
         dataHome = [:]
         deleteGenderListeners()
         
@@ -1238,7 +1226,7 @@ extension HomeFirebaseService: HomeModelInput {
                     self.dataHome?["A"] = mallSection
                 }
                 self.firstErrors.append(error)
-                self.semaphore.signal()
+                self.semaphoreGender.signal()
                 return
             }
             
@@ -1247,7 +1235,7 @@ extension HomeFirebaseService: HomeModelInput {
             }
             self.dataHome?["A"] = mallSection
         }
-        semaphore.wait()
+        semaphoreGender.wait()
         
         pathsGenderListener.append("previewShops\(gender)")
         previewService.fetchPreviewSection(path: "previewShops\(gender)") { shops, error in
@@ -1262,7 +1250,7 @@ extension HomeFirebaseService: HomeModelInput {
                     self.dataHome?["B"] = shopSection
                 }
                 self.firstErrors.append(error)
-                self.semaphore.signal()
+                self.semaphoreGender.signal()
                 return
             }
             guard let _ = shops, error == nil else {
@@ -1270,7 +1258,7 @@ extension HomeFirebaseService: HomeModelInput {
             }
             self.dataHome?["B"] = shopSection
         }
-        semaphore.wait()
+        semaphoreGender.wait()
         
         pathsGenderListener.append("popularProducts\(gender)")
         productService.fetchProducts(path: "popularProducts\(gender)") { products, error in
@@ -1285,7 +1273,7 @@ extension HomeFirebaseService: HomeModelInput {
                     self.dataHome?["C"] = productsSection
                 }
                 self.firstErrors.append(error)
-                self.semaphore.signal()
+                self.semaphoreGender.signal()
                 return
             }
             
@@ -1295,7 +1283,8 @@ extension HomeFirebaseService: HomeModelInput {
 
             self.dataHome?["C"] = productsSection
         }
-        semaphore.wait()
+        semaphoreGender.wait()
+        
         
         DispatchQueue.main.async {
             
@@ -1324,7 +1313,7 @@ extension HomeFirebaseService: HomeModelInput {
                     self.serviceFB.shops?["Man"] = shopsMan
                 }
                 self.firstErrors.append(error)
-                self.semaphore.signal()
+                self.semaphoreRelate.signal()
                 return
             }
             guard let shopsMan = shopsMan, error == nil else {
@@ -1333,7 +1322,7 @@ extension HomeFirebaseService: HomeModelInput {
             
             self.serviceFB.shops?["Man"] = shopsMan
         }
-        semaphore.wait()
+        semaphoreRelate.wait()
         
         pathsRelatedListener.append("shopsWoman")
         shopsService.fetchShops(path: "shopsWoman") { shopsWoman, error in
@@ -1343,7 +1332,7 @@ extension HomeFirebaseService: HomeModelInput {
                     self.serviceFB.shops?["Woman"] = shopsWoman
                 }
                 self.firstErrors.append(error)
-                self.semaphore.signal()
+                self.semaphoreRelate.signal()
                 return
             }
             guard let shopsWoman = shopsWoman, error == nil else {
@@ -1352,7 +1341,7 @@ extension HomeFirebaseService: HomeModelInput {
             
             self.serviceFB.shops?["Woman"] = shopsWoman
         }
-        semaphore.wait()
+        semaphoreRelate.wait()
         
         pathsRelatedListener.append("pinMals")
         pinService.fetchPin(path: "pinMals") { pins, error in
@@ -1362,7 +1351,7 @@ extension HomeFirebaseService: HomeModelInput {
                     self.serviceFB.pinMall = pins
                 }
                 self.firstErrors.append(error)
-                self.semaphore.signal()
+                self.semaphoreRelate.signal()
                 return
             }
             
@@ -1371,7 +1360,7 @@ extension HomeFirebaseService: HomeModelInput {
             }
             self.serviceFB.pinMall = pins
         }
-        semaphore.wait()
+        semaphoreRelate.wait()
     }
     
     func observeUserAndCardProducts() {
