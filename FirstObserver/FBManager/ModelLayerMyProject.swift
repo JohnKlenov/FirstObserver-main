@@ -1231,7 +1231,10 @@ extension HomeFirebaseService: HomeModelInput {
             let mallSection = SectionModelNew(section: "Malls", items: items)
             
             guard let _ = self.dataHome?["A"] else {
-                self.dataHome?["A"] = mallSection
+                
+                if let _ = malls, error == nil {
+                    self.dataHome?["A"] = mallSection
+                }
                 self.firstErrors.append(error)
                 self.semaphore.signal()
                 return
@@ -1252,7 +1255,10 @@ extension HomeFirebaseService: HomeModelInput {
             
             
             guard let _ = self.dataHome?["B"] else {
-                self.dataHome?["B"] = shopSection
+                
+                if let _ = shops, error == nil {
+                    self.dataHome?["B"] = shopSection
+                }
                 self.firstErrors.append(error)
                 self.semaphore.signal()
                 return
@@ -1272,7 +1278,10 @@ extension HomeFirebaseService: HomeModelInput {
             
             
             guard let _ = self.dataHome?["C"] else {
-                self.dataHome?["C"] = productsSection
+               
+                if let _ = products, error == nil {
+                    self.dataHome?["C"] = productsSection
+                }
                 self.firstErrors.append(error)
                 self.semaphore.signal()
                 return
@@ -1288,6 +1297,9 @@ extension HomeFirebaseService: HomeModelInput {
         
         DispatchQueue.main.async {
             
+            if self.dataHome?.count != 3 {
+                self.dataHome = nil
+            }
             let firstError = self.firstError(in: self.firstErrors)
             self.firstErrors.removeAll()
             self.output?.updateData(data: self.dataHome, error: firstError)
@@ -1296,6 +1308,8 @@ extension HomeFirebaseService: HomeModelInput {
             }
             self.deleteAllListeners()
             self.dataHome = nil
+            self.serviceFB.shops = nil
+            self.serviceFB.pinMall = nil
         }
     }
     
@@ -1307,7 +1321,9 @@ extension HomeFirebaseService: HomeModelInput {
         shopsService.fetchShops(path: "shopsMan") { shopsMan, error in
             
             guard let _ = self.serviceFB.shops?["Man"] else {
-                self.serviceFB.shops?["Man"] = shopsMan
+                if let shopsMan = shopsMan, error == nil {
+                    self.serviceFB.shops?["Man"] = shopsMan
+                }
                 self.firstErrors.append(error)
                 self.semaphore.signal()
                 return
@@ -1324,7 +1340,9 @@ extension HomeFirebaseService: HomeModelInput {
         shopsService.fetchShops(path: "shopsWoman") { shopsWoman, error in
             
             guard let _ = self.serviceFB.shops?["Woman"] else {
-                self.serviceFB.shops?["Woman"] = shopsWoman
+                if let shopsWoman = shopsWoman, error == nil {
+                    self.serviceFB.shops?["Woman"] = shopsWoman
+                }
                 self.firstErrors.append(error)
                 self.semaphore.signal()
                 return
@@ -1341,7 +1359,9 @@ extension HomeFirebaseService: HomeModelInput {
         pinService.fetchPin(path: "pinMals") { pins, error in
             
             guard let _ = self.serviceFB.pinMall else {
-                self.serviceFB.pinMall = pins
+                if let pins = pins, error == nil {
+                    self.serviceFB.pinMall = pins
+                }
                 self.firstErrors.append(error)
                 self.semaphore.signal()
                 return
