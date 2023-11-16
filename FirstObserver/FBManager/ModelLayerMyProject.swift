@@ -511,14 +511,8 @@ final class FirebaseService {
         }
     }
     
-    func someFunction(completion: ((Bool) -> Void)? = nil) {
-        // Ваш код здесь
-        completion?(true)
-    }
-    
     func updateUser(completion: @escaping (Error?, ListenerErrorState?) -> Void) {
     
-        someFunction()
         userListener { user in
             if let _ = user {
                 // можем делать его пустым currentCartProducts = []
@@ -673,7 +667,7 @@ final class FirebaseService {
 // Протокол для модели данных
 protocol HomeModelInput: AnyObject {
     func fetchGenderData()
-    func fetchDataSource()
+//    func fetchDataSource()
     func firstFetchData()
     func isSwitchGender(completion: @escaping () -> Void)
     func setGender(gender:String)
@@ -734,6 +728,7 @@ class AbstractHomeViewController: PlaceholderNavigationController {
         
         startLoad()
         homeModel = HomeFirebaseService(output: self)
+        homeModel?.observeUserAndCardProducts()
         
     }
     
@@ -743,17 +738,19 @@ class AbstractHomeViewController: PlaceholderNavigationController {
         NotificationCenter.default.addObserver(self, selector: #selector(handleErrorNotification(_:)), name: NSNotification.Name("ErrorNotification"), object: nil)
     }
     
-    ///  work at errors ! and implemintation scenry
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("ErrorNotification"), object: nil)
+    }
+    
     @objc func handleErrorNotification(_ notification: NSNotification) {
-        // срабатывает когда мы visible
-//        if self.isViewLoaded && self.view.window != nil {
-//               // Контроллер видимый, выполняем код
-//           }
+        
         stopLoad()
         if let userInfo = notification.userInfo,
            let error = userInfo["error"] as? NSError,
            let enumValue = userInfo["enumValue"] as? ListenerErrorState {
             showErrorAlert(message: error.localizedDescription, state: self.stateDataSource) {
+                self.startLoad()
                 switch enumValue {
                     
                 case .restartFetchCartProducts:
@@ -816,6 +813,7 @@ extension AbstractHomeViewController:HomeModelOutput {
                 
                 self.navController?.showPlaceholder()
                 self.showErrorAlert(message: error?.localizedDescription ?? "Something went wrong!", state: self.stateDataSource) {
+                    self.startLoad()
                     self.homeModel?.firstFetchData()
                 }
                 return
@@ -827,6 +825,7 @@ extension AbstractHomeViewController:HomeModelOutput {
         case .fetchGender:
             guard let data = data, error == nil else {
                 self.showErrorAlert(message: error?.localizedDescription ?? "Something went wrong!", state: self.stateDataSource) {
+                    self.startLoad()
                     self.homeModel?.fetchGenderData()
                 }
                 return
@@ -1189,10 +1188,6 @@ extension HomeFirebaseService: HomeModelInput {
     
     @objc func handleFetchFirstDataNotification(_ notification: NSNotification) {
         firstFetchData()
-    }
-   
-    func fetchDataSource() {
-        observeUserAndCardProducts()
     }
     
     func firstFetchData() {
