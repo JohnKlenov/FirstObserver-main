@@ -812,16 +812,18 @@ extension AbstractHomeViewController:HomeModelOutput {
         switch self.stateDataSource {
             
         case .firstStart:
-            guard let error = error else {
-                self.navController?.hiddenPlaceholder()
-                self.stateDataSource = .fetchGender
-//                self.homeDataSource = data
+            guard let data = data, error == nil else {
+                
+                self.navController?.showPlaceholder()
+                self.showErrorAlert(message: error?.localizedDescription ?? "Something went wrong!", state: self.stateDataSource) {
+                    self.homeModel?.firstFetchData()
+                }
                 return
             }
-            self.navController?.showPlaceholder()
-            self.showErrorAlert(message: error.localizedDescription, state: self.stateDataSource) {
-                self.homeModel?.firstFetchData()
-            }
+            self.navController?.hiddenPlaceholder()
+            self.stateDataSource = .fetchGender
+            self.homeDataSource = data
+           
         case .fetchGender:
             <#code#>
         }
@@ -1297,19 +1299,16 @@ extension HomeFirebaseService: HomeModelInput {
         
         DispatchQueue.main.async {
             
-            if self.dataHome?.count != 3 {
-                self.dataHome = nil
-            }
             let firstError = self.firstError(in: self.firstErrors)
             self.firstErrors.removeAll()
-            self.output?.updateData(data: self.dataHome, error: firstError)
-            guard let _ = firstError else {
+            
+            guard self.dataHome?.count == 3, firstError == nil else {
+                self.output?.updateData(data: self.dataHome, error: firstError)
+                self.dataHome = nil
+                self.deleteAllListeners()
                 return
             }
-            self.deleteAllListeners()
-            self.dataHome = nil
-            self.serviceFB.shops = nil
-            self.serviceFB.pinMall = nil
+            self.output?.updateData(data: self.dataHome, error: firstError)
         }
     }
     
