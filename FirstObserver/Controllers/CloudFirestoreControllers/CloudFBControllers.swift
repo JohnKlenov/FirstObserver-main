@@ -1951,14 +1951,22 @@ class PlaceholderNavigationController: UINavigationController {
     
     private func setupSpinnerForView() {
         
-        if let view = topViewController?.view {
-            print("topViewController?.view")
-            view.addSubview(activityView)
-            activityView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-            activityView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-            activityView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
-            activityView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.addSubview(activityView)
+            activityView.centerXAnchor.constraint(equalTo: window.centerXAnchor).isActive = true
+            activityView.centerYAnchor.constraint(equalTo: window.centerYAnchor).isActive = true
+            activityView.heightAnchor.constraint(equalTo: window.widthAnchor, multiplier: 1/4).isActive = true
+            activityView.widthAnchor.constraint(equalTo: window.widthAnchor, multiplier: 1/4).isActive = true
         }
+//        if let view = topViewController?.view {
+//            print("topViewController?.view")
+//            view.addSubview(activityView)
+//            activityView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+//            activityView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+//            activityView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
+//            activityView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
+//        }
     }
     
     func startSpinner() {

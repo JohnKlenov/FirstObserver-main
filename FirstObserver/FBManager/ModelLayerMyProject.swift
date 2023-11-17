@@ -708,7 +708,7 @@ class AbstractHomeViewController: PlaceholderNavigationController {
     private func startLoad() {
         startSpiner()
         disableControls()
-//        homeModel?.startTimer()
+        //        homeModel?.startTimer()
     }
     
     private func stopLoad() {
@@ -719,11 +719,7 @@ class AbstractHomeViewController: PlaceholderNavigationController {
  
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        startLoad()
-        homeModel = HomeFirebaseService(output: self)
-        homeModel?.observeUserAndCardProducts()
-        
+        checkConnectionAndSetupModel()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -754,6 +750,25 @@ class AbstractHomeViewController: PlaceholderNavigationController {
                 }
             }
         }
+    }
+    
+    func checkConnectionAndSetupModel() {
+            navController?.networkConnected(completion: { isConnected in
+                if isConnected {
+                    setupModel()
+                } else {
+                    showErrorAlert(message: "No internet connection!", state: stateDataSource) {
+                        // Повторно проверяем подключение, когда вызывается блок в showErrorAlert
+                        self.checkConnectionAndSetupModel()
+                    }
+                }
+            })
+        }
+    
+    func setupModel() {
+        startLoad()
+        homeModel = HomeFirebaseService(output: self)
+        homeModel?.observeUserAndCardProducts()
     }
     
     func switchGender() {
