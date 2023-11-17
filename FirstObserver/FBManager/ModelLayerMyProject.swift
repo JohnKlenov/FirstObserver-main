@@ -194,9 +194,9 @@ extension UIViewController {
         }
         switch state {
             
-        case .firstStart:
+        case .firstDataUpdate:
             alert.addAction(tryAction)
-        case .fetchGender:
+        case .followingDataUpdate:
             alert.addAction(tryAction)
             alert.addAction(cancelAction)
         }
@@ -682,8 +682,8 @@ protocol HomeModelOutput:AnyObject {
 }
 
 enum StateDataSource {
-    case firstStart
-    case fetchGender
+    case firstDataUpdate
+    case followingDataUpdate
 }
 
 // Controller
@@ -692,7 +692,7 @@ class AbstractHomeViewController: PlaceholderNavigationController {
     
     private var homeModel: HomeModelInput?
     
-    var stateDataSource: StateDataSource = .firstStart
+    var stateDataSource: StateDataSource = .firstDataUpdate
     var homeDataSource:[String : SectionModelNew] = [:] {
         didSet {
             
@@ -793,7 +793,7 @@ extension AbstractHomeViewController:HomeModelOutput {
         
         switch self.stateDataSource {
             
-        case .firstStart:
+        case .firstDataUpdate:
             guard let data = data, error == nil else {
                 
                 self.navController?.showPlaceholder()
@@ -804,11 +804,12 @@ extension AbstractHomeViewController:HomeModelOutput {
                 return
             }
             self.navController?.hiddenPlaceholder()
-            self.stateDataSource = .fetchGender
+            self.stateDataSource = .followingDataUpdate
             self.homeDataSource = data
            
-        case .fetchGender:
+        case .followingDataUpdate:
             guard let data = data, error == nil else {
+                /// как себя вести если не получилось обновить гендер???
                 self.showErrorAlert(message: error?.localizedDescription ?? "Something went wrong!", state: self.stateDataSource) {
                     self.startLoad()
                     self.homeModel?.fetchGenderData()
@@ -1086,12 +1087,16 @@ class HomeFirebaseService {
     
     var dataHome:[String:SectionModelNew]? {
         didSet {
-            
+            if stateDataSource == .followingDataUpdate {
+                DispatchQueue.main.async {
+                    self.output?.updateData(data: self.dataHome, error: nil)
+                }
+            }
         }
     }
     var firstErrors: [Error?] = []
-    
     var gender:String = ""
+    var stateDataSource: StateDataSource = .firstDataUpdate
     
     let previewService = PreviewCloudFirestoreService()
     let productService = ProductCloudFirestoreService()
@@ -1177,7 +1182,7 @@ extension HomeFirebaseService: HomeModelInput {
     }
     
     func firstFetchData() {
-        
+        stateDataSource = .firstDataUpdate
         DispatchQueue.global().async {
             self.fetchRelatedData()
             self.fetchGender()
@@ -1185,6 +1190,7 @@ extension HomeFirebaseService: HomeModelInput {
     }
     
     func fetchGenderData() {
+        stateDataSource = .firstDataUpdate
         DispatchQueue.global().async {
             self.fetchGender()
         }
@@ -1275,9 +1281,15 @@ extension HomeFirebaseService: HomeModelInput {
             guard self.dataHome?.count == 3, firstError == nil else {
                 self.output?.updateData(data: self.dataHome, error: firstError)
                 self.dataHome = nil
-                self.deleteAllListeners()
+                /// при restartGender нельзя удалять всех наблюдателей!!!
+                if self.stateDataSource == .firstDataUpdate {
+                    self.deleteAllListeners()
+                } else {
+                    self.deleteGenderListeners()
+                }
                 return
             }
+            self.stateDataSource = .followingDataUpdate
             self.output?.updateData(data: self.dataHome, error: firstError)
         }
     }
@@ -1606,7 +1618,7 @@ class AbstractCatalogViewController: PlaceholderNavigationController {
     private var catalogModel: CatalogModelInput?
     
     var collectionPath:String
-    var stateDataSource: StateDataSource = .firstStart
+    var stateDataSource: StateDataSource = .firstDataUpdate
     var dataSource:[PreviewSectionNew] = [] {
         didSet {
         }
@@ -1635,12 +1647,12 @@ class AbstractCatalogViewController: PlaceholderNavigationController {
             guard let dataSource = dataSource else {
                 
                 switch self.stateDataSource {
-                case .firstStart:
+                case .firstDataUpdate:
                     self.navController?.showPlaceholder()
                     self.showErrorAlert(message: "", state: self.stateDataSource) {
                         self.catalogModel?.fetchGenderData()
                     }
-                case .fetchGender:
+                case .followingDataUpdate:
                     // можем возвращать из этого места segmentControl на актуальное значение во view
                     self.showErrorAlert(message: "", state: self.stateDataSource) {
                         self.catalogModel?.fetchGenderData()
@@ -1649,7 +1661,7 @@ class AbstractCatalogViewController: PlaceholderNavigationController {
                 return
             }
             self.navController?.hiddenPlaceholder()
-            self.stateDataSource = .fetchGender
+            self.stateDataSource = .followingDataUpdate
             // при переходе на mallVC, shopVC
             self.catalogModel?.updateModelGender()
             self.dataSource = dataSource
