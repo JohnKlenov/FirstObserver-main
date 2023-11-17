@@ -369,7 +369,7 @@ final class FirebaseService {
     }()
     
     
-    var stateDataSource: StateFirstStart = .firstStart
+//    var stateDataSource: StateFirstStart = .firstStart
     
     enum StateFirstStart {
         case firstStart
@@ -504,7 +504,7 @@ final class FirebaseService {
             if let error = error, let state = state  {
                 
                     let userInfo: [String: Any] = ["error": error, "enumValue": state]
-                    NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: nil, userInfo: userInfo)
+                    NotificationCenter.default.post(name: NSNotification.Name("ErrorObserveUserAndCardProductsNotification"), object: nil, userInfo: userInfo)
             } else {
                 self.fetchCartProducts()
             }
@@ -568,21 +568,15 @@ final class FirebaseService {
     func fetchCartProducts() {
         fetchData { cartProducts, error, state in
             guard let error = error, let state = state else {
-                
-                if self.stateDataSource == .firstStart {
-                    self.stateDataSource = .secondStart
-                    NotificationCenter.default.post(name: NSNotification.Name("FetchUserAndCartProductDataNotification"), object: nil)
-                }
+            
+                    NotificationCenter.default.post(name: NSNotification.Name("FetchFirstDataNotification"), object: nil)
                 self.currentCartProducts = cartProducts
                 return
             }
-            // не получилось получить cartProducts при первом старте
-            // а если ошибка произошла в момент наблюдения за карзиной?
-            // нужно отключать оповещение об error после успешного fetchCartProducts
-            // ставить флаг open на получении users и clouse когда мы получаем currentCartProducts или так если currentCartProducts == nil то отправляем ошибки иначе нет!
+        
             guard let _ = self.currentCartProducts else {
                 let userInfo: [String: Any] = ["error": error, "enumValue": state]
-                NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: nil, userInfo: userInfo)
+                NotificationCenter.default.post(name: NSNotification.Name("ErrorObserveUserAndCardProductsNotification"), object: nil, userInfo: userInfo)
                 return
             }
         }
@@ -735,15 +729,15 @@ class AbstractHomeViewController: PlaceholderNavigationController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         switchGender()
-        NotificationCenter.default.addObserver(self, selector: #selector(handleErrorNotification(_:)), name: NSNotification.Name("ErrorNotification"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleErrorObserveUserAndCardProductsNotification(_:)), name: NSNotification.Name("ErrorObserveUserAndCardProductsNotification"), object: nil)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("ErrorNotification"), object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("ErrorObserveUserAndCardProductsNotification"), object: nil)
     }
     
-    @objc func handleErrorNotification(_ notification: NSNotification) {
+    @objc func handleErrorObserveUserAndCardProductsNotification(_ notification: NSNotification) {
         
         stopLoad()
         if let userInfo = notification.userInfo,
@@ -767,15 +761,6 @@ class AbstractHomeViewController: PlaceholderNavigationController {
             self.homeModel?.fetchGenderData()
         })
     }
-    
-//    func repeatedFetchData() {
-//        switch stateDataSource {
-//        case .firstStart:
-//            homeModel?.firstFetchData()
-//        case .fetchGender:
-//            homeModel?.fetchGenderData()
-//        }
-//    }
     
     func startSpiner() {
         navController?.startSpinner()
@@ -1116,7 +1101,7 @@ class HomeFirebaseService {
     init(output: HomeModelOutput) {
         self.output = output
         gender = serviceFB.currentGender
-        NotificationCenter.default.addObserver(self, selector: #selector(handleFetchFirstDataNotification), name: NSNotification.Name("FetchUserAndCartProductDataNotification"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleFetchFirstDataNotification), name: NSNotification.Name("FetchFirstDataNotification"), object: nil)
     }
     
     // help methods
@@ -1187,6 +1172,7 @@ extension HomeFirebaseService: HomeModelInput {
     }
     
     @objc func handleFetchFirstDataNotification(_ notification: NSNotification) {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("FetchFirstDataNotification"), object: nil)
         firstFetchData()
     }
     
