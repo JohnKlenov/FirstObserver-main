@@ -8,164 +8,13 @@
 
 
 // MARK: Trash
-
-//    func listenForUserID(completion: @escaping (String) -> Void) {
-//        userListener { currentUser in
-//            guard let currentUser = currentUser else {
-//                self.currentCartProducts = nil
-//                self.signInAnonymously()
-//                return
-//            }
-//            completion(currentUser.uid)
-//        }
-//    }
-
-//    func signInAnonymously() {
-//
-//        Auth.auth().signInAnonymously { (authResult, error) in
-//
-//            guard error == nil, let authResult = authResult else {
-//                print("Returne message for analitic FB Crashlystics")
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-//                    self.signInAnonymously()
-//                }
-//                return
-//            }
-//            self.addEmptyCartProducts(uid: authResult.user.uid)
-//        }
-//    }
-// переделали
-//    // userListener имеет наблюдателя и если мы при первом старте во viewDidLoad в течении 15
-////    секунд не получаем ответа от сервера , отключаем наблюдателя и выкидываем alert
-//    func listenerUser() {
-//        userListener { user in
-//            if let _ = user {
-//                self.currentCartProducts = nil
-//                self.setupCartProducts()
-//            } else {
-//                self.signInAnonymously()
-//            }
-//        }
-//    }
-//
-//    // переделали
-//    func signInAnonymously() {
-//
-//        Auth.auth().signInAnonymously { (authResult, error) in
-//            guard let _ = error else {return}
-//            print("Returne message for analitic FB Crashlystics")
-//            // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
-//            // if failad create AnonymouslyUser -> call signInAnonymouslyUser()
-//        }
-//    }
-//
-////    self.signInAnonymously2 { erorr in
-////        guard let error = error else {return}
-////        // completion(error)
-////    }
-////    func signInAnonymously2(completion: @escaping (Error?) -> Void) {
-////
-////        Auth.auth().signInAnonymously {  (authResult, error) in
-////            completion(error)
-////        }
-////    }
-//    // переделали
-//    func addEmptyCartProducts(uid: String) {
-//
-//        let usersCollection = Firestore.firestore().collection("usersAccount")
-//        let userDocument = usersCollection.document(uid)
-//        userDocument.collection("cartProducts").addDocument(data: [:]) { error in
-//            if error != nil {
-//                print("Returne message for analitic FB Crashlystics")
-//                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
-//                // if failad create addEmptyCartProducts -> call addEmptyCartProducts()
-//            } else {
-//                // for second version
-//                self.fetchCartProducts()
-//            }
-//        }
-//    }
-//
-//    // переделали
-//    // точка входа для второй порции данных - addEmptyCartProducts
-//    func setupCartProducts() {
-//        guard let user = Auth.auth().currentUser else {
-//            // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: nil)
-//            // if user == nil -> signIn,
-//            return
-//        }
-//        removeListenerForCardProducts()
-//        currentUserID = user.uid
-//        let path = "usersAccount/\(String(describing: currentUserID))"
-//        let docRef = Firestore.firestore().document(path)
-//
-//        // нужно обработать ошибку
-//        docRef.getDocument { (document, error) in
-//            if let document = document, document.exists {
-//                print("Document exists!")
-//                self.fetchCartProducts()
-//            } else {
-//                print("Document does not exist!")
-//                // если все ок то self.fetchCartProducts
-//                self.addEmptyCartProducts(uid: self.currentUserID ?? "" )
-//            }
-//        }
-//    }
-//    // переделали
-//    func fetchCartProducts() {
-//        fetchData { cartProducts in
-//            self.currentCartProducts = cartProducts
-////         инициализируем вызов второй порции данных
-//            switch self.stateStart {
-//
-//            case .firstStart:
-//                // может быть через NSNotification.Name
-//                // и при удачной загрузки первого цикла отключаем наблюдателя
-//                print("инициализируем вызов второй порции данных")
-//            case .secondStart:
-//                print("")
-//            }
-//        }
-//    }
-//    // передеали
-//    func fetchData(completion: @escaping ([ProductItemNew]) -> Void) {
-//
-//        let path = "usersAccount/\(String(describing: currentUserID))/cartProducts"
-//
-//        let collection = db.collection(path)
-//        let quary = collection.order(by: "priorityIndex", descending: false)
-//
-//        let listener = quary.addSnapshotListener { (querySnapshot, error) in
-//
-//            if let _ = error {
-//                print("Returned message for analytic FB Crashlytics error")
-//                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
-//                // if failad fetchCartProducts2() -> call setupCartProducts()
-//                return
-//            }
-//            guard let querySnapshot = querySnapshot else {
-//                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
-//                // if failad fetchCartProducts2() -> call setupCartProducts()
-//                return
-//            }
-//            var documents = [[String : Any]]()
-//
-//            for document in querySnapshot.documents {
-//                let documentData = document.data()
-//                documents.append(documentData)
-//            }
-//            do {
-//                let response = try FetchProductsDataResponse(documents: documents)
-//                completion(response.items)
-//            } catch {
-//                // NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
-//                // if failad fetchCartProducts2() -> call setupCartProducts()
-//            }
-//        }
-//        listeners[path] = listener
+//    var stateDataSource: StateFirstStart = .firstStart
+    
+//    enum StateFirstStart {
+//        case firstStart
+//        case secondStart
 //    }
     
-
 
 import Foundation
 import UIKit
@@ -183,14 +32,14 @@ import MapKit
 
 extension UIViewController {
     
-    func showErrorAlert(message: String, state: StateDataSource, retryHandler: @escaping () -> Void) {
+    func showErrorAlert(message: String, state: StateDataSource, tryActionHandler: @escaping () -> Void, cancelActionHandler: (() -> Void)? = nil) {
         
         let alert = UIAlertController(title: "Oops!", message: message, preferredStyle: .alert)
         let tryAction = UIAlertAction(title: "Try agayn", style: .cancel) { _ in
-            retryHandler()
+            tryActionHandler()
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
-            //
+            cancelActionHandler?()
         }
         switch state {
             
@@ -367,14 +216,6 @@ final class FirebaseService {
     var currentGender:String = {
         return UserDefaults.standard.string(forKey: "gender") ?? "Woman"
     }()
-    
-    
-//    var stateDataSource: StateFirstStart = .firstStart
-    
-    enum StateFirstStart {
-        case firstStart
-        case secondStart
-    }
     
     
     // MARK: - helper methods
@@ -661,24 +502,18 @@ final class FirebaseService {
 // Протокол для модели данных
 protocol HomeModelInput: AnyObject {
     func fetchGenderData()
-//    func fetchDataSource()
     func firstFetchData()
     func isSwitchGender(completion: @escaping () -> Void)
     func setGender(gender:String)
     func updateModelGender()
     func observeUserAndCardProducts()
     func restartFetchCartProducts()
-//    func startTimer()
-//    func stopTimer()
+
 }
 
 // Протокол для обработки полученных данных
 protocol HomeModelOutput:AnyObject {
     func updateData(data: [String:SectionModelNew]?, error: Error?)
-//    func startSpiner()
-//    func stopSpiner()
-//    func disableControls()
-//    func enableControls()
 }
 
 enum StateDataSource {
@@ -876,218 +711,6 @@ class HeaderSegmentedControlView: UICollectionReusableView {
 
 }
 
-
-
-//// В модели
-//func fetchData() {
-//    // Попытка получить данные...
-//    if let error = error {
-//        NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: error)
-//    }
-//}
-//
-//// В контроллере
-//override func viewDidLoad() {
-//    super.viewDidLoad()
-//    NotificationCenter.default.addObserver(self, selector: #selector(handleErrorNotification), name: NSNotification.Name("ErrorNotification"), object: nil)
-//}
-//
-//@objc func handleErrorNotification(_ notification: NSNotification) {
-//    if let error = notification.object as? Error {
-//        // Обработать ошибку и передать ее в представление
-//    }
-//}
-
-//override func viewWillDisappear(_ animated: Bool) {
-//    super.viewWillDisappear(animated)
-//    NotificationCenter.default.removeObserver(self, name: NSNotification.Name("ErrorNotification"), object: nil)
-//}
-
-//@objc func handleErrorNotification(_ notification: NSNotification) {
-//    if self.isViewLoaded && self.view.window != nil {
-//        // Контроллер видимый, выполняем код
-//    }
-//}
-
-// all implemintation
-
-//let error = NSError(domain: "domain", code: 123, userInfo: nil)
-//let enumValue = YourEnum.someCase
-//
-//let userInfo: [String: Any] = ["error": error, "enumValue": enumValue]
-//NotificationCenter.default.post(name: NSNotification.Name("ErrorNotification"), object: nil, userInfo: userInfo)
-
-//NotificationCenter.default.addObserver(self, selector: #selector(handleErrorNotification(_:)), name: NSNotification.Name("ErrorNotification"), object: nil)
-//
-//@objc func handleErrorNotification(_ notification: NSNotification) {
-//    if let userInfo = notification.userInfo,
-//       let error = userInfo["error"] as? NSError,
-//       let enumValue = userInfo["enumValue"] as? YourEnum {
-//        // Обработать ошибку и значение перечисления
-//    }
-//}
-//            let items = self.createItem(malls: malls, shops: nil, products: nil)
-//            let mallSection = SectionModelNew(section: "Malls", items: items)
-//
-//            guard let _ = self.data?.model?["A"] else {
-//                if error == nil, let _ = malls {
-//                    self.data?.model?["A"] = mallSection
-//                    self.semaphore.signal()
-//                } else {
-//                    self.caughtError = error
-//                    self.semaphore.signal()
-//                }
-//                return
-//            }
-//
-//            guard let _ = malls, error == nil else {
-//                return
-//            }
-//
-//            self.data?.model?["A"] = mallSection
-
-//    func handleErrorAndSignal(_ error: Error) {
-//        caughtError = error
-//        semaphore.signal()
-//    }
-//    func handleErrorAndSignal(_ error: Error?) {
-//        errors.append(error)
-//        semaphore.signal()
-//    }
-
-//    func startTimer() {
-//
-//
-//        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
-//
-//            self.pathsGenderListener.forEach { path in
-//                self.bunchData = nil
-//                self.group.leave()
-//                self.serviceFB.removeListeners(for: path)
-//            }
-//
-//            self.pathsTotalListener.forEach { path in
-//                self.group.leave()
-//                self.serviceFB.removeListeners(for: path)
-//            }
-//        }
-//    }
-//
-//    func stopTimer() {
-//        timer?.invalidate()
-//    }
-//func fetchGender() {
-//
-//
-////        caughtError = nil
-//        bunchData = BunchData()
-//        removeGenderListeners()
-//        pathsGenderListener = []
-//
-//
-//
-//
-//        pathsGenderListener.append("previewMalls\(gender)")
-//        previewService.fetchPreviewSection(path: "previewMalls\(gender)") { malls, error in
-//            guard let malls = malls, error == nil else {
-////                self.handleErrorAndLeaveGroup(error!)
-//                return
-//            }
-//
-//            let items = self.createItem(malls: malls, shops: nil, products: nil)
-//            let mallSection = SectionModelNew(section: "Malls", items: items)
-//
-//            guard let _ = self.bunchData?.model?["A"] else {
-//                self.bunchData?.model?["A"] = mallSection
-//                self.group.leave()
-//                return
-//            }
-//
-//            self.group.enter()
-//            self.bunchData?.model?["A"] = mallSection
-//            self.group.leave()
-//        }
-//
-//        pathsGenderListener.append("previewShops\(gender)")
-//        previewService.fetchPreviewSection(path: "previewShops\(gender)") { shops, error in
-//
-//            guard let shops = shops, error == nil else {
-////                self.handleErrorAndLeaveGroup(error!)
-//                return
-//            }
-//
-//            let items = self.createItem(malls: nil, shops: shops, products: nil)
-//            let shopSection = SectionModelNew(section: "Shops", items: items)
-//
-//            guard let _ = self.bunchData?.model?["B"] else {
-//                self.bunchData?.model?["B"] = shopSection
-//                self.group.leave()
-//                return
-//            }
-//
-//            self.group.enter()
-//            self.bunchData?.model?["B"] = shopSection
-//            self.group.leave()
-//        }
-//
-//        pathsGenderListener.append("popularProducts\(gender)")
-//        productService.fetchProducts(path: "popularProducts\(gender)") { products, error in
-//            guard let products = products, error == nil else {
-////                self.handleErrorAndLeaveGroup(error!)
-//                return
-//            }
-//
-//            let items = self.createItem(malls: nil, shops: nil, products: products)
-//            let productsSection = SectionModelNew(section: "PopularProducts", items: items)
-//
-//            guard let _ = self.bunchData?.model?["C"] else {
-//                self.bunchData?.model?["C"] = productsSection
-//                self.group.leave()
-//                return
-//            }
-//            self.group.enter()
-//            self.bunchData?.model?["C"] = productsSection
-//            self.group.leave()
-//        }
-//    }
-//
-//    // а что если в момент fetchGenderData() (нажмем segmentControlVC) сработает наблюдатель в fetchTotalData()
-//    func fetchTotalData() {
-//
-//        removeTotalListener()
-//        pathsTotalListener = []
-//
-//        pathsTotalListener.append("shopsMan")
-//        shopsService.fetchShops(path: "shopsMan") { shopsMan, error in
-//            guard let shopsMan = shopsMan, error == nil else {
-////                self.handleErrorAndLeaveGroup(error!)
-//                return
-//            }
-//            self.serviceFB.shops?["Man"] = shopsMan
-//            self.group.leave()
-//        }
-//
-//        pathsTotalListener.append("shopsWoman")
-//        shopsService.fetchShops(path: "shopsWoman") { shopsWoman, error in
-//            guard let shopsWoman = shopsWoman, error == nil else {
-////                self.handleErrorAndLeaveGroup(error!)
-//                return
-//            }
-//            self.serviceFB.shops?["Woman"] = shopsWoman
-//            self.group.leave()
-//        }
-//
-//        /// в модель для MapView подготовим в VC
-//        pathsTotalListener.append("pinMals")
-//        pinService.fetchPin(path: "pinMals") { pins, error in
-//            guard let pins = pins, error == nil else {
-////                self.handleErrorAndLeaveGroup(error!)
-//                return
-//            }
-//            self.serviceFB.pinMall = pins
-//            self.group.leave()
-//        }
-//    }
 
 
 // Model
@@ -1380,13 +1003,6 @@ extension HomeFirebaseService: HomeModelInput {
         serviceFB.removeStateDidChangeListener()
         serviceFB.observeUserAndCardProducts()
     }
-    
-    
-    
-    
-    
-    
-    
 }
 
 class PreviewCloudFirestoreService {
@@ -1410,8 +1026,6 @@ class PreviewCloudFirestoreService {
             
         }
     }
-    
-    
 }
 
 struct FetchPreviewDataResponse {
@@ -1507,10 +1121,6 @@ class ShopsCloudFirestoreService {
             
         }
     }
-    
-//    static func removeListeners(for path: String) {
-//        ManagerFB.shared.removeListeners(for: path)
-//    }
 }
 
 struct FetchShopDataResponse {
@@ -1555,10 +1165,6 @@ class PinCloudFirestoreService {
             
         }
     }
-    
-//    static func removeListeners(for path: String) {
-//        ManagerFB.shared.removeListeners(for: path)
-//    }
 }
 
 struct FetchPinDataResponse {
@@ -1588,12 +1194,27 @@ struct FetchPinDataResponse {
 
 // MARK: - Malls
 
+//// Протокол для модели данных
+//protocol HomeModelInput: AnyObject {
+//    func fetchGenderData()
+//    func firstFetchData()
+//    func isSwitchGender(completion: @escaping () -> Void)
+//    func setGender(gender:String)
+//    func updateModelGender()
+//    func observeUserAndCardProducts()
+//    func restartFetchCartProducts()
+//
+//}
+//
+//// Протокол для обработки полученных данных
+//protocol HomeModelOutput:AnyObject {
+//    func updateData(data: [String:SectionModelNew]?, error: Error?)
+//}
 
 
 // Протокол для модели данных
 protocol CatalogModelInput: AnyObject {
     func fetchGenderData()
-    func fetchDataSource(completion: @escaping ([PreviewSectionNew]?) -> Void)
     func isSwitchGender(completion: @escaping () -> Void)
     func setGender(gender:String)
     func updateModelGender()
@@ -1601,37 +1222,10 @@ protocol CatalogModelInput: AnyObject {
 
 // Протокол для обработки полученных данных
 protocol CatalogModelOutput:AnyObject {
-    func startSpiner()
-    func stopSpiner()
-    func disableControls()
-    func enableControls()
+    func updateData(data: [PreviewSectionNew]?, error: Error?)
 }
 
 // Controller
-
-extension AbstractCatalogViewController: CatalogModelOutput {
-    
-    func startSpiner() {
-        navController?.startSpinner()
-    }
-    
-    func stopSpiner() {
-        navController?.stopSpinner()
-    }
-    
-    func disableControls() {
-        // Отключите все элементы управления
-        // Например, если у вас есть кнопка:
-        // myButton.isEnabled = false
-    }
-
-    func enableControls() {
-        // Включите все элементы управления
-        // Например, если у вас есть кнопка:
-        // myButton.isEnabled = true
-    }
-    
-}
 
 class AbstractCatalogViewController: PlaceholderNavigationController {
     
@@ -1661,31 +1255,9 @@ class AbstractCatalogViewController: PlaceholderNavigationController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        startLoad()
         catalogModel = CatalogFirebaseService(output: self, collectionPath: collectionPath)
-        catalogModel?.fetchDataSource(completion: { dataSource in
-            guard let dataSource = dataSource else {
-                
-                switch self.stateDataSource {
-                case .firstDataUpdate:
-                    self.navController?.showPlaceholder()
-                    self.showErrorAlert(message: "", state: self.stateDataSource) {
-                        self.catalogModel?.fetchGenderData()
-                    }
-                case .followingDataUpdate:
-                    // можем возвращать из этого места segmentControl на актуальное значение во view
-                    self.showErrorAlert(message: "", state: self.stateDataSource) {
-                        self.catalogModel?.fetchGenderData()
-                    }
-                }
-                return
-            }
-            self.navController?.hiddenPlaceholder()
-            self.stateDataSource = .followingDataUpdate
-            // при переходе на mallVC, shopVC
-            self.catalogModel?.updateModelGender()
-            self.dataSource = dataSource
-        })
+        catalogModel?.fetchGenderData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -1697,6 +1269,67 @@ class AbstractCatalogViewController: PlaceholderNavigationController {
         catalogModel?.isSwitchGender(completion: {
             self.catalogModel?.fetchGenderData()
         })
+    }
+    
+    func startSpiner() {
+        navController?.startSpinner()
+    }
+    
+    func stopSpiner() {
+        navController?.stopSpinner()
+    }
+    
+    func disableControls() {
+        // Отключите все элементы управления
+        // Например, если у вас есть кнопка:
+        // myButton.isEnabled = false
+    }
+
+    func enableControls() {
+        // Включите все элементы управления
+        // Например, если у вас есть кнопка:
+        // myButton.isEnabled = true
+    }
+    
+    private func startLoad() {
+        startSpiner()
+        disableControls()
+        //        homeModel?.startTimer()
+    }
+    
+    private func stopLoad() {
+        stopSpiner()
+        enableControls()
+//        homeModel?.stopTimer()
+    }
+    
+}
+
+extension AbstractCatalogViewController: CatalogModelOutput {
+    func updateData(data: [PreviewSectionNew]?, error: Error?) {
+        
+        stopLoad()
+        switch stateDataSource {
+            
+        case .firstDataUpdate:
+            guard let data = data, error == nil else {
+                
+                self.navController?.showPlaceholder()
+                self.showErrorAlert(message: error?.localizedDescription ?? "Something went wrong!", state: stateDataSource) {
+                    self.startLoad()
+                    self.catalogModel?.fetchGenderData()
+                } cancelActionHandler: {
+                    <#code#>
+                }
+
+                return
+            }
+            self.navController?.hiddenPlaceholder()
+            self.stateDataSource = .followingDataUpdate
+            self.dataSource = data
+        case .followingDataUpdate:
+            <#code#>
+        }
     }
 }
 
@@ -1715,31 +1348,17 @@ class CatalogFirebaseService {
     weak var output: CatalogModelOutput?
     
     let serviceFB = FirebaseService.shared
-    let group = DispatchGroup()
-    var timer: Timer?
     var pathsGenderListener = [String]()
     
     var gender:String
     var collectionPath:String
-    var dataSource:[PreviewSectionNew]?
+    var stateDataSource: StateDataSource = .firstDataUpdate
     let previewService = PreviewCloudFirestoreService()
     
     init(output: CatalogModelOutput, collectionPath:String) {
         self.output = output
         gender = serviceFB.currentGender
         self.collectionPath = collectionPath
-    }
-    
-    func startTimer() {
-        
-        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
-            
-            self.pathsGenderListener.forEach { path in
-                self.dataSource = nil
-                self.group.leave()
-                self.serviceFB.removeListeners(for: path)
-            }
-        }
     }
     
     func removeGenderListeners() {
@@ -1752,35 +1371,26 @@ class CatalogFirebaseService {
 extension CatalogFirebaseService: CatalogModelInput {
     
     func fetchGenderData() {
-        output?.disableControls()
-        output?.startSpiner()
-        dataSource = []
         removeGenderListeners()
         pathsGenderListener = []
-        startTimer()
         pathsGenderListener.append("\(collectionPath)\(gender)")
-        
-        group.enter()
-        // так мы перезаписывем previeMall(добавляем catalogMalls в cloudFirestore) а вдруг у нас будет банер рекламный на previewMall? :) на HomeVC + gender под вопросом
+    
         previewService.fetchPreviewSection(path: "\(collectionPath)\(gender)") { items, error in
-            guard let items = items else {
+            
+            guard self.stateDataSource == .followingDataUpdate else {
+                if let _ = items, error == nil {
+                    self.stateDataSource = .followingDataUpdate
+                }
+                self.output?.updateData(data: items, error: error)
                 return
             }
-            self.dataSource = items
-            self.group.leave()
+            guard let items = items, error == nil else {
+                return
+            }
+            self.output?.updateData(data: items, error: error)
         }
     }
-    
-    
-    func fetchDataSource(completion: @escaping ([PreviewSectionNew]?) -> Void) {
-        fetchGenderData()
-        group.notify(queue: .main) {
-            self.timer?.invalidate()
-            self.output?.stopSpiner()
-            self.output?.enableControls()
-            completion(self.dataSource)
-        }
-    }
+
     
     
     func setGender(gender: String) {
