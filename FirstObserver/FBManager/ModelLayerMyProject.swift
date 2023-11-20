@@ -719,6 +719,7 @@ class AbstractHomeViewController: PlaceholderNavigationController {
  
     override func viewDidLoad() {
         super.viewDidLoad()
+        homeModel = HomeFirebaseService(output: self)
         checkConnectionAndSetupModel()
     }
     
@@ -755,8 +756,10 @@ class AbstractHomeViewController: PlaceholderNavigationController {
     func checkConnectionAndSetupModel() {
             navController?.networkConnected(completion: { isConnected in
                 if isConnected {
+//                    navController?.hiddenPlaceholder()
                     setupModel()
                 } else {
+//                    navController?.showPlaceholder()
                     showErrorAlert(message: "No internet connection!", state: stateDataSource) {
                         // Повторно проверяем подключение, когда вызывается блок в showErrorAlert
                         self.checkConnectionAndSetupModel()
@@ -767,12 +770,12 @@ class AbstractHomeViewController: PlaceholderNavigationController {
     
     func setupModel() {
         startLoad()
-        homeModel = HomeFirebaseService(output: self)
         homeModel?.observeUserAndCardProducts()
     }
     
     func switchGender() {
         homeModel?.isSwitchGender(completion: {
+            self.startLoad()
             self.homeModel?.fetchGenderData()
         })
     }
@@ -1112,6 +1115,7 @@ class HomeFirebaseService {
     var firstErrors: [Error?] = []
     var gender:String = ""
     var stateDataSource: StateDataSource = .firstDataUpdate
+    var isFirstStartSuccessful = false
     
     let previewService = PreviewCloudFirestoreService()
     let productService = ProductCloudFirestoreService()
@@ -1297,13 +1301,14 @@ extension HomeFirebaseService: HomeModelInput {
                 self.output?.updateData(data: self.dataHome, error: firstError)
                 self.dataHome = nil
                 /// при restartGender нельзя удалять всех наблюдателей!!!
-                if self.stateDataSource == .firstDataUpdate {
+                if self.stateDataSource == .firstDataUpdate, !self.isFirstStartSuccessful {
                     self.deleteAllListeners()
                 } else {
                     self.deleteGenderListeners()
                 }
                 return
             }
+            self.isFirstStartSuccessful = true
             self.stateDataSource = .followingDataUpdate
             self.output?.updateData(data: self.dataHome, error: firstError)
         }

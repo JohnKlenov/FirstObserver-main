@@ -1968,7 +1968,7 @@ class PlaceholderNavigationController: UINavigationController {
 //            activityView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
 //        }
     }
-    
+    ///  можем перенести на UIViewController extension
     func startSpinner() {
         setupSpinnerForView()
         activityView.startAnimating()
