@@ -46,6 +46,7 @@ final class CartViewController: UIViewController  {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        print("override func viewWillAppear")
         updateData()
         resetBadgeValue()
     }
@@ -177,6 +178,7 @@ extension CartViewController: CartViewControllerDelegate {
 
 extension CartViewController: SignInViewControllerDelegate {
     func userIsPermanent() {
+        print("userIsPermanent()")
         // refactor getCartObservser
 //        managerFB.removeObserverForCartProductsUser()
         

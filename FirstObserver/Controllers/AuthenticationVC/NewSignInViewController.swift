@@ -300,6 +300,7 @@ final class NewSignInViewController: ParentNetworkViewController {
 //        signUpVC.isInvalidSignIn = isInvalidSignIn
         signUpVC.presentationController?.delegate = self
         present(signUpVC, animated: true, completion: nil)
+//        self.dismiss(animated: true, completion: nil)
     }
     
     @objc func didTapForgotPasswordButton(_ sender: UIButton) {

@@ -173,6 +173,7 @@ class NewHomeViewController: UIViewController {
         //            }
         //        }
         switchGender()
+        print("Home viewWillAppear")
     }
     
     override func viewDidAppear(_ animated: Bool) {

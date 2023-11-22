@@ -308,7 +308,7 @@ final class FirebaseService {
     // MARK: - Auth
     
     func userIsAnonymously(completionHandler: @escaping (Bool?) -> Void) {
-        if let user = Auth.auth().currentUser {
+        if let user = currentUser {
             if user.isAnonymous {
                 completionHandler(true)
             } else {
@@ -671,7 +671,6 @@ extension AbstractHomeViewController:HomeModelOutput {
            
         case .followingDataUpdate:
             guard let data = data, error == nil else {
-                /// как себя вести если не получилось обновить гендер???
                 self.showErrorAlert(message: error?.localizedDescription ?? "Something went wrong!", state: self.stateDataSource) {
                     self.forceFetchGenderData()
                 }
@@ -1200,25 +1199,7 @@ struct FetchPinDataResponse {
 
 
 
-// MARK: - Malls
-
-//// Протокол для модели данных
-//protocol HomeModelInput: AnyObject {
-//    func fetchGenderData()
-//    func firstFetchData()
-//    func isSwitchGender(completion: @escaping () -> Void)
-//    func setGender(gender:String)
-//    func updateModelGender()
-//    func observeUserAndCardProducts()
-//    func restartFetchCartProducts()
-//
-//}
-//
-//// Протокол для обработки полученных данных
-//protocol HomeModelOutput:AnyObject {
-//    func updateData(data: [String:SectionModelNew]?, error: Error?)
-//}
-
+// MARK: - Malls + Catalog
 
 // Протокол для модели данных
 protocol CatalogModelInput: AnyObject {
@@ -1249,7 +1230,6 @@ class AbstractCatalogViewController: PlaceholderNavigationController {
         }
     }
     
-    // нужно попробывать startSpiner как на placeholder так и на view
     var navController: PlaceholderNavigationController? {
             return self.navigationController as? PlaceholderNavigationController
         }
@@ -1349,9 +1329,9 @@ extension AbstractCatalogViewController: CatalogModelOutput {
             self.stateDataSource = .followingDataUpdate
             self.isForceData = false
             self.dataSource = data
+            
         case .followingDataUpdate:
             guard let data = data, error == nil else {
-                /// как себя вести если не получилось обновить гендер???
                 self.showErrorAlert(message: error?.localizedDescription ?? "Something went wrong!", state: self.stateDataSource) {
                     self.startLoad()
                     self.catalogModel?.fetchGenderData()
@@ -1447,44 +1427,17 @@ extension CatalogFirebaseService: CatalogModelInput {
 
 // Протокол для модели данных
 protocol CartModelInput: AnyObject {
-    func fetchDataSource(completion: @escaping ([ProductItemNew]?) -> Void)
-    func userIsAnonymously(completion: @escaping (Bool?) -> Void)
+    func fetchCartProducts()
 }
 
 
 // Протокол для обработки полученных данных
 protocol CartModelOutput:AnyObject {
-    func startSpiner()
-    func stopSpiner()
-    func disableControls()
-    func enableControls()
+    func updateData(data: [ProductItemNew]?, isAnonymously: Bool)
 }
 
 // Controller
 
-extension AbstractCartViewController: CartModelOutput {
-    
-    func startSpiner() {
-        navController?.startSpinner()
-    }
-    
-    func stopSpiner() {
-        navController?.stopSpinner()
-    }
-    
-    func disableControls() {
-        // Отключите все элементы управления
-        // Например, если у вас есть кнопка:
-        // myButton.isEnabled = false
-    }
-
-    func enableControls() {
-        // Включите все элементы управления
-        // Например, если у вас есть кнопка:
-        // myButton.isEnabled = true
-    }
-    
-}
 
 class AbstractCartViewController: PlaceholderNavigationController {
     
@@ -1513,24 +1466,36 @@ class AbstractCartViewController: PlaceholderNavigationController {
         
     }
     
-    private func updateData() {
-        cartModel?.userIsAnonymously{ isAnonymously in
-            guard let isAnonymously = isAnonymously else {
-                self.isAnonymouslyUser = false
-                self.dataSource = []
-                return
-            }
-            self.isAnonymouslyUser = isAnonymously
-            self.cartModel?.fetchDataSource{ cartProducts in
-                guard let cartProducts = cartProducts else {
-                    self.dataSource = []
-                    return
-                }
-                self.dataSource = cartProducts
-            }
-        }
-    }
+//    private func updateData() {
+//        cartModel?.userIsAnonymously{ isAnonymously in
+//            guard let isAnonymously = isAnonymously else {
+//                self.isAnonymouslyUser = false
+//                self.dataSource = []
+//                return
+//            }
+//            self.isAnonymouslyUser = isAnonymously
+//            self.cartModel?.fetchDataSource{ cartProducts in
+//                guard let cartProducts = cartProducts else {
+//                    self.dataSource = []
+//                    return
+//                }
+//                self.dataSource = cartProducts
+//            }
+//        }
+//    }
     
+}
+
+extension AbstractCartViewController: CartModelOutput {
+    
+    func updateData(data: [ProductItemNew]?, isAnonymously: Bool) {
+        isAnonymouslyUser = isAnonymously
+        guard let data = data else {
+            dataSource = []
+            return
+        }
+        dataSource = data
+    }
 }
 
 // Model
@@ -1548,14 +1513,22 @@ class CartFirebaseService {
 
 extension CartFirebaseService: CartModelInput {
     
-    func userIsAnonymously(completion: @escaping (Bool?) -> Void) {
+    func fetchCartProducts() {
         serviceFB.userIsAnonymously { isAnonymously in
-            completion(isAnonymously)
+            /// if isAnonymously = nil -> AllertError!?
+            self.output?.updateData(data: self.serviceFB.currentCartProducts, isAnonymously: isAnonymously ?? false)
         }
     }
     
-    func fetchDataSource(completion: @escaping ([ProductItemNew]?) -> Void) {
-        completion(serviceFB.currentCartProducts)
-    }
+    
+//    func userIsAnonymously(completion: @escaping (Bool?) -> Void) {
+//        serviceFB.userIsAnonymously { isAnonymously in
+//            completion(isAnonymously)
+//        }
+//    }
+//
+//    func fetchDataSource(completion: @escaping ([ProductItemNew]?) -> Void) {
+//        completion(serviceFB.currentCartProducts)
+//    }
     
 }
