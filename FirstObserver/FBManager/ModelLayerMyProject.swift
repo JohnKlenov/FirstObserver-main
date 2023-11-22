@@ -610,10 +610,20 @@ class AbstractHomeViewController: PlaceholderNavigationController {
     
     func switchGender() {
         homeModel?.isSwitchGender(completion: {
-            self.startLoad()
-            self.homeModel?.fetchGenderData()
+            self.forceFetchGenderData()
         })
     }
+    
+    func forceFetchGenderData() {
+        startLoad()
+        homeModel?.fetchGenderData()
+    }
+    
+    func forceFirstFetchData() {
+        startLoad()
+        homeModel?.firstFetchData()
+    }
+    
     
     func startSpiner() {
         navController?.startSpinner()
@@ -651,8 +661,7 @@ extension AbstractHomeViewController:HomeModelOutput {
                 
                 self.navController?.showPlaceholder()
                 self.showErrorAlert(message: error?.localizedDescription ?? "Something went wrong!", state: self.stateDataSource) {
-                    self.startLoad()
-                    self.homeModel?.firstFetchData()
+                    self.forceFirstFetchData()
                 }
                 return
             }
@@ -664,8 +673,7 @@ extension AbstractHomeViewController:HomeModelOutput {
             guard let data = data, error == nil else {
                 /// как себя вести если не получилось обновить гендер???
                 self.showErrorAlert(message: error?.localizedDescription ?? "Something went wrong!", state: self.stateDataSource) {
-                    self.startLoad()
-                    self.homeModel?.fetchGenderData()
+                    self.forceFetchGenderData()
                 }
                 return
             }
@@ -1233,6 +1241,9 @@ class AbstractCatalogViewController: PlaceholderNavigationController {
     
     var collectionPath:String
     var stateDataSource: StateDataSource = .firstDataUpdate
+    /// Если вы не обратитесь к isForceData в вашем ViewController, то оно не будет загружено в память(мы обратились).
+    lazy var isForceData:Bool = false
+    
     var dataSource:[PreviewSectionNew] = [] {
         didSet {
         }
@@ -1262,13 +1273,23 @@ class AbstractCatalogViewController: PlaceholderNavigationController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        switchGender()
+        
+        if !isForceData {
+            switchGender()
+        } else {
+            forceFetchGenderData()
+        }
     }
     
     func switchGender() {
         catalogModel?.isSwitchGender(completion: {
-            self.catalogModel?.fetchGenderData()
+            self.forceFetchGenderData()
         })
+    }
+    
+    func forceFetchGenderData() {
+        startLoad()
+        catalogModel?.fetchGenderData()
     }
     
     func startSpiner() {
@@ -1315,20 +1336,30 @@ extension AbstractCatalogViewController: CatalogModelOutput {
             guard let data = data, error == nil else {
                 
                 self.navController?.showPlaceholder()
-                self.showErrorAlert(message: error?.localizedDescription ?? "Something went wrong!", state: stateDataSource) {
+                self.showErrorAlert(message: error?.localizedDescription ?? "Something went wrong!", state: .followingDataUpdate) {
                     self.startLoad()
                     self.catalogModel?.fetchGenderData()
                 } cancelActionHandler: {
-                    <#code#>
+                    self.isForceData = true
                 }
 
                 return
             }
             self.navController?.hiddenPlaceholder()
             self.stateDataSource = .followingDataUpdate
+            self.isForceData = false
             self.dataSource = data
         case .followingDataUpdate:
-            <#code#>
+            guard let data = data, error == nil else {
+                /// как себя вести если не получилось обновить гендер???
+                self.showErrorAlert(message: error?.localizedDescription ?? "Something went wrong!", state: self.stateDataSource) {
+                    self.startLoad()
+                    self.catalogModel?.fetchGenderData()
+                }
+                return
+            }
+            self.dataSource = data
+            self.catalogModel?.updateModelGender()
         }
     }
 }
