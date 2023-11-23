@@ -157,7 +157,6 @@ extension CartViewController: UITableViewDelegate, UITableViewDataSource {
         productVC.productModel = product
         self.navigationController?.pushViewController(productVC, animated: true)
     }
-    
 }
 
 extension CartViewController: CartViewControllerDelegate {

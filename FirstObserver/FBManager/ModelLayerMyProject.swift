@@ -323,7 +323,6 @@ final class FirebaseService {
         handle = Auth.auth().addStateDidChangeListener { (auth, user) in
             currentUser(user)
         }
-
     }
     
     func removeStateDidChangeListener() {
@@ -345,7 +344,7 @@ final class FirebaseService {
             if let error = error, let state = state  {
                 
                     let userInfo: [String: Any] = ["error": error, "enumValue": state]
-                    NotificationCenter.default.post(name: NSNotification.Name("ErrorObserveUserAndCardProductsNotification"), object: nil, userInfo: userInfo)
+                    NotificationCenter.default.post(name: NSNotification.Name("FailedFetchPersonalDataNotification"), object: nil, userInfo: userInfo)
             } else {
                 self.fetchCartProducts()
             }
@@ -410,14 +409,14 @@ final class FirebaseService {
         fetchData { cartProducts, error, state in
             guard let error = error, let state = state else {
             
-                    NotificationCenter.default.post(name: NSNotification.Name("FetchFirstDataNotification"), object: nil)
+                    NotificationCenter.default.post(name: NSNotification.Name("SuccessfulFetchPersonalDataNotification"), object: nil)
                 self.currentCartProducts = cartProducts
                 return
             }
         
             guard let _ = self.currentCartProducts else {
                 let userInfo: [String: Any] = ["error": error, "enumValue": state]
-                NotificationCenter.default.post(name: NSNotification.Name("ErrorObserveUserAndCardProductsNotification"), object: nil, userInfo: userInfo)
+                NotificationCenter.default.post(name: NSNotification.Name("FailedFetchPersonalDataNotification"), object: nil, userInfo: userInfo)
                 return
             }
         }
@@ -561,15 +560,17 @@ class AbstractHomeViewController: PlaceholderNavigationController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         switchGender()
-        NotificationCenter.default.addObserver(self, selector: #selector(handleErrorObserveUserAndCardProductsNotification(_:)), name: NSNotification.Name("ErrorObserveUserAndCardProductsNotification"), object: nil)
+        /// можно переместить его во viewDidLoad
+        NotificationCenter.default.addObserver(self, selector: #selector(handleFailedFetchPersonalDataNotification(_:)), name: NSNotification.Name("FailedFetchPersonalDataNotification"), object: nil)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("ErrorObserveUserAndCardProductsNotification"), object: nil)
+        /// можно переместить его в updateData
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("FailedFetchPersonalDataNotification"), object: nil)
     }
     
-    @objc func handleErrorObserveUserAndCardProductsNotification(_ notification: NSNotification) {
+    @objc func handleFailedFetchPersonalDataNotification(_ notification: NSNotification) {
         
         stopLoad()
         if let userInfo = notification.userInfo,
@@ -755,7 +756,7 @@ class HomeFirebaseService {
     init(output: HomeModelOutput) {
         self.output = output
         gender = serviceFB.currentGender
-        NotificationCenter.default.addObserver(self, selector: #selector(handleFetchFirstDataNotification), name: NSNotification.Name("FetchFirstDataNotification"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleSuccessfulFetchPersonalDataNotification), name: NSNotification.Name("SuccessfulFetchPersonalDataNotification"), object: nil)
     }
     
     // help methods
@@ -825,8 +826,8 @@ extension HomeFirebaseService: HomeModelInput {
         }
     }
     
-    @objc func handleFetchFirstDataNotification(_ notification: NSNotification) {
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("FetchFirstDataNotification"), object: nil)
+    @objc func handleSuccessfulFetchPersonalDataNotification(_ notification: NSNotification) {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("SuccessfulFetchPersonalDataNotification"), object: nil)
         firstFetchData()
     }
     
@@ -1428,6 +1429,8 @@ extension CatalogFirebaseService: CatalogModelInput {
 // Протокол для модели данных
 protocol CartModelInput: AnyObject {
     func fetchCartProducts()
+    func observeUserAndCardProducts()
+    func restartFetchCartProducts()
 }
 
 
@@ -1448,7 +1451,8 @@ class AbstractCartViewController: PlaceholderNavigationController {
 //            self?.tableView.reloadData()
         }
     }
-    private var isAnonymouslyUser = false
+    private var isAnonymouslyUser = true
+    private var isNotificationCenterFaster = false
 
     
     // нужно попробывать startSpiner как на placeholder так и на view
@@ -1463,27 +1467,84 @@ class AbstractCartViewController: PlaceholderNavigationController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        fetchCartProducts()
     }
     
-//    private func updateData() {
-//        cartModel?.userIsAnonymously{ isAnonymously in
-//            guard let isAnonymously = isAnonymously else {
-//                self.isAnonymouslyUser = false
-//                self.dataSource = []
-//                return
-//            }
-//            self.isAnonymouslyUser = isAnonymously
-//            self.cartModel?.fetchDataSource{ cartProducts in
-//                guard let cartProducts = cartProducts else {
-//                    self.dataSource = []
-//                    return
-//                }
-//                self.dataSource = cartProducts
-//            }
-//        }
-//    }
+    func fetchCartProducts() {
+        removeObservers()
+        cartModel?.fetchCartProducts()
+    }
     
+    func startSpiner() {
+        navController?.startSpinner()
+    }
+    
+    func stopSpiner() {
+        navController?.stopSpinner()
+    }
+    
+    func disableControls() {
+        // Отключите все элементы управления
+        // Например, если у вас есть кнопка:
+        // myButton.isEnabled = false
+    }
+
+    func enableControls() {
+        // Включите все элементы управления
+        // Например, если у вас есть кнопка:
+        // myButton.isEnabled = true
+    }
+    
+    private func startLoad() {
+        //
+        if !isNotificationCenterFaster {
+            startSpiner()
+            disableControls()
+            //        homeModel?.startTimer()
+        }
+    }
+    
+    private func stopLoad() {
+        /// тут можно проверять isActive у спинера и если нет то isNotificationCenterFaster = true
+        isNotificationCenterFaster = true
+        stopSpiner()
+        enableControls()
+//        homeModel?.stopTimer()
+    }
+    
+    private func addObservers() {
+        NotificationCenter.default.addObserver(self, selector: #selector(handleSuccessfulFetchPersonalDataNotification), name: NSNotification.Name("SuccessfulFetchPersonalDataNotification"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleFailedFetchPersonalDataNotification(_:)), name: NSNotification.Name("FailedFetchPersonalDataNotification"), object: nil)
+    }
+    
+    private func removeObservers() {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("SuccessfulFetchPersonalDataNotification"), object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("FailedFetchPersonalDataNotification"), object: nil)
+    }
+    
+    @objc func handleSuccessfulFetchPersonalDataNotification(_ notification: NSNotification) {
+        stopLoad()
+        fetchCartProducts()
+    }
+
+    @objc func handleFailedFetchPersonalDataNotification(_ notification: NSNotification) {
+        stopLoad()
+//        removeObservers()
+        if let userInfo = notification.userInfo,
+           let error = userInfo["error"] as? NSError,
+           let enumValue = userInfo["enumValue"] as? ListenerErrorState {
+            showErrorAlert(message: error.localizedDescription, state: .firstDataUpdate) {
+                self.startLoad()
+                switch enumValue {
+
+                case .restartFetchCartProducts:
+                    self.cartModel?.restartFetchCartProducts()
+                case .restartObserveUser:
+                    self.cartModel?.observeUserAndCardProducts()
+                }
+            }
+        }
+    }
 }
 
 extension AbstractCartViewController: CartModelOutput {
@@ -1495,6 +1556,24 @@ extension AbstractCartViewController: CartModelOutput {
             return
         }
         dataSource = data
+    }
+}
+extension AbstractCartViewController: CartViewControllerDelegate {
+    
+    func didTaplogInButton() {
+        addObservers()
+    }
+    
+    func didTapCatalogButton() {
+//        tabBarController?.selectedIndex = 1
+    }
+    
+}
+
+extension AbstractCartViewController: SignInViewControllerDelegate {
+    /// если мы dissmiss modalViewControllr из кода то не срабатывает viewWillAppear
+    func userIsPermanent() {
+        startLoad()
     }
 }
 
@@ -1515,20 +1594,18 @@ extension CartFirebaseService: CartModelInput {
     
     func fetchCartProducts() {
         serviceFB.userIsAnonymously { isAnonymously in
-            /// if isAnonymously = nil -> AllertError!?
+            /// if isAnonymously = nil -> AllertError ->  Auth! ?
             self.output?.updateData(data: self.serviceFB.currentCartProducts, isAnonymously: isAnonymously ?? false)
         }
     }
     
+    func observeUserAndCardProducts() {
+        serviceFB.removeStateDidChangeListener()
+        serviceFB.observeUserAndCardProducts()
+    }
     
-//    func userIsAnonymously(completion: @escaping (Bool?) -> Void) {
-//        serviceFB.userIsAnonymously { isAnonymously in
-//            completion(isAnonymously)
-//        }
-//    }
-//
-//    func fetchDataSource(completion: @escaping ([ProductItemNew]?) -> Void) {
-//        completion(serviceFB.currentCartProducts)
-//    }
+    func restartFetchCartProducts() {
+        serviceFB.fetchCartProducts()
+    }
     
 }
