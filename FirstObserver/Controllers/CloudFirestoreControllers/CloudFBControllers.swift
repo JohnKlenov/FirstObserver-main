@@ -37,7 +37,7 @@ class HomeVC: PlaceholderNavigationController {
         didSet {
             if model.count == 3 {
                 if isBlockingFirstLoading, isBlockingSwitchGenderLoading, isBlockingModel {
-                    navController?.stopSpinner()
+                    navController?.stopSpinnerForWindow()
 //                    activityView.stopAnimating()
 //                    activityView.removeFromSuperview()
                     reloadData()
@@ -72,7 +72,7 @@ class HomeVC: PlaceholderNavigationController {
                     // Обработка случая отсутствия элементов со значением false
                     tabBarController?.view.isUserInteractionEnabled = true
                     // возможно для остановки stopSpinnerForPlaceholder() можно использовать navController?.stopSpinner() а startSpiner должен быть для каждого свой
-                    navController?.stopSpinner()
+                    navController?.stopSpinnerForWindow()
                     isBlockingFirstLoading = true
                     isBlockingModel = true
                     firstLoadingStatus = [:]
@@ -80,7 +80,7 @@ class HomeVC: PlaceholderNavigationController {
                 } else {
                     isBlockingFirstLoading = true
                     isBlockingModel = false
-                    navController?.stopSpinner()
+                    navController?.stopSpinnerForWindow()
                     navController?.showPlaceholder()
                     self.setupAlertReloadFirstData(forData: filteredDictionary)
                 }
@@ -100,7 +100,7 @@ class HomeVC: PlaceholderNavigationController {
                 if filteredDictionary.isEmpty {
 //                    activityView.stopAnimating()
 //                    activityView.removeFromSuperview()
-                    navController?.stopSpinner()
+                    navController?.stopSpinnerForWindow()
                     isBlockingSwitchGenderLoading = true
                     isBlockingModel = true
                     switchLoadingStatus = [:]
@@ -110,7 +110,7 @@ class HomeVC: PlaceholderNavigationController {
                     isBlockingModel = false
 //                    activityView.stopAnimating()
 //                    activityView.removeFromSuperview()
-                    navController?.stopSpinner()
+                    navController?.stopSpinnerForWindow()
                     self.setupAlertReloadSwitchData(forData: filteredDictionary)
                 }
             }
@@ -143,7 +143,7 @@ class HomeVC: PlaceholderNavigationController {
         
         tabBarController?.view.isUserInteractionEnabled = false
         startFirstTimer()
-        navController?.startSpinner()
+        navController?.startSpinnerForWindow()
 //        configureActivityView()
         
         let gender = defaults.string(forKey: "gender") ?? "Woman"
@@ -380,7 +380,7 @@ class HomeVC: PlaceholderNavigationController {
         let gender = defaults.string(forKey: "gender") ?? "Woman"
         if currentGender != gender {
 //            configureActivityView()
-            navController?.startSpinner()
+            navController?.startSpinnerForWindow()
             startSwitchGenderTimer()
             cloudFB.removeListenerFetchPreviewMalls()
             cloudFB.removeListenerFetchPreviewShops()
@@ -398,7 +398,7 @@ class HomeVC: PlaceholderNavigationController {
     func emergencyReloadData() {
         let gender = defaults.string(forKey: "gender") ?? "Woman"
 //        configureActivityView()
-        navController?.startSpinner()
+        navController?.startSpinnerForWindow()
         startSwitchGenderTimer()
         cloudFB.removeListenerFetchPreviewMalls()
         cloudFB.removeListenerFetchPreviewShops()
@@ -509,7 +509,7 @@ class HomeVC: PlaceholderNavigationController {
     func reloadingSwitchData(forData: [String : Bool]) {
         isBlockingSwitchGenderLoading = false
 //        configureActivityView()
-        navController?.startSpinner()
+        navController?.startSpinnerForWindow()
         startSwitchGenderTimer()
         
         deleteStatusDataSwitch(forData: forData) {
@@ -710,7 +710,7 @@ class MallsVC: PlaceholderNavigationController {
     var mallsModel: [PreviewSection] = [] {
         didSet {
             isFirstGetData = false
-            navController?.stopSpinner()
+            navController?.stopSpinnerForWindow()
             navController?.hiddenPlaceholder()
             emergencyCurrentGender = nil
 //            collectionView.reloadData()
@@ -755,7 +755,7 @@ class MallsVC: PlaceholderNavigationController {
         startTimer()
         navController?.checkIfPlaceholderIsHidden(completion: { isHidden in
             if isHidden {
-                navController?.startSpinner()
+                navController?.startSpinnerForWindow()
             } else {
                 navController?.startSpinnerForPlaceholder()
             }
@@ -775,7 +775,7 @@ class MallsVC: PlaceholderNavigationController {
             } else {
                 self.timer?.invalidate()
                 self.cloudFB.removeListenerFetchPreviewMalls()
-                self.navController?.stopSpinner()
+                self.navController?.stopSpinnerForWindow()
                 if self.isFirstGetData {
                     self.navController?.showPlaceholder()
                 }
@@ -788,7 +788,7 @@ class MallsVC: PlaceholderNavigationController {
         
         timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
             self.cloudFB.removeListenerFetchPreviewMalls()
-            self.navController?.stopSpinner()
+            self.navController?.stopSpinnerForWindow()
             if self.isFirstGetData {
                 self.navController?.showPlaceholder()
             }
@@ -915,7 +915,7 @@ class MallVC: PlaceholderNavigationController  {
     
     var mallModel: [SectionModelHVC] = [] {
         didSet {
-            navController?.stopSpinner()
+            navController?.stopSpinnerForWindow()
             navController?.hiddenPlaceholder()
 //            reloadData()
         }
@@ -938,7 +938,7 @@ class MallVC: PlaceholderNavigationController  {
         startTimer()
         navController?.checkIfPlaceholderIsHidden(completion: { isHidden in
             if isHidden {
-                navController?.startSpinner()
+                navController?.startSpinnerForWindow()
             } else {
                 navController?.startSpinnerForPlaceholder()
             }
@@ -953,7 +953,7 @@ class MallVC: PlaceholderNavigationController  {
             } else {
                 self.cloudFB.removeListenerFetchMall()
                 self.timer?.invalidate()
-                self.navController?.stopSpinner()
+                self.navController?.stopSpinnerForWindow()
                 self.navController?.showPlaceholder()
                 // configure viewStub maby ceate method into superClass
                 self.setupAlertReloadData()
@@ -965,7 +965,7 @@ class MallVC: PlaceholderNavigationController  {
         
         timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
             self.cloudFB.removeListenerFetchMall()
-            self.navController?.stopSpinner()
+            self.navController?.stopSpinnerForWindow()
             self.setupAlertReloadData()
         }
     }
@@ -1069,7 +1069,7 @@ class ShopProdutctsVC: PlaceholderNavigationController {
     var currentGender = ""
     var modelShopProducts: [ProductItem] = [] {
         didSet {
-            navController?.stopSpinner()
+            navController?.stopSpinnerForWindow()
             navController?.hiddenPlaceholder()
             //            collectionView.reloadData()
         }
@@ -1096,7 +1096,7 @@ class ShopProdutctsVC: PlaceholderNavigationController {
         startTimer()
         navController?.checkIfPlaceholderIsHidden(completion: { isHidden in
             if isHidden {
-                navController?.startSpinner()
+                navController?.startSpinnerForWindow()
             } else {
                 navController?.startSpinnerForPlaceholder()
             }
@@ -1110,7 +1110,7 @@ class ShopProdutctsVC: PlaceholderNavigationController {
             } else {
                 self.cloudFB.removeListenerFetchShopProducts()
                 self.timer?.invalidate()
-                self.navController?.stopSpinner()
+                self.navController?.stopSpinnerForWindow()
                 self.navController?.showPlaceholder()
                 self.setupAlertReloadData()
             }
@@ -1121,7 +1121,7 @@ class ShopProdutctsVC: PlaceholderNavigationController {
         
         timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
             self.cloudFB.removeListenerFetchShopProducts()
-            self.navController?.stopSpinner()
+            self.navController?.stopSpinnerForWindow()
             self.setupAlertReloadData()
         }
     }
@@ -1352,7 +1352,7 @@ class CatalogVC: PlaceholderNavigationController {
                 selectedCategory = modelCatalog.categorys[indexCategoryCollectionView]
             }
             isFirstGetData = false
-            navController?.stopSpinner()
+            navController?.stopSpinnerForWindow()
             navController?.hiddenPlaceholder()
             emergencyCurrentGender = nil
 //            categorysCollectionView.reloadData()
@@ -1403,7 +1403,7 @@ class CatalogVC: PlaceholderNavigationController {
         startTimer()
         navController?.checkIfPlaceholderIsHidden(completion: { isHidden in
             if isHidden {
-                navController?.startSpinner()
+                navController?.startSpinnerForWindow()
             } else {
                 navController?.startSpinnerForPlaceholder()
             }
@@ -1417,7 +1417,7 @@ class CatalogVC: PlaceholderNavigationController {
             } else {
                 self.timer?.invalidate()
                 self.cloudFB.removeListenerFetchProducts()
-                self.navController?.stopSpinner()
+                self.navController?.stopSpinnerForWindow()
                 if self.isFirstGetData {
                     self.navController?.showPlaceholder()
                 }
@@ -1446,7 +1446,7 @@ class CatalogVC: PlaceholderNavigationController {
         
         timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
             self.cloudFB.removeListenerFetchProducts()
-            self.navController?.stopSpinner()
+            self.navController?.stopSpinnerForWindow()
             if self.isFirstGetData {
                 self.navController?.showPlaceholder()
             }
@@ -1663,7 +1663,7 @@ class CartVC: UIViewController {
         timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
             
             self.cloudFB.removeListenerFetchCartProductsOnce()
-            self.navController?.stopSpinner()
+            self.navController?.stopSpinnerForWindow()
             if self.isUpdateCartProducts {
                 self.navController?.showPlaceholder()
             }
@@ -1697,7 +1697,7 @@ class CartVC: UIViewController {
         startTimer()
         navController?.checkIfPlaceholderIsHidden(completion: { isHidden in
             if isHidden {
-                navController?.startSpinner()
+                navController?.startSpinnerForWindow()
             } else {
                 navController?.startSpinnerForPlaceholder()
             }
@@ -1709,7 +1709,7 @@ class CartVC: UIViewController {
                     self.cartProducts = cartProducts
                 // так как при вызове  func userIsPermanent() мы не можем быть Anonymously
                     self.isAnonymouslyUser = false
-                    self.navController?.stopSpinner()
+                    self.navController?.stopSpinnerForWindow()
                     self.cloudFB.removeListenerFetchCartProductsOnce()
                     self.navController?.hiddenPlaceholder()
                     self.isUpdateCartProducts = false
@@ -1718,7 +1718,7 @@ class CartVC: UIViewController {
             } else {
                 self.timer?.invalidate()
                 self.cloudFB.removeListenerFetchCartProductsOnce()
-                self.navController?.stopSpinner()
+                self.navController?.stopSpinnerForWindow()
                 if self.isUpdateCartProducts {
                     self.navController?.showPlaceholder()
                 }
@@ -1926,10 +1926,12 @@ class PlaceholderNavigationController: UINavigationController {
     
     // MARK: ActivityIndicatorView -
     
+    // placeholder
+    
     private func setupSpinnerForPlaceholder() {
-        
+
         if let placeholderView = placeholderView {
-            
+
             placeholderView.addSubview(activityView)
             activityView.centerXAnchor.constraint(equalTo: placeholderView.centerXAnchor).isActive = true
             activityView.centerYAnchor.constraint(equalTo: placeholderView.centerYAnchor).isActive = true
@@ -1937,19 +1939,45 @@ class PlaceholderNavigationController: UINavigationController {
             activityView.widthAnchor.constraint(equalTo: placeholderView.widthAnchor, multiplier: 1/4).isActive = true
         }
     }
-    
+
     func startSpinnerForPlaceholder() {
         setupSpinnerForPlaceholder()
         activityView.startAnimating()
     }
-    
+
     // возможно stopSpinner() можно использовать вместо stopSpinnerForPlaceholder()
     func stopSpinnerForPlaceholder() {
         activityView.stopAnimating()
         activityView.removeFromSuperview()
     }
     
+    
+    // view
+    
     private func setupSpinnerForView() {
+        
+        if let view = topViewController?.view {
+            view.addSubview(activityView)
+            activityView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+            activityView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+            activityView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
+            activityView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
+        }
+    }
+    
+    func startSpinnerForView() {
+        setupSpinnerForWindow()
+        activityView.startAnimating()
+    }
+    
+    func stopSpinnerForView() {
+        activityView.stopAnimating()
+        activityView.removeFromSuperview()
+    }
+    
+    // window
+    
+    private func setupSpinnerForWindow() {
         
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first {
@@ -1959,24 +1987,22 @@ class PlaceholderNavigationController: UINavigationController {
             activityView.heightAnchor.constraint(equalTo: window.widthAnchor, multiplier: 1/4).isActive = true
             activityView.widthAnchor.constraint(equalTo: window.widthAnchor, multiplier: 1/4).isActive = true
         }
-//        if let view = topViewController?.view {
-//            print("topViewController?.view")
-//            view.addSubview(activityView)
-//            activityView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-//            activityView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-//            activityView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
-//            activityView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/4).isActive = true
-//        }
     }
-    ///  можем перенести на UIViewController extension
-    func startSpinner() {
-        setupSpinnerForView()
+
+    func startSpinnerForWindow() {
+        setupSpinnerForWindow()
         activityView.startAnimating()
     }
     
-    func stopSpinner() {
+    func stopSpinnerForWindow() {
         activityView.stopAnimating()
         activityView.removeFromSuperview()
+    }
+    
+    func isAnimatingSpiner(completion: @escaping (Bool) -> Void) {
+        activityView.isAnimating { isAnimating in
+            completion(isAnimating)
+        }
     }
     
 }

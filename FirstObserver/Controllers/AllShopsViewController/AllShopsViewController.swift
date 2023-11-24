@@ -11,7 +11,7 @@ class AllShopsViewController: UIViewController {
     
     var shopsModel: [SectionHVC] = [] {
         didSet {
-            navController?.stopSpinner()
+            navController?.stopSpinnerForWindow()
             tableView.reloadData()
             startTimerPlaceholder()
         }
@@ -37,7 +37,7 @@ class AllShopsViewController: UIViewController {
         view.backgroundColor = R.Colors.systemBackground
         setupTableView()
         setupConstraints()
-        navController?.startSpinner()
+        navController?.startSpinnerForWindow()
         startTimerView()
     }
     

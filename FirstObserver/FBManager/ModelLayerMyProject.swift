@@ -627,11 +627,11 @@ class AbstractHomeViewController: PlaceholderNavigationController {
     
     
     func startSpiner() {
-        navController?.startSpinner()
+        navController?.startSpinnerForWindow()
     }
     
     func stopSpiner() {
-        navController?.stopSpinner()
+        navController?.stopSpinnerForWindow()
     }
     
     func disableControls() {
@@ -1274,11 +1274,11 @@ class AbstractCatalogViewController: PlaceholderNavigationController {
     }
     
     func startSpiner() {
-        navController?.startSpinner()
+        navController?.startSpinnerForWindow()
     }
     
     func stopSpiner() {
-        navController?.stopSpinner()
+        navController?.stopSpinnerForWindow()
     }
     
     func disableControls() {
@@ -1422,7 +1422,6 @@ extension CatalogFirebaseService: CatalogModelInput {
 }
 
 
-
 // MARK: - CartVC
 
 
@@ -1452,7 +1451,7 @@ class AbstractCartViewController: PlaceholderNavigationController {
         }
     }
     private var isAnonymouslyUser = true
-    private var isNotificationCenterFaster = false
+
 
     
     // нужно попробывать startSpiner как на placeholder так и на view
@@ -1471,16 +1470,17 @@ class AbstractCartViewController: PlaceholderNavigationController {
     }
     
     func fetchCartProducts() {
+        stopLoad()
         removeObservers()
         cartModel?.fetchCartProducts()
     }
     
     func startSpiner() {
-        navController?.startSpinner()
+        navController?.startSpinnerForView()
     }
     
     func stopSpiner() {
-        navController?.stopSpinner()
+        navController?.stopSpinnerForView()
     }
     
     func disableControls() {
@@ -1495,21 +1495,15 @@ class AbstractCartViewController: PlaceholderNavigationController {
         // myButton.isEnabled = true
     }
     
+    
     private func startLoad() {
-        //
-        if !isNotificationCenterFaster {
-            startSpiner()
-            disableControls()
-            //        homeModel?.startTimer()
-        }
+        startSpiner()
+        disableControls()
     }
     
     private func stopLoad() {
-        /// тут можно проверять isActive у спинера и если нет то isNotificationCenterFaster = true
-        isNotificationCenterFaster = true
-        stopSpiner()
-        enableControls()
-//        homeModel?.stopTimer()
+        self.stopSpiner()
+        self.enableControls()
     }
     
     private func addObservers() {
@@ -1523,17 +1517,16 @@ class AbstractCartViewController: PlaceholderNavigationController {
     }
     
     @objc func handleSuccessfulFetchPersonalDataNotification(_ notification: NSNotification) {
-        stopLoad()
         fetchCartProducts()
     }
 
     @objc func handleFailedFetchPersonalDataNotification(_ notification: NSNotification) {
-        stopLoad()
-//        removeObservers()
+        fetchCartProducts()
         if let userInfo = notification.userInfo,
            let error = userInfo["error"] as? NSError,
            let enumValue = userInfo["enumValue"] as? ListenerErrorState {
             showErrorAlert(message: error.localizedDescription, state: .firstDataUpdate) {
+                self.addObservers()
                 self.startLoad()
                 switch enumValue {
 
@@ -1562,6 +1555,9 @@ extension AbstractCartViewController: CartViewControllerDelegate {
     
     func didTaplogInButton() {
         addObservers()
+        present(UIViewController(), animated: true) {
+            self.startLoad()
+        }
     }
     
     func didTapCatalogButton() {
@@ -1571,9 +1567,9 @@ extension AbstractCartViewController: CartViewControllerDelegate {
 }
 
 extension AbstractCartViewController: SignInViewControllerDelegate {
-    /// если мы dissmiss modalViewControllr из кода то не срабатывает viewWillAppear
+    /// нужен ли нам этот делегат теперь???
     func userIsPermanent() {
-        startLoad()
+        
     }
 }
 

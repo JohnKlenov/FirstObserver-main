@@ -43,7 +43,7 @@ class NewHomeViewController: UIViewController {
 //                activityView.removeFromSuperview()
                 
                 
-                navController?.stopSpinner()
+                navController?.stopSpinnerForWindow()
                 tabBarController?.view.isUserInteractionEnabled = true
                 reloadData()
             }
@@ -154,7 +154,7 @@ class NewHomeViewController: UIViewController {
         view.backgroundColor = R.Colors.systemBackground
         tabBarController?.view.isUserInteractionEnabled = false
 //        configureActivityView()
-        navController?.startSpinner()
+        navController?.startSpinnerForWindow()
         setupCollectionView()
         setupConstraints()
         createDataSource()
@@ -244,7 +244,7 @@ class NewHomeViewController: UIViewController {
         let gender = defaults.string(forKey: "gender") ?? "Woman"
         if currentGender != gender {
 //            configureActivityView()
-            navController?.startSpinner()
+            navController?.startSpinnerForWindow()
             managerFB.removeObserverPreviewMallsGenderHVC(path: currentGender)
             managerFB.removeObserverPopularProductGender(path: currentGender)
             managerFB.removeObserverPreviewBrandsGenderHVC(path: currentGender)
